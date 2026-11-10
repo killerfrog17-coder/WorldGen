@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class TerrainMaterialBinding
     {
         public Texture Coverage,Times,Flora,Mid,Forest,Floor;public Vector4 Fade;
-        public float Size,Safety;public bool Initialized;
+        public float Size,Safety;public bool Initialized,Transitions;
     }
     const int TerrainSceneVectors=19;
     readonly Vector4[] terrainSceneData=new Vector4[TerrainSceneVectors],terrainSceneLast=new Vector4[TerrainSceneVectors];
@@ -44,15 +44,16 @@ public sealed partial class LocalTerrainExplorer
     {
         EnsureTerrainMaterials(owner);var b=owner.MaterialBinding;
         float size=(float)key.SizeM,safety=view==null?0:(float)Math.Max(12,TerrainLod.BaseSizeM*HorizontalScale/64*3);
-        if(b.Initialized&&ReferenceEquals(b.Coverage,source.Coverage)&&ReferenceEquals(b.Times,source.CoverageTimes)&&ReferenceEquals(b.Flora,source.FloraSurface)&&ReferenceEquals(b.Mid,source.MidSurface)&&ReferenceEquals(b.Forest,source.ForestSurface)&&ReferenceEquals(b.Floor,source.ForestFloor)&&b.Fade.Equals(fade)&&b.Size==size&&b.Safety==safety)return;
+        bool transitions=!TerrainVideoOptions.HardChunkUpdates;
+        if(b.Initialized&&b.Transitions==transitions&&ReferenceEquals(b.Coverage,source.Coverage)&&ReferenceEquals(b.Times,source.CoverageTimes)&&ReferenceEquals(b.Flora,source.FloraSurface)&&ReferenceEquals(b.Mid,source.MidSurface)&&ReferenceEquals(b.Forest,source.ForestSurface)&&ReferenceEquals(b.Floor,source.ForestFloor)&&b.Fade.Equals(fade)&&b.Size==size&&b.Safety==safety)return;
         foreach(var material in owner.Materials)
         {
             BindFloraSurface(material,source);
             material.SetFloat("_CoverageEnabled",source.CoverageNodes!=null&&source.CoverageNodes.Length>0?1:0);
             material.SetFloat("_CoverageTileSize",size);material.SetTexture("_TerrainCoverage",source.Coverage??Texture2D.blackTexture);material.SetTexture("_CoverageFadeTimes",source.CoverageTimes??Texture2D.blackTexture);
-            material.SetFloat("_TransitionEnabled",1);material.SetFloat("_LodSafetyRadius",safety);material.SetVector("_LodFade",fade);
+            material.SetFloat("_TransitionEnabled",transitions?1:0);material.SetFloat("_LodSafetyRadius",safety);material.SetVector("_LodFade",fade);
         }
-        b.Initialized=true;b.Coverage=source.Coverage;b.Times=source.CoverageTimes;b.Flora=source.FloraSurface;b.Mid=source.MidSurface;b.Forest=source.ForestSurface;b.Floor=source.ForestFloor;b.Fade=fade;b.Size=size;b.Safety=safety;TerrainMaterialBindingUpdates++;
+        b.Initialized=true;b.Transitions=transitions;b.Coverage=source.Coverage;b.Times=source.CoverageTimes;b.Flora=source.FloraSurface;b.Mid=source.MidSurface;b.Forest=source.ForestSurface;b.Floor=source.ForestFloor;b.Fade=fade;b.Size=size;b.Safety=safety;TerrainMaterialBindingUpdates++;
     }
     void PublishTerrainScene()
     {

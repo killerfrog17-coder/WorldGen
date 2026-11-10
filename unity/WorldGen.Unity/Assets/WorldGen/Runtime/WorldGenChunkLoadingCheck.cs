@@ -53,6 +53,7 @@ public sealed partial class LocalTerrainExplorer
             "Shared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.",
             "Preparation ms: "+preparationMs.ToString("F3"),"Detail: "+detailOptions.Quality+"; effort: "+detailOptions.Effort+"; view: "+viewDistance,
             "Legacy scheduler: "+Environment.GetCommandLineArgs().Contains("--worldgen-loader-legacy"),
+            "Hard chunk updates: "+TerrainVideoOptions.HardChunkUpdates,
             "Frame p99/max ms: "+Percentile(.99).ToString("F3")+" / "+Percentile(1).ToString("F3"),
             "Frames >50ms / >100ms: "+frames.Count(f=>f>50)+" / "+frames.Count(f=>f>100),EndLoadingProfile(),Diagnostics,PerformanceForestState};
         report.AddRange(milestones.Select(p=>p.Key+" seconds: "+p.Value.ToString("F3")));
@@ -156,7 +157,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     foreach(var tile in tiles.Values.Concat(previousTerrain.Values))foreach(var material in tile.Materials)material.SetFloat("_TransitionEnabled",0);
                     Capture(Path.Combine(output,"flight-no-transitions-"+(audits-1)+".png"));
-                    foreach(var tile in tiles.Values.Concat(previousTerrain.Values))foreach(var material in tile.Materials)material.SetFloat("_TransitionEnabled",1);
+                    foreach(var tile in tiles.Values.Concat(previousTerrain.Values))foreach(var material in tile.Materials)material.SetFloat("_TransitionEnabled",TerrainVideoOptions.HardChunkUpdates?0:1);
                     var flags=TerrainDiagnostics.Flags;TerrainDiagnostics.Flags|=TerrainDiagnosticFlags.NoCoverage;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();
                     Capture(Path.Combine(output,"flight-no-coverage-"+(audits-1)+".png"));
                     TerrainDiagnostics.Flags=flags;TerrainDiagnostics.Changed();ApplyTerrainDiagnostics();

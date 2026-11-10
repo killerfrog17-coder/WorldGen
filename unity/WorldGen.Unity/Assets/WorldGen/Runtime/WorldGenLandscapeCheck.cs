@@ -350,6 +350,7 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Contains("--worldgen-chunk-fast-flight"))reviewRange=Math.Max(6000,reviewRange);
         int effortOption=Array.IndexOf(arguments,"--worldgen-chunk-effort");
         if(arguments.Contains("--worldgen-chunk-loading-check")&&effortOption>=0)TerrainVideoOptions.Current.Effort=Math.Max(0,Math.Min(3,int.Parse(arguments[effortOption+1])));
+        if(arguments.Contains("--worldgen-chunk-loading-check"))TerrainVideoOptions.HardChunkUpdates=arguments.Contains("--worldgen-chunk-hard-updates");
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;

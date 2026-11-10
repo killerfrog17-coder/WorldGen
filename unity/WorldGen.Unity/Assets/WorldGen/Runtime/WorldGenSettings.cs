@@ -8,6 +8,9 @@ public static partial class TerrainVideoOptions
     public static int Revision;
     public static int SurfaceQuality=2;
     public static bool LoadingFog=true;
+    public static bool HardChunkUpdates;
+    public static void SaveChunkTransitions()
+    {PlayerPrefs.SetInt("terrain-hard-chunk-updates",HardChunkUpdates?1:0);PlayerPrefs.Save();}
     public static float LoadingFogSeconds=3;
     public static void SaveLoadingFog()
     {
@@ -49,6 +52,7 @@ public static partial class TerrainVideoOptions
     public static void Load()
     {
         HumanAnimationOptions.Load();
+        HardChunkUpdates=PlayerPrefs.GetInt("terrain-hard-chunk-updates",0)!=0;
         LoadingFog=PlayerPrefs.GetInt("terrain-loading-fog",1)!=0;LoadingFogSeconds=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-loading-fog-seconds",3),.5f,10);
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
         Current.Effort=Mathf.Clamp(PlayerPrefs.GetInt("terrain-effort",1),0,3);
@@ -144,6 +148,9 @@ public sealed partial class WorldGenRuntime
         GUILayout.Label("Fog transition  "+TerrainVideoOptions.LoadingFogSeconds.ToString("0.0")+" s");
         TerrainVideoOptions.LoadingFogSeconds=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.LoadingFogSeconds,.5f,10)*2)/2;
         if(GUI.changed)TerrainVideoOptions.SaveLoadingFog();GUI.changed|=previousFogChanged;
+        bool oldTransitionChanged=GUI.changed;GUI.changed=false;
+        TerrainVideoOptions.HardChunkUpdates=GUILayout.Toggle(TerrainVideoOptions.HardChunkUpdates,"Hard chunk updates");
+        if(GUI.changed)TerrainVideoOptions.SaveChunkTransitions();GUI.changed|=oldTransitionChanged;
         bool beforeSurfaceChanged=GUI.changed;GUI.changed=false;
         GUILayout.Space(12);GUILayout.Label("GROUND SURFACE",SectionStyle());
         bool textures=GUILayout.Toggle(TerrainVideoOptions.SurfaceTextures,"Ground textures (lighting and shadows stay on when disabled)");

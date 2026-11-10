@@ -9,15 +9,16 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<TerrainTileKey,Tile> previousTerrain=new Dictionary<TerrainTileKey,Tile>();
     readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>> transitionSnapshot=new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>>();
     float TransitionNow=>Math.Max(.001f,Time.time);
-    bool FadeComplete(Tile tile)=>tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
+    bool terrainHardUpdates;
+    bool FadeComplete(Tile tile)=>TerrainVideoOptions.HardChunkUpdates||tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
     void BeginTerrainReplacement(TerrainTileKey key,Tile next,Tile old)
     {
         if(previousTerrain.TryGetValue(key,out var earlier)){CacheTerrain(key,earlier);previousTerrain.Remove(key);}
-        if(old!=null){old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}
+        if(old!=null){if(TerrainVideoOptions.HardChunkUpdates)CacheTerrain(key,old);else{old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}}
         bool parent=false;
         for(int depth=1;depth<24-key.Level;depth++)if(tiles.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale))){parent=true;break;}
         bool finer=tiles.Keys.Any(k=>k.Level<key.Level&&Overlaps(key,k));
-        next.FadeIn=old!=null||parent&&!finer?TransitionNow:0;next.FadeOut=0;
+        next.FadeIn=!TerrainVideoOptions.HardChunkUpdates&&(old!=null||parent&&!finer)?TransitionNow:0;next.FadeOut=0;
         // No fade from missing ground/sky. Finer coverage supplies the fade-out
         // when coarsening, rather than making the whole coarse patch transparent.
         while(previousTerrain.Count>32)
@@ -30,6 +31,13 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateTerrainTransitions()
     {
+        if(terrainHardUpdates!=TerrainVideoOptions.HardChunkUpdates){terrainHardUpdates=TerrainVideoOptions.HardChunkUpdates;coverageDirty=true;}
+        if(terrainHardUpdates)
+        {
+            ClearTerrainTransitions();
+            foreach(var tile in tiles.Values)if(tile.FadeIn!=0||tile.FadeOut!=0){tile.FadeIn=tile.FadeOut=0;coverageDirty=true;}
+            return;
+        }
         transitionSnapshot.Clear();foreach(var pair in previousTerrain)transitionSnapshot.Add(pair);
         foreach(var pair in transitionSnapshot)
             if(!tiles.TryGetValue(pair.Key,out var current)||FadeComplete(current))
@@ -94,6 +102,7 @@ public sealed partial class LocalTerrainExplorer
         var tile=tiles[key];
         if(coarser)
         {
+            if(TerrainVideoOptions.HardChunkUpdates)return true;
             if(previousTerrain.TryGetValue(key,out var previous)){previousTerrain.Remove(key);CacheTerrain(key,previous);tile.FadeIn=0;}
             if(tile.FadeOut==0){tile.FadeIn=0;tile.FadeOut=TransitionNow;coverageDirty=true;}
             return Time.time-tile.FadeOut>=TerrainCoverage.FadeSeconds;

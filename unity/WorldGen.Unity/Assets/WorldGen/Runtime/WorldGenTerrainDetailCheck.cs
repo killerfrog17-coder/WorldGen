@@ -14,6 +14,7 @@ public sealed partial class WorldGenRuntime
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
         bool hadToggle=PlayerPrefs.HasKey("terrain-loading-fog"),hadSeconds=PlayerPrefs.HasKey("terrain-loading-fog-seconds");
         int oldToggle=PlayerPrefs.GetInt("terrain-loading-fog",1);float oldSeconds=PlayerPrefs.GetFloat("terrain-loading-fog-seconds",3);
+        bool hadHard=PlayerPrefs.HasKey("terrain-hard-chunk-updates");int oldHard=PlayerPrefs.GetInt("terrain-hard-chunk-updates",0);
         var errors=new List<string>();Application.LogCallback record=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=record;
         var checks=new List<string>();
         try
@@ -24,6 +25,11 @@ public sealed partial class WorldGenRuntime
             TerrainVideoOptions.LoadingFog=true;TerrainVideoOptions.LoadingFogSeconds=1;TerrainVideoOptions.Load();
             if(TerrainVideoOptions.LoadingFog||TerrainVideoOptions.LoadingFogSeconds!=5)throw new Exception("Fog settings failed persistence");
             checks.Add("PASS fog toggle and transition survive preference reload without rebuilding chunks");
+            revision=TerrainVideoOptions.Revision;TerrainVideoOptions.HardChunkUpdates=true;TerrainVideoOptions.SaveChunkTransitions();
+            if(TerrainVideoOptions.Revision!=revision)throw new Exception("Hard chunk updates invalidated chunk plans");
+            TerrainVideoOptions.HardChunkUpdates=false;TerrainVideoOptions.Load();
+            if(!TerrainVideoOptions.HardChunkUpdates)throw new Exception("Hard chunk updates failed persistence");
+            checks.Add("PASS hard chunk updates persist without invalidating the terrain plan");
             TerrainVideoOptions.LoadingFog=true;TerrainVideoOptions.LoadingFogSeconds=3;
             screen="Options";settingsCategory=2;settingsScroll=Vector2.zero;Application.targetFrameRate=60;
             yield return null;yield return null;yield return new WaitForEndOfFrame();
@@ -35,6 +41,7 @@ public sealed partial class WorldGenRuntime
         {
             if(hadToggle)PlayerPrefs.SetInt("terrain-loading-fog",oldToggle);else PlayerPrefs.DeleteKey("terrain-loading-fog");
             if(hadSeconds)PlayerPrefs.SetFloat("terrain-loading-fog-seconds",oldSeconds);else PlayerPrefs.DeleteKey("terrain-loading-fog-seconds");
+            if(hadHard)PlayerPrefs.SetInt("terrain-hard-chunk-updates",oldHard);else PlayerPrefs.DeleteKey("terrain-hard-chunk-updates");
             PlayerPrefs.Save();Application.logMessageReceived-=record;
         }
         File.WriteAllLines(Path.Combine(output,"complete.txt"),checks);Application.Quit(0);
