@@ -30429,5 +30429,666 @@
     },
     "floor_met": false
   },
-  "pending": "Second allocation pass removes inactive perception/plan/material checks, repeated known-person/age/bedding lookups, attachment-loop closures and camp decision sorting. Native exact old/new camp selector controls added; UNBUILT/unaccepted. No second-pass performance gain claimed."
+  "pending": "Current combat regression found stale herd-report overwrite of fresh cues; separate targeted Core fix/pure712 pending unchanged native rerun. Player blueprint/current-model checks remain. All four NPC gameplay suites pass.",
+  "single_camera_candidate": {
+    "source": "b5d27c4a",
+    "scope": "Corrected production-equivalent single exploration camera; controlled 100 real people, radius10m eye-height orbit, Medium1080p/6km, four30s modes, no model inference. Counts checked through actual SRP camera events. This is a new fixture, not a production FPS optimization attributable to disabling a previously-active gameplay camera.",
+    "windows": [
+      {
+        "Mode": "normal",
+        "Frames": 4063,
+        "MeanFrameMs": 7.384960103371896,
+        "P95FrameMs": 8.7686,
+        "P99FrameMs": 9.993,
+        "MaxFrameMs": 20.8008,
+        "MeanNpcMs": 2.6851507260644834,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 40,
+        "ExplorationRenders": 4062,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 481,
+        "EnabledSkinVertices": 1565375,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "render-only",
+        "Frames": 5298,
+        "MeanFrameMs": 5.662609494148734,
+        "P95FrameMs": 7.8503,
+        "P99FrameMs": 8.7756,
+        "MaxFrameMs": 21.6818,
+        "MeanNpcMs": 0.0852395809739523,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 3,
+        "ExplorationRenders": 5298,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 477,
+        "EnabledSkinVertices": 1522833,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "no-residents",
+        "Frames": 7261,
+        "MeanFrameMs": 4.131729334802371,
+        "P95FrameMs": 8.2236,
+        "P99FrameMs": 8.7492,
+        "MaxFrameMs": 17.1062,
+        "MeanNpcMs": 0.07410283707478267,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 3,
+        "ExplorationRenders": 7261,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 477,
+        "EnabledSkinVertices": 1522833,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      },
+      {
+        "Mode": "normal-repeat",
+        "Frames": 4084,
+        "MeanFrameMs": 7.3471396425073445,
+        "P95FrameMs": 8.6922,
+        "P99FrameMs": 9.6517,
+        "MaxFrameMs": 22.2576,
+        "MeanNpcMs": 2.6596863614103765,
+        "MeanLateNpcMs": 0,
+        "Gen0Collections": 1,
+        "UnfocusedFrames": 0,
+        "Over10Ms": 31,
+        "ExplorationRenders": 4084,
+        "UnexpectedCameraRenders": 0,
+        "Residents": 100,
+        "EnabledSkins": 479,
+        "EnabledSkinVertices": 1540116,
+        "ResidentForestReadyStart": true,
+        "ResidentForestReadyEnd": true,
+        "MaximumCameraErrorM": 0,
+        "MaximumCameraAngleError": 0,
+        "ViewDistanceM": 6000,
+        "Width": 1920,
+        "Height": 1080,
+        "TreeQuality": 2
+      }
+    ],
+    "selector_controls": "PASS 421 exact native selections versus previous stable ordering; construction=21, packing=63. Includes restored temporary incomplete-work and carry-poles fixtures; no material or schedule mutation retained.",
+    "native_checks": "PASS An admitted real simulated community exists\nPASS Actual local terrain and centre tiles are ready\nPASS Natural residents stream from world history, without a spawn command\nPASS Natural camp passes local ground validation and is loaded\nPASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp\nPASS Camp consists of real player-compatible objects/materials\nPASS Native camp validates with real terrain footing surveys\nPASS Occupied camp shelters retain every fitted roof/frame component\nPASS Actual surrounding scatter pages are resident before accepting camp environment captures\nPASS Physical NPCs retain named family identities and actual scheduled tasks\nPASS Broad local group tracking is bounded at 50km plus foraging catchment\nPASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders\nPASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates\nPASS Occupied shelter floor has a full-strength ground clearing mask\nPASS Packed compute shader removes grass inside the real camp floor and retains grass outside\nPASS Named camp objects and local memories survive actual player capture and serialization\nPASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects\nPASS Aggression preserves wounds and the actual victim's local memory\nPASS Unloading/revisiting a camp does not duplicate its objects\n",
+    "gc_analysis": {
+      "scope": "Native Mono pre-stop to post-restart intervals overlapping recorded slow frames; overlap is evidence, not proof of sole causation.",
+      "events": 54,
+      "complete_stop_resume_intervals": 9,
+      "unmatched_intervals": 0,
+      "windows": [
+        {
+          "mode": "normal",
+          "clock_bridge_uncertainty_ms": 0.08,
+          "mean_frame_ms": 7.384960103371896,
+          "p99_frame_ms": 9.993,
+          "worst_frames": [
+            {
+              "frame_ms": 20.8008,
+              "npc_ms": 4.4507,
+              "stop_resume_overlap_ms": 4.8618
+            },
+            {
+              "frame_ms": 13.3792,
+              "npc_ms": 3.2131,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.4404,
+              "npc_ms": 7.627,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.8104,
+              "npc_ms": 3.6895,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.7942,
+              "npc_ms": 3.8439,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.7845,
+              "npc_ms": 3.6388,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.4004,
+              "npc_ms": 4.9269,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.3183,
+              "npc_ms": 3.2694,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.1503,
+              "npc_ms": 5.7894,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.0777,
+              "npc_ms": 3.4276,
+              "stop_resume_overlap_ms": 3.021
+            },
+            {
+              "frame_ms": 11.0375,
+              "npc_ms": 4.1835,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9879,
+              "npc_ms": 3.6194,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9852,
+              "npc_ms": 2.8773,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9675,
+              "npc_ms": 4.1716,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8991,
+              "npc_ms": 5.2471,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8811,
+              "npc_ms": 3.7746,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8178,
+              "npc_ms": 2.7866,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.764,
+              "npc_ms": 3.7193,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.742,
+              "npc_ms": 3.9776,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.6919,
+              "npc_ms": 4.2399,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.3811,
+              "npc_ms": 5.3908,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.3651,
+              "npc_ms": 3.0994,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.3407,
+              "npc_ms": 2.8841,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.2482,
+              "npc_ms": 3.1498,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "render-only",
+          "clock_bridge_uncertainty_ms": 0.00015,
+          "mean_frame_ms": 5.662609494148734,
+          "p99_frame_ms": 8.7756,
+          "worst_frames": [
+            {
+              "frame_ms": 21.6818,
+              "npc_ms": 0.0776,
+              "stop_resume_overlap_ms": 4.7466
+            },
+            {
+              "frame_ms": 11.3783,
+              "npc_ms": 0.0778,
+              "stop_resume_overlap_ms": 3.0015
+            },
+            {
+              "frame_ms": 10.1541,
+              "npc_ms": 0.0749,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.7091,
+              "npc_ms": 0.0799,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.6746,
+              "npc_ms": 0.0846,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.6658,
+              "npc_ms": 0.0767,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.6401,
+              "npc_ms": 0.077,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.6317,
+              "npc_ms": 0.0928,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.5492,
+              "npc_ms": 0.0767,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4318,
+              "npc_ms": 0.1029,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4104,
+              "npc_ms": 0.0875,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3319,
+              "npc_ms": 0.0794,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3159,
+              "npc_ms": 0.0788,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3123,
+              "npc_ms": 0.0765,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3074,
+              "npc_ms": 0.0911,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3053,
+              "npc_ms": 0.0762,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2858,
+              "npc_ms": 0.0786,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2801,
+              "npc_ms": 0.0885,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2226,
+              "npc_ms": 0.1618,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2183,
+              "npc_ms": 0.1288,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.153,
+              "npc_ms": 0.0765,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.0991,
+              "npc_ms": 0.0794,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.0979,
+              "npc_ms": 0.0861,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.0539,
+              "npc_ms": 0.0781,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "no-residents",
+          "clock_bridge_uncertainty_ms": 0.0002,
+          "mean_frame_ms": 4.131729334802371,
+          "p99_frame_ms": 8.7492,
+          "worst_frames": [
+            {
+              "frame_ms": 17.1062,
+              "npc_ms": 0.079,
+              "stop_resume_overlap_ms": 5.4546
+            },
+            {
+              "frame_ms": 10.0918,
+              "npc_ms": 0.1256,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.0442,
+              "npc_ms": 0.0666,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.893,
+              "npc_ms": 0.1173,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.6356,
+              "npc_ms": 0.0776,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.5374,
+              "npc_ms": 0.0699,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.5297,
+              "npc_ms": 0.1023,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4964,
+              "npc_ms": 0.064,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4953,
+              "npc_ms": 0.0815,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4928,
+              "npc_ms": 0.0664,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4796,
+              "npc_ms": 0.0683,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.4304,
+              "npc_ms": 0.0645,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3825,
+              "npc_ms": 0.0803,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3488,
+              "npc_ms": 0.0623,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.3455,
+              "npc_ms": 0.0631,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2975,
+              "npc_ms": 0.0665,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2294,
+              "npc_ms": 0.0764,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.2044,
+              "npc_ms": 0.0812,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.1747,
+              "npc_ms": 0.063,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.1419,
+              "npc_ms": 0.0877,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.128,
+              "npc_ms": 0.0759,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.1091,
+              "npc_ms": 0.0902,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.0176,
+              "npc_ms": 0.0836,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 9.0087,
+              "npc_ms": 0.0638,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        },
+        {
+          "mode": "normal-repeat",
+          "clock_bridge_uncertainty_ms": 0.00015,
+          "mean_frame_ms": 7.3471396425073445,
+          "p99_frame_ms": 9.6517,
+          "worst_frames": [
+            {
+              "frame_ms": 22.2576,
+              "npc_ms": 4.4931,
+              "stop_resume_overlap_ms": 4.8005
+            },
+            {
+              "frame_ms": 21.4173,
+              "npc_ms": 4.7222,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 12.857,
+              "npc_ms": 3.1646,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.3069,
+              "npc_ms": 3.2425,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 11.132,
+              "npc_ms": 3.9922,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9831,
+              "npc_ms": 3.4851,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9324,
+              "npc_ms": 4.4538,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.9167,
+              "npc_ms": 4.5642,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8636,
+              "npc_ms": 2.5013,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.8309,
+              "npc_ms": 3.2817,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.7714,
+              "npc_ms": 2.972,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.6707,
+              "npc_ms": 4.4699,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.6574,
+              "npc_ms": 3.693,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.5926,
+              "npc_ms": 3.0116,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.5602,
+              "npc_ms": 3.4837,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.5598,
+              "npc_ms": 3.077,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.4899,
+              "npc_ms": 2.746,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.4011,
+              "npc_ms": 2.4548,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.3808,
+              "npc_ms": 4.2865,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.2645,
+              "npc_ms": 3.8793,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.253,
+              "npc_ms": 3.5728,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.2292,
+              "npc_ms": 3.474,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.2156,
+              "npc_ms": 3.4684,
+              "stop_resume_overlap_ms": 0.0
+            },
+            {
+              "frame_ms": 10.2007,
+              "npc_ms": 4.0706,
+              "stop_resume_overlap_ms": 0.0
+            }
+          ],
+          "allocation_counter_available": false
+        }
+      ]
+    },
+    "floor_met": false,
+    "qualification": "One open-camp controlled crowd. Active throughput modestly higher than prior single-camera case; collection frequency1/1 versus4/3. No all-biome/large-city/global100FPS-floor claim. Normal gameplay regression suite pending."
+  },
+  "gameplay_regressions": {
+    "camp": {
+      "source": "b5d27c4a",
+      "count": 42,
+      "checks": "PASS The actual generated household camp is loaded\nPASS The actual shelter contains recoverable portable contributions\nPASS The actual adult has a household shelter at the current camp\nPASS An old household shelter nearby cannot replace the current site's cached household destination\nPASS An itinerary progress change alone does not remove, create or swap any material\nPASS A real adult claims a specific existing component\nPASS The worker walks to the structure and spends work time before dismantling a component\nPASS The removed component no longer owns its recovered goods\nPASS The same recovered materials are carried or physically set down, rather than deleted\nPASS Physical dismantling conserves all material identities and mass\nPASS Recovered shelter cargo is really carried and excluded from automatic fire fuel\nPASS A worker physically supplies and finishes the missing component using the recovered stock\nPASS Reassembly conserves the same material identities and mass\nPASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel\nPASS An empty observed arrival does not erase the grass beneath unbuilt shelters, empty beds or unlit hearths\nPASS The actual shelter has real lashing and poles for the bound-load check\nPASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved\nPASS The bound load appears on the actual person using the existing material models\nPASS A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically\nPASS Occupied-hand retrieval preserves every original bound contribution\nPASS A scheduled forager delivers the real shelter load home before setting off on a new outing\nPASS Arrival delivery opens the same actual bound load and stages its original materials for builders instead of carrying it away foraging\nPASS A departure with all tent loads ready still waits for a nearby owner's useful cutting tool when real carrying space remains\nPASS The owner retrieves the same cutting edge through repeated real camp-task ticks without resetting pickup work each frame\nPASS Retrieving the last feasible useful kit releases the isolated departure hold\nPASS An initial partially erected camp stages its complete finite stock once with exact original IDs and mass\nPASS A second initial-stock request cannot manufacture another load\nPASS An assigned builder fetching real wood beyond the camp boundary remains on the bounded construction crew\nPASS Physical camp work and local itinerary state validate for saving\nPASS A previously visited unloaded camp returns through the actual asynchronous catch-up path\nPASS Unobserved repair uses the same finite staged roof material after unload and return\nPASS The returned shelter does not leave a duplicate loose roof material behind\nPASS A newly fitted cover does not inherit the old frame's unobserved weather exposure\nPASS Unloaded camp catch-up preserves valid saved local state\nPASS Weather review has the actual shelter's production visual: shelter-weather-before\nPASS Weather review starts with fitted visible shelter geometry\nPASS Two controlled calendar years produce actual weathered component state in the production camp model\nPASS Weathered debris is not simultaneously installed in the shelter\nPASS Weather review has the actual shelter's production visual: shelter-weather-after\nPASS Weather review starts with fitted visible shelter geometry\nPASS Weathered shelter and actual fallen materials remain save-valid\nPASS captured session validates with conversation memories\n"
+    },
+    "belongings": {
+      "source": "b5d27c4a",
+      "count": 19,
+      "checks": "PASS Two actual adult residents exist\nPASS The physical actor uses its saved inventory rather than a prop-only loadout\nPASS Repeated visual task changes create or delete no actual goods\nPASS Every displayed NPC possession is a real carried item\nPASS The real resident wears a persistent carrier for the visual transfer test\nPASS Switching the same actual tool between hands preserves its visual object and updates the grip\nPASS Adding and removing a held item retains the unchanged worn carrier and removes only that item visual\nPASS A healthy resident's complete belongings survive session copying\nPASS Personal belongings remain marked as another person's property\nPASS An owned real ground item can actually be stolen\nPASS A seeing owner remembers who took the specific item\nPASS A resident behind a real wall does not learn the theft magically\nPASS Possession changes physically while the original ownership remains recorded\nPASS Witnessed theft changes mood and the directed relationship\nPASS The aimed owned item uses the actual red theft-prompt style\nPASS An actual other household's bedding has private-use status\nPASS No possession ID exists in both the world and an NPC inventory\nPASS Owned goods and social consequences validate after the real transfer\nPASS captured session validates with conversation memories\n"
+    },
+    "daily": {
+      "source": "b5d27c4a",
+      "count": 33,
+      "checks": "PASS The controlled resident's actual camp is loaded\nPASS Two actual generated children are present, without inserting fake residents\nPASS The actual community has a shared hearth\nPASS The actual hearth's trampled clearing is available to perception\nPASS NPC/animal sight does not use invisible grass inside the cleared court\nPASS Physical play uses the actual other child as a partner\nPASS Debug activities name the actual playmate and game\nPASS The existing material-backed hearth is actually lit for the crossing check\nPASS A chasing child routes around a lit hearth rather than through its centre\nPASS Actual adult bandmates are available\nPASS More than twelve actual bandmates are available for the fair visual-check probe\nPASS Bounded visual checks eventually recognise every visible actual bandmate beyond the first twelve\nPASS A real parent or household caregiver is physically present with children\nPASS A household caregiver worries about a genuinely known overdue child without automatically requiring a search\nPASS Absence does not reveal death or the child's current location\nPASS Actually seeing the child again resolves the search\nPASS A real adult bandmate has an established friendship for scheduled-absence checks\nPASS Seven hours away on a real expected party schedule does not create a missing alarm or search\nPASS A reported concern does not automatically restore an unaccepted search\nPASS An actual other family's sleeping place is marked private\nPASS An actual willing adult is available for the spoken search request\nPASS An awake missing person within earshot answers the call instead of being recruited to search for themselves\nPASS An audible request recruits actual nearby adults with explicitly reported last-known information\nPASS Search recruits do not gain supernatural knowledge of an unseen death\nPASS The actual household roster includes a young child for the caregiver check\nPASS The normal resident/model factory creates that same real young child\nPASS Without a reachable caregiver the young child remains where put down instead of teleporting to a distant adult\nPASS An actual adult who approaches within reach can take over care\nPASS The real caregiver remembers taking responsibility for the child\nPASS Sleep/play/search and social memories remain valid local state\nPASS Children actually move through the camp during ten seconds of normal play updates\nPASS The play evidence image is captured during actual movement\nPASS captured session validates with conversation memories\n"
+    },
+    "material": {
+      "source": "b5d27c4a",
+      "count": 19,
+      "checks": "PASS An actual adult resident exists for material work\nPASS A real uncollected fallen branch exists in loaded scatter\nPASS A second actual worker is available to coordinate a material target\nPASS An active single-item claim excludes another worker without excluding its owner\nPASS An interrupted worker's expired claim releases the actual resource\nPASS Gathering the actual fallen branch uses the player's shared depletion ledger\nPASS The gathered branch is a single real owned possession\nPASS The same natural branch cannot be gathered twice\nPASS A depleted single-item target is abandoned immediately so a worker can choose another source\nPASS A real harvested branch transfers its finite mass to the hearth\nPASS The worker finds actual local tinder material\nPASS Gathering fine material creates a real carried bundle\nPASS Actually feeding the fine bundle relights live embers\nPASS A real placed regional plant has a known edible above-ground product\nPASS The worker harvests the actual regional plant in its controlled fruiting season\nPASS Eating reduces the real harvested food quantity\nPASS NPC knapping uses the same real stone recipe and removes mass from its core\nPASS Harvested goods, natural ledgers, actual food consumption and crafting validate together\nPASS captured session validates with conversation memories\n",
+      "fixture": "Existing wooded playable-world fixture, TropicalSeasonalForest cell90495; actual natural branch1164850115715006527. Prior human-120k fixture in Desert cell66762 had no branch and was rejected before changed material code ran."
+    }
+  }
 }

@@ -1,0 +1,42 @@
+PASS The actual generated household camp is loaded
+PASS The actual shelter contains recoverable portable contributions
+PASS The actual adult has a household shelter at the current camp
+PASS An old household shelter nearby cannot replace the current site's cached household destination
+PASS An itinerary progress change alone does not remove, create or swap any material
+PASS A real adult claims a specific existing component
+PASS The worker walks to the structure and spends work time before dismantling a component
+PASS The removed component no longer owns its recovered goods
+PASS The same recovered materials are carried or physically set down, rather than deleted
+PASS Physical dismantling conserves all material identities and mass
+PASS Recovered shelter cargo is really carried and excluded from automatic fire fuel
+PASS A worker physically supplies and finishes the missing component using the recovered stock
+PASS Reassembly conserves the same material identities and mass
+PASS An observed arrival creates empty plans and hearths without manufacturing a second shelter or fire fuel
+PASS An empty observed arrival does not erase the grass beneath unbuilt shelters, empty beds or unlit hearths
+PASS The actual shelter has real lashing and poles for the bound-load check
+PASS Actual recovered poles and lashing become one carried bound load with their exact contents preserved
+PASS The bound load appears on the actual person using the existing material models
+PASS A real packed load is retrieved with both hands initially occupied, stowing or setting down the held tools automatically
+PASS Occupied-hand retrieval preserves every original bound contribution
+PASS A scheduled forager delivers the real shelter load home before setting off on a new outing
+PASS Arrival delivery opens the same actual bound load and stages its original materials for builders instead of carrying it away foraging
+PASS A departure with all tent loads ready still waits for a nearby owner's useful cutting tool when real carrying space remains
+PASS The owner retrieves the same cutting edge through repeated real camp-task ticks without resetting pickup work each frame
+PASS Retrieving the last feasible useful kit releases the isolated departure hold
+PASS An initial partially erected camp stages its complete finite stock once with exact original IDs and mass
+PASS A second initial-stock request cannot manufacture another load
+PASS An assigned builder fetching real wood beyond the camp boundary remains on the bounded construction crew
+PASS Physical camp work and local itinerary state validate for saving
+PASS A previously visited unloaded camp returns through the actual asynchronous catch-up path
+PASS Unobserved repair uses the same finite staged roof material after unload and return
+PASS The returned shelter does not leave a duplicate loose roof material behind
+PASS A newly fitted cover does not inherit the old frame's unobserved weather exposure
+PASS Unloaded camp catch-up preserves valid saved local state
+PASS Weather review has the actual shelter's production visual: shelter-weather-before
+PASS Weather review starts with fitted visible shelter geometry
+PASS Two controlled calendar years produce actual weathered component state in the production camp model
+PASS Weathered debris is not simultaneously installed in the shelter
+PASS Weather review has the actual shelter's production visual: shelter-weather-after
+PASS Weather review starts with fitted visible shelter geometry
+PASS Weathered shelter and actual fallen materials remain save-valid
+PASS captured session validates with conversation memories

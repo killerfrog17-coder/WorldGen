@@ -1,5 +1,5 @@
 {
-  "title": "WorldGen - Paleolithic Equipment 2026-11-10",
+  "title": "WorldGen - Paleolithic Systems 2026-11-10",
   "section": "PALEOLITHIC UPDATE",
   "date": "10 NOV 2026",
   "footer": "Actual game captures and labelled simulation audits | Functional prototype",
@@ -412,7 +412,64 @@
           "text": "<b>Acceptance:</b> All 43 technology families have a representative playable route. Final native checks cover portable crafting (38), combat (184), woodwork (16), camps (98), nature (32), land blueprints (261), fishing (14) and boats (32), alongside the new equipment checks. Functional captures are capped at 60 FPS and are not performance benchmarks. Finished art, every regional variant and autonomous NPC manufacture are outside this pass."
         },
         {
-          "text": "<b>Next priorities:</b> PENDING CROWD/RIVER STATUS. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
+          "text": "<b>Remaining work:</b> Current crowd gameplay regressions, then the river-size/morphology overhaul. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
+        }
+      ]
+    },
+    {
+      "title": "Crowded camps",
+      "subtitle": "100 distinct physical NPCs, measured at eye height. One controlled open-camp scene.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "crowd-100-final.jpg",
+              "caption": "Actual in-game gathering: seven sampled bands retain their own people, personal belongings and animation graphs. This does not increase natural encounter density."
+            }
+          ],
+          "max_height": 240
+        },
+        {
+          "text": "Body distance meshes and SRP-compatible materials reduce rendering work. Repeated shelter queries and inactive task checks now avoid temporary allocations. The first allocation pass measured 402 to 92 KB per recorded development-profile frame; those diagnostic timings are not release FPS."
+        },
+        {
+          "table": {
+            "headers": [
+              "Active crowd window",
+              "Average FPS",
+              "99th percentile",
+              "Worst frame"
+            ],
+            "rows": [
+              [
+                "First",
+                "135.4",
+                "9.99 ms",
+                "20.80 ms"
+              ],
+              [
+                "Repeat",
+                "136.1",
+                "9.65 ms",
+                "22.26 ms"
+              ]
+            ],
+            "widths": [
+              0.34,
+              0.2,
+              0.23,
+              0.23
+            ]
+          }
+        },
+        {
+          "text": "<b>Conditions:</b> Medium vegetation/surfaces, 1920x1080, 6 km view, slow 10 m eye-height orbit, 30 seconds per window. All 100 residents retained; zero unfocused frames and zero unexpected render cameras. No model inference. Motors, senses, tasks, inventories and poses stay active; broad itinerary refresh is held fixed for this controlled gathering."
+        },
+        {
+          "text": "<b>Limits:</b> The strict 100 FPS floor remains unmet: occasional 20-22 ms frames remain. Other biomes and future city crowds are not certified by this scene. Automatic animation scheduling and collector-budget experiments remain disabled in normal play."
+        },
+        {
+          "text": "<b>Validation:</b> 421 exact camp-part selections match the previous ordering; 3,877 shelter-cache mutation/save controls pass. Current gameplay regression checks are still in progress."
         }
       ]
     }
