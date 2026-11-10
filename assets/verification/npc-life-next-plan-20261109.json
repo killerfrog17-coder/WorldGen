@@ -28,22 +28,22 @@
     "Conversation joins/interruptions/ending release holds and keep direct player requests ahead of ambient work"
   ],
   "checkpoint": {
-    "source": "05eb5c28 built; source render-sync guard pending",
+    "source": "ec65ef43",
     "selected": "A9cb8034f protected",
-    "candidate": "B05eb5c28 Mono NONDEV built, weather-v1 camp check running; A protected",
+    "candidate": "B building runtime-frozen ec65ef43; A9cb remains selected/protected",
     "completed": [
       "schedule expectations and concern/search separation",
       "bounded real completed-action memories and grounded live Qwen follow-ups",
       "joined/ending social encounters",
       "actual asynchronous unload/return same-material repair",
       "children fixed play anchor; packing hold updates actor schedules",
-      "final B camp checks incl retaining real builder beyond boundary and unload/return roof repair pass"
+      "final B camp checks incl retaining real builder beyond boundary and unload/return roof repair pass",
+      "Owner steering implemented: forest fixed shelters/frame ties stay; cover rolls preserve identity; material and climate-dependent calendar weathering"
     ],
     "validationPending": [
-      "new packing policy native camp/forest departure",
-      "cold portable full-cycle reuse",
-      "weather before/after images and fresh-cover age regression",
-      "source render-sync guard and final build"
+      "ec65 native camp visual readiness/final weather pictures",
+      "controlled actual-material transport full cycle",
+      "final shortcut/PDF/docs/Git handoff"
     ],
     "priorRuns": {
       "grounded-v1": "social/material/camp/dialogue pass; daily movement fixture corrected and passes v2",
@@ -52,9 +52,13 @@
       "cycle-v12": "stopped after diagnostic false missing children and stale packing schedules",
       "cycle-v13": "departure/travel/portable identity pass; 23 supplies and 5940 work increments at arrival, stopped after identifying unobserved-gap false concerns and unstable crew; no full-cycle acceptance",
       "cycle-v14": "15min departure/travel/identities pass; no initial false searches; arrival chose nearby abandoned household shelter. Stopped, current-site filter/cache regression added. No full-cycle acceptance.",
-      "cycle-v15": "Old bark-hauling policy: departure/travel/exact cargo passed, arrival made29supplies/2055work but original cover reuse timed out. Superseded by owner steering: forest bark shelters now left standing; cold/portable case remains required."
+      "cycle-v15": "Old bark-hauling policy: departure/travel/exact cargo passed, arrival made29supplies/2055work but original cover reuse timed out. Superseded by owner steering: forest bark shelters now left standing; cold/portable case remains required.",
+      "weather-v1": "All camp and weather/fresh-cover state checks passed; screenshots visually rejected (body/camera/visual readiness).",
+      "weather-v2": "All39state checks passed; fixed-camera shots still showed no ready shelter. Retired images, explicit visual readiness/mesh assertions added in ec65.",
+      "natural-v1-morning": "Natural woodland full departure/arrival PASS: no teardown, every original fitted component left at old site, identities and save/serialization retained.",
+      "natural-v1-cold": "Fixture could not find an admitted actual cold-region community in this world/date; not a runtime migration result. Replaced with explicit hauling-decision fixture, no fabricated natural-community claim."
     },
-    "next": "Finish B build unchanged, restore 3 known autos, native camp then full morning cycle 15min; retain honest evidence of previous incomplete runs.",
+    "next": "Finish B build unchanged; restore known3autos; native camp(weather-v3) then morning cycle with explicit -HaulFrame control; inspect all actual images, no false visual success claim.",
     "coreChecks": 949
   }
 }
