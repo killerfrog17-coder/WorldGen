@@ -358,6 +358,21 @@ public sealed partial class LocalTerrainExplorer
         root.Position.y=(float)y-.045f;
         bool macro=Math.Abs(root.Padding)>1.5f;
         root.Padding=groundLevel>=17?(macro?-2:-1):(macro?2:0);
+        if(macro&&groundLevel<17)
+        {
+            // Terrain already carries ecological admission, including water,
+            // exposed cliffs and treeline. Read that grid instead of running
+            // more exact tree/soil/height queries for a distant preview.
+            double unit=TerrainLod.BaseSizeM*HorizontalScale;var address=new Vector2Int((int)Math.Floor(x/unit),(int)Math.Floor(z/unit));
+            Tile tile;TerrainTileKey key;
+            if(visibleGroundOwners.TryGetValue(address,out var owner)){tile=owner.Value;key=owner.Key;}
+            else tile=VisibleGroundOwner(x,z,out key);
+            if(tile!=null&&tile.ForestCover.IsCreated)
+            {
+                int side=tile.Segments+1,gx=Mathf.Clamp((int)Math.Round((x/key.SizeM-key.X)*tile.Segments),0,tile.Segments),gz=Mathf.Clamp((int)Math.Round((z/key.SizeM-key.Z)*tile.Segments),0,tile.Segments);
+                if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=-2;
+            }
+        }
         // Only aggregated stands follow the broad terrain slope. Individual
         // tree silhouettes stay upright; no per-frame terrain queries are added.
         if(!macro){root.SlopeX=root.SlopeZ=0;return;}
