@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using WorldGen.Core;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -21,7 +22,7 @@ public sealed partial class LocalTerrainExplorer
     void SetCraftWorkArea(Possession p,int index=0)
     {
         double angle=heading*Math.PI/180;p.Position=frame.Position(motion.X+Math.Sin(angle)*.8+index*.12,motion.Z+Math.Cos(angle)*.8);
-        p.GroundOffsetM=0;p.GroundMoving=false;p.GroundRotation=new V(0,heading,PortableTechnology.Item(p.Kind)?.Long==true||WoodCrafting.Wood(p)?90:0);
+        TerrainHandoff.Coordinates(frame,p.Position,out double workX,out double workZ);p.GroundOffsetM=CampFloor(workX,workZ)-Ground(workX,workZ)+.02;p.GroundMoving=false;p.GroundRotation=new V(0,heading,PortableTechnology.Item(p.Kind)?.Long==true||WoodCrafting.Wood(p)?90:0);
     }
     bool StartPortableCraft(string recipeId,string primaryId=null)
     {
@@ -56,7 +57,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdatePortableCrafting(ItemCraftJob job)
     {
-        if(!PortableCrafting.ResumePlan(Inventory,CraftAccessible(),job,out _,out var unavailable)){if(inventoryReviewMode)Debug.Log("PORTABLE WORK PAUSED "+job.RecipeId+": "+unavailable);PauseItemCraft(job);return;}
+        if(!PortableCrafting.ResumePlan(Inventory,CraftAccessible(),job,out _,out var unavailable)){if(inventoryReviewMode)Debug.Log("PORTABLE WORK PAUSED "+job.RecipeId+": "+unavailable+" missing="+string.Join(";",job.IngredientIds.Concat(job.ToolIds).Select(id=>Inventory.Find(id)).Where(p=>p!=null&&!AccessiblePossession(p)).Select(p=>p.Name+" place="+p.Place+" offset="+p.GroundOffsetM+" distance="+(p.Position-Position).Length*frame.RadiusM)));PauseItemCraft(job);return;}
         var used=job.IngredientIds.ToArray();var output=StoneCrafting.Advance(Inventory,job,Math.Min(.25,Time.unscaledDeltaTime),PlayerRules.Settings);
         if(Time.unscaledTimeAsDouble>=craftSoundAt)PlayPortableCraftSound(job);if(output==null)return;
         PaleolithicClay.CatchUp(output,PlayerRules.SolarDays,0,0);if(PortableFire.Item(output))PortableFire.Advance(output,PlayerRules.SolarDays,0,0,true);

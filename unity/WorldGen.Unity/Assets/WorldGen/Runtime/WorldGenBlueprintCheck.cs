@@ -50,6 +50,7 @@ public sealed partial class LocalTerrainExplorer
             double startX=motion.X,startZ=motion.Z;
             foreach(CampDesign design in Enum.GetValues(typeof(CampDesign)))
             {
+                if(PrimitiveWatercraft.Design(design))continue; // Separately tested on actual water, never a dry shelter fixture.
                 var plan=CampBlueprints.Create(design,2,2);Vector3 site=default;bool found=false;double bestGrade=double.MaxValue;
                 for(int ring=0;ring<90&&bestGrade>.3;ring++)for(int step=0;step<24&&bestGrade>.3;step++)
                 {

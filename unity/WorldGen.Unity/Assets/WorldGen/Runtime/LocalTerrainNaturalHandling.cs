@@ -243,7 +243,7 @@ public sealed partial class LocalTerrainExplorer
         }
         float outside=.29f*s+Mathf.Min(.1f,(float)item.WidthM*.3f);
         Vector3 target=body.position+body.right*(outside*sign)+body.forward*.14f*s+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.15f*s);
-        if(item.Kind==PossessionKind.Torch)target+=body.forward*.18f*s+Vector3.up*.3f*s;
+        if(item.Kind==PossessionKind.Torch)target=body.TransformPoint(humanPlayer.Shared.LocalEye)+body.right*(sign*.24f*s)+body.forward*.38f*s-Vector3.up*.5f*s;
         NaturalGrip(side,Ease(target),NaturalWeaponDirection(item));
     }
     void FitNaturalLarge(Possession item,bool swimming=false)
