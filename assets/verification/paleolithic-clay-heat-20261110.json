@@ -1,5 +1,5 @@
 {
-  "status": "source and pure checks complete; native review pending",
+  "status": "functional prototype: pure rules and actual native checks passed; screenshots inspected",
   "scope": [
     "Finite actual-soil clay digging",
     "Measured-water hand coiling",
@@ -27,5 +27,10 @@
     "https://www.uwlax.edu/mvac/past-cultures/native-knowledge/technologies/",
     "https://home.nps.gov/yell/learn/historyculture/archeologyarchaic.htm",
     "https://repository.si.edu/bitstream/handle/10088/10123/USNMB_1391926_unit.pdf"
-  ]
+  ],
+  "native": {
+    "run": "clay-heat-native-v5",
+    "checks": 23,
+    "source": "caaeeb53"
+  }
 }

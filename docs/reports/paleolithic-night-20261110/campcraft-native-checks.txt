@@ -1,0 +1,16 @@
+CAMPCRAFT CHECK PASS Start with a spear in hand
+CAMPCRAFT CHECK PASS Actual contextual action starts: weave-mat
+CAMPCRAFT CHECK PASS Timed native work completes: weave-mat
+CAMPCRAFT CHECK PASS Actual strip bundles become one rolled mat and restore the spear hand
+CAMPCRAFT CHECK PASS Actual contextual action starts: bone-pendant
+CAMPCRAFT CHECK PASS Timed native work completes: bone-pendant
+CAMPCRAFT CHECK PASS Actual source-bone pendant equips on its independent neck attachment
+CAMPCRAFT CHECK PASS Actual character portrait renders worn jewellery
+CAMPCRAFT CHECK PASS Rendered native game content: bone-pendant-and-reed-mat
+CAMPCRAFT CHECK PASS A real woven mat places as bedding through existing placement controls
+CAMPCRAFT CHECK PASS Placement transfers the same mat to the actual bed
+CAMPCRAFT CHECK PASS Bedding renders the actual spread woven surface
+CAMPCRAFT CHECK PASS Rendered native game content: spread-woven-bedding
+CAMPCRAFT CHECK PASS Woven bedding contributes actual comfort and insulation
+CAMPCRAFT CHECK PASS Full native capture/reload accepts jewellery, woven material and its placed bed
+PORTABLE FLOW PASS 16

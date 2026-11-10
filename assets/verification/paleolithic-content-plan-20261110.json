@@ -185,7 +185,7 @@
     {
       "id": 29,
       "technology": "Water containers",
-      "status": "finite vessels passed rule/native QA; playable boiling pending",
+      "status": "functional prototype: actual clay gathering, shaping, elapsed-day drying, fueled firing, finite vessels and both boiling methods passed native QA; pot art remains rough",
       "scope": "Actual 2L waterskin/1.5L bark vessel; fill/drink/pour, source quality, salinity, physical mass, save/load, finite NPC source filling. Heating API awaiting in-game source."
     },
     {
@@ -227,7 +227,7 @@
     {
       "id": 36,
       "technology": "Woven mats",
-      "status": "not implemented",
+      "status": "functional prototype: woven bedding/covering and wearable bone jewellery passed rules and native QA; simple shared-material meshes",
       "scope": "Woven mats used in bedding and shelter covering"
     },
     {
@@ -245,7 +245,7 @@
     {
       "id": 39,
       "technology": "Fired clay vessels",
-      "status": "not implemented",
+      "status": "functional prototype: actual clay gathering, shaping, elapsed-day drying, fueled firing, finite vessels and both boiling methods passed native QA; pot art remains rough",
       "scope": "Gatherable clay, forming/drying/firing and usable vessels"
     },
     {
@@ -257,7 +257,7 @@
     {
       "id": 41,
       "technology": "Personal adornment",
-      "status": "not implemented",
+      "status": "functional prototype: woven bedding/covering and wearable bone jewellery passed rules and native QA; simple shared-material meshes",
       "scope": "Craftable wearable adornments"
     },
     {
@@ -281,9 +281,9 @@
     "https://doi.org/10.1126/science.1218643"
   ],
   "next": [
-    "Grinding, processed plant food and reusable measured-water crafting",
-    "Clay collection, drying/firing and heated vessels",
-    "Remaining adhesive/flaking/mat/adornment/fire transport/trap/watercraft gaps",
-    "Then crowds and rivers; older geography follow-ups remain last"
+    "Pigments and compound hafting adhesives",
+    "Fire transport, basic traps and watercraft",
+    "Focused final audit of existing technology families",
+    "Then crowds and realistic rivers; old geography remains last"
   ]
 }

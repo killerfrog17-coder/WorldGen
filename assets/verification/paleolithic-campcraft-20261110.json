@@ -1,5 +1,5 @@
 {
-  "status": "source and pure checks complete; native review pending",
+  "status": "functional prototype: pure rules and actual native checks passed; screenshots inspected",
   "controls": {
     "mats_jewellery": 12,
     "portable_tree": 977
@@ -20,5 +20,10 @@
     "https://www.journals.uchicago.edu/doi/10.1086/317381",
     "https://www.arch.cam.ac.uk/research/projects/archived-projects/origins-weaving-project",
     "https://content.www.wellcomecollection.org/works/baq87sph"
-  ]
+  ],
+  "native": {
+    "run": "campcraft-native-v1",
+    "checks": 16,
+    "source": "caaeeb53"
+  }
 }

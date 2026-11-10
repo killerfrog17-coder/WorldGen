@@ -1,0 +1,23 @@
+CLAY HEAT CHECK PASS A real accessible clay-rich deposit exists near the test site
+CLAY HEAT CHECK PASS Actual terrain enables contextual clay digging: 
+CLAY HEAT CHECK PASS Timed digging produces clay from the finite ground ledger
+CLAY HEAT CHECK PASS Set freshly gathered clay in the work area
+CLAY HEAT CHECK PASS Spear actually occupies the right hand before shaping
+CLAY HEAT CHECK PASS Water vessel is worn before shaping
+CLAY HEAT CHECK PASS Real contextual clay shaping starts with occupied hands
+CLAY HEAT CHECK PASS Native crafting makes greenware and consumes exactly 100 ml
+CLAY HEAT CHECK PASS New greenware begins wet and the previous spear hand is restored
+CLAY HEAT CHECK PASS Real elapsed play days dry the same clay pot
+CLAY HEAT CHECK PASS Rendered native game content: air-dried-pot
+CLAY HEAT CHECK PASS The real clay site accepts a reachable firing hearth: Aim at reachable ground.
+CLAY HEAT CHECK PASS Air-dried pot appears as Fire in the existing quick-fire controls
+CLAY HEAT CHECK PASS Firing transfers the actual pot into the hearth
+CLAY HEAT CHECK PASS Fueled hearth firing changes the same pot into earthenware
+CLAY HEAT CHECK PASS Actual in-fire earthenware heats and treats its finite contents
+CLAY HEAT CHECK PASS The same filled hot-water pot returns through the fire controls
+CLAY HEAT CHECK PASS Newly added stones are cold
+CLAY HEAT CHECK PASS The real hearth, water and handling stick allow stone boiling: 
+CLAY HEAT CHECK PASS Timed stone boiling treats the actual waterskin and draws stored hearth heat
+CLAY HEAT CHECK PASS Rendered native game content: fired-pot-and-boiled-water
+CLAY HEAT CHECK PASS Full player, worked ground, thermal hearth and water vessels capture/reload
+PORTABLE FLOW PASS 23
