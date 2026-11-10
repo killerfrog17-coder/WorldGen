@@ -45,7 +45,7 @@ namespace WorldGen.Core
             return items.ToArray();
         }
         public static bool TaskItem(Possession p,string role)
-            =>role=="WorkKnapping"?StoneCrafting.Rock(p):role=="SpearReady1"?p.Kind==PossessionKind.WoodenSpear||p.Kind==PossessionKind.StoneTippedSpear||p.Kind==PossessionKind.BoneTippedSpear:role=="CarryLarge"||role=="FuelTend"?p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle:role=="ToolReady"?p.Kind==PossessionKind.WovenBasket||p.Kind==PossessionKind.DiggingStick:role=="Eat"?Foraging.Food(p):role=="Drink"||role=="WaterCarry"?p.Kind==PossessionKind.HidePouch||p.Kind==PossessionKind.BarkContainer:false;
+            =>role=="WorkKnapping"?StoneCrafting.Rock(p):role=="SpearReady1"?p.Kind==PossessionKind.WoodenSpear||p.Kind==PossessionKind.StoneTippedSpear||p.Kind==PossessionKind.BoneTippedSpear:role=="CarryLarge"||role=="FuelTend"?p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle:role=="ToolReady"?p.Kind==PossessionKind.WovenBasket||p.Kind==PossessionKind.DiggingStick:role=="Eat"?Foraging.Food(p):role=="Drink"||role=="WaterCarry"?PaleolithicWater.Vessel(p):false;
         public static PlayerInventory Seed(ForagerPersonSample person,ForagerBandSample band,V position)
         {
             var stock=new PlayerInventory{PlayerName=person.Name};bool Has(int k)=>k<band.Techniques.Length&&band.Techniques[k];
@@ -74,7 +74,7 @@ namespace WorldGen.Core
                 if(Has(3)&&hash%5<3)Add(Has(4)?PossessionKind.StoneTippedSpear:PossessionKind.WoodenSpear);
                 if(Has(3)&&hash%3==0)Add(PossessionKind.DiggingStick);
                 if(Has(28)&&hash%3!=0)Add(PossessionKind.WovenBasket);
-                if(Has(29))Add(Has(6)?PossessionKind.HidePouch:PossessionKind.BarkContainer,"water");
+                if(Has(29))Add(Has(6)?PossessionKind.Waterskin:PossessionKind.BarkWaterVessel,"water");
                 if(Has(9)&&(hash%5==0||(band.Members??Array.Empty<ForagerPersonSample>()).Where(p=>p.AgeYears>=14).OrderByDescending(p=>p.Skills.Length>5?p.Skills[5]:0).ThenBy(p=>p.Id).FirstOrDefault()?.Id==person.Id))Add(PossessionKind.HandDrillSet);
                 if(Has(6)&&Has(7)&&hash%3==0)
                 {var carrier=Add(hash%2==0?PossessionKind.HidePack:PossessionKind.HideSatchel,"carrier");carrier.Place=PortableTechnology.Wear(carrier).Value;}
@@ -91,7 +91,7 @@ namespace WorldGen.Core
             if(role=="CarryLarge"||role=="FuelTend")return items.Where(p=>p.CampMaterial==0&&(p.Kind==PossessionKind.Branch||p.Kind==PossessionKind.KindlingBundle||p.Kind==PossessionKind.BarkStrips||p.Kind==PossessionKind.TinderBundle)).Take(1).ToArray();
             if(role=="ToolReady")return items.Where(p=>p.Kind==PossessionKind.WovenBasket||p.Kind==PossessionKind.DiggingStick).OrderBy(p=>p.Kind==PossessionKind.WovenBasket?0:1).Take(1).ToArray();
             if(role=="Eat")return items.Where(Foraging.Food).Take(1).ToArray();
-            if(role=="Drink"||role=="WaterCarry")return items.Where(p=>p.Kind==PossessionKind.HidePouch||p.Kind==PossessionKind.BarkContainer).Take(1).ToArray();
+            if(role=="Drink"||role=="WaterCarry")return items.Where(PaleolithicWater.Vessel).Take(1).ToArray();
             return Array.Empty<Possession>();
         }
         public static bool Pack(PlayerInventory inventory,Possession item)

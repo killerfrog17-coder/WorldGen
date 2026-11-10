@@ -203,12 +203,14 @@ public sealed partial class LocalTerrainExplorer
     string WaterPrompt(float itemDistance)
     {
         var water=AimedWater(itemDistance);if(water==null)return null;
+        var vessel=HeldWaterVessel();if(vessel!=null&&PaleolithicWater.Space(vessel)>.001)return "Fill "+vessel.Name.ToLowerInvariant()+" - "+water.Quality.Name.ToLowerInvariant()+"  [E]";
         return water.Quality.Name+(water.Quality.Fresh?" — untreated  [E]":" — salty / unsafe  [E]");
     }
     bool TryWaterInteract(float itemDistance)
     {
         var water=AimedWater(itemDistance);if(water==null||Spectating||Vitals.Incapacitated)return false;
         if(Time.unscaledTimeAsDouble<waterSipAt)return true;waterSipAt=Time.unscaledTimeAsDouble+1.15;
+        var vessel=HeldWaterVessel();if(vessel!=null&&PaleolithicWater.Space(vessel)>.001)return FillWaterVessel(vessel);
         CancelItemCharge();CancelWorldToolWork();PauseItemCraft(ActiveItemCraft);
         // The consume gesture already hides held props. Moving their ownership
         // to the ground for an instantaneous sip could strand them below a bank

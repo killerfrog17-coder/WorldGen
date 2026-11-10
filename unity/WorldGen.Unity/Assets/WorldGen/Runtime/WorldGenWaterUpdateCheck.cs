@@ -74,6 +74,7 @@ public sealed partial class LocalTerrainExplorer
         Check(TryWaterInteract(float.PositiveInfinity)&&Vitals.Thirst>50,"Actual E interaction with sea water worsens hydration");
         Check(Inventory.AtHand(PossessionPlace.RightHand)==stone,"Drinking restores the original occupied hand");
         Check(Inventory.AtHand(PossessionPlace.LeftHand)==blade&&!inventoryDrops.ContainsKey(stone.Id)&&!inventoryDrops.ContainsKey(blade.Id),"Drinking does not drop either occupied hand onto the seabed");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-water-vessels-review")){yield return CheckWaterVesselsAtSource(output,report,quality);yield break;}
         double dryX=motion.X,dryZ=motion.Z,shallowX=0,shallowZ=0;bool shallow=false;
         var shoreDirection=new Vector2((float)(nx-dryX),(float)(nz-dryZ)).normalized;
         for(int step=-40;step<=120&&!shallow;step++)for(int side=-2;side<=2&&!shallow;side++)

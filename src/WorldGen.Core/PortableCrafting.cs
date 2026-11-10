@@ -93,7 +93,7 @@ namespace WorldGen.Core
             R("hide-belt","Cut and lace a hide belt",PossessionKind.HideBelt,P(PossessionKind.WorkedHide),360,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("needle-case","Carve and close a bone needle case",PossessionKind.NeedleCase,P(PossessionKind.Bone),420,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.3),
             R("knife-sheath","Cut and lace a knife sheath",PossessionKind.KnifeSheath,P(PossessionKind.WorkedHide),480,new[]{Binding(1)},T(CraftCapability.Cut,CraftCapability.Pierce),yield:.25)
-        }.Concat(PaleolithicClothing.Recipes).Concat(ItemMaintenance.Recipes()).ToArray();
+        }.Concat(PaleolithicClothing.Recipes).Concat(PaleolithicWater.Recipes).Concat(ItemMaintenance.Recipes()).ToArray();
         public static PortableRecipe Recipe(string id)=>Recipes.FirstOrDefault(r=>r.Id==id);
         public static bool IsJob(ItemCraftJob job)=>job!=null&&!string.IsNullOrEmpty(job.RecipeId);
         public static bool Affects(ItemCraftJob job,string id)=>job.WorkpieceId==id||job.ToolId==id||(job.IngredientIds?.Contains(id)??false)||(job.ToolIds?.Contains(id)??false);

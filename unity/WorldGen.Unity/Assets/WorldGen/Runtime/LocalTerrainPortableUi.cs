@@ -60,6 +60,14 @@ public sealed partial class LocalTerrainExplorer
             ActionButton("Eat a portion",true,"",()=>EatPossession(p,false));
             ActionButton("Taste a small sample",true,"",()=>EatPossession(p,true));
         }
+        if(PaleolithicWater.Vessel(p))
+        {
+            GUILayout.Label(p.WaterLitres.ToString("0.##")+" / "+PaleolithicWater.Capacity(p).ToString("0.##")+" L"+(p.WaterLitres>0?" - "+PaleolithicWater.Quality(p).Name+(p.WaterBoiled?" (boiled)":" (untreated)"):""),label);
+            bool source=AimedWater(float.PositiveInfinity)!=null,space=PaleolithicWater.Space(p)>.001;
+            ActionButton("Fill from water",source&&space,space?"Look at water within reach.":"The vessel is full.",()=>{FillWaterVessel(p);inventoryContext=null;});
+            ActionButton("Drink a mouthful",p.WaterLitres>0,"The vessel is empty.",()=>{DrinkWaterVessel(p);inventoryContext=null;});
+            ActionButton("Pour out water",p.WaterLitres>0,"The vessel is empty.",()=>{EmptyWaterVessel(p);inventoryContext=null;});
+        }
         if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));
         if(CampRules.Tinder(p))ActionButton("Lay a campfire here",true,"",()=>BeginCampPlacement(p,CampKind.Fire));
         if(CampRules.Bedding(p))ActionButton("Spread as bedding",true,"",()=>BeginCampPlacement(p,CampKind.Bedding));

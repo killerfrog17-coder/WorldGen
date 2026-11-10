@@ -93,7 +93,7 @@ public sealed partial class LocalTerrainExplorer
         if(Foraging.Food(held))return actor.CurrentActivity==HumanActivity.PrepareFood?"Eat":"ToolReady";
         if(held.Kind==PossessionKind.KindlingBundle||held.Kind==PossessionKind.Branch)return "CarryLarge";
         if(held.Kind==PossessionKind.CampBundle)return "CarryLarge";
-        if(held.Kind==PossessionKind.HidePouch||held.Kind==PossessionKind.BarkContainer)return actor.CurrentActivity==HumanActivity.FetchWater?"Drink":"WaterCarry";
+        if(PaleolithicWater.Vessel(held))return actor.CurrentActivity==HumanActivity.FetchWater?"Drink":"WaterCarry";
         return "ToolReady";
     }
     void DropNpcPossessions(HumanActor actor)
@@ -105,6 +105,6 @@ public sealed partial class LocalTerrainExplorer
     }
     string NpcBelongingsContext(HumanActor actor)
     {
-        var stock=actor.Belongings;return stock==null?"":" Actual physical task: "+actor.TaskDetail+". Items actually carried: "+string.Join(", ",stock.Items.Where(stock.Carried).Take(10).Select(p=>p.Name+(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand?" (in hand)":" (packed/worn)")))+". Do not claim to eat, make, carry or use an item that is not actually present. A scheduled task is a plan, not proof that its materials exist.";
+        var stock=actor.Belongings;return stock==null?"":" Actual physical task: "+actor.TaskDetail+". Items actually carried: "+string.Join(", ",stock.Items.Where(stock.Carried).Take(10).Select(p=>p.Name+(PaleolithicWater.Vessel(p)?" ("+p.WaterLitres.ToString("0.##")+" L water)":"")+(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand?" (in hand)":" (packed/worn)")))+". Do not claim to eat, make, carry or use an item that is not actually present. A scheduled task is a plan, not proof that its materials exist.";
     }
 }

@@ -265,7 +265,19 @@ public sealed partial class LocalTerrainExplorer
             if(mass>0){npcMaterialMeals++;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Ate,food.Id,food.Name,PlayerRules.SolarDays);record.NextMealSolarDay=PlayerRules.SolarDays+(2+HumanHash(actor.ResidentId)%30*.1)/24;actor.TaskDetail="ate an actual portion of "+food.Name;}
         }
         if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater==true&&HumanDistance(actor.Planet,group.Resources.Water)<2.5)
-        {actor.NpcWorkDone+=NpcWorkSeconds(dt);if(actor.NpcWorkDone>=30){record.Nutrition??=new PlayerSurvival();PlayerMetabolism.Hydrate(record.Nutrition,.35);NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Drank,"water","fresh water at the local source",PlayerRules.SolarDays);actor.NpcWorkDone=-600;actor.TaskDetail="drinking at the actual water source";}}
+        {
+            actor.NpcWorkDone+=NpcWorkSeconds(dt);
+            if(actor.NpcWorkDone>=30)
+            {
+                var waterPoint=group.Resources.Water;var sample=walkingPatch.Sample(waterPoint);var quality=PlayerWaterQuality(sample,waterPoint);
+                if(quality.Kind==LocalWaterKind.None||!quality.Fresh){actor.TaskDetail="looking for fresh water";actor.NpcWorkDone=0;return;}
+                record.Nutrition??=new PlayerSurvival();double draw=Rng.Value(sourceWorld.Recipe.Seed,"npc-water-exposure",unchecked((int)actor.ResidentId+record.Nutrition.WaterExposureSequence));
+                WaterDrinking.Drink(record.Nutrition,quality,.35,draw,GameMode.Survival);
+                var vessel=stock.Items.FirstOrDefault(p=>PaleolithicWater.Vessel(p)&&stock.Carried(p));if(vessel!=null)PaleolithicWater.Fill(vessel,quality,PaleolithicWater.Space(vessel));
+                NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Drank,"water","fresh water at the local source",PlayerRules.SolarDays);actor.NpcWorkDone=-600;
+                actor.TaskDetail=vessel?.WaterLitres>0?"drank and filled "+vessel.Name.ToLowerInvariant():"drinking at the actual water source";
+            }
+        }
         if(routine.Activity!=HumanActivity.Craft)return;
         if(stock.Items.Count(p=>p.Kind==PossessionKind.StoneFlake)>=3){actor.TaskDetail="finished the needed cutting flakes";return;}
         var stones=NpcBelongings.ForTask(stock,"WorkKnapping");if(stones.Length!=2)return;
