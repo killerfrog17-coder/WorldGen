@@ -258,6 +258,11 @@ public sealed partial class LocalTerrainExplorer
         bool newStock=NpcGroupRecord(group.Situation.Band.Id).Travel?.RebuildRequired!=true&&!LivingState.Camps.Any(c=>c.Group==group.Situation.Band.Id&&c.Site!=group.Situation.Camp.Id);
         var objects=existing.Length>0?existing:memory!=null&&memory.Disturbed?memory.Objects.Select(o=>o.Copy()).ToArray():HumanCampLayout.Create(group.Situation,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds,newStock);
         if(memory==null&&!newStock)foreach(var obj in objects)obj.WeatheredThroughCalendarDay=LivingClock.CalendarDay;
+        // An unvisited occupied permanent base has ongoing prior maintenance,
+        // not materials that have survived unchanged since the band's founding.
+        // Once encountered, its actual per-component exposure is retained.
+        if(memory==null&&newStock&&group.Situation.PermanentBase)
+            foreach(var obj in objects)obj.WeatheredThroughCalendarDay=Math.Max(obj.WeatheredThroughCalendarDay,LivingClock.CalendarDay-7-53*Rng.Value(sourceWorld.Recipe.Seed,"occupied-camp-maintenance",unchecked((int)obj.NpcHousehold^(int)obj.NpcSite)));
         foreach(var obj in objects)if(obj.Blueprint!=null&&obj.Blueprint.FloorHeights==null)SurveyLivingShelter(obj,!newStock);
         if(!PrepareUnobservedNpcCamp(group,ref objects))return;
         foreach(var obj in objects)

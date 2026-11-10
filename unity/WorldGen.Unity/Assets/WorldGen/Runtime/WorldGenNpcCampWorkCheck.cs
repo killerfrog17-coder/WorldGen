@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
         // The physical removal/hauling tests below deliberately choose a
         // transport decision, rather than forcing all natural forest camps to pack.
         group.Situation.Camp.CarryPoles=true;
-        var shelter=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Blueprint!=null&&NpcCampWork.NextPacking(c.Blueprint,NpcCarryCampPoles(group))!=null);Check(shelter!=null,"The actual shelter contains recoverable portable contributions");
+        var shelter=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&NpcCampWork.NextPacking(c.Blueprint,NpcCarryCampPoles(group))!=null);Check(shelter!=null,"The actual shelter contains recoverable portable contributions");
         var actor=livingPeople.Values.First(p=>p.GroupId==group.Situation.Band.Id&&p.Resident.AgeYears>=18);actor.Threat=null;npcPlans.Clear();group.TenderDuty=null;
         var currentHouse=LivingHouse(actor);Check(currentHouse!=null,"The actual adult has a household shelter at the current camp");
         var oldHouse=currentHouse.Copy();oldHouse.Id+="-old-site-lookup-proof";oldHouse.NpcSite=currentHouse.NpcSite^7919;
@@ -118,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
         motion.Place(actor.Motor.X-5,actor.Motor.Z+2,CampFloor(actor.Motor.X-5,actor.Motor.Z+2));humanCamera.Restore(0,false);UpdateHumans();
         for(int i=0;i<8;i++){UpdateCamera();var d=transform.InverseTransformDirection(actor.Root.transform.position+transform.up*.7f-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
         paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"material-backed-camp-work");livingBenchmarkFreeze=false;paused=true;
-        var offlineHouse=Camp.Objects.First(o=>o.NpcGroup==group.Situation.Band.Id&&o.Blueprint!=null&&CampBlueprints.Complete(o.Blueprint)&&NpcCampParts(o).Any(c=>c.Kind==CampPartKind.Cover));
+        var offlineHouse=Camp.Objects.First(o=>o.NpcGroup==group.Situation.Band.Id&&o.NpcSite==group.Situation.Camp.Id&&o.Blueprint!=null&&CampBlueprints.Complete(o.Blueprint)&&NpcCampParts(o).Any(c=>c.Kind==CampPartKind.Cover));
         var offlinePart=NpcCampParts(offlineHouse).First(c=>c.Kind==CampPartKind.Cover);
         var offlineGoods=NpcCampWork.Remove(offlineHouse,offlinePart.Key);Inventory.Items.AddRange(offlineGoods);
         offlineHouse.WeatheredThroughCalendarDay=Math.Max(0,LivingClock.CalendarDay-100);
@@ -138,12 +138,23 @@ public sealed partial class LocalTerrainExplorer
         TerrainHandoff.Coordinates(frame,returnedHouse.Position,out double wx,out double wz);motion.Place(wx+25,wz+25,CampFloor(wx+25,wz+25));UpdateHumans();
         var weatherFocus=new Vector3((float)(wx-originX),(float)CampFloor(wx,wz)+1,(float)(wz-originZ));
         landscapeReviewCamera=new Vector3((float)(wx-originX+6),(float)CampFloor(wx+6,wz-5)+3,(float)(wz-originZ-5));landscapeReviewRotation=Quaternion.LookRotation(weatherFocus-landscapeReviewCamera.Value);UpdateCamera();
-        paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"shelter-weather-before");paused=true;
+        paused=false;livingBenchmarkFreeze=true;
+        IEnumerator WeatherVisual(string name,bool requireGeometry)
+        {
+            double readyUntil=Time.unscaledTimeAsDouble+15;
+            while(!campVisuals.ContainsKey(returnedHouse.Id)&&Time.unscaledTimeAsDouble<readyUntil){campUpdateAt=0;UpdateCamp();yield return null;}
+            Check(campVisuals.TryGetValue(returnedHouse.Id,out var visual),"Weather review has the actual shelter's production visual: "+name);
+            int vertices=visual.Root.GetComponentsInChildren<MeshFilter>().Where(f=>f.sharedMesh!=null).Sum(f=>f.sharedMesh.vertexCount);
+            Check(!requireGeometry||vertices>0,"Weather review starts with fitted visible shelter geometry");
+            File.AppendAllText(Path.Combine(output,"weather-render-proof.txt"),name+" id="+returnedHouse.Id+" site="+returnedHouse.NpcSite+" parts="+returnedHouse.Blueprint.Parts.Count+" vertices="+vertices+" root="+visual.Root.transform.localPosition+" camera="+view.transform.localPosition+" target="+weatherFocus+" viewport="+view.WorldToViewportPoint(transform.TransformPoint(weatherFocus))+"\n");
+            UpdateCamera();yield return NpcLifeImage(output,name);
+        }
+        yield return WeatherVisual("shelter-weather-before",true);paused=true;
         var climate=sourceWorld.Prehistory.Foragers.Districts[group.Situation.Band.District];double oldWear=returnedHouse.Blueprint.Parts.Sum(p=>p.Weathering);
         var fallen=CampWeathering.Advance(returnedHouse,Math.Max(LivingClock.CalendarDay,returnedHouse.WeatheredThroughCalendarDay)+720,climate.AnnualRainMm,climate.MeanC,climate.Canopy);Inventory.Items.AddRange(fallen);InvalidateCampVisual(returnedHouse);
         Check(fallen.Length>0||returnedHouse.Blueprint.Parts.Sum(p=>p.Weathering)>oldWear,"Two controlled calendar years produce actual weathered component state in the production camp model");
         Check(!returnedHouse.OwnedMaterials().Any(p=>fallen.Any(f=>f.Id==p.Id)),"Weathered debris is not simultaneously installed in the shelter");
-        paused=false;yield return NpcLifeImage(output,"shelter-weather-after");livingBenchmarkFreeze=false;
+        paused=false;yield return WeatherVisual("shelter-weather-after",false);livingBenchmarkFreeze=false;
         Camp.Validate();LivingState.Copy().Validate();Check(true,"Weathered shelter and actual fallen materials remain save-valid");
         landscapeReviewCamera=null;group.Situation.Camp.CarryPoles=initialCarryPoles;paused=false;DisposeNpcMinds();
     }

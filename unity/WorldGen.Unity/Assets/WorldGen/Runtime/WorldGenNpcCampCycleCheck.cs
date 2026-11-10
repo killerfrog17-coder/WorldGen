@@ -17,6 +17,8 @@ public sealed partial class LocalTerrainExplorer
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("NPC CAMP CYCLE "+text);checks.Add("PASS "+text);Debug.Log("NPC CAMP CYCLE "+text);}
         if(group.Situation.PermanentBase){Check(true,"Dependable aquatic base remains occupied rather than undergoing a forced annual migration");yield break;}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-haul-frame"))
+        {group.Situation.Camp.CarryPoles=true;Check(true,"Controlled transport-decision fixture: actual existing frame and covers are selected for hauling; this is not a natural forest packing policy");}
         // Functional logistics fixture at the supported 15-minute day. This
         // advances the real work/solar clock together; movement and resource
         // requirements are unchanged. It is not a default-day balance test.

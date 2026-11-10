@@ -7,6 +7,7 @@ param(
     [string[]]$Cases=@('wet','collector','morning','cold','evening','sleep'),
     [switch]$Performance,
     [switch]$Cycle,
+    [switch]$HaulFrame,
     [switch]$Trace,
     [switch]$RemovalProof,
     [ValidateRange(5,180)][int]$Seconds=30
@@ -38,6 +39,7 @@ foreach($case in $Cases){
     $arguments=@('-screen-width','1536','-screen-height','864','-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
+    if($HaulFrame){if(!$Cycle){throw 'HaulFrame is a controlled cycle fixture only.'};$arguments+='--worldgen-npc-haul-frame'}
     if($Trace){$arguments+='--worldgen-stutter-trace'}
     if($RemovalProof){$arguments+='--worldgen-npc-removal-proof'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -PassThru
