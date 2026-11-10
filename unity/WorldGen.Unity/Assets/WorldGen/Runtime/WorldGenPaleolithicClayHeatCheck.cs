@@ -28,6 +28,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 double a=i*Math.PI/8,x=ox+Math.Sin(a)*radius,z=oz+Math.Cos(a)*radius;var sample=walkingPatch.Sample(frame.Position(x,z));
                 if(sample.Underwater||!PaleolithicClay.ClayGround(sample.Ground))continue;
+                double fx=x-1.3,fz=z-.8;
+                double grade=Math.Max(Math.Abs(CampFloor(fx+.4,fz)-CampFloor(fx-.4,fz)),Math.Abs(CampFloor(fx,fz+.4)-CampFloor(fx,fz-.4)))/.8;
+                if(grade>.12||walkingPatch.Sample(frame.Position(fx,fz)).Underwater)continue;
                 motion.X=x;motion.Z=z;motion.Y=Ground(x,z)+TerrainMotion.EyeHeightM;motion.Grounded=true;found=true;break;
             }
             if(found)break;yield return null;
@@ -47,8 +50,8 @@ public sealed partial class LocalTerrainExplorer
         PlayerRules.SolarDays+=3;clayUpdateAt=0;UpdateClayDrying();Check(clay.Dried,"Real elapsed play days dry the same clay pot");
         inventoryContext=new NearbyPossession{Item=clay};inventoryMenuAt=new Vector2(Screen.width*.65f,Screen.height*.2f);yield return Shot("air-dried-pot");inventoryContext=null;SetInventoryOpen(false);
         var tinder=Add(PossessionKind.TinderBundle);var kindling=Add(PossessionKind.KindlingBundle);
-        double fx=motion.X-1.3,fz=motion.Z-.8;UpdateHumans();UpdateCamera();view.transform.LookAt(transform.TransformPoint(new Vector3((float)(fx-originX),(float)CampFloor(fx,fz),(float)(fz-originZ))));
-        BeginCampPlacement(tinder,CampKind.Fire);Check(campPlaceValid,"The real clay site accepts a reachable firing hearth: "+campPlaceReason);ConfirmCampPlacement();var fire=Camp.Objects.Last();AddCampMaterial(fire,kindling);
+        double fireX=motion.X-1.3,fireZ=motion.Z-.8;UpdateHumans();UpdateCamera();view.transform.LookAt(transform.TransformPoint(new Vector3((float)(fireX-originX),(float)CampFloor(fireX,fireZ),(float)(fireZ-originZ))));
+        campGroundAt=0;BeginCampPlacement(tinder,CampKind.Fire);Check(campPlaceValid,"The real clay site accepts a reachable firing hearth: "+campPlaceReason);ConfirmCampPlacement();var fire=Camp.Objects.Last();AddCampMaterial(fire,kindling);
         var fuel=WoodCrafting.Branch(new ScatterInstance{Id=919,Kind=ScatterKind.Branch,Position=Position,WidthM=2,HeightM=.08});fuel.Id="native-pottery-fuel";fuel.NaturalId=0;fuel.MassKg=10;Inventory.Items.Add(fuel);SetCraftWorkArea(fuel);AddCampMaterial(fire,fuel);LightCamp(fire);
         RefreshCampChoices(fire,true);campChoiceIndex=campChoices.FindIndex(c=>c.Item==clay&&c.Action==0);Check(campChoiceIndex>=0,"Air-dried pot appears as Fire in the existing quick-fire controls");RememberCampChoice();QuickFireAction(fire);
         Check(fire.CookingItems.Contains(clay)&&Inventory.Find(clay.Id)==null,"Firing transfers the actual pot into the hearth");
