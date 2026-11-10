@@ -23,6 +23,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public sealed class NpcSlowFrame
     {public double AtSeconds,FrameMs,NpcMs;public double[] MainThreadTraceMs;public int Gen0,Gen1,Gen2;public long MainAllocatedBytes;public int ScatterObjects,TreeInstances,Batches,ForestPages;public bool ResidentForestReady;}
+    public sealed class NpcCrowdProof {public int Residents,Groups,SkinnedRenderers,EnabledSkinnedRenderers;public long Vertices,EnabledVertices;public string Scope;public NpcResidentCheckRow[] People;}
     Vector3? npcCrowdFocus;
     static IEnumerator PrepareLivingCrowd(LocalTerrainExplorer owner,string output)
     {
@@ -61,7 +62,8 @@ public sealed partial class LocalTerrainExplorer
         owner.livingOrdered=owner.livingGroups.Values.OrderBy(g=>g.Situation.DistanceToPlayerM).ToArray();
         if(owner.livingPeople.Count!=100||owner.livingPeople.Keys.Distinct().Count()!=100)throw new InvalidOperationException("Crowd benchmark requires exactly 100 distinct real residents.");
         owner.npcCrowdFocus=new Vector3((float)(hx-owner.originX),(float)owner.VisibleGround(hx,hz,0)+1,(float)(hz-owner.originZ));
-        File.WriteAllText(Path.Combine(output,"crowd-fixture.json"),WorldJson.Write(new{Residents=owner.livingPeople.Count,Groups=groups.Count,Scope="Controlled local gathering of distinct real sampled people; natural population/encounter density unchanged. Normal physical NPC systems active, broad itinerary projection held fixed for this benchmark only.",People=owner.livingPeople.Values.Select(a=>new{a.ResidentId,a.GroupId,a.Resident.Name,a.Resident.AgeYears}).ToArray()}));
+        var skins=owner.livingPeople.Values.SelectMany(a=>a.Root.GetComponentsInChildren<SkinnedMeshRenderer>()).ToArray();
+        File.WriteAllText(Path.Combine(output,"crowd-fixture.json"),WorldJson.Write(new NpcCrowdProof{Residents=owner.livingPeople.Count,Groups=groups.Count,SkinnedRenderers=skins.Length,EnabledSkinnedRenderers=skins.Count(r=>r.enabled),Vertices=skins.Sum(r=>(long)(r.sharedMesh?.vertexCount??0)),EnabledVertices=skins.Where(r=>r.enabled).Sum(r=>(long)(r.sharedMesh?.vertexCount??0)),Scope="Controlled local gathering of distinct real sampled people; natural population/encounter density unchanged. Normal physical NPC systems active, broad itinerary projection held fixed for this benchmark only.",People=owner.livingPeople.Values.Select(a=>new NpcResidentCheckRow{Id=a.ResidentId,Group=a.GroupId,Name=a.Resident.Name,Age=a.Resident.AgeYears,Activity=a.CurrentActivity.ToString()}).ToArray()}));
         // Let the unchanged surrounding forest and actor assets finish before
         // measuring a crowd, instead of attributing initial page publication to AI.
         double deadline=Time.realtimeSinceStartupAsDouble+180;
@@ -108,6 +110,11 @@ public sealed partial class LocalTerrainExplorer
             foreach(var actor in owner.livingPeople.Values){actor.Root.SetActive(mode!="no-residents");if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(mode!="no-residents");}
             Debug.Log("NPC performance begins "+mode+" / "+owner.livingPeople.Count+" residents / "+owner.tiles.Count+" tiles; ready "+owner.AllReady);
             double warmUntil=Time.realtimeSinceStartupAsDouble+2;while(Time.realtimeSinceStartupAsDouble<warmUntil){CameraAt(0);yield return null;}
+            if(owner.npcCrowdFocus.HasValue&&mode=="normal")
+            {
+                if(owner.livingPeople.Count!=100||owner.livingPeople.Values.Any(a=>a.Health<=0))throw new InvalidOperationException("Crowd benchmark lost a living resident before measurement.");
+                yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"crowd-100.png"),capture.EncodeToPNG());Destroy(capture);
+            }
             var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous;int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
             var traceTotals=trace?new double[WorldGenPerformance.TraceMilliseconds.Length]:null;var slow=trace?new List<NpcSlowFrame>(24):null;
             long appendBytes=owner.scatterAppendAllocations,appendBuilds=owner.scatterAppendBuilds;int artModels=owner.scatterArt.Count;
