@@ -96,6 +96,7 @@ public sealed partial class LocalTerrainExplorer
         {plannedPixels=Screen.height;plannedFov=view.fieldOfView;detailDirty=true;}
         if(detailPlan!=null&&detailPlan.IsCompleted)
         {
+            detailLongest=Math.Max(detailLongest,(Time.realtimeSinceStartupAsDouble-detailStarted)*1000);
             if(detailPlan.IsFaulted)
             {
                 var fault=detailPlan.Exception.GetBaseException();
@@ -106,8 +107,11 @@ public sealed partial class LocalTerrainExplorer
             {
                 double ageDistance=Math.Max(Math.Abs(detailX-motion.X),Math.Abs(detailZ-motion.Z));
                 if(ageDistance<=Math.Max(detailOptions.FullRadius(HorizontalScale),Math.Abs(HeightAboveGround)))
+                {
+                    detailAccepted++;
                     AdoptDetailPlan(TerrainStreamingPlan.ProtectNear(detailPlan.Result,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,HeightAboveGround),detailOptions.FinestSegments));
-                else detailDirty=true;
+                }
+                else {detailStale++;detailDirty=true;}
             }
             detailPlan=null;detailCancellation?.Dispose();detailCancellation=null;
         }
@@ -118,6 +122,7 @@ public sealed partial class LocalTerrainExplorer
     void ScheduleTerrainDetailPlan()
     {
         detailDirty=false;detailGeneration=generation;detailX=motion.X;detailZ=motion.Z;
+        detailStarted=Time.realtimeSinceStartupAsDouble;
         double x=motion.X,z=motion.Z,altitude=HeightAboveGround,scale=HorizontalScale;
         var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
         var previous=new Dictionary<TerrainTileKey,int>(wanted);var estimator=detailEstimator;

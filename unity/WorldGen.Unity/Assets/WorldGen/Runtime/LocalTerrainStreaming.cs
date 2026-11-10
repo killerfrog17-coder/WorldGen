@@ -17,6 +17,11 @@ public sealed partial class LocalTerrainExplorer
     int installationsThisFrame;
     public long TerrainCacheHits {get;private set;}public long TerrainBuildRequests {get;private set;}public long TerrainPrefetchRequests {get;private set;}
     public int CachedTerrainTiles=>terrainProducts?.Count??0;
+    long streamingCompleted,streamingCanceled,streamingDiscardKey,streamingDiscardDetail,streamingDiscardEdges,streamingInstalled,streamingPreempted;
+    double streamingWorkerMs;
+    long detailAccepted,detailStale;double detailStarted,detailLongest;
+    long requestMissing,requestResolution,requestEdges;
+    string StreamingWorkReceipt=>"completed="+streamingCompleted+", canceled="+streamingCanceled+", discarded key/detail/edges="+streamingDiscardKey+"/"+streamingDiscardDetail+"/"+streamingDiscardEdges+", uploaded="+streamingInstalled+", preemptions="+streamingPreempted+", useful worker ms="+streamingWorkerMs.ToString("F1")+"; requests missing/resolution/edges="+requestMissing+"/"+requestResolution+"/"+requestEdges+"; plans accepted/stale="+detailAccepted+"/"+detailStale+" max ms="+detailLongest.ToString("F1")+"; "+TestHandoffDiagnostics();
     public long CachedTerrainBytes=>terrainProducts?.Bytes??0;
     public void TestStreamingVelocity(double x,double z){streamingVX=x;streamingVZ=z;predictedX=double.NaN;predictionDue=0;RefreshStreamingPrediction();}
     TerrainLru<TerrainProductKey,Tile> TerrainProducts=>terrainProducts??(terrainProducts=new TerrainLru<TerrainProductKey,Tile>(96L*1024*1024,128,RetireCachedTile));
@@ -104,6 +109,7 @@ public sealed partial class LocalTerrainExplorer
         (job.Backdrop?backdrops.ContainsKey(job.Key)&&!tiles.ContainsKey(job.Key)&&BackdropNeeded(job.Key):wanted.TryGetValue(job.Key,out int detail)&&detail==job.Segments&&TerrainEdges.Equal(job.Edges,wantedEdges[job.Key]));
     void RequestTerrain(TerrainTileKey key,int detail,double[] edges,bool prefetch=false,bool backdrop=false)
     {
+        if(!tiles.TryGetValue(key,out var prior))requestMissing++;else if(prior.Segments!=detail)requestResolution++;else requestEdges++;
         var buildFrame=frame;var buildTerrain=terrain;var producer=meshProcess;
         var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
         TerrainBuildRequests++;if(prefetch)TerrainPrefetchRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;

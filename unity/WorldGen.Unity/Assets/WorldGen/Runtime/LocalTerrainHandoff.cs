@@ -63,9 +63,13 @@ public sealed partial class LocalTerrainExplorer
         var p=preparedFrame;if(p?.Wanted==null)return "no preparation; active jobs "+jobs.Count;
         TerrainHandoff.Coordinates(p.Frame,Position,out double x,out double z);
         var resident=p.Tiles.ToDictionary(pair=>pair.Key,pair=>pair.Value.Segments);
-        return "tiles "+p.Tiles.Count+"/"+p.Wanted.Count+"; pending jobs "+jobs.Count(j=>j.Prepared!=null)+
+        double near=motion.Flying?Math.Max(2048*HorizontalScale,Math.Min(1500,Math.Abs(HeightAboveGround)*2)):2048*HorizontalScale;
+        int missingNear=0,wrongEdges=0;
+        foreach(var pair in p.Wanted)if(TerrainLod.DistanceSquared(pair.Key,x,z)<=near*near)
+        {if(!p.Tiles.TryGetValue(pair.Key,out var tile)||tile.Segments<pair.Value)missingNear++;else if(!TerrainEdges.Equal(tile.Edges,p.Edges[pair.Key]))wrongEdges++;}
+        return "tiles "+p.Tiles.Count+"/"+p.Wanted.Count+"; calibrated="+p.Calibrated+" detail="+p.Detail?.Status+" missing near="+missingNear+" edge mismatches="+wrongEdges+"; pending jobs "+jobs.Count(j=>j.Prepared!=null)+
             "; coverage "+TerrainHandoff.Ready(p.Wanted,resident,1e20,1e20,0)+
-            "; near ready "+TerrainHandoff.Ready(p.Wanted,resident,x,z,motion.Flying?0:2048*HorizontalScale);
+            "; near ready "+TerrainHandoff.Ready(p.Wanted,resident,x,z,near,coverageMasksReady:true);
     }
     public void TestAdvanceEast(double metres){motion.X+=metres;motion.Y=Math.Max(motion.Y,Ground(motion.X,motion.Z)+450);}
     public void TestBoundaryGround()

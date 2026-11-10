@@ -270,12 +270,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             if(job.Task.IsFaulted)
             {
                 var fault=job.Task.Exception.GetBaseException();
-                if(requestedCancel&&fault is OperationCanceledException)continue;
+                if(requestedCancel&&fault is OperationCanceledException){streamingCanceled++;continue;}
                 Debug.LogWarning("Terrain mesh request failed (generation "+job.Generation+", current "+generation+", cancel="+requestedCancel+"): "+job.Task.Exception);
                 error=fault.Message;debugOpen=true;CaptureMouse();continue;
             }
-            if(job.Task.IsCanceled)continue;
+            if(job.Task.IsCanceled){streamingCanceled++;continue;}
             using var upload=job.Task.Result;
+            streamingCompleted++;
             if(job.Prepared!=null)
             {
                 if(!job.Task.IsCanceled&&job.Generation==generation&&ReferenceEquals(job.Prepared,preparedFrame))
@@ -288,7 +289,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 if(prefetchWanted.TryGetValue(job.Key,out int predictedDetail)&&predictedDetail==job.Segments&&TerrainEdges.Equal(job.Edges,prefetchEdges[job.Key]))Upload(job.Key,upload,job.Edges,cacheOnly:true);
                 continue;
             }
-            if(!WorkMatchesCurrent(job))continue;
+            if(!WorkMatchesCurrent(job))
+            {
+                if(!wanted.TryGetValue(job.Key,out int currentDetail))streamingDiscardKey++;
+                else if(currentDetail!=job.Segments)streamingDiscardDetail++;
+                else streamingDiscardEdges++;
+                continue;
+            }
             Upload(job.Key,upload,job.Edges);
         }
         WorldGenPerformance.TraceEnd(35,installTrace);
@@ -310,7 +317,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(nearPending&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
         {
             var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key)&&!j.Task.IsCompleted);
-            if(background!=null)background.Cancellation?.Cancel();
+            if(background!=null){if(background.Cancellation?.IsCancellationRequested==false)streamingPreempted++;background.Cancellation?.Cancel();}
             else if(!coveredFlight||forestJobs.Count(j=>!j.Task.IsCompleted)+jobs.Count(j=>j.Prepared!=null&&!j.Task.IsCompleted)>=WorkerLimit)
             {
                 var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
@@ -382,6 +389,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
     void Upload(TerrainTileKey key,TerrainUpload data,double[] edges,PreparedFrame prepared=null,bool cacheOnly=false)
     {
+        streamingInstalled++;streamingWorkerMs+=data.BuildMilliseconds;
         var timer=System.Diagnostics.Stopwatch.StartNew();var root=new GameObject("Terrain "+key.X+","+key.Z+" L"+key.Level);root.transform.SetParent(prepared==null?terrainRoot.transform:prepared.Root.transform,false);
         if(cacheOnly)root.SetActive(false);installationsThisFrame++;
         root.transform.localPosition=new Vector3((float)(data.EastM-(prepared==null?originX:0)),0,(float)(data.NorthM-(prepared==null?originZ:0)));

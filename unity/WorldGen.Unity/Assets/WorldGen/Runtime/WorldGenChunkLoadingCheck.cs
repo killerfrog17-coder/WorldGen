@@ -119,6 +119,7 @@ public sealed partial class LocalTerrainExplorer
     IEnumerator CheckChunkFastFlight(string output)
     {
         var origin=frame;var rows=new List<string>{"seconds,speed,east,altitude,viewM,terrainM,forestM,tiles,jobs,nearReady,groundAtPlayer,missingNearProbes,handoffs,buildRequests,meshHeightError,preparedTiles,groundPixelsMissing"};
+        var workRows=new List<string>();
         TestView(500,90,12);double start=Time.realtimeSinceStartupAsDouble,last=start,east=0,next=start;
         long initialBuilds=TerrainBuildRequests;int missingFrames=0,lastPixelGaps=0,audits=0;double nextAudit=start+1;BeginLoadingProfile();
         bool longFlight=Environment.GetCommandLineArgs().Contains("--worldgen-chunk-long-flight");double duration=longFlight?80:40,turnAt=longFlight?56:24;
@@ -136,6 +137,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 nextAudit=now+5;lastPixelGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-ground-"+audits+".png"));
                 Capture(Path.Combine(output,"flight-view-"+audits+".png"));audits++;
+                workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
             }
             if(now>=next)
             {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds,VisibleGround(x,z,double.NaN)-Ground(x,z),PreparedTileCount,lastPixelGaps}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}
@@ -143,6 +145,7 @@ public sealed partial class LocalTerrainExplorer
             yield return null;
         }
         File.WriteAllLines(Path.Combine(output,"fast-flight.csv"),rows);
+        File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
         File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
     }
