@@ -168,10 +168,15 @@ public sealed partial class LocalTerrainExplorer
             view.transform.position=new Vector3((float)(motion.X-originX),(float)(Ground(motion.X,motion.Z)+10000),(float)(motion.Z-originZ));view.transform.rotation=Quaternion.Euler(90,0,0);
             view.orthographic=true;view.orthographicSize=40;view.farClipPlane=20000;view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.magenta;view.targetTexture=target;
             Color32[] Read(){view.Render();RenderTexture.active=target;pixels.ReadPixels(new Rect(0,0,96,96),0,0);pixels.Apply();return pixels.GetPixels32();}
-            view.cullingMask=0;var empty=Read();var clear=empty[empty.Length/2];
-            bool Equal(Color32 p)=>Math.Abs(p.r-clear.r)<4&&Math.Abs(p.g-clear.g)<4&&Math.Abs(p.b-clear.b)<4;
-            if(empty.Count(Equal)<empty.Length*.99)throw new InvalidOperationException("Flight ground audit lacks a uniform empty positive control");
-            view.cullingMask=1<<29;var actual=Read();int gaps=actual.Count(Equal);
+            view.cullingMask=0;var empty=Read();var repeated=Read();
+            bool Equal(Color32 a,Color32 b)=>Math.Abs(a.r-b.r)<4&&Math.Abs(a.g-b.g)<4&&Math.Abs(a.b-b.b)<4;
+            int stable=0;for(int i=0;i<empty.Length;i++)if(Equal(empty[i],repeated[i]))stable++;
+            // Atmospheric rendering may create a gradient over empty sky. A
+            // repeated per-pixel control verifies it is stable without assuming
+            // that every empty pixel has one uniform postprocessed colour.
+            if(stable<empty.Length*.99){File.WriteAllBytes(path+"-unstable-control.png",pixels.EncodeToPNG());throw new InvalidOperationException("Flight ground audit has an unstable empty positive control");}
+            view.cullingMask=1<<29;var actual=Read();int gaps=0;
+            for(int i=0;i<actual.Length;i++)if(Equal(actual[i],empty[i]))gaps++;
             File.WriteAllBytes(path,pixels.EncodeToPNG());return gaps;
         }
         finally
