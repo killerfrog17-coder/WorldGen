@@ -39,6 +39,7 @@ public sealed partial class LocalTerrainExplorer
         Check(placed,"A real woven mat places as bedding through existing placement controls");Check(!Inventory.Items.Contains(mat)&&bed.Materials.Any(p=>p.Id==mat.Id),"Placement transfers the same mat to the actual bed");
         campUpdateAt=0;UpdateCamp();Check(campVisuals[bed.Id].Root.GetComponentsInChildren<MeshFilter>().Any(f=>f.sharedMesh!=null&&f.sharedMesh.vertexCount>100),"Bedding renders the actual spread woven surface");var bedTarget=campVisuals[bed.Id].Root.transform.localPosition+Vector3.up*.025f;
         landscapeReviewCamera=view.transform.localPosition;landscapeReviewRotation=Quaternion.LookRotation(bedTarget-landscapeReviewCamera.Value,Vector3.up);UpdateCamera();
+        campMaskCheckAt=0;UpdateCampClearing();yield return new WaitForSecondsRealtime(2);
         yield return Shot("spread-woven-bedding");landscapeReviewCamera=null;UpdateCamera();
         Check(CampRules.BedComfort(bed)>.38&&CampRules.BedInsulation(bed)>0,"Woven bedding contributes actual comfort and insulation");
         var saved=new PlaySession();StorePlayer(saved);WorldJson.Read<PlaySession>(WorldJson.Write(saved)).Validate();Check(true,"Full native capture/reload accepts jewellery, woven material and its placed bed");
