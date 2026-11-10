@@ -41,7 +41,7 @@ namespace WorldGen.Core
         {
             var l=Limits(d);double Snap(double x)=>Math.Round(x*4)/4;
             width=Math.Max(l.minW,Math.Min(l.maxW,Snap(width)));depth=Math.Max(l.minD,Math.Min(l.maxD,Snap(depth)));
-            return new CampBlueprint{Version=2,Design=d,WidthM=width,DepthM=Round(d)?width:depth,Cover=cover,Store=store};
+            return new CampBlueprint{Version=2,Design=d,WidthM=width,DepthM=Round(d)?width:depth,Cover=d==CampDesign.SkinBoat?CampCover.Hide:d==CampDesign.ReedRaft?CampCover.Reed:cover,Store=store};
         }
         public static double Height(CampBlueprint p)=>NominalHeight(p)+Math.Max(0,p.FloorHeights?.Max()??0);
         public static double FloorAt(CampBlueprint p,double x,double z)

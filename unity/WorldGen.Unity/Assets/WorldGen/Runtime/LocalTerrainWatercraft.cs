@@ -7,6 +7,11 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     CampObject activeWatercraft;bool watercraftRestored;
+    CampBlueprint watercraftCheckedPlan;int watercraftCheckedRevision=-1;bool watercraftCheckedComplete;
+    readonly Collider[] watercraftContacts=new Collider[32];
+    static readonly (double,double)[] watercraftCorners={(-.45,-.45),(-.45,.45),(.45,-.45),(.45,.45)};
+    bool WatercraftUsable(CampObject c)
+    {if(!PrimitiveWatercraft.Boat(c))return false;if(watercraftCheckedPlan!=c.Blueprint||watercraftCheckedRevision!=c.Blueprint.Revision){watercraftCheckedPlan=c.Blueprint;watercraftCheckedRevision=c.Blueprint.Revision;watercraftCheckedComplete=CampBlueprints.Complete(c.Blueprint)&&c.Blueprint.Parts.All(p=>p.Weathering<.65);}return watercraftCheckedComplete&&WatercraftLoad<=PrimitiveWatercraft.CapacityKg(c);}
     double WatercraftLoad=>70*Math.Pow((humanPlayer?.Definition.EyeHeight??1.65f)/1.65,3)+Inventory.CarriedMassKg;
     double WatercraftFloor(CampObject c,double x,double z)
     {var water=SampleMotionWater(x,z);double ground=CampFloor(x,z);return double.IsFinite(water.Surface)&&water.Surface>ground?Math.Max(ground,water.Surface-PrimitiveWatercraft.Draft(c,activeWatercraft==c?WatercraftLoad:0)):ground;}
@@ -24,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BoardWatercraft(CampObject c)
     {
-        if(activeWatercraft!=null||!PrimitiveWatercraft.Seaworthy(c,WatercraftLoad)){InventoryFeedback("Finish the hull and seals, and keep the load within its buoyancy.");return;}
+        if(activeWatercraft!=null||!WatercraftUsable(c)){InventoryFeedback("Finish the hull and seals, and keep the load within its buoyancy.");return;}
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var water=SampleMotionWater(x,z);
         if(!double.IsFinite(water.Surface)||water.Surface-CampFloor(x,z)<PrimitiveWatercraft.Draft(c,WatercraftLoad)+.02){InventoryFeedback("The hull is grounded; it needs slightly deeper water.");return;}
         activeWatercraft=c;PlayerRules.WatercraftId=c.Id;CancelItemCharge();CancelWorldToolWork();CancelBlueprintWork();campMenu=null;CaptureMouse();
@@ -35,18 +40,18 @@ public sealed partial class LocalTerrainExplorer
     bool WatercraftClear(CampObject c,double x,double z)
     {
         double a=c.Heading*Math.PI/180,s=Math.Sin(a),co=Math.Cos(a),draft=PrimitiveWatercraft.Draft(c,WatercraftLoad);
-        foreach(var corner in new[]{(-.45,-.45),(-.45,.45),(.45,-.45),(.45,.45)})
+        foreach(var corner in watercraftCorners)
         {double dx=corner.Item1*c.Blueprint.WidthM,dz=corner.Item2*c.Blueprint.DepthM,px=x+co*dx+s*dz,pz=z-s*dx+co*dz;var water=SampleMotionWater(px,pz);if(!double.IsFinite(water.Surface)||water.Surface-CampFloor(px,pz)<draft+.02)return false;}
         var center=transform.TransformPoint(new Vector3((float)(x-originX),(float)(SampleMotionWater(x,z).Surface+.18),(float)(z-originZ)));
-        foreach(var hit in Physics.OverlapBox(center,new Vector3((float)c.Blueprint.WidthM*.45f,.2f,(float)c.Blueprint.DepthM*.45f),transform.rotation*Quaternion.Euler(0,(float)c.Heading,0),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))
-            if(!campVisuals.TryGetValue(c.Id,out var own)||!hit.transform.IsChildOf(own.Root.transform))return false;
+        int contacts=Physics.OverlapBoxNonAlloc(center,new Vector3((float)c.Blueprint.WidthM*.45f,.2f,(float)c.Blueprint.DepthM*.45f),watercraftContacts,transform.rotation*Quaternion.Euler(0,(float)c.Heading,0),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
+        if(contacts==watercraftContacts.Length)return false;for(int i=0;i<contacts;i++)if(!campVisuals.TryGetValue(c.Id,out var own)||!watercraftContacts[i].transform.IsChildOf(own.Root.transform))return false;
         return true;
     }
     void UpdateWatercraft()
     {
         if(!Ready)return;if(!watercraftRestored){watercraftRestored=true;if(!string.IsNullOrEmpty(PlayerRules.WatercraftId))activeWatercraft=Camp.Objects.FirstOrDefault(c=>c.Id==PlayerRules.WatercraftId&&PrimitiveWatercraft.Boat(c));}
         var c=activeWatercraft;if(c==null)return;
-        if(DeathVisible||Spectating||!Camp.Objects.Contains(c)||!PrimitiveWatercraft.Seaworthy(c,WatercraftLoad)){LeaveWatercraft();return;}
+        if(DeathVisible||Spectating||!Camp.Objects.Contains(c)||!WatercraftUsable(c)){LeaveWatercraft();return;}
         TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);double dt=Math.Max(0,Math.Min(.1,Time.unscaledDeltaTime));
         if(!paused&&!mapOpen&&!ecologyOpen&&!chatOpen)
         {

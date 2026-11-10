@@ -8,7 +8,7 @@ static class CampBlueprintTests
         var at=new V(1,0,0);var inventory=new PlayerInventory();
         Possession Source(CampBlueprint p,CampComponent c)
         {
-            var kind=c.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:c.Kind==CampPartKind.Bonework?PossessionKind.Bone:c.Kind==CampPartKind.Binding?PossessionKind.Cordage:c.Kind==CampPartKind.Cover?(p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:p.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass):PossessionKind.Branch;
+            var kind=c.Kind==CampPartKind.Reedwork?PossessionKind.ReedBundle:c.Kind==CampPartKind.Seal?PossessionKind.CompoundAdhesive:c.Kind==CampPartKind.Stonework?PossessionKind.LargeRock:c.Kind==CampPartKind.Bonework?PossessionKind.Bone:c.Kind==CampPartKind.Binding?PossessionKind.Cordage:c.Kind==CampPartKind.Cover?(p.Cover==CampCover.Hide?PossessionKind.WorkedHide:p.Cover==CampCover.Bark?PossessionKind.BarkSheet:p.Cover==CampCover.Reed?PossessionKind.ReedBundle:PossessionKind.DryGrass):PossessionKind.Branch;
             var item=PortableTechnology.Item(kind)==null?new Possession{Id=Guid.NewGuid().ToString("N"),Kind=kind,Position=at}:PortableTechnology.Create(kind,at);
             item.NaturalId=0;item.WoodStraightness=.9;item.WoodSoundness=.9;
             if(c.Kg>0){item.MassKg=c.Kg*1.5;if(c.Kind==CampPartKind.Deck){item.HeightM=1;item.WidthM=.03;}}else{item.HeightM=c.LengthM+.25;item.WidthM=c.WidthM*1.2;item.DepthM=item.WidthM;item.MassKg=item.HeightM*item.WidthM*item.WidthM*450;}

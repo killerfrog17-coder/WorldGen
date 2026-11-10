@@ -20,9 +20,10 @@ public sealed partial class LocalTerrainExplorer
   var oldKeyboard=Keyboard.current;var keyboard=InputSystem.AddDevice<Keyboard>();TestKeyboard(keyboard);var background=InputSystem.settings.backgroundBehavior;InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
   try
   {
+   bool dryStart=false;for(int ring=0;ring<40&&!dryStart;ring++)for(int i=0;i<16&&!dryStart;i++){double a=i*Math.PI/8,x=ring*4*Math.Sin(a),z=ring*4*Math.Cos(a);if(double.IsFinite(SampleMotionWater(x,z).Surface))continue;motion.Place(x,z,CampFloor(x,z));dryStart=true;}Check(dryStart,"Actual dry bank is available for hewing the heavy limb");SetInventoryOpen(true);
    var paddleBranch=WoodCrafting.Branch(new ScatterInstance{Id=776,Kind=ScatterKind.Branch,Position=Position,WidthM=1.6,HeightM=.14});paddleBranch.NaturalId=0;paddleBranch.Id="native-paddle-limb";Inventory.Items.Add(paddleBranch);SetCraftWorkArea(paddleBranch);
    foreach(var kind in new[]{PossessionKind.StoneAxe,PossessionKind.StoneBlade}){var tool=PortableTechnology.Create(kind,Position);Inventory.Items.Add(tool);SetCraftWorkArea(tool);}
-   RefreshInventoryNearby(true);Check(StartPortableCraft("hew-paddle",paddleBranch.Id),"Actual thick limb, axe and blade start paddle hewing");double until=Time.unscaledTimeAsDouble+70;while(Inventory.Crafts.Count>0&&Time.unscaledTimeAsDouble<until)yield return null;Check(paddleBranch.Kind==PossessionKind.Paddle,"Timed hewing produces the actual usable wooden paddle");
+   RefreshInventoryNearby(true);Check(StartPortableCraft("hew-paddle",paddleBranch.Id),"Actual thick limb, axe and blade start paddle hewing");double until=Time.unscaledTimeAsDouble+70;while(Inventory.Crafts.Count>0&&Time.unscaledTimeAsDouble<until)yield return null;Check(paddleBranch.Kind==PossessionKind.Paddle,"Timed hewing produces the actual usable wooden paddle; kind="+paddleBranch.Kind+" jobs="+string.Join(";",Inventory.Crafts.Select(j=>j.WorkSeconds+"/"+j.RequiredSeconds+" running="+j.Running)));SetInventoryOpen(false);
    foreach(var design in new[]{CampDesign.ReedRaft,CampDesign.SkinBoat})
    {
     var plan=CampBlueprints.Create(design,design==CampDesign.ReedRaft?1.5:2,design==CampDesign.ReedRaft?2.5:2,design==CampDesign.SkinBoat?CampCover.Hide:CampCover.Reed);

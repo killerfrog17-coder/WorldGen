@@ -24,6 +24,8 @@ namespace WorldGen.Core
             {
                 case PossessionKind.SmallRock:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Throw,.72,18,0,.62,3,.3);
                 case PossessionKind.LargeRock:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.78,55,0,1.2,8,.6);
+                case PossessionKind.Paddle:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,1.2,25,0,.8,3,.4);
+                case PossessionKind.Torch:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.9,15,0,.7,2,.25);
                 case PossessionKind.Grindstone:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.75,35,0,.9,4,.4);
                 case PossessionKind.StoneFlake:case PossessionKind.StoneBlade:case PossessionKind.StoneScraper:return P(ItemPrimaryUse.Edge,ItemSecondaryUse.Block,.72,13,.72,.5,2.5,.22);
                 case PossessionKind.HaftedKnife:return P(ItemPrimaryUse.Edge,ItemSecondaryUse.Block,.85,20,.85,.52,3,.35);

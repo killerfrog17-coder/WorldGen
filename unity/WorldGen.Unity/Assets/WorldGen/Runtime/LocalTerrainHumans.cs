@@ -162,7 +162,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         double dx=motion.X-humanLastX,dz=motion.Z-humanLastZ;humanLastX=motion.X;humanLastZ=motion.Z;
-        float speed=dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
+        float speed=activeWatercraft==null&&dt>0&&!changed?(float)(Math.Sqrt(dx*dx+dz*dz)/dt):0;if(speed>15)speed=0;
         humanPlayer.Motor=motion;humanPlayer.Speed=humanPlayer.TargetSpeed=speed;
         bool crouch=(Application.isFocused||testKeyboard!=null)&&PlayerCrouching;
         if(!deathPresented){
