@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
         public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
         public double SimulationAge,PoseAge,AvoidUntil;public float AvoidYaw;
-        public float PoseGroundLift;public bool DeferredPose,DeferredCrouch;
+        public float PoseGroundLift;public bool DeferredPose,DeferredCrouch,AutomaticAgeCached;public Vector3 AutomaticPelvis;
         public double NavigationX,NavigationZ;
         public Collider NpcWallCollider;public float NpcWallSide;public double NpcWallUntil;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";

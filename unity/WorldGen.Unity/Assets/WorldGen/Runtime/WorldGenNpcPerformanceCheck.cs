@@ -142,7 +142,7 @@ public sealed partial class LocalTerrainExplorer
                 if(owner.livingPeople.Count!=100||owner.livingPeople.Values.Any(a=>a.Health<=0))throw new InvalidOperationException("Crowd benchmark lost a living resident before measurement.");
                 yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"crowd-100.png"),capture.EncodeToPNG());Destroy(capture);
             }
-            if(owner.npcAutomaticPoses){yield return new WaitForEndOfFrame();File.WriteAllText(Path.Combine(output,"automatic-pose-controls.txt"),owner.VerifyAutomaticNpcPoses());}
+            if(owner.npcAutomaticPoses){yield return new WaitForEndOfFrame();string controls;try{controls=owner.VerifyAutomaticNpcPoses();}catch{WorldGenNativeGcProbe.Write(output);throw;}File.WriteAllText(Path.Combine(output,"automatic-pose-controls.txt"),controls);}
             long heapStart=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
             var enabledSkins=owner.livingPeople.Values.SelectMany(a=>a.Root.GetComponentsInChildren<SkinnedMeshRenderer>()).Where(r=>r.enabled).ToArray();long enabledVertices=enabledSkins.Sum(r=>(long)(r.sharedMesh?.vertexCount??0));
             var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous,lateNpcMs=0;long previousFrameTick=System.Diagnostics.Stopwatch.GetTimestamp();int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
