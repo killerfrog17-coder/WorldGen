@@ -44,11 +44,11 @@ namespace WorldGen.Core
             for(int a=0;a<2;a++)for(int b=0;b<2;b++)radius=Math.Max(radius,(ForestPosition(key.Face,a==0?x:right,b==0?y:top)-center).Length*terrain.RadiusM*scale);
             radius=radius*1.05+100;
         }
-        public ForestPageKey[] PlanForest(V eye,double range,double exactRange=1600,int maximumPages=4096,double innerRange=0)
+        public ForestPageKey[] PlanForest(V eye,double range,double exactRange=1600,int maximumPages=4096,double innerRange=0,double altitudeM=0)
         {
             if(range<0||range>500000||double.IsNaN(range)||maximumPages<16)throw new ArgumentOutOfRangeException();
             int top=0;while((long)ForestPageSide*(1L<<top)<TreeLatticeCount)top++;
-            var result=new List<ForestPageKey>();double error=.008;
+            var result=new List<ForestPageKey>();double error=.04;
             for(int attempt=0;attempt<14;attempt++)
             {
                 result.Clear();
@@ -56,10 +56,10 @@ namespace WorldGen.Core
                 {
                     long size=(long)ForestPageSide*(1L<<key.Level);
                     if(key.X*size>=TreeLatticeCount||key.Y*size>=TreeLatticeCount)return;
-                    ForestBounds(key,out V center,out double radius);double distance=Math.Max(0,(center-eye).Length*terrain.RadiusM*scale-radius);
+                    ForestBounds(key,out V center,out double radius);double groundDistance=Math.Max(0,(center-eye).Length*terrain.RadiusM*scale-radius),distance=Math.Sqrt(groundDistance*groundDistance+altitudeM*altitudeM);
                     if(distance>range||(center-eye).Length*terrain.RadiusM*scale+radius<innerRange)return;
-                    double step=TreeLatticeStep*(1<<key.Level);
-                    if(key.Level>0&&(distance<exactRange||step>Math.Max(TreeLatticeStep,distance*error)))
+                    double step=4*TreeLatticeStep*(1<<key.Level);
+                    if(key.Level>0&&(distance<exactRange||key.Level>1&&step>Math.Max(TreeLatticeStep,distance*error)))
                     {for(int y=0;y<2;y++)for(int x=0;x<2;x++)Visit(new ForestPageKey(key.Face,key.X*2+x,key.Y*2+y,key.Level-1));}
                     else result.Add(key);
                 }
@@ -70,6 +70,7 @@ namespace WorldGen.Core
                 double expected=0;
                 foreach(var key in result)
                 {
+                    if(key.Level>0){expected+=64;continue;}
                     ForestBounds(key,out V center,out double radius);var forest=terrain.Profile(terrain.NearestCell(center)).Forest;double support=forest.Coverage;
                     Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(center,normal),u=V.Dot(center,a)/dot,v=V.Dot(center,b)/dot;
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);
@@ -87,6 +88,7 @@ namespace WorldGen.Core
             if(key.Face<0||key.Face>5||key.X<0||key.Y<0||key.Level<0||key.Level>15)throw new ArgumentOutOfRangeException(nameof(key));
             var result=new List<ForestRepresentative>();int stride=1<<key.Level,span=checked(ForestPageSide*stride),x0=checked(key.X*span),y0=checked(key.Y*span),count=TreeLatticeCount,probes=0;
             if(x0>=count||y0>=count)throw new ArgumentOutOfRangeException(nameof(key));
+            if(key.Level>0)return BuildCanopy(key,x0,y0,span,count,token);
             var patches=new Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch>();
             LocalTerrain.LocalTerrainPatch Patch(ScatterKey address)
             {
@@ -136,6 +138,32 @@ namespace WorldGen.Core
                 result.Add(new ForestRepresentative{Tree=representative,CellX=left,CellY=bottom,CrownScale=crown,Population=population});
             }
             return new ForestPage{Key=key,Roots=result.ToArray(),Probes=probes};
+        }
+        // A distant canopy is a regional coverage descriptor, NOT a sampled
+        // population of real trees. No terrain, soil, slope or TryTree census.
+        // The renderer drapes these cheap GPU patches over resident ground.
+        ForestPage BuildCanopy(ForestPageKey key,int x0,int y0,int span,int count,CancellationToken token)
+        {
+            var roots=new List<ForestRepresentative>(64);double cell=span/8.0;
+            for(int y=0;y<8;y++)for(int x=0;x<8;x++)
+            {
+                token.ThrowIfCancellationRequested();
+                int left=(int)(x0+x*cell),bottom=(int)(y0+y*cell);if(left>=count||bottom>=count)continue;
+                double nx=Math.Min(cell,count-left),ny=Math.Min(cell,count-bottom);
+                int gx=(int)(left+nx*.5),gy=(int)(bottom+ny*.5);var p=ForestPosition(key.Face,gx,gy);
+                var region=terrain.Profile(terrain.NearestCell(p));var forest=region.Forest;
+                if(forest.Coverage<=.005||region.Biome==Biome.Ocean||region.Biome==Biome.Freshwater||region.Biome==Biome.SalineLake)continue;
+                double cover=D.Clamp(forest.Coverage*TreeFlora.Stand(forest,p,seed,terrain.RadiusM*scale));
+                if(cover<=.005)continue;
+                Basis(key.Face,out V normal,out V u,out V v);double dot=V.Dot(p,normal),a=V.Dot(p,u)/dot,b=V.Dot(p,v)/dot;
+                double spacing=TreeLatticeStep*Math.Min(nx,ny)/Math.Pow(1+a*a+b*b,.75);
+                var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);ulong id=address.Id(0,gy%TreeCandidateSide*TreeCandidateSide+gx%TreeCandidateSide);
+                var tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=forest.MorphologyCode,Position=p,Normal=p,
+                    GroundM=region.ElevationM,HeightM=Math.Max(1,forest.HeightM),WidthM=spacing*Math.Sqrt(cover)*1.12,
+                    Color=forest.Color,YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360};
+                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=1,Population=0});
+            }
+            return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=0};
         }
     }
 }

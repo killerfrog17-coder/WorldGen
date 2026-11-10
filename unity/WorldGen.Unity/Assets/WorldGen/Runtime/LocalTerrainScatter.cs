@@ -12,11 +12,11 @@ public sealed partial class LocalTerrainExplorer
 #if DEVELOPMENT_BUILD
     static readonly Unity.Profiling.ProfilerMarker scatterCorrectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterTerrainCorrection"),scatterInstallMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterInstallSlice"),scatterFullProjectionMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterFullProjection"),scatterGroupMarker=new Unity.Profiling.ProfilerMarker("WorldGen.ScatterGroupPreparation");
 #endif
-    sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task; }
+    sealed class ScatterWork { public ScatterKey Key;public Task<ScatterPatch> Task;public bool TreesIncluded; }
     sealed class ScatterGroup {public Bounds Bounds,RootBounds;public int[] Indices;public ScatterKind Kind;public double MaximumWidth;public bool Trees,ForestOwned;public int ForestEpoch=-1,MaximumGroundLevel;}
     struct ScatterAdmission {public int Index,Lod;public float Low,High;public bool ShadowOnly;}
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
-    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
+    sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid,TreesIncluded;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
     sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
@@ -192,7 +192,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var work=scatterJobs[i];if(!work.Task.IsCompleted)continue;scatterJobs.RemoveAt(i);
             if(work.Task.IsFaulted){Debug.LogWarning("Terrain scatter request failed: "+work.Task.Exception);error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
-            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){installingScatter=new ScatterChunk{Source=work.Task.Result};installingScatterKey=work.Key;installingScatterFrame=null;}break;
+            if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){installingScatter=new ScatterChunk{Source=work.Task.Result,TreesIncluded=work.TreesIncluded};installingScatterKey=work.Key;installingScatterFrame=null;}break;
         }
         // Dense local scatter may need hundreds of bounded install slices.
         // It must not consume the only upload allowance every frame while
@@ -203,7 +203,7 @@ public sealed partial class LocalTerrainExplorer
         if(!mapOpen&&installingScatter==null&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
-            {if(scatterChunks.ContainsKey(key)||HasScatterJob(key))continue;RequestScatter(key);break;}
+            {if(scatterChunks.TryGetValue(key,out var ready)&&(ready.TreesIncluded||!ScatterNeedsTrees(key))||HasScatterJob(key))continue;RequestScatter(key);break;}
         }
         if(!mapOpen&&!forestFirst){long t=WorldGenPerformance.TraceBegin();UpdateTreeImpostors();WorldGenPerformance.TraceEnd(10,t);t=WorldGenPerformance.TraceBegin();UpdateForestFields();WorldGenPerformance.TraceEnd(12,t);}
         if(scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
@@ -255,8 +255,15 @@ public sealed partial class LocalTerrainExplorer
     {
         // Capture job inputs only for actual requests. An in-loop lambda used
         // to allocate a closure even when the resident-chunk check continued.
-        var source=scatter;var producer=meshProcess;var token=cancellation.Token;
-        scatterJobs.Add(new ScatterWork{Key=key,Task=Task.Run(()=>producer==null?source.Build(key,token):producer.Scatter(key,token),token)});
+        var source=scatter;var producer=meshProcess;var token=cancellation.Token;bool trees=ScatterNeedsTrees(key);
+        scatterJobs.Add(new ScatterWork{Key=key,TreesIncluded=trees,Task=Task.Run(()=>producer==null?source.Build(key,token,trees):producer.Scatter(key,token,trees),token)});
+    }
+    bool ScatterNeedsTrees(ScatterKey key)
+    {
+        if(key.Detail)return false;if(!ForestNeededForReveal)return true;
+        if(!scatterRevealBounds.TryGetValue(key,out var bounds))return true;
+        double distance=Math.Max(0,(bounds.Center-Position).Length*frame.RadiusM-bounds.Radius);
+        return Math.Sqrt(distance*distance+HeightAboveGround*HeightAboveGround)<=Math.Max(384,ForestHandoffReach+128);
     }
     // Query resident triangles before evaluating the analytic sampler. Passing
     // Ground(...) as a fallback evaluates it eagerly, even for a resident tile.

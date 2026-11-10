@@ -3,21 +3,22 @@ struct Root {float3 position;float width;float height;float yaw;float slopeX;flo
 StructuredBuffer<Root> _Roots;
 StructuredBuffer<int> _Fields;
 StructuredBuffer<int4> _Tiles;
+StructuredBuffer<float> _ForestBirth;float _ForestClock;
 AppendStructuredBuffer<uint> _Visible;
 float4 _Planes[6],_Chart,_Ranges;float3 _Eye;uint _RootCount;
 uint Mix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
-bool Present(int x,int z,int level,uint face)
+int Present(int x,int z,int level,uint face)
 {
     uint mask=(uint)_Ranges.w,slot=Mix((uint)x*73856093u^(uint)z*19349663u^(uint)level*83492791u^face*15485863u)&mask;
     [loop]for(uint attempt=0;attempt<=mask;attempt++)
-    {int4 item=_Tiles[slot];if(item.w==0)return false;if(item.x==x&&item.y==z&&item.z==level&&item.w==(int)face+1)return true;slot=(slot+1)&mask;}
-    return false;
+    {int4 item=_Tiles[slot];if(item.w==0)return -1;if(item.x==x&&item.y==z&&item.z==level&&(item.w&7)==(int)face+1)return (item.w>>3)-1;slot=(slot+1)&mask;}
+    return -1;
 }
 [numthreads(64,1,1)]
 void Cull(uint3 tid:SV_DispatchThreadID)
 {
-    uint at=tid.x;if(at>=_RootCount)return;Root root=_Roots[at];if(root.height<=0||_Fields[root.field&65535u]==0)return;
-    if(_Chart.w<1&&(root.face>>8)/16777216.0>=_Chart.w)return;
+    uint at=tid.x;if(at>=_RootCount)return;Root root=_Roots[at];if(root.height<=0||root.padding<0||_Fields[root.field&65535u]==0)return;
+    if(root.padding<1.5&&_Chart.w<1&&(root.face>>8)/16777216.0>=_Chart.w)return;
     float3 p=root.position-_Chart.xyz+float3(0,root.height*.5,0);
     float radius=max(root.width,root.height)*1.8+root.width*length(float2(root.slopeX,root.slopeZ))*1.5;
     float distance=length(p-_Eye);if(distance+radius<_Ranges.x||distance-radius>_Ranges.z)return;
@@ -26,6 +27,6 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     // Finest READY forest field owns each root, independently of terrain
     // completion. Parent packets remain until replacement bakes are available.
     [loop]for(uint fine=0;fine<level;fine++)
-    {int size=32*(1<<fine);if(Present(root.cellX/size,root.cellY/size,(int)fine,root.face&7u))return;}
+    {int size=32*(1<<fine);int id=Present(root.cellX/size,root.cellY/size,(int)fine,root.face&7u);if(id>=0){float born=_ForestBirth[id];if(root.padding>1.5&&fine==0&&born>0&&_ForestClock-born<.7)continue;return;}}
     _Visible.Append(at);
 }

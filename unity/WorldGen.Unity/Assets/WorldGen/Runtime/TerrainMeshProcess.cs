@@ -119,7 +119,7 @@ public sealed class TerrainMeshProcess : IDisposable
         }
         }catch{token.ThrowIfCancellationRequested();throw;}
     }
-    public ScatterPatch Scatter(ScatterKey key,CancellationToken token)
+    public ScatterPatch Scatter(ScatterKey key,CancellationToken token,bool includeTrees=true)
     {
         try{
         using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
@@ -130,7 +130,7 @@ public sealed class TerrainMeshProcess : IDisposable
                 client.Connect(IPAddress.Loopback,connection.Port);
                 using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
-                    w.Write(connection.Token);w.Write((byte)1);TerrainMeshWire.WriteScatterKey(w,key);
+                    w.Write(connection.Token);w.Write((byte)(includeTrees?1:4));TerrainMeshWire.WriteScatterKey(w,key);
                     if(!r.ReadBoolean())throw new InvalidOperationException("Scatter worker: "+r.ReadString());
                     var patch=TerrainMeshWire.ReadScatter(r,key);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return patch;
                 }

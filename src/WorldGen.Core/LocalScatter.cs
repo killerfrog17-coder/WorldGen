@@ -63,9 +63,9 @@ namespace WorldGen.Core
             }
             result.Sort();return result.ToArray();
         }
-        public ScatterPatch Build(ScatterKey key,CancellationToken token=default)
-            =>BuildContents(key,token,null,0);
-        ScatterPatch BuildContents(ScatterKey key,CancellationToken token,V? solidCenter,double solidRadiusM)
+        public ScatterPatch Build(ScatterKey key,CancellationToken token=default,bool includeTrees=true)
+            =>BuildContents(key,token,null,0,includeTrees);
+        ScatterPatch BuildContents(ScatterKey key,CancellationToken token,V? solidCenter,double solidRadiusM,bool includeTrees=true)
         {
             V center=Position(key);var patch=terrain.Patch(center,(key.Detail?110:840)/scale);var result=new List<ScatterInstance>();
             // This batch makes thousands of nearby queries. Prepare the exact
@@ -160,7 +160,7 @@ namespace WorldGen.Core
             }
             if(key.Detail){AddGroundSpecialists(key,patch,result,token);AddFallenBranches(key,patch,result,token);}
             else if(solidCenter.HasValue)AddSettlementTrees(key,patch,result,solidCenter.Value,solidRadiusM,token);
-            else {AddMidPlants(key,patch,result,token);AddGeneratedTrees(key,patch,result,token);}
+            else {AddMidPlants(key,patch,result,token);if(includeTrees)AddGeneratedTrees(key,patch,result,token);}
             return new ScatterPatch{Key=key,Center=center,Instances=result.ToArray()};
         }
     }
