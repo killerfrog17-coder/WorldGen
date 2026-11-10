@@ -17,5 +17,18 @@
   "cause": "RelayAlarm replaced current direct evidence with a conspecific report and added the relay age, even when the recipient just heard/saw its own threat.",
   "change": "Keep urgency/memory sharing; retain firsthand identity/location/sense/age when it is at least as recent as the incoming relayed cue. Newer reports can still supersede old direct memories; relay chains still age and expire.",
   "pure_controls": 712,
-  "native_status": "Rerun unchanged item/combat assertion after build; no native pass claimed yet."
+  "native_status": "PASS unchanged complete combat/item-use suite,184 checks, source268b874c. Earlier failure retained; no weakened assertion.",
+  "after_awareness": {
+    "Suspicion": 0.837578535472707,
+    "MemorySeconds": 90.0,
+    "LastX": 2.312771797180176,
+    "LastZ": 5.435737133026123,
+    "LastCueSeconds": 0.0,
+    "ThreatSeconds": 3.299999999999999,
+    "FlightSeconds": 5.191424048084631,
+    "Mode": 3,
+    "Sense": 2,
+    "ThreatIsPlayer": true
+  },
+  "native_checks": 184
 }

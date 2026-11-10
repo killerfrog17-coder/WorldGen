@@ -412,7 +412,7 @@
           "text": "<b>Acceptance:</b> All 43 technology families have a representative playable route. Final native checks cover portable crafting (38), combat (184), woodwork (16), camps (98), nature (32), land blueprints (261), fishing (14) and boats (32), alongside the new equipment checks. Functional captures are capped at 60 FPS and are not performance benchmarks. Finished art, every regional variant and autonomous NPC manufacture are outside this pass."
         },
         {
-          "text": "<b>Remaining work:</b> Current crowd gameplay regressions, then the river-size/morphology overhaul. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
+          "text": "<b>Remaining work:</b> River-size/morphology overhaul. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
         }
       ]
     },
@@ -469,7 +469,7 @@
           "text": "<b>Limits:</b> The strict 100 FPS floor remains unmet: occasional 20-22 ms frames remain. Other biomes and future city crowds are not certified by this scene. Automatic animation scheduling and collector-budget experiments remain disabled in normal play."
         },
         {
-          "text": "<b>Validation:</b> 421 exact camp-part selections match the previous ordering; 3,877 shelter-cache mutation/save controls pass. Current gameplay regression checks are still in progress."
+          "text": "<b>Validation:</b> 421 exact camp-part selections and 3,877 shelter-cache controls pass. Native camp work (42), belongings (19), daily routines (33), real material use (19), combat/items (184), construction (261) and current animation controls (86) pass."
         }
       ]
     }
