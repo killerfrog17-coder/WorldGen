@@ -1,0 +1,36 @@
+{
+  "source": "287c4e5f",
+  "build": "slot-b Mono NONDEV ScriptsOnly, 2026-11-10T11:21Z",
+  "nativeChecks": 32,
+  "pureChecks": {
+    "portableCrafting": 839,
+    "garmentThermalAndEquipment": 11,
+    "survival": 67,
+    "npcBelongings": 18
+  },
+  "accepted": "Functional first-pass clothing equipment, pose/scale, ownership and thermal integration. Actual front/back inventory images inspected.",
+  "visualLimits": [
+    "Fitted prototype surfaces reuse native body skin weights; not bespoke draped garment models.",
+    "Coat and wrap silhouettes, panel edges and hood still require art refinement.",
+    "No crowd-performance claim yet."
+  ],
+  "rejectedEvidence": {
+    "v1": "All screenshots black in hidden batch mode, no visual acceptance",
+    "v2": "Visible native pass exposed hair-through-hood; corrected in v3"
+  },
+  "screenshots": [
+    "docs\\reports\\paleolithic-night-20261110\\clothes-front.jpg",
+    "docs\\reports\\paleolithic-night-20261110\\clothes-back.jpg"
+  ],
+  "research": [
+    "https://pubmed.ncbi.nlm.nih.gov/38941472/"
+  ],
+  "changes": [
+    "Six craftable garments, independent body attachments, actual material provenance",
+    "Worn-only insulation and heat penalty while active in heavy fur",
+    "NPC starting outfits follow actual band routine use; children have scaled clothing, no adult tools",
+    "Cached shared native skinned garment meshes; no CPU skinning tick",
+    "NPC gear no longer incorrectly clipped with first-person player worn items",
+    "Hoods hide and restore covered hair"
+  ]
+}
