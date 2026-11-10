@@ -1,0 +1,113 @@
+{
+  "title": "WorldGen - Chunk Loading",
+  "section": "LOADING REVIEW",
+  "date": "9 NOVEMBER 2026",
+  "footer": "Actual empty-spectator checks / shared PC / no NPC or animal workload",
+  "pages": [
+    {
+      "title": "Chunk loading",
+      "subtitle": "Fair publication, bounded background work, and a gradual loading horizon.",
+      "blocks": [
+        {
+          "heading": "What changed",
+          "text": "Completed terrain payloads release their CPU lanes while awaiting upload, with a bounded queue. Nearby forest pages take priority over newer distant pages. Forest and local vegetation share upload opportunities. Vegetation projection uses more of its existing 1.5 ms slice instead of stopping at a low item count. Coarse background charts wait for the first visible neighbourhood."
+        },
+        {
+          "heading": "Matched loading measurements",
+          "table": {
+            "headers": [
+              "Environment",
+              "600 m before",
+              "600 m after",
+              "Full before",
+              "Full after"
+            ],
+            "rows": [
+              [
+                "Temperate forest",
+                "30.91 s",
+                "17.01 s",
+                "32.69 s",
+                "23.67 s"
+              ],
+              [
+                "Grassland",
+                "17.62 s",
+                "16.87 s",
+                "18.93 s",
+                "16.87 s"
+              ]
+            ],
+            "widths": [
+              0.25,
+              0.185,
+              0.185,
+              0.19,
+              0.19
+            ]
+          }
+        },
+        {
+          "text": "Both versions use the same generated site, High terrain detail, Balanced loading, Medium vegetation, a 900 m view, and 1536 x 864 rendering. Times begin after world-file reading and worker preparation; they measure chunk loading, not total startup. The baseline selects the previous scheduling path in the same test harness. MapleLegends and YouTube share the PC; small differences are uncertain."
+        },
+        {
+          "text": "Long-view regression: at the same 6 km glacial site, empty forest census pages now share a bounded metadata budget without tree uploads. Full loading: 55.79 s before this final refinement, 44.40 s after. This is a separate sparse-region comparison."
+        },
+        {
+          "heading": "Fog controls",
+          "text": "Terrain settings now have Loading fog and a transition-speed slider. The boundary eases outward rather than racing across the nearby ground. Turning the setting off eases toward the ordinary view-distance fog; atmospheric weather fog remains. These controls persist without rebuilding chunks. Coordinate reanchoring preserves the visible horizon."
+        },
+        {
+          "heading": "Validation and limits",
+          "text": "8,679 focused fog checks passed. Actual renderer tests verify empty spectator mode, no human model, communities, camps or fauna, and a loaded 600 m terrain/forest footprint. A 400 m flight checks continued loading. Initial asset/mesh-upload stalls remain; this is not a 100 FPS floor claim. Terrain geometry, models, vegetation density and source-world data are unchanged."
+        }
+      ]
+    },
+    {
+      "title": "Actual test environments",
+      "subtitle": "Native player captures; no camp, human, or animal workload.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "forest.jpg",
+              "caption": "Temperate forest: same stand and vegetation settings as its baseline."
+            }
+          ],
+          "max_height": 255
+        },
+        {
+          "images": [
+            {
+              "file": "plains.jpg",
+              "caption": "Grassland traversal checkpoint; scene content is unchanged by the final empty-page scheduling refinement."
+            }
+          ],
+          "max_height": 255
+        },
+        {
+          "text": "The screenshots document the test scenes, not an art update. This isolated harness omits the sky. The plains view follows the 400 m traversal, after the loading fog has cleared. Native CSV samples and package hashes are preserved beside this report so results remain reviewable after temporary artifacts are deleted.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "Terrain settings",
+      "subtitle": "Loading fog controls continue farther down this panel.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "terrain-settings.jpg",
+              "caption": "Actual menu capture uses the saved owner settings. Timing tests explicitly use High terrain / Balanced loading."
+            }
+          ],
+          "max_height": 400
+        },
+        {
+          "text": "Scroll below the detail-distance controls to find Loading fog and Fog transition. Native checks saved, reloaded and verified both values, checked that saving did not invalidate terrain plans, and restored the original preference keys. The visible player menu was inspected without GUI exceptions. No world, NPC, animal, or LLM host was started for this settings check."
+        }
+      ]
+    }
+  ]
+}

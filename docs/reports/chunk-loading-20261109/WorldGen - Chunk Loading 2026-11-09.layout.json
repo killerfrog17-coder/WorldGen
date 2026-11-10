@@ -1,0 +1,161 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 714.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 670.9697637795277,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 644.2497637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 495.0497637795277,
+    "height": 51.2
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 457.4497637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 430.7297637795277,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 387.32976377952764,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 360.6097637795276,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 317.20976377952763,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 458.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\chunk-loading-20261109\\forest.jpg",
+    "bottom": 474.08976377952774,
+    "height": 255
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 172.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\chunk-loading-20261109\\plains.jpg",
+    "bottom": 188.20976377952775,
+    "height": 255
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 122.76976377952775,
+    "height": 34.56
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 416.61724409448834,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "C:\\Users\\kille\\Desktop\\WorldGen\\docs\\reports\\chunk-loading-20261109\\terrain-settings.jpg",
+    "bottom": 432.49724409448834,
+    "height": 296.5925196850394
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 363.21724409448836,
+    "height": 38.400000000000006
+  }
+]

@@ -1,0 +1,2 @@
+PASS fog toggle and transition survive preference reload without rebuilding chunks
+PASS actual Terrain settings render without GUI exceptions; no world, humans, animals or model host started

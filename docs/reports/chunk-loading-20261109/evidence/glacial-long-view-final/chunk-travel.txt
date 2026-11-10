@@ -1,0 +1,3 @@
+2387 frames; median 16.67ms; p99 17.08ms; worst 23.19ms; over100ms 0; collections 2; largest mesh apply/bind 13.48ms; largest controller query 0.42ms; incremental True / Enabled
+201 / 197 tiles · last 67.5 ms · max 916.3 ms/tile
+cumulative_including_loading slices=505 commits=502 restarts=3 max_prepare_ms=3.41 max_commit_ms=4.007 pending=False key=2,-1,2 resident=653/654 canopy=826/826 topology=2135/2491

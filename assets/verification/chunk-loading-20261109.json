@@ -1,0 +1,193 @@
+{
+  "source": "c81b69b2997c18b41158f189d1595768243502eb",
+  "conditions": "Shared PC: MapleLegends / YouTube; empty spectator; no humans/camps/fauna; 60 FPS paced rendering, not an FPS benchmark.",
+  "fog_checks": 8679,
+  "results": [
+    {
+      "name": "forest-legacy-2",
+      "radius600": 30.91,
+      "complete": 32.692,
+      "near": 1.45,
+      "preparation_ms": 15389.691,
+      "package": {
+        "AssemblySha256": "4ba8959ba3e00dab0d2be67b2ae112ecd48a557948b69f12003bd8b0f9a91bb0",
+        "BuiltUtc": "2026-11-10T03:34:57.4226191Z",
+        "CoreSha256": "2ef6a2683ed32d19901df4ed0bbf31dec492c0e47896eb83ae748506ee59f5f1",
+        "WorkerSha256": "a71d44f8a34f13858631f9333f0341541befd5698d1064b2a9bd545a72dcfe71"
+      },
+      "forest_census": [
+        310,
+        310,
+        33616
+      ],
+      "site": {
+        "X": 0.382360994,
+        "Y": 0.22015398,
+        "Z": -0.897403084
+      },
+      "observed_queue_maxima": {
+        "terrainJobs": 2,
+        "scatterJobs": 1,
+        "forestJobs": 2,
+        "activeWorkers": 2
+      }
+    },
+    {
+      "name": "forest-final-3",
+      "radius600": 17.011,
+      "complete": 23.666,
+      "near": 1.449,
+      "preparation_ms": 15527.684,
+      "package": {
+        "AssemblySha256": "af7d1789e5b786d7d5c4db97634339a073f962989536b220ff6c45a590c2f573",
+        "BuiltUtc": "2026-11-10T03:56:50.2285529Z",
+        "CoreSha256": "e640cd5ad4321dfd1d86b6fc418876156f17430c3698a4141a44db33ea3acff4",
+        "WorkerSha256": "1fbeade0c0ca96194de336efda4ae4c615f6e16fcb384f31ac8c362673b10e31"
+      },
+      "forest_census": [
+        310,
+        310,
+        33616
+      ],
+      "site": {
+        "X": 0.382360994,
+        "Y": 0.22015398,
+        "Z": -0.897403084
+      },
+      "observed_queue_maxima": {
+        "terrainJobs": 4,
+        "scatterJobs": 1,
+        "forestJobs": 2,
+        "activeWorkers": 2
+      }
+    },
+    {
+      "name": "plains-legacy-1",
+      "radius600": 17.62,
+      "complete": 18.926,
+      "near": 1.683,
+      "preparation_ms": 16668.457,
+      "package": {
+        "AssemblySha256": "0f1bb3e5cd99d5299828003beb9198c3412e2968dc4b3b2ee95986632e372343",
+        "BuiltUtc": "2026-11-10T03:42:10.6354368Z",
+        "CoreSha256": "b53fe5c1b9372d0684e2fcb3392d30a6ef9c9eee3a1965780eddaf6413e5c606",
+        "WorkerSha256": "6f7b5e76f237d35073556c2a14c95304e4b14c482837e4371a01f77e41c1b1d6"
+      },
+      "forest_census": [
+        274,
+        274,
+        6709
+      ],
+      "site": {
+        "X": 0.35202706,
+        "Y": -0.030864008,
+        "Z": -0.935480819
+      },
+      "observed_queue_maxima": {
+        "terrainJobs": 2,
+        "scatterJobs": 1,
+        "forestJobs": 2,
+        "activeWorkers": 2
+      }
+    },
+    {
+      "name": "plains-final-2",
+      "radius600": 16.866,
+      "complete": 16.866,
+      "near": 1.698,
+      "preparation_ms": 17054.958,
+      "package": {
+        "AssemblySha256": "af7d1789e5b786d7d5c4db97634339a073f962989536b220ff6c45a590c2f573",
+        "BuiltUtc": "2026-11-10T03:56:50.2285529Z",
+        "CoreSha256": "e640cd5ad4321dfd1d86b6fc418876156f17430c3698a4141a44db33ea3acff4",
+        "WorkerSha256": "1fbeade0c0ca96194de336efda4ae4c615f6e16fcb384f31ac8c362673b10e31"
+      },
+      "forest_census": [
+        274,
+        274,
+        6709
+      ],
+      "site": {
+        "X": 0.35202706,
+        "Y": -0.030864008,
+        "Z": -0.935480819
+      },
+      "observed_queue_maxima": {
+        "terrainJobs": 4,
+        "scatterJobs": 1,
+        "forestJobs": 2,
+        "activeWorkers": 2
+      }
+    }
+  ],
+  "excluded": [
+    "baseline-1: obsolete detail harness threw before measurement",
+    "chunk-load-baseline-v1-morning: rejected NPC camp workload",
+    "settings-final and settings-final-windowed: hidden-window black captures rejected; preference roundtrip passed"
+  ],
+  "limitations": [
+    "World read and worker preparation excluded from chunk timings",
+    "Initial asset/upload stalls remain",
+    "No absolute FPS-floor claim",
+    "No terrain geometry/art changes"
+  ],
+  "long_view_before_metadata": {
+    "name": "glacial-long-view-final",
+    "radius600": 29.449,
+    "complete": 55.786,
+    "near": 1.989,
+    "preparation_ms": 16455.748,
+    "package": {
+      "AssemblySha256": "0f1bb3e5cd99d5299828003beb9198c3412e2968dc4b3b2ee95986632e372343",
+      "BuiltUtc": "2026-11-10T03:42:10.6354368Z",
+      "CoreSha256": "b53fe5c1b9372d0684e2fcb3392d30a6ef9c9eee3a1965780eddaf6413e5c606",
+      "WorkerSha256": "6f7b5e76f237d35073556c2a14c95304e4b14c482837e4371a01f77e41c1b1d6"
+    },
+    "forest_census": [
+      1850,
+      1850,
+      61
+    ],
+    "site": {
+      "X": 0.029367728,
+      "Y": 0.735953634,
+      "Z": 0.676394697
+    },
+    "observed_queue_maxima": {
+      "terrainJobs": 4,
+      "scatterJobs": 1,
+      "forestJobs": 2,
+      "activeWorkers": 2
+    }
+  },
+  "long_view_after_metadata": {
+    "name": "glacial-metadata-final",
+    "radius600": 24.522,
+    "complete": 44.4,
+    "near": 1.982,
+    "preparation_ms": 17003.634,
+    "package": {
+      "AssemblySha256": "af7d1789e5b786d7d5c4db97634339a073f962989536b220ff6c45a590c2f573",
+      "BuiltUtc": "2026-11-10T03:56:50.2285529Z",
+      "CoreSha256": "e640cd5ad4321dfd1d86b6fc418876156f17430c3698a4141a44db33ea3acff4",
+      "WorkerSha256": "1fbeade0c0ca96194de336efda4ae4c615f6e16fcb384f31ac8c362673b10e31"
+    },
+    "forest_census": [
+      1850,
+      1850,
+      61
+    ],
+    "site": {
+      "X": 0.029367728,
+      "Y": 0.735953634,
+      "Z": 0.676394697
+    },
+    "observed_queue_maxima": {
+      "terrainJobs": 4,
+      "scatterJobs": 1,
+      "forestJobs": 2,
+      "activeWorkers": 2
+    }
+  },
+  "native_settings": "PASS fog toggle and transition survive preference reload without rebuilding chunks\nPASS actual Terrain settings render without GUI exceptions; no world, humans, animals or model host started\n"
+}

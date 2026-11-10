@@ -1,0 +1,16 @@
+Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.
+Shared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.
+Preparation ms: 17054.958
+Detail: 2; effort: 1; view: 900
+Legacy scheduler: False
+Frame p99/max ms: 32.134 / 679.459
+Frames >50ms / >100ms: 7 / 4
+931 frames; median 16.67ms; p99 22.59ms; worst 256.03ms; over100ms 1; collections 6; largest mesh apply/bind 22.68ms; largest controller query 6.83ms; incremental True / Enabled
+108 / 104 tiles · last 138.7 ms · max 279.3 ms/tile
+fields 274/274, roots 6709, pending False, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 3, coarse 3, shadow draws 3, triangles 36; readiness near=True all=True detail=False jobs=0 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0
+near seconds: 1.698
+radius50 seconds: 16.866
+radius100 seconds: 16.866
+radius300 seconds: 16.866
+radius600 seconds: 16.866
+complete seconds: 16.866
