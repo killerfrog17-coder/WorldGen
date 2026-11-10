@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcPerformanceRow
     {
-        public double MeanLateNpcMs;public bool AutomaticPoses,GcIncremental;public ulong GcSliceNanoseconds;public string GcMode;
+        public double MeanLateNpcMs;public bool AutomaticPoses,GcIncremental;public ulong GcSliceNanoseconds;public string GcMode;public long HeapStart,HeapEnd;
         public int EnabledSkins;public long EnabledSkinVertices;public bool AllocationCounterAvailable;
         public long ClockBefore,ClockNative,ClockAfter,ClockFrequency,ManagedFrequency;
         public string Mode;public int Residents,MinResidents,MaxResidents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
@@ -127,10 +127,12 @@ public sealed partial class LocalTerrainExplorer
         int probeOption=Array.IndexOf(arguments,"--worldgen-gc-probe");if(probeOption>=0&&probeOption+1<arguments.Length)WorldGenNativeGcProbe.Start(arguments[probeOption+1]);
         long allocationBefore=GC.GetAllocatedBytesForCurrentThread();var allocationProbe=new byte[65536];bool allocationCounterAvailable=GC.GetAllocatedBytesForCurrentThread()>allocationBefore;GC.KeepAlive(allocationProbe);
         bool compareAutomatic=arguments.Contains("--worldgen-npc-automatic-comparison"),requestedAutomatic=owner.npcAutomaticPoses;
-        string[] modes=compareAutomatic?new[]{"normal","automatic-poses","normal-repeat"}:new[]{"normal","render-only","no-residents","normal-repeat"};
+        ulong priorGcSlice=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;
+        string[] modes=compareAutomatic?new[]{"normal","automatic-poses","automatic-half-ms-gc","normal-half-ms-gc","normal-repeat"}:new[]{"normal","render-only","no-residents","normal-repeat"};
         foreach(string mode in modes)
         {
-            owner.SetNpcAutomaticPoses(compareAutomatic?mode=="automatic-poses":requestedAutomatic&&mode!="render-only"&&mode!="no-residents");
+            UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=mode.Contains("half-ms-gc")?500000UL:priorGcSlice;
+            owner.SetNpcAutomaticPoses(compareAutomatic?mode.StartsWith("automatic",StringComparison.Ordinal):requestedAutomatic&&mode!="render-only"&&mode!="no-residents");
             owner.livingBenchmarkFreeze=mode=="render-only"||mode=="no-residents";
             foreach(var actor in owner.livingPeople.Values){actor.Root.SetActive(mode!="no-residents");if(actor.InfantCarrier!=null)actor.InfantCarrier.SetActive(mode!="no-residents");}
             Debug.Log("NPC performance begins "+mode+" / "+owner.livingPeople.Count+" residents / "+owner.tiles.Count+" tiles; ready "+owner.AllReady);
@@ -141,6 +143,7 @@ public sealed partial class LocalTerrainExplorer
                 yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"crowd-100.png"),capture.EncodeToPNG());Destroy(capture);
             }
             if(owner.npcAutomaticPoses){yield return new WaitForEndOfFrame();File.WriteAllText(Path.Combine(output,"automatic-pose-controls.txt"),owner.VerifyAutomaticNpcPoses());}
+            long heapStart=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();
             var enabledSkins=owner.livingPeople.Values.SelectMany(a=>a.Root.GetComponentsInChildren<SkinnedMeshRenderer>()).Where(r=>r.enabled).ToArray();long enabledVertices=enabledSkins.Sum(r=>(long)(r.sharedMesh?.vertexCount??0));
             var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous,lateNpcMs=0;long previousFrameTick=System.Diagnostics.Stopwatch.GetTimestamp();int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
             var traceTotals=trace?new double[WorldGenPerformance.TraceMilliseconds.Length]:null;var slow=trace?new List<NpcSlowFrame>(24):null;
@@ -169,12 +172,12 @@ public sealed partial class LocalTerrainExplorer
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route=closeCrowd?"Radius10m eye-height crowd orbit; same path and duration per mode":"Radius24m elevated scenic camp orbit; same path and duration per mode"});
-            var recorded=report[report.Count-1];recorded.AutomaticPoses=owner.npcAutomaticPoses;recorded.MeanLateNpcMs=lateNpcMs/ticks.Count;recorded.GcIncremental=UnityEngine.Scripting.GarbageCollector.isIncremental;recorded.GcMode=UnityEngine.Scripting.GarbageCollector.GCMode.ToString();recorded.GcSliceNanoseconds=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;recorded.AllocationCounterAvailable=allocationCounterAvailable;recorded.ClockBefore=clockBridge.Before;recorded.ClockNative=clockBridge.Native;recorded.ClockAfter=clockBridge.After;recorded.ClockFrequency=clockBridge.Frequency;recorded.ManagedFrequency=System.Diagnostics.Stopwatch.Frequency;recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            var recorded=report[report.Count-1];recorded.HeapStart=heapStart;recorded.HeapEnd=UnityEngine.Profiling.Profiler.GetMonoUsedSizeLong();recorded.AutomaticPoses=owner.npcAutomaticPoses;recorded.MeanLateNpcMs=lateNpcMs/ticks.Count;recorded.GcIncremental=UnityEngine.Scripting.GarbageCollector.isIncremental;recorded.GcMode=UnityEngine.Scripting.GarbageCollector.GCMode.ToString();recorded.GcSliceNanoseconds=UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds;recorded.AllocationCounterAvailable=allocationCounterAvailable;recorded.ClockBefore=clockBridge.Before;recorded.ClockNative=clockBridge.Native;recorded.ClockAfter=clockBridge.After;recorded.ClockFrequency=clockBridge.Frequency;recorded.ManagedFrequency=System.Diagnostics.Stopwatch.Frequency;recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
             recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));
         }
-        owner.SetNpcAutomaticPoses(requestedAutomatic);WorldGenNativeGcProbe.Write(output);
+        UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds=priorGcSlice;owner.SetNpcAutomaticPoses(requestedAutomatic);WorldGenNativeGcProbe.Write(output);
         owner.livingBenchmarkFreeze=false;foreach(var actor in owner.livingPeople.Values)actor.Root.SetActive(true);Application.targetFrameRate=cap;
         owner.landscapeReviewCamera=priorReviewCamera;owner.landscapeReviewRotation=priorReviewRotation;owner.UpdateCamera();
         if(trace)TerrainQueryTiming.Enabled=priorQueryTrace;

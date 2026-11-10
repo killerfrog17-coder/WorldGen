@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Playables;
+using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
@@ -17,12 +18,18 @@ public sealed partial class LocalTerrainExplorer
         foreach(var actor in livingPeople.Values)
         {actor.DeferredPose=false;actor.Graph.SetTimeUpdateMode(AutomaticNpcPose(actor)?DirectorUpdateMode.GameTime:DirectorUpdateMode.Manual);}
     }
+    void RestoreNpcMotionTransform(HumanActor actor)
+    {
+        actor.Root.transform.localPosition=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM)+actor.PoseGroundLift*actor.Root.transform.localScale.y,(float)(actor.Motor.Z-originZ));
+        actor.Root.transform.localRotation=Quaternion.Euler(0,actor.Yaw,0);
+    }
     void UpdateDeferredNpcPoses()
     {
         livingLatePoseMs=0;if(!npcAutomaticPoses)return;long began=System.Diagnostics.Stopwatch.GetTimestamp();
         foreach(var actor in livingPeople.Values)
         {
             if(actor.Health<=0||!AutomaticNpcPose(actor)||!livingGroups.TryGetValue(actor.GroupId,out var group))continue;
+            RestoreNpcMotionTransform(actor); // Preserve the production post-animation motor/root ordering.
             if(actor.DeferredPose){if(actor.DeferredCrouch)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);actor.DeferredPose=false;}
             UpdateNpcProps(actor,group,actor.NpcCrawling||actor.TargetSpeed>2.5f?null:NpcCarryRole(actor,group));
         }
@@ -31,11 +38,16 @@ public sealed partial class LocalTerrainExplorer
     string VerifyAutomaticNpcPoses()
     {
         int checkedBones=0;double maximum=0;
+        foreach(var actor in livingPeople.Values.Where(a=>a.Health>0&&AutomaticNpcPose(a)))
+        {
+            var expected=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM)+actor.PoseGroundLift*actor.Root.transform.localScale.y,(float)(actor.Motor.Z-originZ));
+            if(Vector3.Distance(expected,actor.Root.transform.localPosition)>.001f||Quaternion.Angle(actor.Root.transform.localRotation,Quaternion.Euler(0,actor.Yaw,0))>.05f)throw new InvalidOperationException("Automatic NPC animation overwrote the physical motor transform.");
+        }
         foreach(var actor in livingPeople.Values.Where(a=>a.Health>0&&a.Resident.AgeYears>=18&&a.Shared!=null&&!a.NpcCrouching).Take(8))
         {
             var bones=actor.Root.GetComponentsInChildren<Transform>().Where(t=>t.name=="head"||t.name=="pelvis"||t.name=="hand_l"||t.name=="hand_r"||t.name=="calf_l"||t.name=="calf_r"||t.name=="spine_02").ToArray();
             var positions=bones.Select(b=>b.localPosition).ToArray();var rotations=bones.Select(b=>b.localRotation).ToArray();
-            actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);
+            actor.Graph.Evaluate(0);RestoreNpcMotionTransform(actor);ApplyHumanAgePose(actor);
             for(int i=0;i<bones.Length;i++)
             {
                 double error=Vector3.Distance(positions[i],bones[i].localPosition);maximum=Math.Max(maximum,error);
