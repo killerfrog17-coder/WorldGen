@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
         {
             // Only a saved, explicitly accepted search resumes. A reported
             // absence or general worry is not an instruction to go searching.
-            var accepted=social.KnownPeople.FirstOrDefault(k=>!k.SeenDead&&k.SearchUntilSolarDay>PlayerRules.SolarDays);
+            var accepted=social.KnownPeople.FirstOrDefault(k=>k.Person!=actor.ResidentId&&!k.SeenDead&&k.SearchUntilSolarDay>PlayerRules.SolarDays);
             if(accepted!=null)BeginNpcSearch(actor,accepted.Person,accepted.LastPosition,accepted.SearchUntilSolarDay,false);
         }
         if(social.Grief>.3&&(routine.Activity==HumanActivity.Rest||routine.Activity==HumanActivity.Socialise||routine.Activity==HumanActivity.Teach))
@@ -53,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
         daily.ConcernAt=actor.SimulationAge+8+HumanHash(actor.ResidentId)%50*.1;
         foreach(var known in social.KnownPeople.OrderBy(p=>p.LastSeenSolarDay))
         {
-            if(known.SeenDead)continue;var person=group.Residents.Members.FirstOrDefault(p=>p.Id==known.Person);if(person==null)continue;
+            if(known.SeenDead||known.Person==actor.ResidentId)continue;var person=group.Residents.Members.FirstOrDefault(p=>p.Id==known.Person);if(person==null)continue;
             bool closeKin=person.Mother==actor.ResidentId||person.Father==actor.ResidentId||actor.Resident.Partner==person.Id||actor.Resident.Mother==person.Id||actor.Resident.Father==person.Id;
             var tie=social.Relationships.FirstOrDefault(t=>t.Other==person.Id);closeKin|=person.Household==actor.Resident.Household||tie!=null&&(tie.Affection>.5||tie.Trust>.65);
             if(person.AgeYears<14&&(person.Household==actor.Resident.Household||routine.Activity==HumanActivity.Childcare&&sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture].ChildcareCooperation>.5))closeKin=true;
@@ -89,6 +89,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void BeginNpcSearch(HumanActor actor,long missing,V anchor,double until,bool notify,double sourceSightDay=-1)
     {
+        if(actor.ResidentId==missing)return;
         var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
         var known=social.KnownPeople.FirstOrDefault(k=>k.Person==missing);
         if(known==null){known=new NpcKnownPerson{Person=missing,LastPosition=anchor,LastSeenSolarDay=Math.Max(0,sourceSightDay>=0?sourceSightDay:PlayerRules.SolarDays-.1),ReportedPresence=true,ExpectedReason="a reported overdue return"};social.KnownPeople.Add(known);if(social.KnownPeople.Count>64)social.KnownPeople.RemoveAt(0);}
@@ -113,10 +114,17 @@ public sealed partial class LocalTerrainExplorer
     }
     int RecruitNpcSearch(HumanActor requester,ForagerPersonSample missing,V lastKnown)
     {
+        if(livingPeople.TryGetValue(missing.Id,out var present)&&present.Health>30&&present.CurrentActivity!=HumanActivity.Sleep&&HumanDistance(present.Planet,requester.Planet)<8&&NpcCanHear(present,requester.Root.transform.position+Vector3.up,8))
+        {
+            var memory=NpcMemoryFor(requester.ResidentId).Social;var known=memory.KnownPeople.FirstOrDefault(k=>k.Person==missing.Id);
+            if(known!=null){known.SearchUntilSolarDay=known.ConcernSinceSolarDay=0;known.ConcernNextSolarDay=PlayerRules.SolarDays+.08;}
+            memory.Record(new NpcIncident{Kind=NpcIncidentKind.Returned,Subject=missing.Id,SolarDay=PlayerRules.SolarDays,Position=present.Planet,Detail="You heard "+missing.Name+" answer your call alive nearby. No search is needed."});
+            if(requester.Daily!=null)requester.Daily.Missing=0;return 0;
+        }
         int recruited=0;
         foreach(var helper in livingPeople.Values)
         {
-            if(helper==requester||helper.GroupId!=requester.GroupId||helper.Health<55||helper.Resident.AgeYears<18||helper.Threat!=null||helper.Daily?.Missing>0||helper.CurrentActivity==HumanActivity.Sleep||helper.CurrentActivity==HumanActivity.Travel||helper.CurrentActivity==HumanActivity.Childcare||helper.Routine?.Role=="NightWatch")continue;
+            if(helper==requester||helper.ResidentId==missing.Id||helper.GroupId!=requester.GroupId||helper.Health<55||helper.Resident.AgeYears<18||helper.Threat!=null||helper.Daily?.Missing>0||helper.CurrentActivity==HumanActivity.Sleep||helper.CurrentActivity==HumanActivity.Travel||helper.CurrentActivity==HumanActivity.Childcare||helper.Routine?.Role=="NightWatch")continue;
             if(HumanDistance(helper.Planet,requester.Planet)>12||!NpcCanHear(helper,requester.Root.transform.position+transform.up,12))continue;
             var personality=NpcAwarenessFor(helper).Personality;double closeness=NpcCloseness(helper,requester);
             if(personality.Kindness+closeness<.65||personality.Courage<.2)continue;

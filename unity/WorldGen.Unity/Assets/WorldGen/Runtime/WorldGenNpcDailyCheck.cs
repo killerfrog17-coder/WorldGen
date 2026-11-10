@@ -75,6 +75,12 @@ public sealed partial class LocalTerrainExplorer
         var helper=adults.FirstOrDefault(p=>p!=parent&&NpcAwarenessFor(p).Personality.Courage>=.2&&NpcAwarenessFor(p).Personality.Kindness+NpcCloseness(p,parent)>=.65);Check(helper!=null,"An actual willing adult is available for the spoken search request");
         Place(parent,cx+3,cz+3,90);parent.CurrentActivity=HumanActivity.Rest;Place(helper,cx+4,cz+3,270);helper.CurrentActivity=HumanActivity.Rest;
         foreach(var adult in adults.Where(p=>p!=parent)){adult.Daily=null;NpcMemoryFor(adult.ResidentId).Social.Incidents.RemoveAll(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==child.Id);}
+        social.Incidents.RemoveAll(e=>e.Subject==child.Id&&(e.Kind==NpcIncidentKind.Missing||e.Kind==NpcIncidentKind.Returned));
+        if(livingPeople.TryGetValue(child.Id,out var closeChild))
+        {
+            Place(closeChild,cx+3,cz+4,0);Check(RecruitNpcSearch(parent,child,frame.Position(cx+20,cz+5))==0&&social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==child.Id),"An awake missing person within earshot answers the call instead of being recruited to search for themselves");
+            Place(closeChild,cx+40,cz+25,0);
+        }
         int helpers=RecruitNpcSearch(parent,child,frame.Position(cx+20,cz+5));
         Check(helpers>0&&livingPeople.Values.Any(p=>p!=parent&&p.Daily?.Missing==child.Id&&NpcMemoryFor(p.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==child.Id&&!e.FirstHand)),"An audible request recruits actual nearby adults with explicitly reported last-known information");
         Check(livingPeople.Values.Where(p=>p!=parent&&p.Daily?.Missing==child.Id).All(p=>!NpcMemoryFor(p.ResidentId).Social.KnownPeople.Any(k=>k.Person==child.Id&&k.SeenDead)),"Search recruits do not gain supernatural knowledge of an unseen death");
