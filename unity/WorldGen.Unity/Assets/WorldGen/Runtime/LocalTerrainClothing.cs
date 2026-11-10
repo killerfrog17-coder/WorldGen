@@ -25,8 +25,8 @@ public sealed partial class LocalTerrainExplorer
     }
     Mesh GarmentMesh(SkinnedMeshRenderer source,PossessionKind kind,Transform body)
     {
-        var key=(source.sharedMesh,kind);if(garmentMeshes.TryGetValue(key,out var cached))return cached;
-        var original=source.sharedMesh;var vertices=original.vertices;var normals=original.normals;var weights=original.boneWeights;var bones=source.bones;
+        var native=HumanNativeMesh(source.sharedMesh);var key=(native,kind);if(garmentMeshes.TryGetValue(key,out var cached))return cached;
+        var original=native;var vertices=original.vertices;var normals=original.normals;var weights=original.boneWeights;var bones=source.bones;
         if(weights.Length!=vertices.Length)throw new InvalidOperationException("Garment source has no native skin weights: "+source.name);
         float height=original.bounds.size.y,thickness=height*(kind==PossessionKind.HideHood?.023f:kind==PossessionKind.FurCoat?.018f:.008f);
         var forward=source.transform.InverseTransformDirection(body.forward).normalized;
@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!garmentVisuals.TryGetValue(root,out var visual))
         {
-            var source=body.GetComponentsInChildren<SkinnedMeshRenderer>(true).Where(r=>r.sharedMesh!=null&&!r.sharedMesh.name.StartsWith("Paleolithic garment ")).OrderByDescending(r=>r.sharedMesh.vertexCount).FirstOrDefault();
+            var source=body.GetComponentsInChildren<SkinnedMeshRenderer>(true).Where(r=>r.sharedMesh!=null&&!r.sharedMesh.name.StartsWith("Paleolithic garment ")).OrderByDescending(r=>HumanNativeMesh(r.sharedMesh).vertexCount).FirstOrDefault();
             if(source==null)return;
             var child=new GameObject("Fitted hide garment");child.layer=root.layer;child.transform.SetParent(root.transform,false);
             var renderer=child.AddComponent<SkinnedMeshRenderer>();renderer.sharedMesh=GarmentMesh(source,item.Kind,body);renderer.bones=source.bones;renderer.rootBone=source.rootBone;renderer.sharedMaterial=PortableMaterial();renderer.localBounds=source.localBounds;

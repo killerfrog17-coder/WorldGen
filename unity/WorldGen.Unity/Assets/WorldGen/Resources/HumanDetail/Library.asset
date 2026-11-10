@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1792b4c716646e38ebcef3d5b171804, type: 3}
+  m_Name: Library
+  m_EditorClassIdentifier: Assembly-CSharp::WorldGenHumanDetailLibrary
+  Meshes:
+  - Original: {fileID: 4300000, guid: 6d2e68c556df86d4f94ba0ffd511ff93, type: 2}
+    Middle: {fileID: 4300000, guid: 1ab1d320e73e1584e9ceaee4f8d11222, type: 2}
+    Far: {fileID: 4300000, guid: e247c1dc82609b649bec77bc22a41305, type: 2}
+  - Original: {fileID: 4300000, guid: a5a6fd17571ba2243bea0eb0b07b7ea4, type: 2}
+    Middle: {fileID: 4300000, guid: 69f679fe691363e49a5b494168826df5, type: 2}
+    Far: {fileID: 4300000, guid: e2d856a2a5f5df7458f606ac42ede3d4, type: 2}
+  - Original: {fileID: 4300000, guid: 32bde1830cf9f2e4abac444ab53f9f21, type: 2}
+    Middle: {fileID: 4300000, guid: 0444c9ba67ea5fc4088ecd01f4d426d1, type: 2}
+    Far: {fileID: 4300000, guid: 7ac10c819c0577d40988a56aecc5c778, type: 2}
+  - Original: {fileID: 4300000, guid: 6b0ee0cf06649cc4a98dd59d1bace6c6, type: 2}
+    Middle: {fileID: 4300000, guid: 6e06d0249ce212b43b46b6a895e9019f, type: 2}
+    Far: {fileID: 4300000, guid: 7d0885bb8e97b0f47a3756a321e90387, type: 2}
+  - Original: {fileID: 4300000, guid: d1679fe083423884dbb12058eeba46ac, type: 2}
+    Middle: {fileID: 4300000, guid: 60639d0c2b7e12b429071bd16cb57391, type: 2}
+    Far: {fileID: 4300000, guid: e483ae2ff810dcf4cb588f81a71c3142, type: 2}
+  - Original: {fileID: 4300000, guid: 5f9057eaa86109842bd02c7fd7f04f8b, type: 2}
+    Middle: {fileID: 4300000, guid: 58a23e04dbfcfb34a86e3867a053be85, type: 2}
+    Far: {fileID: 4300000, guid: cb9adaca82385ab499bc5b8cd72535c5, type: 2}
+  - Original: {fileID: -8235522578991411217, guid: 8e39cbf8432ccc148a758c91b21e1068, type: 3}
+    Middle: {fileID: 4300000, guid: 83afc8453dcd6694ba5e57261469805a, type: 2}
+    Far: {fileID: 4300000, guid: 4cd1ee78ce6735f458a420bd423d2f23, type: 2}
+  - Original: {fileID: -8235522578991411217, guid: 8e13547da85c89148b42fa5684603cd1, type: 3}
+    Middle: {fileID: 4300000, guid: 331567799126ec9468ebc176765fb4bc, type: 2}
+    Far: {fileID: 4300000, guid: 57d64b6188c046f4db6bed26e3a0396e, type: 2}
+  - Original: {fileID: -8235522578991411217, guid: f378776765dabeb428eae9b4b96506ee, type: 3}
+    Middle: {fileID: 4300000, guid: af9829cc357a9db48a1c960d6a2c675f, type: 2}
+    Far: {fileID: 4300000, guid: 0e36cca2f3eae554e8df83ed9b6b6935, type: 2}
+  - Original: {fileID: -4607647199432110186, guid: ce1525cfb53dab7499bad4cfbd61970f, type: 3}
+    Middle: {fileID: 4300000, guid: 72d0a613d2407fc4cb2ff01d0590c749, type: 2}
+    Far: {fileID: 4300000, guid: fb578af4ecbcaab41ae2b78d7ceb33e3, type: 2}
+  - Original: {fileID: -4607647199432110186, guid: 51356472208b480429dd231105656317, type: 3}
+    Middle: {fileID: 4300000, guid: fb74008a43f3bf34d8eab8dae4c1bc92, type: 2}
+    Far: {fileID: 4300000, guid: f4db28ba1c078fe49b379013b5d5b1eb, type: 2}
+  - Original: {fileID: -4607647199432110186, guid: 2d338b92d4eac3646b5453c05c22e4dd, type: 3}
+    Middle: {fileID: 4300000, guid: 6583a9ccd1eb3f04f9bd8f68028566a9, type: 2}
+    Far: {fileID: 4300000, guid: fa1e7f9d605614e4ab468cb71446046c, type: 2}
+  - Original: {fileID: -6659148275150666057, guid: 5c425e2d7ad448d45ac5eb1d798fd9dc, type: 3}
+    Middle: {fileID: 4300000, guid: 43e515ccdbcb7c640be14e695d6adc6b, type: 2}
+    Far: {fileID: 4300000, guid: f6032c163aec71c4db763315bdb4a5da, type: 2}
+  - Original: {fileID: -6659148275150666057, guid: d8101614e56507e47b6e1fcb34c2b5ee, type: 3}
+    Middle: {fileID: 4300000, guid: d349f1b86e2c56a4badb54ca5b44ebcf, type: 2}
+    Far: {fileID: 4300000, guid: e785fffa13e6d5f4483e08baeff6925c, type: 2}
+  - Original: {fileID: -6659148275150666057, guid: a19dc71b68f18794f8e74babd83bc522, type: 3}
+    Middle: {fileID: 4300000, guid: 3e35acf199d1ffb4abaf4990140f6d7e, type: 2}
+    Far: {fileID: 4300000, guid: b4ccc57b2bbe6ca4e8c6b2bd8690ebf4, type: 2}
+  - Original: {fileID: 3459551032937313326, guid: f07bc6ebbb4a66048afea848244517ad, type: 3}
+    Middle: {fileID: 4300000, guid: 4ac6f246a3be8c74189606fc5250b7af, type: 2}
+    Far: {fileID: 4300000, guid: 8d819de926f91b647be801e349b2d7c2, type: 2}
+  - Original: {fileID: 3459551032937313326, guid: 36ef1dca9045bde448bdfb18142b6465, type: 3}
+    Middle: {fileID: 4300000, guid: 9403bc644d67d964cb9709ff02c9cf58, type: 2}
+    Far: {fileID: 4300000, guid: 4c65173c09012564b881c9096aa11b1f, type: 2}
+  - Original: {fileID: 3459551032937313326, guid: 58837197dfc030f4d8ced06fef78bf6a, type: 3}
+    Middle: {fileID: 4300000, guid: 98c74fb3b8950734a9dd1856e0f1139a, type: 2}
+    Far: {fileID: 4300000, guid: 637bffcd4069579448d5ae7a835d4553, type: 2}
+  - Original: {fileID: 4699157863305184998, guid: cc03133b41f28bf4eb816fef18696b6b, type: 3}
+    Middle: {fileID: 4300000, guid: 7cd3070e1e6ccea4188ad588e79235fc, type: 2}
+    Far: {fileID: 4300000, guid: a9c6180fbcc8da4428b0ac9ce249f987, type: 2}
+  - Original: {fileID: 4699157863305184998, guid: 3d918108b552f8d40b12989ee6c73954, type: 3}
+    Middle: {fileID: 4300000, guid: 07aa64a4f6bfe7e47ade23e71ae5e0ba, type: 2}
+    Far: {fileID: 4300000, guid: bbf6d978a8788f64b8270aa1d3a24ab1, type: 2}
+  - Original: {fileID: 4699157863305184998, guid: 677e8daf97aeaa340854e7c53dda6c41, type: 3}
+    Middle: {fileID: 4300000, guid: b0ea8f90e58b3ed4eab03dd9fd40712c, type: 2}
+    Far: {fileID: 4300000, guid: 38ae62c6ce8e5a3468c63f5855cf6ef0, type: 2}
+  - Original: {fileID: -5294482198338723773, guid: 35cea9ef0ad097649af87ba028e6bc9b, type: 3}
+    Middle: {fileID: 4300000, guid: d2b2b519bee12764c8cb5788df179a0d, type: 2}
+    Far: {fileID: 4300000, guid: 1381f7fb53dc05c4ea465cbc1f7c525f, type: 2}
+  - Original: {fileID: -5294482198338723773, guid: 364a7804089fb614a906efb4e24ffe5b, type: 3}
+    Middle: {fileID: 4300000, guid: 6a699c009f6e55f4491cb4ba77b588e6, type: 2}
+    Far: {fileID: 4300000, guid: 2c045c519b5b06845abca5a644b2d2a8, type: 2}
+  - Original: {fileID: -5294482198338723773, guid: c21c00ad026fa3a4ba84c6605775df24, type: 3}
+    Middle: {fileID: 4300000, guid: 96ee9ed8527955d479221f80e8de5428, type: 2}
+    Far: {fileID: 4300000, guid: df96e9413c69d3344ba589facde04a54, type: 2}

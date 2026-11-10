@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public sealed class NpcPerformanceRow
     {
+        public int EnabledSkins;public long EnabledSkinVertices;
         public string Mode;public int Residents,MinResidents,MaxResidents,Frames,Tiles,ScatterChunks;public bool TerrainReady;
         public double MeanNpcMs,P95NpcMs,P99NpcMs,MaxNpcMs,MeanFrameMs,P95FrameMs,P99FrameMs,MaxFrameMs,BackgroundQueryMs;
         public int UnfocusedFrames,Over10Ms,Over1667Ms,Width,Height,TreeQuality;public double Seconds,ViewDistanceM;public string Route;
@@ -64,6 +65,18 @@ public sealed partial class LocalTerrainExplorer
         owner.npcCrowdFocus=new Vector3((float)(hx-owner.originX),(float)owner.VisibleGround(hx,hz,0)+1,(float)(hz-owner.originZ));
         var skins=owner.livingPeople.Values.SelectMany(a=>a.Root.GetComponentsInChildren<SkinnedMeshRenderer>()).ToArray();
         File.WriteAllText(Path.Combine(output,"crowd-fixture.json"),WorldJson.Write(new NpcCrowdProof{Residents=owner.livingPeople.Count,Groups=groups.Count,SkinnedRenderers=skins.Length,EnabledSkinnedRenderers=skins.Count(r=>r.enabled),Vertices=skins.Sum(r=>(long)(r.sharedMesh?.vertexCount??0)),EnabledVertices=skins.Where(r=>r.enabled).Sum(r=>(long)(r.sharedMesh?.vertexCount??0)),Scope="Controlled local gathering of distinct real sampled people; natural population/encounter density unchanged. Normal physical NPC systems active, broad itinerary projection held fixed for this benchmark only.",People=owner.livingPeople.Values.Select(a=>new NpcResidentCheckRow{Id=a.ResidentId,Group=a.GroupId,Name=a.Resident.Name,Age=a.Resident.AgeYears,Activity=a.CurrentActivity.ToString()}).ToArray()}));
+        var subject=owner.livingPeople.Values.First(a=>a.Resident.AgeYears>=18);owner.EnsureHumanDetail();
+        var skin=subject.Root.GetComponentsInChildren<SkinnedMeshRenderer>().First(r=>owner.humanDetailMeshes.ContainsKey(r.sharedMesh));var details=owner.humanDetailMeshes[skin.sharedMesh];
+        var eye=owner.view.transform.position;var posed=new Mesh();
+        foreach(double distance in new[]{2d,20,80,2})
+        {
+            owner.view.transform.position=subject.Root.transform.position+Vector3.right*(float)distance;subject.DetailAt=0;owner.UpdateLivingDetail(subject);
+            Mesh expected=distance<9?details.Original:distance>55?details.Far:details.Middle;
+            if(skin.sharedMesh!=expected||owner.HumanNativeMesh(skin.sharedMesh)!=details.Original)throw new InvalidOperationException("Human distance mesh did not switch and restore its exact original.");
+            skin.BakeMesh(posed);if(posed.vertices.Any(p=>!float.IsFinite(p.x)||!float.IsFinite(p.y)||!float.IsFinite(p.z))||posed.bounds.size.y<.8f||posed.bounds.size.y>2.5f)throw new InvalidOperationException("Reduced native skin has invalid posed geometry.");
+        }
+        Destroy(posed);owner.view.transform.position=eye;subject.DetailAt=0;owner.UpdateLivingDetail(subject);
+        File.WriteAllText(Path.Combine(output,"human-detail-controls.txt"),"PASS original/middle/far/original restoration, unchanged source identity, and finite metre-scale baked native poses. Full native bones/weights/UVs checked during offline generation.");
         // Let the unchanged surrounding forest and actor assets finish before
         // measuring a crowd, instead of attributing initial page publication to AI.
         double deadline=Time.realtimeSinceStartupAsDouble+180;
@@ -115,6 +128,7 @@ public sealed partial class LocalTerrainExplorer
                 if(owner.livingPeople.Count!=100||owner.livingPeople.Values.Any(a=>a.Health<=0))throw new InvalidOperationException("Crowd benchmark lost a living resident before measurement.");
                 yield return new WaitForEndOfFrame();var capture=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"crowd-100.png"),capture.EncodeToPNG());Destroy(capture);
             }
+            var enabledSkins=owner.livingPeople.Values.SelectMany(a=>a.Root.GetComponentsInChildren<SkinnedMeshRenderer>()).Where(r=>r.enabled).ToArray();long enabledVertices=enabledSkins.Sum(r=>(long)(r.sharedMesh?.vertexCount??0));
             var ticks=new List<double>(65536);var frames=new List<double>(65536);var stages=new double[5];double previous=Time.realtimeSinceStartupAsDouble,start=previous;int unfocused=0,minPeople=owner.livingPeople.Count,maxPeople=minPeople;
             var traceTotals=trace?new double[WorldGenPerformance.TraceMilliseconds.Length]:null;var slow=trace?new List<NpcSlowFrame>(24):null;
             long appendBytes=owner.scatterAppendAllocations,appendBuilds=owner.scatterAppendBuilds;int artModels=owner.scatterArt.Count;
@@ -142,7 +156,7 @@ public sealed partial class LocalTerrainExplorer
             for(int k=0;k<stages.Length;k++)stages[k]/=ticks.Count;
             ticks.Sort();frames.Sort();report.Add(new NpcPerformanceRow{Mode=mode,Residents=owner.livingPeople.Count,MinResidents=minPeople,MaxResidents=maxPeople,Frames=ticks.Count,Tiles=owner.tiles.Count,ScatterChunks=owner.scatterChunks.Count,TerrainReady=owner.AllReady,
                 MeanNpcMs=ticks.Average(),P95NpcMs=ticks[(int)(ticks.Count*.95)],P99NpcMs=ticks[(int)(ticks.Count*.99)],MaxNpcMs=ticks.Last(),MeanFrameMs=frames.Average(),P95FrameMs=frames[(int)(frames.Count*.95)],P99FrameMs=frames[(int)(frames.Count*.99)],MaxFrameMs=frames.Last(),BackgroundQueryMs=owner.livingLastMs,MeanStagesMs=stages,MeanMainThreadTraceMs=traceTotals,SlowFrames=slow?.ToArray(),Gen0Collections=GC.CollectionCount(0)-gc0,Gen1Collections=GC.CollectionCount(1)-gc1,Gen2Collections=GC.CollectionCount(2)-gc2,UnfocusedFrames=unfocused,Over10Ms=frames.Count(v=>v>10),Over1667Ms=frames.Count(v=>v>1000d/60),Width=Screen.width,Height=Screen.height,TreeQuality=TerrainVideoOptions.TreeQuality,ViewDistanceM=owner.viewDistance,Seconds=previous-start,Route="Radius24m scenic camp orbit; same path and duration per mode"});
-            var recorded=report[report.Count-1];recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
+            var recorded=report[report.Count-1];recorded.EnabledSkins=enabledSkins.Length;recorded.EnabledSkinVertices=enabledVertices;recorded.ScatterAppendAllocatedBytes=owner.scatterAppendAllocations-appendBytes;recorded.ScatterBuilds=owner.scatterAppendBuilds-appendBuilds;recorded.ArtModelsStart=artModels;recorded.ArtModelsEnd=owner.scatterArt.Count;
             recorded.MaximumCameraErrorM=maxCameraError;recorded.MaximumCameraAngleError=maxAngleError;recorded.MaximumScatterEyeDeltaM=maxCullDelta;
             recorded.ResidentForestReadyStart=forestReady;recorded.ResidentForestReadyEnd=owner.residentForestReady;recorded.ForestPagesStart=forestPages;recorded.ForestPagesEnd=owner.forestFields.Count;recorded.ForestRootsStart=forestRoots;recorded.ForestRootsEnd=owner.forestRootCount;
             File.WriteAllText(Path.Combine(output,"performance.json"),WorldJson.Write(report.ToArray()));

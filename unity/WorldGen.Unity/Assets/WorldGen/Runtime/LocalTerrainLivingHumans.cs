@@ -460,8 +460,8 @@ public sealed partial class LocalTerrainExplorer
             ResolveLivingScatterContact(actor);
             float actual=(float)(Math.Sqrt(Math.Pow(actor.Motor.X-beforeX,2)+Math.Pow(actor.Motor.Z-beforeZ,2))/dt);
             cost=LivingCost(2,cost);
-            float interval=playerRange<6?0:playerRange<50?1f/30:playerRange<160?1f/15:1f/8;
-            if(Time.unscaledTimeAsDouble>=actor.AnimationAt)
+            float interval=LivingPoseInterval(actor);
+            if(interval<=0||Time.unscaledTimeAsDouble>=actor.AnimationAt)
             {
                 bool crouch=actor.NpcCrouching;
                 float elapsed=(float)Math.Max(dt,actor.SimulationAge-actor.PoseAge);actor.PoseAge=actor.SimulationAge;actor.AnimationAt=NextLivingAnimation(actor.ResidentId,interval);AnimateHuman(actor,actual/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),!actor.Motor.Grounded,crouch,elapsed);

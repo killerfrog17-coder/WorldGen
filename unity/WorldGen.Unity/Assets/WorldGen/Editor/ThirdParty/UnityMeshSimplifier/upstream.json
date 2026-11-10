@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/Whinarn/UnityMeshSimplifier",
+  "commit": "53fdb3122645bcd3ad2c258235200dff3dfbaa9b",
+  "license": "MIT",
+  "use": "Editor-only generation of skinned human distance meshes; no runtime simplification dependency"
+}

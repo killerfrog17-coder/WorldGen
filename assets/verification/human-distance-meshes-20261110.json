@@ -1,0 +1,146 @@
+[
+  {
+    "Far": 3073,
+    "Middle": 6417,
+    "Original": 14712,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/A/body.asset"
+  },
+  {
+    "Far": 3078,
+    "Middle": 6422,
+    "Original": 14717,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/B/body.asset"
+  },
+  {
+    "Far": 3075,
+    "Middle": 6419,
+    "Original": 14714,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/C/body.asset"
+  },
+  {
+    "Far": 3078,
+    "Middle": 6422,
+    "Original": 14717,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/D/body.asset"
+  },
+  {
+    "Far": 3071,
+    "Middle": 6415,
+    "Original": 14710,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/E/body.asset"
+  },
+  {
+    "Far": 3072,
+    "Middle": 6416,
+    "Original": 14711,
+    "Source": "Assets/WorldGen/Resources/HumanAppearance/F/body.asset"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/A-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/A-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/A-13.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/B-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/B-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/B-13.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/C-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/C-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/C-13.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/D-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/D-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/D-13.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/E-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/E-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/E-13.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/F-3.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/F-8.fbx"
+  },
+  {
+    "Far": 2878,
+    "Middle": 6222,
+    "Original": 14517,
+    "Source": "Assets/WorldGen/GeneratedHumanAges/F-13.fbx"
+  }
+]
