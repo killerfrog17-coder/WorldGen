@@ -52,12 +52,10 @@ static class ForestPlacementTests
             for(int level=1;level<=4;level++)
             {
                 int span=LocalScatter.ForestPageSide*(1<<level);var page=scatter.BuildForest(new ForestPageKey(key.Face,key.X*LocalScatter.TreeCandidateSide/span,key.Y*LocalScatter.TreeCandidateSide/span,level));
+                Check(page.Probes==0&&page.Roots.Length<=64,"Distant canopy has bounded regional descriptors and no tree census");
                 foreach(var root in page.Roots)
-                {
-                    var tree=root.Tree;int slot=(int)(tree.Id&65535);var address=new ScatterKey((int)(tree.Id>>61),(int)((tree.Id>>40)&0xfffff),(int)((tree.Id>>20)&0xfffff));var patch=terrain.Patch(scatter.Position(address),840/.1);
-                    Check(scatter.TryTree(address,slot%LocalScatter.TreeCandidateSide,slot/LocalScatter.TreeCandidateSide,patch,out var exact)&&tree.Equals(exact),"Aggregated representative must be an actual admitted tree");
-                    Check(root.CrownScale>=1&&double.IsFinite(root.CrownScale),"Finite crown aggregation");
-                }
+                {Check(root.Population==0,"Canopy descriptor is not a fabricated population member");Check(root.Tree.WidthM>0&&root.Tree.HeightM>0&&double.IsFinite(root.Tree.WidthM),"Finite canopy dimensions");}
+                Check(page.Roots.SequenceEqual(scatter.BuildForest(page.Key).Roots),"Deterministic regional canopy");
             }
             foreach(var point in new[]{at,new V(1,1,0).Unit,new V(0,0,1),new V(-1,0,0)})
             {

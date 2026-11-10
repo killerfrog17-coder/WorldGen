@@ -150,7 +150,9 @@ namespace WorldGen.Core
                 token.ThrowIfCancellationRequested();
                 int left=(int)(x0+x*cell),bottom=(int)(y0+y*cell);if(left>=count||bottom>=count)continue;
                 double nx=Math.Min(cell,count-left),ny=Math.Min(cell,count-bottom);
-                int gx=(int)(left+nx*.5),gy=(int)(bottom+ny*.5);var p=ForestPosition(key.Face,gx,gy);
+                uint hash=Rng.Mix(unchecked((uint)left*73856093u^(uint)bottom*19349663u^(uint)key.Face*83492791u));
+                double jx=.2+.6*((hash&65535)/65535.0),jy=.2+.6*((hash>>16)/65535.0);
+                int gx=(int)(left+nx*jx),gy=(int)(bottom+ny*jy);var p=ForestPosition(key.Face,gx,gy);
                 var region=terrain.Profile(terrain.NearestCell(p));var forest=region.Forest;
                 if(forest.Coverage<=.005||region.Biome==Biome.Ocean||region.Biome==Biome.Freshwater||region.Biome==Biome.SalineLake)continue;
                 double cover=D.Clamp(forest.Coverage*TreeFlora.Stand(forest,p,seed,terrain.RadiusM*scale));
@@ -160,7 +162,7 @@ namespace WorldGen.Core
                 var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);ulong id=address.Id(0,gy%TreeCandidateSide*TreeCandidateSide+gx%TreeCandidateSide);
                 var tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=forest.MorphologyCode,Position=p,Normal=p,
                     GroundM=region.ElevationM,HeightM=Math.Max(1,forest.HeightM),WidthM=spacing*Math.Sqrt(cover)*1.12,
-                    Color=forest.Color,YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360};
+                    Color=forest.Color*(.90+.20*Rng.Value(seed,"regional-canopy-colour",unchecked((int)id))),YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360};
                 roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=1,Population=0});
             }
             return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=0};

@@ -4,6 +4,7 @@ Shader "WorldGen/ForestPackets"
 
         _TreeColourViews("Actual-tree stand colours",2DArray)=""{} _TreeNormalViews("Stand normals and depth",2DArray)=""{}
         [HideInInspector] _ForestMacro("Regional canopy patches",Float)=0
+        [HideInInspector] _ForestCrown("Regional crown form",Float)=0
         _ImpostorBounds("Object centre/radius",Vector)=(0,.48,0,1.5)
         [HideInInspector] _ImpostorExtents("Model extents and edge padding",Vector)=(0,0,0,0)
         [HideInInspector] _TreeTightQuad("Trim empty billboard space",Float)=1
@@ -35,8 +36,8 @@ Shader "WorldGen/ForestPackets"
                 {int4 item=_Tiles[slot];if(item.w==0)break;if(item.x==x&&item.y==z&&item.z==0&&(item.w&7)==(int)face+1){float birth=_ForestBirth[(item.w>>3)-1];return birth>0?1-saturate((_ForestClock-birth)/.7):0;}slot=(slot+1)&_ForestHashMask;}
                 return 1;
             }
-            float4 _ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad,_ForestMacro;
-            struct O {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;float3 local:TEXCOORD1;nointerpolation float3 direction:TEXCOORD2;nointerpolation uint root:TEXCOORD3;nointerpolation float2 viewLod:TEXCOORD4;
+            float4 _ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor,_ForestChart,_ForestRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad,_ForestMacro,_ForestCrown;
+            struct O {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;float3 local:TEXCOORD1;float3 direction:TEXCOORD2;nointerpolation uint root:TEXCOORD3;nointerpolation float2 viewLod:TEXCOORD4;
                 #if defined(WORLDGEN_TREE_EFFICIENT)
                 nointerpolation uint3 viewIndices:TEXCOORD5;nointerpolation float3 viewWeights:TEXCOORD6;float4 viewA:TEXCOORD7;float4 viewB:TEXCOORD8;float4 viewC:TEXCOORD9;
                 #endif
@@ -50,15 +51,19 @@ Shader "WorldGen/ForestPackets"
                     // Four low-cost crown masses per coverage sample. These
                     // are terrain-following canopy, never stretched tree art.
                     uint cap=vertexID/24u,sector=(vertexID%24u)/3u,corner=vertexID%3u;
-                    float angle=(sector+(corner==2u?1:0))*.78539816339+root.yaw;
+                    uint edge=(sector+(corner==2u?1u:0u))%8u;float angle=edge*.78539816339+root.yaw;
                     float width=root.width*sqrt(saturate(_ForestChart.w));
                     float2 centre=float2((cap&1u)?1:-1,(cap&2u)?1:-1)*width*.24;
-                    float2 radial=corner==0u?0:float2(cos(angle),sin(angle))*width*.39;
+                    centre+=float2(sin(root.yaw*3.7+cap*4.13),cos(root.yaw*2.3+cap*7.37))*width*.16;
+                    float irregular=.86+.22*sin(root.yaw*2.11+cap*4.31+edge*2.7);
+                    float2 radial=corner==0u?0:float2(cos(angle),sin(angle))*width*.39*irregular;
                     float peak=.82+.14*sin(root.yaw+cap*2.71);
-                    float3 relative=float3(centre.x+radial.x,root.height*(corner==0u?peak:.46),centre.y+radial.y);
+                    float rim=_ForestCrown==1?.16:.52;
+                    float3 relative=float3(centre.x+radial.x,root.height*(corner==0u?peak:rim),centre.y+radial.y);
                     relative.y+=relative.x*root.slopeX+relative.z*root.slopeZ;
                     o.world=origin+relative;o.positionCS=TransformWorldToHClip(o.world);o.root=index;
-                    o.direction=normalize(float3(cos(angle)*root.height*.4,max(.2,root.width*.39),sin(angle)*root.height*.4));
+                    o.local=relative;
+                    o.direction=corner==0u?float3(0,1,0):normalize(float3(cos(angle)*root.height*.9,max(.2,width*.25),sin(angle)*root.height*.9));
                     return o;
                 }
                 float3 scale=float3(root.width,root.height,root.width);
@@ -94,6 +99,13 @@ Shader "WorldGen/ForestPackets"
                 half4 color=1;half3 objectNormal=i.direction;
                 if(_ForestMacro<.5){ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-_TreeViewCutoff);}
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
+                if(_ForestMacro>.5)
+                {
+                    // Reuse world-addressed arithmetic, no texture/alpha pass.
+                    // Crown-scale mottling breaks the broad uniform proxy face.
+                    float grain=sin(i.local.x*.71+i.local.z*.37+root.yaw)*sin(i.local.z*.83-i.local.x*.29);
+                    albedo*=.85+.22*grain;
+                }
                 float3 normal=_ForestMacro>.5?objectNormal:Rotate(objectNormal/float3(root.width,root.height,root.width),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
                 half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);

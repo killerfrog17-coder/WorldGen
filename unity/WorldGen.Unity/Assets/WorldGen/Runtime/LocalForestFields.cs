@@ -141,6 +141,7 @@ public sealed partial class LocalTerrainExplorer
             long canopyKey=ScatterArtKey(ScatterKind.GeneratedTree,code,2)|(1L<<50);
             if(scatterArt.TryGetValue(canopyKey,out var existing))return existing;
             var material=new Material(Resources.Load<Shader>("WorldGenForest"));material.SetFloat("_ForestMacro",1);
+            material.SetFloat("_ForestCrown",(int)new TreeMorphology(code).Form);
             material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);
             var canopy=new ArtModel{Parts=new[]{new ArtPart{Material=material}},TreeStand=true,TreeBaked=true,Generated=true,TreeCode=code,LastUsed=Time.realtimeSinceStartupAsDouble};
             scatterArt.Add(canopyKey,canopy);return canopy;
