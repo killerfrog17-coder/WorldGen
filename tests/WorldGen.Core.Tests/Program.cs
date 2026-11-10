@@ -1,6 +1,13 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-fitting-parallel-audit")){RiverFittingParallelAudit.Run(args[1],args[2]);return;}
+if(args.Contains("--river-node-joins")){RiverNodeJoinTests.Controls();return;}
+if(args.Contains("--river-node-joins-world")){RiverNodeJoinTests.World(args[1],args.Length>2?args[2]:null);return;}
+if(args.Contains("--river-longitudinal-profile")){RiverLongitudinalProfileTests.Run();return;}
+if(args.Contains("--river-cold-preparation")){RiverColdPreparationAudit.Run(args[1],args[2],args[3]);return;}
+if(args.Contains("--river-bank-contact-reference")){RiverColdPreparationAudit.Contact(args[1],args[2],args[3]);return;}
+if(args.Contains("--river-bank-contact")){RiverBankContactAudit.Run(args[1],args[2]);return;}
 if(args.Contains("--camp-blueprint-queries")){CampBlueprintQueryTests.Run();return;}
 if(args.Contains("--paleo-dispersal-audit")){PaleolithicDispersalAudit.Run(args[1],int.Parse(args[2]),args.Length>3?int.Parse(args[3]):200000,args.Length>4?args[4]:"Continents",args.Length>5?int.Parse(args[5]):190000);return;}
 if(args.Contains("--paleo-clothing-only")){PaleolithicClothingTests.Run();return;}

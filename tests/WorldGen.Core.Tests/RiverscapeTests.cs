@@ -10,7 +10,7 @@ static class RiverscapeTests
         for(int i=0;i<=100;i++)
         {double x=i/100d;Check(RiverscapeKernel.Weight(x)>=0&&RiverscapeKernel.Weight(x)<=1,"Compact primitive weight");Check(RiverscapeKernel.Smooth(x)>=0&&RiverscapeKernel.Smooth(x)<=1,"C2 longitudinal profile");}
         Check(RiverscapeKernel.Weight(1)==0&&RiverscapeKernel.Weight(2)==0,"No primitive outside compact support");
-        Check(Math.Abs(RiverscapeKernel.HalfWidth(100,.1)/RiverscapeKernel.HalfWidth(100,1)-.1)<1e-9,"Small channels retain world compression");
+        Check(RiverscapeKernel.HalfWidth(100,.1)==RiverscapeKernel.HalfWidth(100,1),"Small channel dimensions come from the source globe");
         Check(Math.Abs(RiverscapeKernel.HalfWidth(10000,.1)/RiverscapeKernel.HalfWidth(10000,1)-1)<1e-9,"Major channels recover physical width");
         var w=WorldFile.Read(File.ReadAllBytes(path));string hash=StateHash.Compute(w);var watch=System.Diagnostics.Stopwatch.StartNew();
         var terrain=new LocalTerrain(w,horizontalScale:scale);Console.WriteLine($"scale {scale:R}: prepare {watch.Elapsed.TotalSeconds:F3}s, {terrain.Amplification.RiverscapeReachCount} visible root reaches");

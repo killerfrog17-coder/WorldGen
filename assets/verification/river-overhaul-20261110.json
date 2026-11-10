@@ -1,0 +1,3752 @@
+{
+  "status": "Active unaccepted experiments. Existing selected game and slot-b checkpoint remain unchanged. No river candidate built.",
+  "baseline_package": "slot-b Mono NONDEV 268b874c over FULL13592ee2",
+  "world": {
+    "recipe_seed": 73421,
+    "fixture": "artifacts/terrain-surfaces-20261107/playable.world",
+    "disposable": true,
+    "scale": 0.1
+  },
+  "findings": [
+    "Small and medium channel dimensions still multiply source discharge by world compression.",
+    "Per-reach and per-node width caps depend on compressed edge length; cell resolution can constrain major rivers.",
+    "Most prepared widths are constant; old bed depth uses two repeated sinusoidal components per reach.",
+    "Existing alluvial cut-bank/point-bar preparation, explicit waterfalls, shared datums, batch river index and sparse far-packet fix must be retained.",
+    "Known legacy backwater open edge at reach52127 remains a mandatory regression; no fix claimed."
+  ],
+  "baseline_native": {
+    "meanderingriver": {
+      "exit": 0,
+      "checks": 21,
+      "source": 143549
+    },
+    "alluvialriver": {
+      "exit": 0,
+      "source": 115180,
+      "checks": 24
+    }
+  },
+  "prototype_validation": {
+    "hydraulic_controls": 214,
+    "major_river_probes": 1485,
+    "major_sites": 3,
+    "terrain_lods": 3,
+    "failures": 0,
+    "water_ground_boundary_checks": "passed for the three major sites only, not every river",
+    "cold_bank_fitting_ms": 126774.8,
+    "cold_load_risk": "Pending paired original model measurement; not accepted as a startup regression."
+  },
+  "research": [
+    {
+      "title": "USGS Leopold and Maddock, Hydraulic geometry (1953)",
+      "url": "https://pubs.usgs.gov/publication/pp252",
+      "application": "Width/depth/velocity scale with discharge; coefficients vary, so this is bounded game approximation."
+    },
+    {
+      "title": "USGS Leopold and Wolman, River channel patterns (1957)",
+      "url": "https://pubs.usgs.gov/publication/pp282B",
+      "application": "Meander wavelength and pool/riffle spacing depend on channel width, rather than a fixed count per mesh reach."
+    }
+  ],
+  "remaining": [
+    "Cold derivation cost and repeat-entry cache comparison",
+    "Source-globe sizes across small/medium/major and multiple world scales",
+    "Prepared width/depth/bedform and meander variation",
+    "Junction/lake/ocean/native shoreline and mixed-LOD checks",
+    "Moving native performance and report before acceptance"
+  ],
+  "current_source": {
+    "local": "80",
+    "hyper": "68",
+    "changes": [
+      "Source-globe widths/discharge/depth and no reach-length width cap",
+      "Ordinary graph joins share cross-sections and tangents instead of circular pools",
+      "Actual pool boundary stations replace overlong flat collars"
+    ],
+    "unaccepted_parallel": "Serial61.523s vs parallel53.767s;92 graph datum bits differ. Not accepted.",
+    "longitudinal_profile": "Unhooked preparatory class;9604 pure controls pass; no in-game visual change yet."
+  },
+  "experiments": {
+    "original_cold": {
+      "Assembly": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen_Data\\Managed\\WorldGen.Core.dll",
+      "Version": "local-terrain-map-footprint-hints-75",
+      "ReadSeconds": 5.6193809,
+      "PreparationSeconds": 24.5241011,
+      "FittingMs": 22475.3278,
+      "Reaches": 63020,
+      "Scope": "Cold CoreCLR constructor component only; no game startup/FPS claim"
+    },
+    "physical_all_fine": {
+      "fitMs": 126774.8,
+      "note": "Cold loading regression, not accepted"
+    },
+    "spatial_order_retired": {
+      "Assembly": "C:\\Users\\kille\\Desktop\\WorldGen\\tests\\WorldGen.Core.Tests\\bin\\Debug\\net10.0\\WorldGen.Core.dll",
+      "Version": "local-terrain-physical-rivers-76",
+      "ReadSeconds": 8.0542402,
+      "PreparationSeconds": 136.9247206,
+      "FittingMs": 132249.1182,
+      "Reaches": 63020,
+      "Scope": "Cold CoreCLR constructor component only; no game startup/FPS claim"
+    },
+    "global64_inner_retired": {
+      "Assembly": "C:\\Users\\kille\\Desktop\\WorldGen\\tests\\WorldGen.Core.Tests\\bin\\Debug\\net10.0\\WorldGen.Core.dll",
+      "Version": "local-terrain-physical-rivers-76",
+      "ReadSeconds": 8.2658735,
+      "PreparationSeconds": 19.2698896,
+      "FittingMs": 14561.2119,
+      "Reaches": 63020,
+      "Scope": "Cold CoreCLR constructor component only; no game startup/FPS claim"
+    },
+    "bank_contact": [
+      {
+        "name": "original-bank-contact-v1",
+        "Version": "local-terrain-map-footprint-hints-75",
+        "PreparationSeconds": 1.943766,
+        "UsedCached": true,
+        "Probes": 5820,
+        "OpenEdgeProbes": 34,
+        "CoveredByOtherWater": 499,
+        "Bands": [
+          {
+            "Band": "small",
+            "Reaches": 48,
+            "Probes": 1468,
+            "OpenEdgeProbes": 34
+          },
+          {
+            "Band": "local-fit",
+            "Reaches": 48,
+            "Probes": 1494,
+            "OpenEdgeProbes": 0
+          },
+          {
+            "Band": "broad",
+            "Reaches": 48,
+            "Probes": 1552,
+            "OpenEdgeProbes": 0
+          },
+          {
+            "Band": "major",
+            "Reaches": 48,
+            "Probes": 1306,
+            "OpenEdgeProbes": 0
+          }
+        ],
+        "Failures": [
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 387,
+            "T": 1,
+            "Side": -1,
+            "Width": 1.746946766504349,
+            "Level": 695.033183060498,
+            "Ground": 684.133,
+            "Clearance": 10.900183060497966,
+            "Position": [
+              -0.436380164,
+              -0.860905109,
+              -0.261562125
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 387,
+            "T": 1,
+            "Side": 1,
+            "Width": 1.746946766504349,
+            "Level": 695.033183060498,
+            "Ground": 682.517,
+            "Clearance": 12.516183060497951,
+            "Position": [
+              -0.436369612,
+              -0.860909739,
+              -0.261564491
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 7.551,
+            "Clearance": 0.44899999999999984,
+            "Position": [
+              -0.730643343,
+              0.429138831,
+              -0.53103688
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 7.55,
+            "Clearance": 0.4500000000000002,
+            "Position": [
+              -0.730636319,
+              0.42914018,
+              -0.531045454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 7.04,
+            "Clearance": 0.96,
+            "Position": [
+              -0.73048204,
+              0.429664919,
+              -0.53083335
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 7.091,
+            "Clearance": 0.9089999999999998,
+            "Position": [
+              -0.730474716,
+              0.429667437,
+              -0.530841392
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 6.538,
+            "Clearance": 1.4619999999999997,
+            "Position": [
+              -0.7303679,
+              0.430346057,
+              -0.5304385
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 6.565,
+            "Clearance": 1.4349999999999996,
+            "Position": [
+              -0.7303603,
+              0.430350451,
+              -0.530445399
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 6.06,
+            "Clearance": 1.9400000000000004,
+            "Position": [
+              -0.73028814,
+              0.430949733,
+              -0.530058073
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 6.042,
+            "Clearance": 1.9580000000000002,
+            "Position": [
+              -0.730280605,
+              0.430953469,
+              -0.530065416
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 5.6,
+            "Clearance": 2.4000000000000004,
+            "Position": [
+              -0.730234216,
+              0.43155751,
+              -0.529637711
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 5.524,
+            "Clearance": 2.476,
+            "Position": [
+              -0.730226595,
+              0.431563016,
+              -0.529643731
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 5.122,
+            "Clearance": 2.878,
+            "Position": [
+              -0.730243465,
+              0.432052171,
+              -0.529221508
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 5.032,
+            "Clearance": 2.968,
+            "Position": [
+              -0.730235873,
+              0.432056457,
+              -0.529228484
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 4.584,
+            "Clearance": 3.4160000000000004,
+            "Position": [
+              -0.730163522,
+              0.432666073,
+              -0.528830124
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 4.61,
+            "Clearance": 3.3899999999999997,
+            "Position": [
+              -0.730155969,
+              0.432669967,
+              -0.528837366
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 4.027,
+            "Clearance": 3.973,
+            "Position": [
+              -0.730049609,
+              0.433291332,
+              -0.528475345
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 4.061,
+            "Clearance": 3.939,
+            "Position": [
+              -0.730042794,
+              0.433292064,
+              -0.528484158
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 3.503,
+            "Clearance": 4.497,
+            "Position": [
+              -0.729819765,
+              0.433942056,
+              -0.52825884
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 3.579,
+            "Clearance": 4.420999999999999,
+            "Position": [
+              -0.729812732,
+              0.433943474,
+              -0.528267392
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 3.029,
+            "Clearance": 4.971,
+            "Position": [
+              -0.729634464,
+              0.434623074,
+              -0.527954858
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 3.082,
+            "Clearance": 4.918,
+            "Position": [
+              -0.729627187,
+              0.434625398,
+              -0.527963001
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 2.539,
+            "Clearance": 5.461,
+            "Position": [
+              -0.729487864,
+              0.435359849,
+              -0.527550241
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 2.533,
+            "Clearance": 5.4670000000000005,
+            "Position": [
+              -0.729480749,
+              0.435361552,
+              -0.527558675
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 2.079,
+            "Clearance": 5.920999999999999,
+            "Position": [
+              -0.729321405,
+              0.435987353,
+              -0.527262094
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 2.028,
+            "Clearance": 5.9719999999999995,
+            "Position": [
+              -0.729313983,
+              0.435990361,
+              -0.527269874
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 1.514,
+            "Clearance": 6.486,
+            "Position": [
+              -0.729252217,
+              0.436580494,
+              -0.526866849
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 1.562,
+            "Clearance": 6.438,
+            "Position": [
+              -0.729244852,
+              0.436583219,
+              -0.526874784
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 1.027,
+            "Clearance": 6.973,
+            "Position": [
+              -0.72915705,
+              0.437110219,
+              -0.526559258
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 1.036,
+            "Clearance": 6.964,
+            "Position": [
+              -0.729149889,
+              0.437112099,
+              -0.526567615
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 0.571,
+            "Clearance": 7.429,
+            "Position": [
+              -0.729021726,
+              0.437606066,
+              -0.526334736
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 1.5566530899657767,
+            "Level": 8,
+            "Ground": 0.539,
+            "Clearance": 7.461,
+            "Position": [
+              -0.729014228,
+              0.437609512,
+              -0.526342255
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": -1,
+            "Width": 10.672538821213807,
+            "Level": 8,
+            "Ground": 0.054,
+            "Clearance": 7.946,
+            "Position": [
+              -0.728918006,
+              0.43813517,
+              -0.52603813
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": 1,
+            "Width": 10.672538821213807,
+            "Level": 8,
+            "Ground": 0.009,
+            "Clearance": 7.991,
+            "Position": [
+              -0.728891608,
+              0.438145634,
+              -0.526065992
+            ]
+          }
+        ],
+        "Scope": "Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"
+      },
+      {
+        "name": "physical-bank-contact-v1",
+        "Version": "local-terrain-physical-rivers-76",
+        "PreparationSeconds": 19.0970714,
+        "UsedCached": false,
+        "Probes": 5830,
+        "OpenEdgeProbes": 65,
+        "CoveredByOtherWater": 517,
+        "Bands": [
+          {
+            "Band": "small",
+            "Reaches": 48,
+            "Probes": 1466,
+            "OpenEdgeProbes": 33
+          },
+          {
+            "Band": "local-fit",
+            "Reaches": 48,
+            "Probes": 1494,
+            "OpenEdgeProbes": 2
+          },
+          {
+            "Band": "broad",
+            "Reaches": 48,
+            "Probes": 1558,
+            "OpenEdgeProbes": 19
+          },
+          {
+            "Band": "major",
+            "Reaches": 48,
+            "Probes": 1312,
+            "OpenEdgeProbes": 11
+          }
+        ],
+        "Failures": [
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 381,
+            "T": 1,
+            "Side": 1,
+            "Width": 17.46946766504349,
+            "Level": 695.033183060498,
+            "Ground": 682.22,
+            "Clearance": 12.813183060497977,
+            "Position": [
+              -0.436347475,
+              -0.860919451,
+              -0.261569454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.542,
+            "Clearance": 0.4580000000000002,
+            "Position": [
+              -0.730635704,
+              0.429145075,
+              -0.531042345
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.67,
+            "Clearance": 0.33000000000000007,
+            "Position": [
+              -0.73060413,
+              0.429143307,
+              -0.531087213
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.285,
+            "Clearance": 0.7149999999999999,
+            "Position": [
+              -0.730456568,
+              0.429669178,
+              -0.530864954
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.15,
+            "Clearance": 0.8499999999999996,
+            "Position": [
+              -0.730418999,
+              0.429691422,
+              -0.530898641
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.566,
+            "Clearance": 1.4340000000000002,
+            "Position": [
+              -0.730358911,
+              0.430338756,
+              -0.530456799
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.557,
+            "Clearance": 1.4429999999999996,
+            "Position": [
+              -0.730322887,
+              0.430375534,
+              -0.53047656
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.064,
+            "Clearance": 1.936,
+            "Position": [
+              -0.730289243,
+              0.43093543,
+              -0.530068182
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.15,
+            "Clearance": 1.8499999999999996,
+            "Position": [
+              -0.730252271,
+              0.430968574,
+              -0.53009217
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.648,
+            "Clearance": 2.3520000000000003,
+            "Position": [
+              -0.730251222,
+              0.431535612,
+              -0.529632106
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.576,
+            "Clearance": 2.4240000000000004,
+            "Position": [
+              -0.730215335,
+              0.431572855,
+              -0.529651239
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.162,
+            "Clearance": 2.838,
+            "Position": [
+              -0.73025353,
+              0.43204387,
+              -0.529214396
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.096,
+            "Clearance": 2.904,
+            "Position": [
+              -0.730218355,
+              0.43208295,
+              -0.529231025
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.672,
+            "Clearance": 3.3280000000000003,
+            "Position": [
+              -0.730210349,
+              0.432648052,
+              -0.528780209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.565,
+            "Clearance": 3.4349999999999996,
+            "Position": [
+              -0.73017276,
+              0.432674548,
+              -0.528810435
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.274,
+            "Clearance": 3.726,
+            "Position": [
+              -0.730090187,
+              0.433278931,
+              -0.528429454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.06,
+            "Clearance": 3.9400000000000004,
+            "Position": [
+              -0.730053984,
+              0.433291609,
+              -0.528469073
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.71,
+            "Clearance": 4.29,
+            "Position": [
+              -0.729866982,
+              0.433929594,
+              -0.52820384
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.599,
+            "Clearance": 4.401,
+            "Position": [
+              -0.729840112,
+              0.433918254,
+              -0.528250281
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.09,
+            "Clearance": 4.91,
+            "Position": [
+              -0.729661149,
+              0.43463114,
+              -0.527911337
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.045,
+            "Clearance": 4.955,
+            "Position": [
+              -0.729643621,
+              0.434605332,
+              -0.527956809
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.61,
+            "Clearance": 5.390000000000001,
+            "Position": [
+              -0.729451333,
+              0.435378891,
+              -0.52758504
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.65,
+            "Clearance": 5.35,
+            "Position": [
+              -0.729421846,
+              0.435373106,
+              -0.527630579
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.13,
+            "Clearance": 5.87,
+            "Position": [
+              -0.729286379,
+              0.436001543,
+              -0.527298808
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.149,
+            "Clearance": 5.851,
+            "Position": [
+              -0.729249051,
+              0.436020693,
+              -0.527334598
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.571,
+            "Clearance": 6.429,
+            "Position": [
+              -0.729245054,
+              0.436578866,
+              -0.526878112
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.586,
+            "Clearance": 6.414,
+            "Position": [
+              -0.729208416,
+              0.436613933,
+              -0.526899761
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.098,
+            "Clearance": 6.902,
+            "Position": [
+              -0.729170114,
+              0.437091335,
+              -0.526556843
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.089,
+            "Clearance": 6.911,
+            "Position": [
+              -0.729132572,
+              0.437121205,
+              -0.526584033
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.61,
+            "Clearance": 7.39,
+            "Position": [
+              -0.729039065,
+              0.437597157,
+              -0.526318127
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.512,
+            "Clearance": 7.4879999999999995,
+            "Position": [
+              -0.729001492,
+              0.437618758,
+              -0.526352209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": -1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.153,
+            "Clearance": 7.847,
+            "Position": [
+              -0.728958904,
+              0.438119322,
+              -0.525994654
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": 1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.056,
+            "Clearance": 7.944,
+            "Position": [
+              -0.728850705,
+              0.438161479,
+              -0.526109464
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 31891,
+            "Span": 3,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 29.91713701208723,
+            "Level": 77.97041946107083,
+            "Ground": 77.546,
+            "Clearance": 0.4244194610708263,
+            "Position": [
+              -0.130369442,
+              0.721704638,
+              -0.679813374
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 31891,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 29.91713701208723,
+            "Level": 77.97041946107083,
+            "Ground": 77.625,
+            "Clearance": 0.34541946107083277,
+            "Position": [
+              -0.130325956,
+              0.721770562,
+              -0.67975172
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 83806,
+            "Span": 38,
+            "T": 0,
+            "Side": -1,
+            "Width": 68.18440266842558,
+            "Level": 32.3505056187922,
+            "Ground": 30.744,
+            "Clearance": 1.6065056187921982,
+            "Position": [
+              0.948534696,
+              0.269298102,
+              -0.166614711
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 50626,
+            "Span": 3,
+            "T": 0,
+            "Side": -1,
+            "Width": 94.20866948163527,
+            "Level": 25.63413237454538,
+            "Ground": 24.468,
+            "Clearance": 1.1661323745453807,
+            "Position": [
+              -0.738117212,
+              0.460099473,
+              -0.493448535
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 156734,
+            "Span": 3,
+            "T": 0,
+            "Side": -1,
+            "Width": 131.26766628248558,
+            "Level": 8.388111257528632,
+            "Ground": 6.188,
+            "Clearance": 2.200111257528632,
+            "Position": [
+              0.76403117,
+              0.305902884,
+              0.568049114
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 153846,
+            "Span": 3,
+            "T": 0,
+            "Side": -1,
+            "Width": 116.73116579988397,
+            "Level": 370.1113284941748,
+            "Ground": 369.275,
+            "Clearance": 0.8363284941748361,
+            "Position": [
+              0.789336071,
+              -0.29610178,
+              0.537840406
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 104048,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 156.70216963079992,
+            "Level": 74.2494418858465,
+            "Ground": 66.681,
+            "Clearance": 7.568441885846497,
+            "Position": [
+              0.304367016,
+              -0.951730194,
+              0.039627724
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 91811,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 76.40040698026418,
+            "Level": 768.6693215382188,
+            "Ground": 768.153,
+            "Clearance": 0.51632153821879,
+            "Position": [
+              -0.415969745,
+              -0.905640411,
+              -0.082368797
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 2,
+            "T": 0,
+            "Side": -1,
+            "Width": 221.67312463287018,
+            "Level": 484.36835644844354,
+            "Ground": 484.11,
+            "Clearance": 0.25835644844352146,
+            "Position": [
+              0.495416438,
+              -0.742768757,
+              0.450396633
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 221.67312463287018,
+            "Level": 484.36835644844354,
+            "Ground": 484.208,
+            "Clearance": 0.16035644844350827,
+            "Position": [
+              0.495824354,
+              -0.74229898,
+              0.450722125
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 3,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 221.67312463287018,
+            "Level": 481.2562569258497,
+            "Ground": 481.104,
+            "Clearance": 0.15225692584971284,
+            "Position": [
+              0.495846247,
+              -0.742839192,
+              0.449807106
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 221.67312463287018,
+            "Level": 481.2562569258497,
+            "Ground": 480.666,
+            "Clearance": 0.590256925849701,
+            "Position": [
+              0.496317901,
+              -0.742378893,
+              0.450046798
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 110080,
+            "Span": 1,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 216.24024057110645,
+            "Level": 31.279908054210136,
+            "Ground": 30.883,
+            "Clearance": 0.39690805421013664,
+            "Position": [
+              0.41660876,
+              -0.903647222,
+              0.099291688
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 110080,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 216.24024057110645,
+            "Level": 31.279908054210136,
+            "Ground": 30.168,
+            "Clearance": 1.1119080542101365,
+            "Position": [
+              0.41676611,
+              -0.903589447,
+              0.09915705
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 110080,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 216.24024057110645,
+            "Level": 29.410432996206715,
+            "Ground": 28.254,
+            "Clearance": 1.1564329962067141,
+            "Position": [
+              0.417297383,
+              -0.903385986,
+              0.098775781
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 89755,
+            "Span": 3,
+            "T": 0,
+            "Side": -1,
+            "Width": 116.36680994274099,
+            "Level": 180.70990386279468,
+            "Ground": 178.816,
+            "Clearance": 1.893903862794673,
+            "Position": [
+              -0.631712686,
+              0.768243276,
+              -0.103640487
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 100954,
+            "Span": 1,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 208.51553980938684,
+            "Level": 16.565558822191537,
+            "Ground": 16.297,
+            "Clearance": 0.2685588221915367,
+            "Position": [
+              0.999718097,
+              -0.020906505,
+              0.011253671
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 100954,
+            "Span": 2,
+            "T": 0,
+            "Side": -1,
+            "Width": 208.51553980938684,
+            "Level": 16.565558822191537,
+            "Ground": 15.66,
+            "Clearance": 0.9055588221915372,
+            "Position": [
+              0.999712374,
+              -0.021106323,
+              0.011388288
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 160235,
+            "Span": 2,
+            "T": 0,
+            "Side": -1,
+            "Width": 132.47312780239622,
+            "Level": 195.5100044479467,
+            "Ground": 195.122,
+            "Clearance": 0.38800444794668465,
+            "Position": [
+              -0.35672411,
+              0.714673161,
+              0.6016562
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 160235,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 132.47312780239622,
+            "Level": 195.5100044479467,
+            "Ground": 195.241,
+            "Clearance": 0.2690044479466849,
+            "Position": [
+              -0.357101055,
+              0.714642822,
+              0.601468597
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 160235,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 132.47312780239622,
+            "Level": 192.6618212050485,
+            "Ground": 192.248,
+            "Clearance": 0.4138212050485208,
+            "Position": [
+              -0.35691654,
+              0.715000487,
+              0.601152965
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 115900,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 384.3449970114741,
+            "Level": 66.1217563476791,
+            "Ground": 63.798,
+            "Clearance": 2.323756347679094,
+            "Position": [
+              0.63396013,
+              -0.756571537,
+              0.160293675
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 115900,
+            "Span": 4,
+            "T": 0,
+            "Side": -1,
+            "Width": 384.3449970114741,
+            "Level": 66.1217563476791,
+            "Ground": 65.784,
+            "Clearance": 0.3377563476790897,
+            "Position": [
+              0.634633887,
+              -0.756216981,
+              0.159297543
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 115900,
+            "Span": 4,
+            "T": 0,
+            "Side": 1,
+            "Width": 384.3449970114741,
+            "Level": 66.1217563476791,
+            "Ground": 63.021,
+            "Clearance": 3.100756347679095,
+            "Position": [
+              0.634132719,
+              -0.756407435,
+              0.16038543
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 102271,
+            "Span": 3,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 430.8325691875557,
+            "Level": 10.737303598665612,
+            "Ground": 10.204,
+            "Clearance": 0.5333035986656114,
+            "Position": [
+              0.958266807,
+              0.284909943,
+              0.023474447
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 102271,
+            "Span": 4,
+            "T": 0,
+            "Side": 1,
+            "Width": 430.8325691875557,
+            "Level": 10.737303598665612,
+            "Ground": 9.723,
+            "Clearance": 1.0143035986656113,
+            "Position": [
+              0.958187987,
+              0.285165917,
+              0.023583513
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 96877,
+            "Span": 3,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 289.23404565420714,
+            "Level": 540.2076683370817,
+            "Ground": 538.27,
+            "Clearance": 1.9376683370817318,
+            "Position": [
+              -0.177908922,
+              -0.983573388,
+              -0.030525496
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 79751,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 266.56223145965373,
+            "Level": 3.8782718933555054,
+            "Ground": 3.757,
+            "Clearance": 0.12127189335550526,
+            "Position": [
+              0.46392093,
+              0.862363546,
+              -0.202747342
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 170663,
+            "Span": 1,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 280.09878823149165,
+            "Level": 0.16574057102529166,
+            "Ground": -0.113,
+            "Clearance": 0.27874057102529165,
+            "Position": [
+              -0.691298656,
+              0.152371785,
+              0.706320755
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 170663,
+            "Span": 2,
+            "T": 0,
+            "Side": -1,
+            "Width": 280.09878823149165,
+            "Level": 0.16574057102529166,
+            "Ground": -0.251,
+            "Clearance": 0.41674057102529166,
+            "Position": [
+              -0.691502049,
+              0.152054283,
+              0.706190067
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 170663,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 280.09878823149165,
+            "Level": 0.16574057102529166,
+            "Ground": -1.609,
+            "Clearance": 1.7747405710252917,
+            "Position": [
+              -0.691035773,
+              0.151555019,
+              0.70675359
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 59994,
+            "Span": 4,
+            "T": 0,
+            "Side": 1,
+            "Width": 449.46116047857794,
+            "Level": 121.71746082324496,
+            "Ground": 121.249,
+            "Clearance": 0.46846082324496763,
+            "Position": [
+              -0.444430674,
+              -0.800922965,
+              -0.401252764
+            ]
+          }
+        ],
+        "Scope": "Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"
+      },
+      {
+        "name": "physical-bank-contact-v3",
+        "Version": "local-terrain-physical-rivers-77",
+        "PreparationSeconds": 85.7123481,
+        "UsedCached": false,
+        "Probes": 5820,
+        "OpenEdgeProbes": 35,
+        "CoveredByOtherWater": 568,
+        "Bands": [
+          {
+            "Band": "small",
+            "Reaches": 48,
+            "Probes": 1466,
+            "OpenEdgeProbes": 33
+          },
+          {
+            "Band": "local-fit",
+            "Reaches": 48,
+            "Probes": 1492,
+            "OpenEdgeProbes": 0
+          },
+          {
+            "Band": "broad",
+            "Reaches": 48,
+            "Probes": 1556,
+            "OpenEdgeProbes": 2
+          },
+          {
+            "Band": "major",
+            "Reaches": 48,
+            "Probes": 1306,
+            "OpenEdgeProbes": 0
+          }
+        ],
+        "Failures": [
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 381,
+            "T": 1,
+            "Side": 1,
+            "Width": 17.46946766504349,
+            "Level": 695.033183060498,
+            "Ground": 682.22,
+            "Clearance": 12.813183060497977,
+            "Position": [
+              -0.436347475,
+              -0.860919451,
+              -0.261569454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.542,
+            "Clearance": 0.4580000000000002,
+            "Position": [
+              -0.730635704,
+              0.429145075,
+              -0.531042345
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.67,
+            "Clearance": 0.33000000000000007,
+            "Position": [
+              -0.73060413,
+              0.429143307,
+              -0.531087213
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.285,
+            "Clearance": 0.7149999999999999,
+            "Position": [
+              -0.730456568,
+              0.429669178,
+              -0.530864954
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.15,
+            "Clearance": 0.8499999999999996,
+            "Position": [
+              -0.730418999,
+              0.429691422,
+              -0.530898641
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.566,
+            "Clearance": 1.4340000000000002,
+            "Position": [
+              -0.730358911,
+              0.430338756,
+              -0.530456799
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.557,
+            "Clearance": 1.4429999999999996,
+            "Position": [
+              -0.730322887,
+              0.430375534,
+              -0.53047656
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.064,
+            "Clearance": 1.936,
+            "Position": [
+              -0.730289243,
+              0.43093543,
+              -0.530068182
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.15,
+            "Clearance": 1.8499999999999996,
+            "Position": [
+              -0.730252271,
+              0.430968574,
+              -0.53009217
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.648,
+            "Clearance": 2.3520000000000003,
+            "Position": [
+              -0.730251222,
+              0.431535612,
+              -0.529632106
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.576,
+            "Clearance": 2.4240000000000004,
+            "Position": [
+              -0.730215335,
+              0.431572855,
+              -0.529651239
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.162,
+            "Clearance": 2.838,
+            "Position": [
+              -0.73025353,
+              0.43204387,
+              -0.529214396
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.096,
+            "Clearance": 2.904,
+            "Position": [
+              -0.730218355,
+              0.43208295,
+              -0.529231025
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.672,
+            "Clearance": 3.3280000000000003,
+            "Position": [
+              -0.730210349,
+              0.432648052,
+              -0.528780209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.565,
+            "Clearance": 3.4349999999999996,
+            "Position": [
+              -0.73017276,
+              0.432674548,
+              -0.528810435
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.274,
+            "Clearance": 3.726,
+            "Position": [
+              -0.730090187,
+              0.433278931,
+              -0.528429454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.06,
+            "Clearance": 3.9400000000000004,
+            "Position": [
+              -0.730053984,
+              0.433291609,
+              -0.528469073
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.71,
+            "Clearance": 4.29,
+            "Position": [
+              -0.729866982,
+              0.433929594,
+              -0.52820384
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.599,
+            "Clearance": 4.401,
+            "Position": [
+              -0.729840112,
+              0.433918254,
+              -0.528250281
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.09,
+            "Clearance": 4.91,
+            "Position": [
+              -0.729661149,
+              0.43463114,
+              -0.527911337
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.045,
+            "Clearance": 4.955,
+            "Position": [
+              -0.729643621,
+              0.434605332,
+              -0.527956809
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.61,
+            "Clearance": 5.390000000000001,
+            "Position": [
+              -0.729451333,
+              0.435378891,
+              -0.52758504
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.65,
+            "Clearance": 5.35,
+            "Position": [
+              -0.729421846,
+              0.435373106,
+              -0.527630579
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.13,
+            "Clearance": 5.87,
+            "Position": [
+              -0.729286379,
+              0.436001543,
+              -0.527298808
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.149,
+            "Clearance": 5.851,
+            "Position": [
+              -0.729249051,
+              0.436020693,
+              -0.527334598
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.571,
+            "Clearance": 6.429,
+            "Position": [
+              -0.729245054,
+              0.436578866,
+              -0.526878112
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.586,
+            "Clearance": 6.414,
+            "Position": [
+              -0.729208416,
+              0.436613933,
+              -0.526899761
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.098,
+            "Clearance": 6.902,
+            "Position": [
+              -0.729170114,
+              0.437091335,
+              -0.526556843
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.089,
+            "Clearance": 6.911,
+            "Position": [
+              -0.729132572,
+              0.437121205,
+              -0.526584033
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.61,
+            "Clearance": 7.39,
+            "Position": [
+              -0.729039065,
+              0.437597157,
+              -0.526318127
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.512,
+            "Clearance": 7.4879999999999995,
+            "Position": [
+              -0.729001492,
+              0.437618758,
+              -0.526352209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": -1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.153,
+            "Clearance": 7.847,
+            "Position": [
+              -0.728958904,
+              0.438119322,
+              -0.525994654
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": 1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.056,
+            "Clearance": 7.944,
+            "Position": [
+              -0.728850705,
+              0.438161479,
+              -0.526109464
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 83806,
+            "Span": 38,
+            "T": 0,
+            "Side": -1,
+            "Width": 68.18440266842558,
+            "Level": 31.05822126834916,
+            "Ground": 30.744,
+            "Clearance": 0.3142212683491614,
+            "Position": [
+              0.948534696,
+              0.269298102,
+              -0.166614711
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 104048,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 156.70216963079992,
+            "Level": 74.2494418858465,
+            "Ground": 66.681,
+            "Clearance": 7.568441885846497,
+            "Position": [
+              0.304367016,
+              -0.951730194,
+              0.039627724
+            ]
+          }
+        ],
+        "Scope": "Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"
+      },
+      {
+        "name": "continuous-bank-contact-v4",
+        "Version": "local-terrain-continuous-rivers-78",
+        "PreparationSeconds": 63.0979793,
+        "UsedCached": false,
+        "Probes": 5828,
+        "OpenEdgeProbes": 35,
+        "CoveredByOtherWater": 454,
+        "Bands": [
+          {
+            "Band": "small",
+            "Reaches": 48,
+            "Probes": 1466,
+            "OpenEdgeProbes": 33
+          },
+          {
+            "Band": "local-fit",
+            "Reaches": 48,
+            "Probes": 1496,
+            "OpenEdgeProbes": 0
+          },
+          {
+            "Band": "broad",
+            "Reaches": 48,
+            "Probes": 1558,
+            "OpenEdgeProbes": 2
+          },
+          {
+            "Band": "major",
+            "Reaches": 48,
+            "Probes": 1308,
+            "OpenEdgeProbes": 0
+          }
+        ],
+        "Failures": [
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 369,
+            "T": 1,
+            "Side": 1,
+            "Width": 17.46946766504349,
+            "Level": 695.033183060498,
+            "Ground": 682.777,
+            "Clearance": 12.25618306049796,
+            "Position": [
+              -0.436348474,
+              -0.860922149,
+              -0.26155891
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.542,
+            "Clearance": 0.4580000000000002,
+            "Position": [
+              -0.730635704,
+              0.429145075,
+              -0.531042345
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.67,
+            "Clearance": 0.33000000000000007,
+            "Position": [
+              -0.73060413,
+              0.429143307,
+              -0.531087213
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.285,
+            "Clearance": 0.7149999999999999,
+            "Position": [
+              -0.730456568,
+              0.429669178,
+              -0.530864954
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.15,
+            "Clearance": 0.8499999999999996,
+            "Position": [
+              -0.730418999,
+              0.429691422,
+              -0.530898641
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.566,
+            "Clearance": 1.4340000000000002,
+            "Position": [
+              -0.730358911,
+              0.430338756,
+              -0.530456799
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.557,
+            "Clearance": 1.4429999999999996,
+            "Position": [
+              -0.730322887,
+              0.430375534,
+              -0.53047656
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.064,
+            "Clearance": 1.936,
+            "Position": [
+              -0.730289243,
+              0.43093543,
+              -0.530068182
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.15,
+            "Clearance": 1.8499999999999996,
+            "Position": [
+              -0.730252271,
+              0.430968574,
+              -0.53009217
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.648,
+            "Clearance": 2.3520000000000003,
+            "Position": [
+              -0.730251222,
+              0.431535612,
+              -0.529632106
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.576,
+            "Clearance": 2.4240000000000004,
+            "Position": [
+              -0.730215335,
+              0.431572855,
+              -0.529651239
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.162,
+            "Clearance": 2.838,
+            "Position": [
+              -0.73025353,
+              0.43204387,
+              -0.529214396
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.096,
+            "Clearance": 2.904,
+            "Position": [
+              -0.730218355,
+              0.43208295,
+              -0.529231025
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.672,
+            "Clearance": 3.3280000000000003,
+            "Position": [
+              -0.730210349,
+              0.432648052,
+              -0.528780209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.565,
+            "Clearance": 3.4349999999999996,
+            "Position": [
+              -0.73017276,
+              0.432674548,
+              -0.528810435
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.274,
+            "Clearance": 3.726,
+            "Position": [
+              -0.730090187,
+              0.433278931,
+              -0.528429454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.06,
+            "Clearance": 3.9400000000000004,
+            "Position": [
+              -0.730053984,
+              0.433291609,
+              -0.528469073
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.71,
+            "Clearance": 4.29,
+            "Position": [
+              -0.729866982,
+              0.433929594,
+              -0.52820384
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.599,
+            "Clearance": 4.401,
+            "Position": [
+              -0.729840112,
+              0.433918254,
+              -0.528250281
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.09,
+            "Clearance": 4.91,
+            "Position": [
+              -0.729661149,
+              0.43463114,
+              -0.527911337
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.045,
+            "Clearance": 4.955,
+            "Position": [
+              -0.729643621,
+              0.434605332,
+              -0.527956809
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.61,
+            "Clearance": 5.390000000000001,
+            "Position": [
+              -0.729451333,
+              0.435378891,
+              -0.52758504
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.65,
+            "Clearance": 5.35,
+            "Position": [
+              -0.729421846,
+              0.435373106,
+              -0.527630579
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.13,
+            "Clearance": 5.87,
+            "Position": [
+              -0.729286379,
+              0.436001543,
+              -0.527298808
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.149,
+            "Clearance": 5.851,
+            "Position": [
+              -0.729249051,
+              0.436020693,
+              -0.527334598
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.571,
+            "Clearance": 6.429,
+            "Position": [
+              -0.729245054,
+              0.436578866,
+              -0.526878112
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.586,
+            "Clearance": 6.414,
+            "Position": [
+              -0.729208416,
+              0.436613933,
+              -0.526899761
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.098,
+            "Clearance": 6.902,
+            "Position": [
+              -0.729170114,
+              0.437091335,
+              -0.526556843
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.089,
+            "Clearance": 6.911,
+            "Position": [
+              -0.729132572,
+              0.437121205,
+              -0.526584033
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.61,
+            "Clearance": 7.39,
+            "Position": [
+              -0.729039065,
+              0.437597157,
+              -0.526318127
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.512,
+            "Clearance": 7.4879999999999995,
+            "Position": [
+              -0.729001492,
+              0.437618758,
+              -0.526352209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": -1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.153,
+            "Clearance": 7.847,
+            "Position": [
+              -0.728958904,
+              0.438119322,
+              -0.525994654
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 255,
+            "T": 1,
+            "Side": 1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.056,
+            "Clearance": 7.944,
+            "Position": [
+              -0.728850705,
+              0.438161479,
+              -0.526109464
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 83806,
+            "Span": 38,
+            "T": 0,
+            "Side": -1,
+            "Width": 68.18440266842558,
+            "Level": 31.05822126834916,
+            "Ground": 30.744,
+            "Clearance": 0.3142212683491614,
+            "Position": [
+              0.948534696,
+              0.269298102,
+              -0.166614711
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 104048,
+            "Span": 2,
+            "T": 0,
+            "Side": 1,
+            "Width": 156.70216963079992,
+            "Level": 74.2494418858465,
+            "Ground": 66.681,
+            "Clearance": 7.568441885846497,
+            "Position": [
+              0.304367016,
+              -0.951730194,
+              0.039627724
+            ]
+          }
+        ],
+        "Scope": "Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"
+      },
+      {
+        "name": "continuous-bank-contact-v5",
+        "Version": "local-terrain-continuous-rivers-79",
+        "PreparationSeconds": 47.7279602,
+        "UsedCached": false,
+        "Probes": 5798,
+        "OpenEdgeProbes": 47,
+        "CoveredByOtherWater": 439,
+        "Bands": [
+          {
+            "Band": "small",
+            "Reaches": 48,
+            "Probes": 1464,
+            "OpenEdgeProbes": 38
+          },
+          {
+            "Band": "local-fit",
+            "Reaches": 48,
+            "Probes": 1496,
+            "OpenEdgeProbes": 4
+          },
+          {
+            "Band": "broad",
+            "Reaches": 48,
+            "Probes": 1556,
+            "OpenEdgeProbes": 4
+          },
+          {
+            "Band": "major",
+            "Reaches": 48,
+            "Probes": 1282,
+            "OpenEdgeProbes": 1
+          }
+        ],
+        "Failures": [
+          {
+            "Band": "small",
+            "Source": 175775,
+            "Span": 197,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 10.914269341096546,
+            "Level": 34.5545878771,
+            "Ground": 33.586,
+            "Clearance": 0.9685878770999992,
+            "Position": [
+              0.584906955,
+              0.296407017,
+              0.755001148
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 53750,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 14.989452266510607,
+            "Level": 30.26712597480993,
+            "Ground": 24.238,
+            "Clearance": 6.029125974809929,
+            "Position": [
+              -0.402961111,
+              -0.788068917,
+              -0.465370525
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 53750,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 14.989452266510607,
+            "Level": 30.26712597480993,
+            "Ground": 25.064,
+            "Clearance": 5.203125974809929,
+            "Position": [
+              -0.40293103,
+              -0.788101665,
+              -0.465341112
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 74799,
+            "Span": 369,
+            "T": 1,
+            "Side": 1,
+            "Width": 17.46946766504349,
+            "Level": 695.033183060498,
+            "Ground": 682.777,
+            "Clearance": 12.25618306049796,
+            "Position": [
+              -0.436348474,
+              -0.860922149,
+              -0.26155891
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.542,
+            "Clearance": 0.4580000000000002,
+            "Position": [
+              -0.730635704,
+              0.429145075,
+              -0.531042345
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.67,
+            "Clearance": 0.33000000000000007,
+            "Position": [
+              -0.73060413,
+              0.429143307,
+              -0.531087213
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.285,
+            "Clearance": 0.7149999999999999,
+            "Position": [
+              -0.730456568,
+              0.429669178,
+              -0.530864954
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 32,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 7.15,
+            "Clearance": 0.8499999999999996,
+            "Position": [
+              -0.730418999,
+              0.429691422,
+              -0.530898641
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.566,
+            "Clearance": 1.4340000000000002,
+            "Position": [
+              -0.730358911,
+              0.430338756,
+              -0.530456799
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 48,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.557,
+            "Clearance": 1.4429999999999996,
+            "Position": [
+              -0.730322887,
+              0.430375534,
+              -0.53047656
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.064,
+            "Clearance": 1.936,
+            "Position": [
+              -0.730289243,
+              0.43093543,
+              -0.530068182
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 64,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 6.15,
+            "Clearance": 1.8499999999999996,
+            "Position": [
+              -0.730252271,
+              0.430968574,
+              -0.53009217
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.648,
+            "Clearance": 2.3520000000000003,
+            "Position": [
+              -0.730251222,
+              0.431535612,
+              -0.529632106
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 80,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.576,
+            "Clearance": 2.4240000000000004,
+            "Position": [
+              -0.730215335,
+              0.431572855,
+              -0.529651239
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.162,
+            "Clearance": 2.838,
+            "Position": [
+              -0.73025353,
+              0.43204387,
+              -0.529214396
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 96,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 5.096,
+            "Clearance": 2.904,
+            "Position": [
+              -0.730218355,
+              0.43208295,
+              -0.529231025
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.672,
+            "Clearance": 3.3280000000000003,
+            "Position": [
+              -0.730210349,
+              0.432648052,
+              -0.528780209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 112,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.565,
+            "Clearance": 3.4349999999999996,
+            "Position": [
+              -0.73017276,
+              0.432674548,
+              -0.528810435
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.274,
+            "Clearance": 3.726,
+            "Position": [
+              -0.730090187,
+              0.433278931,
+              -0.528429454
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 128,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 4.06,
+            "Clearance": 3.9400000000000004,
+            "Position": [
+              -0.730053984,
+              0.433291609,
+              -0.528469073
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.71,
+            "Clearance": 4.29,
+            "Position": [
+              -0.729866982,
+              0.433929594,
+              -0.52820384
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 144,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.599,
+            "Clearance": 4.401,
+            "Position": [
+              -0.729840112,
+              0.433918254,
+              -0.528250281
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.09,
+            "Clearance": 4.91,
+            "Position": [
+              -0.729661149,
+              0.43463114,
+              -0.527911337
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 160,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 3.045,
+            "Clearance": 4.955,
+            "Position": [
+              -0.729643621,
+              0.434605332,
+              -0.527956809
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.61,
+            "Clearance": 5.390000000000001,
+            "Position": [
+              -0.729451333,
+              0.435378891,
+              -0.52758504
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 176,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.65,
+            "Clearance": 5.35,
+            "Position": [
+              -0.729421846,
+              0.435373106,
+              -0.527630579
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.13,
+            "Clearance": 5.87,
+            "Position": [
+              -0.729286379,
+              0.436001543,
+              -0.527298808
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 192,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 2.149,
+            "Clearance": 5.851,
+            "Position": [
+              -0.729249051,
+              0.436020693,
+              -0.527334598
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.571,
+            "Clearance": 6.429,
+            "Position": [
+              -0.729245054,
+              0.436578866,
+              -0.526878112
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 208,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.586,
+            "Clearance": 6.414,
+            "Position": [
+              -0.729208416,
+              0.436613933,
+              -0.526899761
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.098,
+            "Clearance": 6.902,
+            "Position": [
+              -0.729170114,
+              0.437091335,
+              -0.526556843
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 224,
+            "T": 0,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 1.089,
+            "Clearance": 6.911,
+            "Position": [
+              -0.729132572,
+              0.437121205,
+              -0.526584033
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.61,
+            "Clearance": 7.39,
+            "Position": [
+              -0.729039065,
+              0.437597157,
+              -0.526318127
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 240,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 15.566530899657765,
+            "Level": 8,
+            "Ground": 0.512,
+            "Clearance": 7.4879999999999995,
+            "Position": [
+              -0.729001492,
+              0.437618758,
+              -0.526352209
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 256,
+            "T": 1,
+            "Side": -1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.153,
+            "Clearance": 7.847,
+            "Position": [
+              -0.728958904,
+              0.438119322,
+              -0.525994654
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 46966,
+            "Span": 256,
+            "T": 1,
+            "Side": 1,
+            "Width": 50.017702518708305,
+            "Level": 8,
+            "Ground": 0.056,
+            "Clearance": 7.944,
+            "Position": [
+              -0.728850705,
+              0.438161479,
+              -0.526109464
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 116002,
+            "Span": 243,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 14.640090214885973,
+            "Level": 138.68803618794504,
+            "Ground": 129.954,
+            "Clearance": 8.734036187945037,
+            "Position": [
+              0.425174225,
+              -0.892518549,
+              0.150457699
+            ]
+          },
+          {
+            "Band": "small",
+            "Source": 116002,
+            "Span": 243,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 14.640090214885973,
+            "Level": 138.68803618794504,
+            "Ground": 132.337,
+            "Clearance": 6.351036187945056,
+            "Position": [
+              0.425215958,
+              -0.892503293,
+              0.150430251
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 87225,
+            "Span": 88,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 51.46095924096245,
+            "Level": 1328.2891607919148,
+            "Ground": 1323.757,
+            "Clearance": 4.532160791914748,
+            "Position": [
+              0.987787341,
+              -0.09695444,
+              -0.121967231
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 172036,
+            "Span": 232,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 16.802279845306707,
+            "Level": 4.827940687156742,
+            "Ground": 3.814,
+            "Clearance": 1.013940687156742,
+            "Position": [
+              0.572113463,
+              -0.383702619,
+              0.724885153
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 172036,
+            "Span": 232,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 16.802279845306707,
+            "Level": 4.827940687156742,
+            "Ground": 4.128,
+            "Clearance": 0.699940687156742,
+            "Position": [
+              0.57206662,
+              -0.383704735,
+              0.724921002
+            ]
+          },
+          {
+            "Band": "local-fit",
+            "Source": 82655,
+            "Span": 101,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 37.447211655208726,
+            "Level": 240.31027490917063,
+            "Ground": 235.586,
+            "Clearance": 4.724274909170617,
+            "Position": [
+              -0.805161301,
+              0.568300027,
+              -0.16955931
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 109436,
+            "Span": 22,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 180.935072580666,
+            "Level": 16.975444378882685,
+            "Ground": 15.976,
+            "Clearance": 0.9994443788826839,
+            "Position": [
+              0.485567035,
+              -0.869399172,
+              0.091486253
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 16,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 221.98278962490116,
+            "Level": 451.4933408916749,
+            "Ground": 446.607,
+            "Clearance": 4.886340891674877,
+            "Position": [
+              0.500020523,
+              -0.742915517,
+              0.445034841
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 145057,
+            "Span": 16,
+            "T": 0.5,
+            "Side": 1,
+            "Width": 221.98278962490116,
+            "Level": 451.4933408916749,
+            "Ground": 445.702,
+            "Clearance": 5.791340891674906,
+            "Position": [
+              0.500494134,
+              -0.742454584,
+              0.445271616
+            ]
+          },
+          {
+            "Band": "broad",
+            "Source": 83699,
+            "Span": 55,
+            "T": 0.5,
+            "Side": -1,
+            "Width": 66.55309272115008,
+            "Level": 7.6592960204855425,
+            "Ground": 4.32,
+            "Clearance": 3.339296020485542,
+            "Position": [
+              0.453204942,
+              0.87525964,
+              -0.168895955
+            ]
+          },
+          {
+            "Band": "major",
+            "Source": 78528,
+            "Span": 15,
+            "T": 0,
+            "Side": -1,
+            "Width": 333.1603754485218,
+            "Level": 252.28953169655279,
+            "Ground": 246.96,
+            "Clearance": 5.3295316965527775,
+            "Position": [
+              0.961991987,
+              0.171781316,
+              -0.212279524
+            ]
+          }
+        ],
+        "Scope": "Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"
+      }
+    ],
+    "excluded": "physical-bank-contact-v2 reused the earlier unaccepted76 cache. Its geometry is not evidence for its changed source. Subsequent audits use receipt-owned caches and incremented model versions."
+  },
+  "next": "Retire unaccepted parallel/coarse-query experiments. Test fine exact junction-footprint fitting without the distant4.5-width probes now that collars end precisely at actual pool boundaries. Do not build/publish until shoreline and cold-cost checks hold."
+}

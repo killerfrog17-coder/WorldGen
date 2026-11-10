@@ -38,7 +38,7 @@ namespace WorldGen.Presentation
                         foreach(double r in new[]{width,RiverscapeKernel.JunctionRadius(width)})
                         for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM));
                     }
-                    Pool(s.From,s.A,s.WidthA);Pool(s.To,s.B,s.WidthB);
+                    if(s.PoolA)Pool(s.From,s.A,s.WidthA);if(s.PoolB)Pool(s.To,s.B,s.WidthB);
                     Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
                     // Match the water ribbon's two-metre hidden bank overlap.
                     // Without these cuts, its outer strip crossed coarse faces

@@ -113,7 +113,7 @@ namespace WorldGen.Presentation
                     var ring=new Point[RiverscapeKernel.JunctionSides];for(int i=0;i<ring.Length;i++)ring[i]=At(RiverscapeKernel.JunctionPoint(at,width,i*Math.PI*2/ring.Length,frame.RadiusM),level,flow,span.Speed,span.Turbulence);
                     junctions[id]=new JunctionPool{Center=center,Radius=width,Ring=ring,Outgoing=outgoing};
                 }
-                Junction(span.From,span.A,span.LevelA,span.WidthA);Junction(span.To,span.B,span.LevelB,span.WidthB);
+                if(span.PoolA)Junction(span.From,span.A,span.LevelA,span.WidthA);if(span.PoolB)Junction(span.To,span.B,span.LevelB,span.WidthB);
             }
             void Ribbon(Point a,Point b,Point c,int endpoint,int other)
             {
