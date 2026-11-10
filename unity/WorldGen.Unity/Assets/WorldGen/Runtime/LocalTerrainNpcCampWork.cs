@@ -126,7 +126,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!carried){material.Place=PossessionPlace.Ground;material.ContainerId="";material.GroundOffsetM=.04;material.GroundRotation=new V(90,0,0);}
             }
             NpcCampWork.Bundle(actor.Belongings,actor.GroupId,shelter.NpcHousehold,actor.Planet,actor.Resident.AgeYears<16?12:24);
-            PublishNpcGroundGoods(actor);npcCampPacked++;InvalidateCampVisual(shelter);task.Object=task.Part="";task.Work=0;task.ChooseAt=actor.SimulationAge+.2;StoreLivingCamp(group);return true;
+            NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Dismantled,shelter.Id+":"+part.Key,part.Name,PlayerRules.SolarDays);PublishNpcGroundGoods(actor);npcCampPacked++;InvalidateCampVisual(shelter);task.Object=task.Part="";task.Work=0;task.ChooseAt=actor.SimulationAge+.2;StoreLivingCamp(group);return true;
         }
         var blueprint=shelter.Blueprint;
         if(!CampBlueprints.HasMaterial(blueprint,part))
@@ -137,7 +137,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 if(HumanDistance(actor.Planet,target)>1.8){actor.TaskDetail="carrying "+material.Name+" to the shelter";return true;}
                 material.CampMaterial=actor.GroupId;
-                if(CampBlueprints.Supply(blueprint,part.Key,actor.Belongings,material.Id,cut,out _,out _)){npcCampSupplied++;PublishNpcGroundGoods(actor);InvalidateCampVisual(shelter);StoreLivingCamp(group);}return true;
+                if(CampBlueprints.Supply(blueprint,part.Key,actor.Belongings,material.Id,cut,out _,out _)){npcCampSupplied++;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Delivered,material.Id,material.Name+" for "+part.Name,PlayerRules.SolarDays);PublishNpcGroundGoods(actor);InvalidateCampVisual(shelter);StoreLivingCamp(group);}return true;
             }
             var gather=actor.MaterialTask??(actor.MaterialTask=new NpcMaterialTask());
             if(gather.Construction!=blueprint||gather.ConstructionKey!=part.Key){gather.Construction=blueprint;gather.ConstructionKey=part.Key;gather.Loose=null;gather.Natural=gather.Grass=false;gather.SearchAt=0;}
@@ -146,7 +146,7 @@ public sealed partial class LocalTerrainExplorer
             if(NpcHasMaterialTarget(gather)){NpcGatherMaterial(actor,gather,dt,ref target);foreach(var p in actor.Belongings.Items)if(actor.Belongings.Carried(p)&&CampBlueprints.Suitable(blueprint,part,p))p.CampMaterial=actor.GroupId;}return true;
         }
         if(HumanDistance(actor.Planet,target)<=1.8)
-        {double work=CampBlueprints.WorkContribution(blueprint,part,NpcWorkSeconds(dt));if(work>0){npcCampWorked++;if(CampBlueprints.Done(blueprint,part)){InvalidateCampVisual(shelter);StoreLivingCamp(group);}}}
+        {double work=CampBlueprints.WorkContribution(blueprint,part,NpcWorkSeconds(dt));if(work>0){npcCampWorked++;if(CampBlueprints.Done(blueprint,part)){NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Built,shelter.Id+":"+part.Key,part.Name,PlayerRules.SolarDays);InvalidateCampVisual(shelter);StoreLivingCamp(group);}}}
         return true;
     }
     V NpcCampWorkPoint(HumanActor actor,CampObject shelter,CampComponent part)

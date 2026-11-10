@@ -20,7 +20,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(inventoryOpen||DeathVisible||paused||mapOpen||ecologyOpen)return;chatOpen=true;chatText=prefix;chatCaret=prefix.Length;chatOpenedFrame=Time.frameCount;chatHistoryIndex=chatHistory.Count;chatDraft="";chatSelectAll=false;chatScroll=0;GUIUtility.keyboardControl=0;CaptureMouse();
     }
-    void CloseChat(){EndNpcListening();chatOpen=false;chatSelectAll=false;CaptureMouse();}
+    void CloseChat(bool sending=false){if(!sending)EndNpcListening();chatOpen=false;chatSelectAll=false;CaptureMouse();}
     void ChatCharacter(char character)
     {
         if(closed||!Application.isFocused&&!inventoryReviewMode)return;
@@ -34,7 +34,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public void SubmitChat()
     {
-        string message=chatText.Trim();CloseChat();if(message.Length==0)return;
+        string message=chatText.Trim();CloseChat(message.Length>0&&!message.StartsWith("/",StringComparison.Ordinal));if(message.Length==0)return;
         if(chatHistory.Count==0||chatHistory[chatHistory.Count-1]!=message)chatHistory.Add(message);if(chatHistory.Count>100)chatHistory.RemoveAt(0);
         if(message.StartsWith("/",StringComparison.Ordinal))
         {

@@ -126,7 +126,11 @@ public sealed partial class LocalTerrainExplorer
         var visible=perception.Visible.Where(s=>actor.SimulationAge-s.At<2&&!s.Animal.Retired).OrderBy(s=>s.Distance).Take(4).ToArray();
         if(visible.Length>0)text.Append(" Animals actually seen recently: ").Append(string.Join("; ",visible.Select(s=>s.Name+(s.Animal.Dead?" (dead)":s.Distance<15?" (close)":" (farther away)")))).Append('.');
         else text.Append(" No animal has been positively identified in your immediate view; do not invent a visible wolf or prey.");
-        foreach(var e in social.Incidents.TakeLast(4))text.Append(" Remembered ").Append(e.FirstHand?"firsthand":"reported").Append(" event: ").Append(e.Detail).Append('.');
+        foreach(var e in social.Incidents.TakeLast(4))
+        {
+            var subject=group.Residents.Members.FirstOrDefault(p=>p.Id==e.Subject);
+            text.Append(" Remembered ").Append(e.FirstHand?"firsthand":"reported").Append(" event from ").Append(Math.Max(0,(PlayerRules.SolarDays-e.SolarDay)*24).ToString("0.#")).Append(" local hours ago").Append(subject==null?"":", concerning "+subject.Name).Append(": ").Append(e.Detail).Append('.');
+        }
         return text.ToString();
     }
 }

@@ -39,6 +39,16 @@ public sealed partial class LocalTerrainExplorer
         var heard=new NpcEventQueue.Event{Person=recipient.ResidentId,Speaker=other.ResidentId};DeliverNpcSpeech(recipient,heard,"I think households should share food broadly.","person:"+other.ResidentId);
         Check(NpcMemoryFor(recipient.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Argument&&e.Subject==other.ResidentId)&&NpcMemoryFor(other.ResidentId).Social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Argument&&e.Subject==recipient.ResidentId),"An executor-delivered local disagreement changes both participants' named relationships");
         EndNpcConversation();npcPlans.Clear();npcEvents.Clear();
+        npcConversation=new SocialConversation{A=recipient.ResidentId,B=other.ResidentId,Recorded=true,Until=Time.unscaledTimeAsDouble+30};npcTalkTarget=recipient;
+        NpcListen(recipient,other.ResidentId);NpcListen(other,recipient.ResidentId);
+        Check(JoinNpcExchange(recipient),"The player can join an actual nearby two-person exchange");
+        DeliverNpcSpeech(recipient,heard,"We were discussing our work before you arrived.","person:"+other.ResidentId);
+        Check(npcConversation?.PlayerJoined==true&&npcEvents.Count==0,"Joining preserves the encounter while pausing automatic NPC turn requests for the player's contribution");
+        CloseChat();Check(npcConversation==null&&!npcPlans.Values.Any(p=>p.Listening),"Leaving a joined exchange releases both participants back to their routines");
+        npcConversation=new SocialConversation{A=recipient.ResidentId,B=other.ResidentId,Recorded=true,Until=Time.unscaledTimeAsDouble+30};NpcListen(recipient,other.ResidentId);NpcListen(other,recipient.ResidentId);
+        DeliverNpcSpeech(recipient,heard,"Goodbye; I should get back to work.","person:"+other.ResidentId,true);
+        Check(npcConversation==null&&npcEvents.Count==0&&!npcPlans.Values.Any(p=>p.Listening),"An executor-delivered ending stops the reply chain and releases listening holds");npcTalkTarget=null;
+        EndNpcConversation();npcPlans.Clear();npcEvents.Clear();
         foreach(var person in livingPeople.Values)person.CurrentActivity=HumanActivity.Craft;
         Place(recipient,motion.X+25,motion.Z,270);Place(other,motion.X+25,motion.Z+1.4,180);
         var beforeRequests=npcModel.Requests;double day=PlayerRules.SolarDays;

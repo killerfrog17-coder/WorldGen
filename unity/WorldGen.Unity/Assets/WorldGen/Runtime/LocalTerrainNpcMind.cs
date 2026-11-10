@@ -44,7 +44,7 @@ public sealed partial class LocalTerrainExplorer
         if(actor?.Resident==null||actor.Health<=0||actor.Resident.AgeYears<4||closed)return false;
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled)return false;
         bool direct=priority>=3&&speaker==0&&!string.IsNullOrWhiteSpace(words);
-        var item=new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth,Background=!direct};
+        var item=new NpcEventQueue.Event{Person=actor.ResidentId,Trigger=trigger,Words=NpcDecision.Clean(words,256),Priority=priority,Speaker=speaker,Depth=depth,Background=!direct,EndConversation=direct&&NpcReplyFocus.Leaving(words)};
         if(!direct)
         {
             bool reply=speaker>0&&npcConversation!=null&&(npcConversation.A==actor.ResidentId||npcConversation.B==actor.ResidentId);
@@ -88,7 +88,7 @@ public sealed partial class LocalTerrainExplorer
                     var memory=NpcMemoryFor(actor.ResidentId);memory.Thought=decision.thought;memory.Trigger=NpcDecision.Clean(item.Trigger,160);
                     memory.Remember("Intention: "+decision.action+" "+decision.target+". "+decision.thought);
                     npcDecisions++;npcLastError="";
-                    if(decision.action=="resume"){npcPlans.Remove(actor.ResidentId);if(decision.speech.Length>0&&NpcGoal(actor,decision.target,out var listener)&&HumanDistance(actor.Planet,listener)<6)NpcSay(actor,new MindPlan{Decision=decision,Event=item});}
+                    if(decision.action=="resume"&&decision.speech.Length==0){npcPlans.Remove(actor.ResidentId);if(item.Speaker>0)EndNpcConversation();}
                     else npcPlans[actor.ResidentId]=new MindPlan{Decision=decision,Event=item,Until=now+Math.Max(15,decision.seconds+15)};
                 }
             }
@@ -131,6 +131,12 @@ public sealed partial class LocalTerrainExplorer
     string NpcContext(HumanActor actor,NpcEventQueue.Event item,string[] targets)
     {
         var group=livingGroups[actor.GroupId];var band=group.Residents;var f=sourceWorld.Prehistory.Foragers;
+        var focus=NpcReplyFocus.For(item.Words);
+        if(NpcReplyFocus.Standalone(focus))
+        {
+            var speaker=NpcSpeaker(actor,item.Speaker,out bool known);string name=known?speaker?.Name??"Visitor":"Visitor";
+            return "YOU (NPC): "+actor.Resident.Name+". SPEAKER: "+name+". Speaker target="+(item.Speaker==0?"player":"person:"+item.Speaker)+". Available targets: "+string.Join(", ",targets)+". VERIFIED CURRENT OBSERVATION: time of day is "+NpcLocalKnowledge.Daypart(LocalSolarHour,group.Situation.DaylightHours)+"; weather: "+NpcLocalKnowledge.Weather(CurrentWeather)+". The latest question is about "+focus.ToString().ToLowerInvariant()+". Answer that observation directly; do not discuss previous work, gifts or old questions.";
+        }
         var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor.Definition?.Variant),NpcMemoryFor(actor.ResidentId).Social));s.Append(" Band: ").Append(band.Name);
         s.Append(". Culture: ").Append(f.Cultures[band.Culture].Name).Append(". Language: ").Append(f.Languages[band.Language].Name).Append(" (render speech in English translation).");
         s.Append(" Current activity: ").Append(NpcActivityText(actor.CurrentActivity)).Append(". Camp phase: ").Append(group.Situation.Phase).Append(". Health: ").Append(actor.Health.ToString("0")).Append("/100. Breath strain: ").Append(actor.Exertion.Breath.ToString("0.00"));
@@ -145,7 +151,11 @@ public sealed partial class LocalTerrainExplorer
         string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
         s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,knownSpeaker,appearance,NpcMemoryFor(actor.ResidentId).Social));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
-        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(NpcBelongingsContext(actor));s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
+        var contact=NpcMemoryFor(actor.ResidentId).Contact(item.Speaker>0?item.Speaker:PlayerPropertyKey);
+        if(contact.Exchanges>0&&PlayerRules.SolarDays-contact.LastSpokeSolarDay<.15)s.Append(" You have already been speaking with this person recently; continue naturally without starting another greeting.");
+        if(contact.Interruptions>=3&&PlayerRules.SolarDays-contact.LastInterruptedSolarDay<.04)s.Append(" This speaker has repeatedly cut you off recently; you may ask to finish your thought without inventing a fight.");
+        s.Append(NpcSocialContext(actor,group,speakerPerson));s.Append(NpcWorldContext(actor,group));s.Append(NpcBelongingsContext(actor));s.Append(NpcMemoryFor(actor.ResidentId).CompletedWork(PlayerRules.SolarDays));
+        s.Append(" Current physical work detail (in progress, not a completed achievement): ").Append(actor.TaskDetail).Append('.');s.Append(" Current perceived event: ").Append(item.Trigger).Append('.');
         return s.ToString();
     }
     static string NpcActivityText(HumanActivity activity)=>activity==HumanActivity.GatherPlants?"gathering wild plants for food and materials":activity==HumanActivity.GatherFuel?"collecting fallen branches for the campfire":activity==HumanActivity.PrepareFood?"preparing wild gathered or hunted food":activity.ToString();
@@ -191,29 +201,39 @@ public sealed partial class LocalTerrainExplorer
         actor.CurrentActivity=routine.Activity;return true;
     }
     void NpcSay(HumanActor actor,MindPlan plan)
-        =>FinishNpcSpeech(actor,plan.Event,plan.Decision.speech,plan.Decision.target);
-    void DeliverNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string speech,string target)
+        =>FinishNpcSpeech(actor,plan.Event,plan.Decision.speech,plan.Decision.target,plan.Decision.action=="resume"||plan.Event.EndConversation||NpcReplyFocus.Leaving(plan.Decision.speech));
+    void DeliverNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string speech,string target,bool ending=false)
     {
         var memory=NpcMemoryFor(actor.ResidentId);memory.Remember("Said: "+speech);
         long listener=target.StartsWith("person:")&&long.TryParse(target.Substring(7),out var recipient)?recipient:NpcSpeakerKey(heard.Speaker);
-        memory.Say(listener,actor.Resident.Name,speech,heard.DialogueSequence);npcUtterances++;
-        ContinueNpcConversation(actor,heard,speech,target);
+        memory.Say(listener,actor.Resident.Name,speech,heard.DialogueSequence);var contact=memory.Contact(listener>0?listener:PlayerPropertyKey);contact.LastSpokeSolarDay=PlayerRules.SolarDays;contact.Exchanges=Math.Min(1000000,contact.Exchanges+1);npcUtterances++;
+        ContinueNpcConversation(actor,heard,speech,target,ending);
     }
     bool TryNpcInteract(float itemDistance)
     {
         var ray=new Ray(view.transform.position,view.transform.forward);var hit=TraceLiving(ray,4.5f);
         if(hit?.Human?.Resident==null||hit.Distance>=itemDistance||TraceCombatObstacle(ray,Math.Max(0,hit.Distance-.1f),checkGround:false)!=null)return false;
-        npcTalkTarget=hit.Human;NpcListen(npcTalkTarget);OpenChat();return true;
+        npcTalkTarget=hit.Human;JoinNpcExchange(npcTalkTarget);NpcListen(npcTalkTarget);OpenChat();return true;
     }
+    bool JoinNpcExchange(HumanActor actor)
+    {if(npcConversation==null||npcConversation.A!=actor.ResidentId&&npcConversation.B!=actor.ResidentId)return false;npcConversation.PlayerJoined=true;return true;}
     bool SpeakToNpc(string message)
     {
         var actor=npcTalkTarget;if(actor==null||actor.Health<=0||HumanDistance(actor.Planet,Position)>20)return false;
         npcModel??=new NpcModelClient();if(!npcModel.Config.Enabled){PostExplorerChat("Local NPC model disabled or not installed. /npcai status",true);return true;}
-        if(QueueNpcEvent(actor,"You were directly addressed.",message,3))
+        bool joined=npcConversation!=null&&(npcConversation.A==actor.ResidentId||npcConversation.B==actor.ResidentId);string trigger="You were directly addressed.";
+        if(joined){long peer=actor.ResidentId==npcConversation.A?npcConversation.B:npcConversation.A;trigger+=" The player joined your nearby exchange with "+(livingPeople.TryGetValue(peer,out var participant)?participant.Resident.Name:"a bandmate")+"; acknowledge their contribution without restarting introductions.";}
+        if(QueueNpcEvent(actor,trigger,message,3))
         {
             CancelNpcConversation();
-            foreach(var line in npcSpeech.Values.Where(s=>s.Event.Background&&!s.Delivered).ToArray())AbortNpcSpeech(line.Event);
-            if(npcPending!=null&&(npcPending.Background||npcPending.Person!=actor.ResidentId))
+            bool wasInterrupted=npcPending?.Person==actor.ResidentId||npcSpeech.TryGetValue(actor.ResidentId,out var currentLine)&&!currentLine.Delivered;
+            if(wasInterrupted)
+            {
+                var memory=NpcMemoryFor(actor.ResidentId);var recent=memory.Contact(PlayerPropertyKey);recent.Interruptions=PlayerRules.SolarDays-recent.LastInterruptedSolarDay<.04?Math.Min(20,recent.Interruptions+1):1;recent.LastInterruptedSolarDay=PlayerRules.SolarDays;
+                if(recent.Interruptions>=3&&NpcAwarenessFor(actor).Personality.Patience<.4)memory.Social.Anger=Math.Max(memory.Social.Anger,.24);
+            }
+            foreach(var line in npcSpeech.Values.Where(s=>(s.Event.Background||s.Actor==actor)&&!s.Delivered).ToArray())AbortNpcSpeech(line.Event);
+            if(npcPending!=null)
             {var interrupted=npcPending;npcSuppressed=interrupted;npcModel.CancelCurrent();AbortNpcSpeech(interrupted);npcPlans.Remove(interrupted.Person);}
             NpcListen(actor);foreach(var other in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,transform.TransformPoint(PlayerFeet())+Vector3.up,4)).Take(3))NpcMemoryFor(other.ResidentId).Hear(NpcSpeakerKey(0),PlayerRules.Identity?.Person?.Name??"Visitor",message);
         }
@@ -226,6 +246,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void EndNpcListening()
     {
+        if(npcConversation?.PlayerJoined==true)CancelNpcConversation();
         if(npcTalkTarget!=null&&npcPlans.TryGetValue(npcTalkTarget.ResidentId,out var plan)&&plan.Listening&&npcPending?.Person!=npcTalkTarget.ResidentId)npcPlans.Remove(npcTalkTarget.ResidentId);
     }
     PlayCommandResult ExecuteNpcMindCommand(string[] words)

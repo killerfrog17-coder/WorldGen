@@ -118,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
         return false;
     }
     bool NpcHasMaterialTarget(NpcMaterialTask task)=>task.Loose!=null||task.Natural||task.Grass;
-    bool NpcCarryProduced(HumanActor actor,Possession item)
+    bool NpcCarryProduced(HumanActor actor,Possession item,NpcDeedKind deed=NpcDeedKind.Gathered)
     {
         var stock=actor.Belongings;stock.Items.Add(item);
         if(!NpcBelongings.Pack(stock,item)&&!stock.Hold(item.Id,out _))
@@ -127,7 +127,7 @@ public sealed partial class LocalTerrainExplorer
         if(Foraging.Food(item)&&EffectiveNpcCulture(livingGroups[actor.GroupId]).FoodSharing<=.65)item.OwnerHousehold=actor.Resident.Household;
         if(item.NaturalId!=0)
         {if(!stock.CollectedNatural.Contains(item.NaturalId))stock.CollectedNatural.Add(item.NaturalId);if(inventoryCollected.Add(item.NaturalId)){if(!Inventory.CollectedNatural.Contains(item.NaturalId))Inventory.CollectedNatural.Add(item.NaturalId);QueueNaturalScatterRemoval(item.NaturalId);}}
-        PublishNpcGroundGoods(actor);return true;
+        NpcMemoryFor(actor.ResidentId).Did(deed,item.Id,item.Name,PlayerRules.SolarDays);PublishNpcGroundGoods(actor);return true;
     }
     void NpcGatherMaterial(HumanActor actor,NpcMaterialTask task,float dt,ref V target)
     {
@@ -161,7 +161,7 @@ public sealed partial class LocalTerrainExplorer
             if(record.Harvests<3&&CampGrassAvailable(actor.Root.transform.localPosition,walkingPatch.Sample(task.Point)))
             {gathered=NpcCarryProduced(actor,PortableTechnology.Create(PossessionKind.DryGrass,actor.Planet));if(gathered)record.Harvests++;}
         }
-        if(gathered){npcMaterialHarvests++;if(task.Purpose=="fuel"||task.Purpose=="food"&&actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&Foraging.Food(p)).Sum(p=>p.MassKg)>=.4)task.Delivering=true;}
+        if(gathered){if(task.Loose!=null)NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Gathered,task.Loose.Id,task.Loose.Name,PlayerRules.SolarDays);npcMaterialHarvests++;if(task.Purpose=="fuel"||task.Purpose=="food"&&actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&Foraging.Food(p)).Sum(p=>p.MassKg)>=.4)task.Delivering=true;}
         task.Loose=null;task.Natural=task.Grass=false;task.Product=null;task.Work=0;task.ClaimUntil=0;task.SearchAt=actor.SimulationAge+(gathered?1:3);inventoryNearbyAt=0;
     }
     bool PrepareNpcMaterialTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,float dt,ref V target)
@@ -182,7 +182,7 @@ public sealed partial class LocalTerrainExplorer
             {
                 target=NpcFireWorkPoint(actor,fire);actor.TaskDetail="carrying "+material.Name+" to the hearth";actor.TaskWaiting=false;
                 if(HumanDistance(actor.Planet,fire.Position)<2.2)
-                {task.Work+=NpcWorkSeconds(dt);if(task.Work>15&&NpcMaterialUse.Feed(actor.Belongings,fire,material)){npcMaterialFeeds++;task.Work=0;InvalidateCampVisual(fire);}}
+                {task.Work+=NpcWorkSeconds(dt);if(task.Work>15&&NpcMaterialUse.Feed(actor.Belongings,fire,material)){npcMaterialFeeds++;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.FedFire,fire.Id,material.Name,PlayerRules.SolarDays);task.Work=0;InvalidateCampVisual(fire);}}
                 return true;
             }
             if(purpose.Length==0)
@@ -191,7 +191,7 @@ public sealed partial class LocalTerrainExplorer
                 if(HumanDistance(actor.Planet,target)<.55)
                 {
                     if(!fire.Burning&&NpcMaterialUse.HasIgnitionKit(actor.Belongings)&&group.BandHas(9)&&CampRules.IgniteReason(fire,true).Length==0)
-                    {task.Work+=NpcWorkSeconds(dt);if(task.Work>=150){CampRules.Ignite(fire,true);InvalidateCampVisual(fire);}}
+                    {task.Work+=NpcWorkSeconds(dt);if(task.Work>=150){CampRules.Ignite(fire,true);if(fire.Burning)NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.LitFire,fire.Id,"the hearth",PlayerRules.SolarDays);InvalidateCampVisual(fire);}}
                     if(fire.Burning&&fire.FuelKg>=1.3){group.TenderDuty=null;group.NextTend=Time.unscaledTimeAsDouble+10;task.Work=0;}
                 }
                 return true;
@@ -210,7 +210,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var delivered=actor.Belongings.Items.Where(p=>actor.Belongings.Carried(p)&&(purpose=="food"?Foraging.Food(p):NpcMaterialUse.Fuel(p))).ToArray();
                     foreach(var item in delivered)
-                    {item.Place=PossessionPlace.Ground;item.ContainerId="";item.Position=actor.Planet;item.GroundRotation=new V(90,0,0);item.GroundOffsetM=.04;}
+                    {item.Place=PossessionPlace.Ground;item.ContainerId="";item.Position=actor.Planet;item.GroundRotation=new V(90,0,0);item.GroundOffsetM=.04;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Delivered,item.Id,item.Name,PlayerRules.SolarDays);}
                     if(delivered.Length>0){task.Deliveries++;task.LastDelivered=delivered.Select(p=>p.Id).ToArray();}PublishNpcGroundGoods(actor);task.Delivering=false;task.SearchAt=actor.SimulationAge+2;
                 }
                 return true;
@@ -227,7 +227,7 @@ public sealed partial class LocalTerrainExplorer
         if(job==null||!job.Running){if(!PortableCrafting.Plan(stock,stock.Items.Where(stock.Carried),PortableCrafting.Recipe("split-kindling"),branch.Id,out var plan,out _))return false;job=PortableCrafting.Start(stock,plan);}
         actor.TaskDetail="splitting actual wood into thin kindling";actor.TaskWaiting=false;
         var result=StoneCrafting.Advance(stock,job,dt,PlayerRules.Settings);
-        if(result!=null&&result.Place==PossessionPlace.Ground){stock.Items.Remove(result);NpcCarryProduced(actor,result);}return true;
+        if(result!=null&&result.Place==PossessionPlace.Ground){stock.Items.Remove(result);NpcCarryProduced(actor,result,NpcDeedKind.Made);}return true;
     }
     V NpcFireWorkPoint(HumanActor actor,CampObject fire)
     {
@@ -262,15 +262,15 @@ public sealed partial class LocalTerrainExplorer
             var food=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&Foraging.Food(p));if(food==null)return;
             actor.NpcWorkDone+=NpcWorkSeconds(dt);if(actor.NpcWorkDone<90)return;actor.NpcWorkDone=0;
             record.Nutrition??=new PlayerSurvival();double mass=NpcMaterialUse.Eat(stock,record.Nutrition,food);
-            if(mass>0){npcMaterialMeals++;record.NextMealSolarDay=PlayerRules.SolarDays+(2+HumanHash(actor.ResidentId)%30*.1)/24;actor.TaskDetail="ate an actual portion of "+food.Name;}
+            if(mass>0){npcMaterialMeals++;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Ate,food.Id,food.Name,PlayerRules.SolarDays);record.NextMealSolarDay=PlayerRules.SolarDays+(2+HumanHash(actor.ResidentId)%30*.1)/24;actor.TaskDetail="ate an actual portion of "+food.Name;}
         }
         if(routine.Activity==HumanActivity.FetchWater&&group.Resources?.HasWater==true&&HumanDistance(actor.Planet,group.Resources.Water)<2.5)
-        {actor.NpcWorkDone+=NpcWorkSeconds(dt);if(actor.NpcWorkDone>=30){record.Nutrition??=new PlayerSurvival();PlayerMetabolism.Hydrate(record.Nutrition,.35);actor.NpcWorkDone=-600;actor.TaskDetail="drinking at the actual water source";}}
+        {actor.NpcWorkDone+=NpcWorkSeconds(dt);if(actor.NpcWorkDone>=30){record.Nutrition??=new PlayerSurvival();PlayerMetabolism.Hydrate(record.Nutrition,.35);NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Drank,"water","fresh water at the local source",PlayerRules.SolarDays);actor.NpcWorkDone=-600;actor.TaskDetail="drinking at the actual water source";}}
         if(routine.Activity!=HumanActivity.Craft)return;
         if(stock.Items.Count(p=>p.Kind==PossessionKind.StoneFlake)>=3){actor.TaskDetail="finished the needed cutting flakes";return;}
         var stones=NpcBelongings.ForTask(stock,"WorkKnapping");if(stones.Length!=2)return;
         var job=stock.Crafts.FirstOrDefault(j=>j.Action==ItemCraftAction.Flake)??StoneCrafting.Start(stock,stones[0].Id,stones[1].Id,out _);if(job==null)return;
         var flake=StoneCrafting.Advance(stock,job,dt,PlayerRules.Settings);
-        if(flake!=null){NpcOwnership.Assign(flake,actor.Resident,actor.GroupId);flake.Position=actor.Planet;NpcBelongings.Pack(stock,flake);PublishNpcGroundGoods(actor);npcMaterialFlakes++;actor.TaskDetail="struck a real cutting flake from the core";}
+        if(flake!=null){NpcOwnership.Assign(flake,actor.Resident,actor.GroupId);flake.Position=actor.Planet;NpcBelongings.Pack(stock,flake);PublishNpcGroundGoods(actor);npcMaterialFlakes++;NpcMemoryFor(actor.ResidentId).Did(NpcDeedKind.Made,flake.Id,flake.Name,PlayerRules.SolarDays);actor.TaskDetail="struck a real cutting flake from the core";}
     }
 }

@@ -25,6 +25,7 @@ public sealed partial class LocalTerrainExplorer
         {NpcOwnership.Assign(p,recipient.Resident,recipient.GroupId);RemoveDroppedBody(p.Id);if(inventoryVisuals.TryGetValue(p.Id,out var root)){DestroyInventoryVisual(root);inventoryVisuals.Remove(p.Id);}}
         double usefulness=Foraging.Food(item)||ItemUseRules.Profile(item).Weapon||item.ContainerWidth>0?.85:.35;
         var memory=NpcMemoryFor(recipient.ResidentId);NpcSocialRules.Gift(memory.Social,PlayerPropertyKey,recipient.ResidentId,PlayerRules.SolarDays,recipient.Planet,item.Name,returning,personal,usefulness);
+        memory.Did(NpcDeedKind.Received,item.Id,item.Name,PlayerRules.SolarDays,PlayerPropertyKey);
         recipient.GearAt=recipient.SimulationAge+2;recipient.GearVisualHash=int.MinValue;CaptureLivingPerson(recipient);inventoryNearbyAt=0;
         QueueNpcEvent(recipient,"You just physically received "+item.Name+" from "+(PlayerRules.Identity?.Person?.Name??"the visitor")+(returning?", returning your property.":" as a gift.")+" React naturally in accordance with your actual feelings and customs. The item is now genuinely in your possession.",priority:3);
         InventoryFeedback((returning?"Returned ":"Gave ")+item.Name+" to "+recipient.Resident.Name+".");RenderInventoryPreview();return true;

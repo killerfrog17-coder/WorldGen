@@ -16,8 +16,13 @@ public sealed partial class LocalTerrainExplorer
         double until=Time.unscaledTimeAsDouble+90;while(!livingPeople.Values.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18)&&Time.unscaledTimeAsDouble<until)yield return null;
         var actor=livingPeople.Values.FirstOrDefault(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18);Check(actor!=null,"An actual adult resident is available for the real-model dialogue review");
         var group=livingGroups[actor.GroupId];long coordinator=NpcCoordinator(group);string leader=group.Residents.Members.FirstOrDefault(p=>p.Id==coordinator)?.Name??"";
+        motion.Place(actor.Motor.X-1.8,actor.Motor.Z,CampFloor(actor.Motor.X-1.8,actor.Motor.Z));UpdateHumans();UpdateCamera();
+        NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);
+        foreach(var item in Inventory.Items.Where(p=>p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand).ToArray()){item.Place=PossessionPlace.Ground;item.Position=Position;}
+        var scraper=PortableTechnology.Create(PossessionKind.StoneScraper,Position);scraper.Id="dialogue-grounding-scraper-"+actor.ResidentId;scraper.Place=PossessionPlace.RightHand;ClaimPlayerItem(scraper);Inventory.Items.Add(scraper);
+        Check(GiveNpcItem(actor,scraper)&&NpcMemoryFor(actor.ResidentId).Deeds.Any(d=>d.Kind==NpcDeedKind.Received&&d.ObjectId==scraper.Id),"An actual scraper gift records receipt, without fabricating a repair");
         File.WriteAllText(Path.Combine(output,"expected-community.json"),JsonUtility.ToJson(group.Residents,true));
-        string[] questions={"Who helps lead this band, and what does that person do?","What time of day is it now, and what is the weather like?","What kinds of food do people here normally gather or hunt?","What do your people do when someone in the band dies?"};
+        string[] questions={"Have you repaired this scraper today, or only received it?","Who helps lead this band, and what does that person do?","What time of day is it now, and what is the weather like?","What kinds of food do people here normally gather or hunt?","What do your people do when someone in the band dies?"};
         var transcript=new List<string>();
         for(int i=0;i<questions.Length;i++)
         {
@@ -28,7 +33,15 @@ public sealed partial class LocalTerrainExplorer
             string answer=NpcMemoryFor(actor.ResidentId).Conversation.Last(t=>t.FromNpc).Text;transcript.Add("PLAYER: "+questions[i]+"\n"+actor.Resident.Name+": "+answer);
             File.WriteAllText(Path.Combine(output,"request-"+(i+1)+".txt"),string.Join("\n",npcModel.LastMessages.Select(m=>m.role+": "+m.content)));
             File.WriteAllLines(Path.Combine(output,"dialogue-review.txt"),transcript);
-            if(i==0)File.WriteAllText(Path.Combine(output,"leadership-semantic-check.txt"),"Expected coordinator: "+leader+"\nExact-name present: "+answer.Contains(leader)+"\nReply: "+answer);
+            if(i==0)
+            {
+                Check(npcModel.LastMessages[0].content.Contains("Received Stone scraper")&&npcModel.LastMessages[0].content.Contains("NO recorded repair"),"The real request distinguishes physical receipt from unperformed repair");
+                bool invented=System.Text.RegularExpressions.Regex.IsMatch(answer,@"\bI\s+(?:have\s+)?(?:fixed|repaired|mended)\b",System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                File.WriteAllText(Path.Combine(output,"repair-semantic-check.txt"),"Unsupported first-person repair claim: "+invented+"\n"+answer);
+                Check(!invented,"The actual model does not claim the unperformed scraper repair");
+            }
+            if(i==1)File.WriteAllText(Path.Combine(output,"leadership-semantic-check.txt"),"Expected coordinator: "+leader+"\nExact-name present: "+answer.Contains(leader)+"\nReply: "+answer);
+            if(i==2)Check(npcModel.LastMessages[0].content.Contains("VERIFIED CURRENT OBSERVATION")&&!npcModel.LastMessages.Any(m=>m.content.Contains("Stone scraper")),"A time/weather follow-up uses current observations without the old scraper conversation");
         }
         // A controlled visitor situation exercises the actual expanded schema,
         // rather than passing a manually-created decision to the executor.

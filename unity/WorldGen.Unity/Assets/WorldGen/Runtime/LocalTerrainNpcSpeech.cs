@@ -8,7 +8,7 @@ public sealed partial class LocalTerrainExplorer
     sealed class SpokenLine
     {
         public HumanActor Actor;public NpcEventQueue.Event Event;public ChatLine Chat;
-        public readonly NpcSpeechPace Pace=new NpcSpeechPace();public bool Final,Delivered;public string Target="player";
+        public readonly NpcSpeechPace Pace=new NpcSpeechPace();public bool Final,Delivered,Ending;public string Target="player";
         public AudioSource Voice;public double NextMumble;public int LastMumble;
     }
     readonly Dictionary<long,SpokenLine> npcSpeech=new Dictionary<long,SpokenLine>();
@@ -39,14 +39,14 @@ public sealed partial class LocalTerrainExplorer
             if(!NpcPlayerCanHear(line.Actor)){if(line.Voice!=null)line.Voice.Pause();continue;}
             int previous=line.Pace.Shown;line.Pace.Advance(Math.Min(.1,Time.unscaledDeltaTime),npcModel?.Config.SpeechCharactersPerSecond??24);MumbleSpeech(line,previous);
             if(HumanDistance(line.Actor.Planet,Position)<12){line.Chat.Text="<"+line.Actor.Resident.Name+"> "+line.Pace.Visible;line.Chat.At=Time.realtimeSinceStartupAsDouble;}
-            if(line.Final&&line.Pace.Complete&&!line.Delivered){line.Delivered=true;DeliverNpcSpeech(line.Actor,line.Event,line.Pace.Available,line.Target);speechFinished.Add(pair.Key);}
+            if(line.Final&&line.Pace.Complete&&!line.Delivered){line.Delivered=true;DeliverNpcSpeech(line.Actor,line.Event,line.Pace.Available,line.Target,line.Ending);speechFinished.Add(pair.Key);}
         }
         foreach(long id in speechFinished){RemoveSpeechVoice(npcSpeech[id]);npcSpeech.Remove(id);}
     }
-    void FinishNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string words,string target)
+    void FinishNpcSpeech(HumanActor actor,NpcEventQueue.Event heard,string words,string target,bool ending=false)
     {
         if(!NpcPlayerCanHearRecently(actor))return;
-        var line=SpeechLine(actor,heard);line.Pace.Available=words;line.Final=true;line.Target=target;
+        var line=SpeechLine(actor,heard);line.Pace.Available=words;line.Final=true;line.Target=target;line.Ending=ending;
     }
     void AbortNpcSpeech(NpcEventQueue.Event heard)
     {

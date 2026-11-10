@@ -6,7 +6,7 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
-    sealed class SocialConversation {public long A,B;public int Turns=4;public double Until;public NpcDiscussion Discussion;public bool Recorded;}
+    sealed class SocialConversation {public long A,B;public int Turns=4;public double Until;public NpcDiscussion Discussion;public bool Recorded,PlayerJoined;}
     SocialConversation npcConversation;double npcSocialAt,npcWaitSocialDay,npcSocialScanAt,npcAmbientAt;long npcSocialSequence;int npcSocialCursor;
     readonly System.Collections.Generic.Dictionary<long,(double At,Vector3 Ear,Vector3 Source,bool Audible)> npcHearing=new System.Collections.Generic.Dictionary<long,(double,Vector3,Vector3,bool)>();
     readonly System.Collections.Generic.Dictionary<long,double> npcLastHeard=new System.Collections.Generic.Dictionary<long,double>();
@@ -150,13 +150,20 @@ public sealed partial class LocalTerrainExplorer
         if(QueueNpcEvent(actor,"A familiar bandmate is waiting nearby. Approach and start a brief conversation about the actual camp plans or current work, without inventing an urgent problem.",priority:2))
         {npcTalkTarget=actor;npcPlans[actor.ResidentId]=new MindPlan{Decision=new NpcDecision{action="approach",target="player",seconds=20},Event=new NpcEventQueue.Event{Person=actor.ResidentId},Until=Time.unscaledTimeAsDouble+40};WakeCamp(actor.Resident.Name+" approaches to speak to you.");}
     }
-    void ContinueNpcConversation(HumanActor actor,NpcEventQueue.Event heard,string speech,string target)
+    void ContinueNpcConversation(HumanActor actor,NpcEventQueue.Event heard,string speech,string target,bool ending=false)
     {
         foreach(var observer in livingPeople.Values.Where(p=>p!=actor&&p.Health>0&&p.Resident.AgeYears>=4&&NpcCanHear(p,actor.Root.transform.position+Vector3.up,4)).Take(4))
             if(target!="person:"+observer.ResidentId)NpcMemoryFor(observer.ResidentId).Hear(actor.ResidentId,actor.Resident.Name,speech);
+        if(ending)
+        {
+            if(target.StartsWith("person:")&&long.TryParse(target.Substring(7),out long listener)&&livingPeople.ContainsKey(listener))NpcMemoryFor(listener).Hear(actor.ResidentId,actor.Resident.Name,speech);
+            npcEvents.CancelSocial();EndNpcConversation();npcPlans.Remove(actor.ResidentId);return;
+        }
         if(target=="player"){if(!string.IsNullOrEmpty(heard.Words))NpcSocialRules.SharedConversation(NpcMemoryFor(actor.ResidentId).Social,PlayerPropertyKey,PlayerRules.SolarDays,false,"the actual conversation");if(campResting||campSleeping)WakeCamp(actor.Resident.Name+" is speaking to you.");return;}
         if(!target.StartsWith("person:")||!long.TryParse(target.Substring(7),out var id)||!livingPeople.TryGetValue(id,out var other)||HumanDistance(actor.Planet,other.Planet)>5)return;
         if(!NpcCanHear(other,actor.Root.transform.position+transform.up,5))return;
+        if(npcConversation?.PlayerJoined==true)
+        {NpcMemoryFor(other.ResidentId).Hear(actor.ResidentId,actor.Resident.Name,speech);npcConversation.Until=Time.unscaledTimeAsDouble+30;NpcListen(actor,other.ResidentId);NpcListen(other,actor.ResidentId);return;}
         if(npcConversation!=null&&!npcConversation.Recorded&&(actor.ResidentId==npcConversation.A||actor.ResidentId==npcConversation.B))
         {
             npcConversation.Recorded=true;var d=npcConversation.Discussion;
