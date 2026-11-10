@@ -1,0 +1,32 @@
+PASS Original deer loads for actual corpse interaction
+PASS Loot requires a genuinely killed ragdoll animal
+PASS Actual rendered carcass is reachable from player eye
+PASS Invisible centre aim selects the corpse's posed skin
+PASS Repeated searches do not regenerate corpse contents
+PASS Unclaimed corpse contents contribute no carried mass or ground clutter
+PASS Loot enters actual worn container using physical packing
+PASS Hide provenance uses this animal's original coat
+PASS Eating corpse meat consumes mass and supplies food without raw-meat penalties
+PASS Save round-trip preserves remaining corpse loot and generation ledger
+PASS Spear strike visibly moves the held model in first person
+PASS Held spear enters its real throw wind-up
+PASS Throw wind-up and cancellation have distinct reversible view poses
+PASS Carried bow stays upright with the active mode's intended ground-clearance tilt
+PASS Bow inspection borrows an actual held arrow
+PASS Bow drawing moves the string toward the real drawing hand without changing the source rig
+PASS Loaded real terrain contains placed resource plants
+PASS Actual regional plant identity resolves to obtainable fibre or reeds
+PASS Gathering an actual placed plant produces a physical craft input
+PASS Plant depletion prevents immediate repeated gathering
+PASS Material renewal follows the actual simulation calendar year
+PASS Actual plant depletion survives saving
+PASS Food geometry and actual thumbnail render: Berries
+PASS Food geometry and actual thumbnail render: Fruit
+PASS Food geometry and actual thumbnail render: Nuts
+PASS Food geometry and actual thumbnail render: Mushroom
+PASS Food geometry and actual thumbnail render: EdibleRoot
+PASS Food geometry and actual thumbnail render: RawMeat
+PASS Food geometry and actual thumbnail render: RawFish
+PASS Food geometry and actual thumbnail render: AnimalFat
+PASS Clearing spawned corpses removes only unclaimed contents and prevents stale loot-generation IDs
+PASS no runtime errors or exceptions

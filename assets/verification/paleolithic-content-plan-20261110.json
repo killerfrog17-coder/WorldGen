@@ -291,6 +291,11 @@
     "stone_pure": 45,
     "npc_belongings_pure": 18,
     "foraging_pure": 33,
-    "remaining_native": "Melee/ranged, woodwork, shelters/fire/bedding, nature and actual fishing still running or pending."
+    "remaining_native": "Actual line/net fishing and latest-source boat cache/parking regression",
+    "item_use_native": 184,
+    "woodwork_native": 16,
+    "camp_native": 98,
+    "nature_native": 32,
+    "blueprints_native": 261
   }
 }

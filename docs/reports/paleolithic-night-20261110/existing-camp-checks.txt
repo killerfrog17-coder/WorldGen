@@ -1,0 +1,98 @@
+PASS Three generated mono campfire recordings load from the editable sound folder
+PASS Player reuses the terrain worker's identical fitted river data
+PASS Actual grass-covered, plantable dry camp site exists
+PASS Actual grassy ground supplies a physical bedding/tinder bundle
+PASS Actual placement ray accepts dry soil: Bedding / Aim at reachable ground.
+PASS Placing removes the original item from carried/ground ownership
+PASS Adding actual loose materials builds a thick bedding layer
+PASS Bedding renders as a layered grass mesh
+PASS Bedding rests on the actual rendered terrain, rather than the different analytic height
+PASS Actual placement ray accepts dry soil: Stake / Aim at reachable ground.
+PASS Actual rock attack drives the aimed planted stick farther into soil
+PASS Third-person camera can target the same physically reachable planted stick
+PASS Third-person hammering measures reach from the body, not the distant camera
+PASS Visible post retains its original full length while burial changes
+PASS The rendered post actually enters the visible ground instead of floating above it
+PASS Repeated post rebuilds retain a constant number of owned item-mesh records
+PASS A rebuilt raw-wood post releases its previous Unity mesh
+PASS Repeated hammering respects the site's physical soil depth
+PASS Actual camp resource recipe starts: shred-tinder
+PASS Camp recipe completes and restores occupied hands: shred-tinder
+PASS Actual camp resource recipe starts: split-kindling
+PASS Camp recipe completes and restores occupied hands: split-kindling
+PASS Actual camp resource recipe starts: hand-drill
+PASS Camp recipe completes and restores occupied hands: hand-drill
+PASS Actual placement ray accepts dry soil: Fire / Aim at reachable ground.
+PASS Survival cannot light a bare fire lay without a fire-making tool
+PASS Lighting actually borrows the accessible hand-drill set
+PASS Timed fire making ignites tinder and restores the original held spear
+PASS A burning fire binds real shader lighting and spatial crackling
+PASS Campfire audio is spatial, long-form and muted while paused
+PASS Fuel geometry rebuild retains the playing voice instead of restarting its sound
+PASS Wind-driven smoke has a bounded emitter, supported shader and valid velocity curves
+PASS The live world's camp clock consumes fuel over time
+PASS Moving away reduces radiant warmth
+PASS Actual firelight visibly illuminates world pixels, compared with the same frame without the light
+PASS Debug time changes do not consume hours of physical fire fuel
+PASS Sleeping on bedding begins accelerated time
+PASS Lying down places the player on the chosen bedding
+PASS A natural daytime sleep bout lowers tiredness independently of energy recovery
+PASS Daytime sleep wakes naturally within a short bout while advancing the actual calendar
+PASS Actual health loss interrupts sleep
+PASS Saved/reloaded camp retains exact planted depth and all placed objects
+PASS Fire state, remaining fuel and tiredness survive the real save serializer
+PASS Capturing into a fresh session includes the complete camp
+PASS A detached camp capture owns independent material copies
+PASS A real worn carrier is available for placed-material ownership checks
+PASS Loose bedding material can start inside a worn pack
+PASS Actual placement ray accepts dry soil: Bedding / Aim at reachable ground.
+PASS Placed material is detached from its original container and drop motion
+PASS Taking bedding apart returns a physical item without phantom pack contents
+PASS New resource/tool has renderable item geometry: DryGrass
+PASS New resource/tool has renderable item geometry: LeafLitter
+PASS New resource/tool has renderable item geometry: TinderBundle
+PASS New resource/tool has renderable item geometry: KindlingBundle
+PASS New resource/tool has renderable item geometry: HandDrillSet
+PASS Standing in the actual burning fire causes contact damage
+PASS An extinguished fire retains a visible live ember bed
+PASS Ember glow retires when the saved ember state cools
+PASS Z opens the ground rest dialog through actual keyboard events
+PASS Escape closes the rest dialog without also opening pause
+PASS E opens the aimed bedding interaction through the player input path
+PASS Escape closes a placed-material menu without pausing
+PASS Input wake fixture starts sleep on the actual bedding
+PASS Space wakes the player and restores ordinary time without opening pause
+PASS Escape wakes the player without opening the pause menu
+PASS Damage interrupts sleep even after health has recovered above its initial value
+PASS A player-reachable empty placement is available for mouse input checks
+PASS Solid objects between the player and the ground prevent placing materials through them
+PASS Placement becomes available immediately after the obstruction is removed
+PASS Right-click cancels placement without charging or throwing the held spear
+PASS Canceled placement can be started again immediately
+PASS Left-click places the branch without also swinging the held spear
+PASS All eight body-foley categories load three real mono variants
+PASS Eating foley plays through an actual native AudioSource
+PASS Urgent pain foley interrupts a lower-priority body cue
+PASS A contextual fire choice is available
+PASS A contextual fire choice is available
+PASS A contextual fire choice is available
+PASS Quick feeding consumes the actual branch into mass-conserving short pieces
+PASS A contextual fire choice is available
+PASS Lighting from the quick selector opens no campfire menu
+PASS Cycling nearby fire choices preserves camera zoom
+PASS A contextual fire choice is available
+PASS Actual E input places selected food over the fire without opening a menu
+PASS Food cooks from the fire's accumulated heat exposure
+PASS A contextual fire choice is available
+PASS Actual E input retrieves the same cooked food into player ownership
+PASS The fueled fire has native flame and ember renderers
+PASS Placement uses a translucent real object ghost at a valid aimed ground point
+PASS The actual camera ray is aimed at the stake before testing hammering
+PASS A 15 kg rock drives the aimed post with a short tool cooldown, even after an old heavy-weapon recovery
+PASS Same-frame hammer spam is rejected
+PASS Hammering is available again within well under a second
+PASS Natural-sleep disturbance fixture lies down on actual dry ground
+PASS A loud close transient wakes a sleeping player
+PASS Quiet distant sounds do not constantly interrupt sleep
+PASS Actual native render-graph passes visibly draw frost, heat and faintness effects
+PASS no runtime errors or exceptions

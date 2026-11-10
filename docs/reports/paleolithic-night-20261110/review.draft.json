@@ -298,7 +298,7 @@
           "text": "<b>Fire:</b> wrapped bark/resin torches have finite fuel. An insulated carrier takes five grams of actual hearth coals and twenty grams of tinder. Both can light a prepared fire in survival. Wind, rain, shelter, immersion and elapsed fuel are handled."
         },
         {
-          "text": "<b>Deadfall:</b> place a carved trigger, add a broad 2-12 kg stone and 25 g of real food, then set it. A locally simulated small animal must cross the footprint. The native rabbit was wounded and escaped; the trap did not guarantee a kill or invent a catch."
+          "text": "<b>Deadfall:</b> place a carved trigger, add a broad 2-25 kg stone and 25 g of real food, then set it. A locally simulated small animal must cross the footprint. The native rabbit was wounded and escaped; the trap did not guarantee a kill or invent a catch."
         },
         {
           "text": "First-pass limits: approximate 90-minute torch / eight-hour ember durations; no offscreen catches, snare variants or autonomous NPC trap tending. Fire shares the existing four-light budget."

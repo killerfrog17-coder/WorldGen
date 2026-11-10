@@ -1,12 +1,12 @@
 {
   "status": "Functional native first pass accepted; prototype art",
-  "core_checks": 15,
+  "core_checks": 17,
   "native_checks": 15,
   "portable_tree_checks": 1043,
   "native": "artifacts/paleolithic-night-20261110/deadfall-native-v1",
   "scope": [
     "Carve a real sound branch with a cutting tool into a notched trigger",
-    "Place trigger, add actual broad 2-12 kg stone and 25 g portion of real food; timed set/disarm/reset/recovery",
+    "Place trigger, add actual broad 2-25 kg stone and 25 g portion of real food; timed set/disarm/reset/recovery",
     "Actual small ground fauna swept contact; finite mass/height impact damage and ordinary persistent wildlife health/corpse path",
     "No offscreen catch timer, meat factory, new wildlife population agent or player-attribution through unseen trap"
   ],
@@ -20,5 +20,6 @@
   "sources": [
     "https://www.gutenberg.org/cache/epub/34110/pg34110-images.html",
     "https://americanindian.si.edu/collections-search/edan-record/ead_component%3Asova-nmai-ac-001-032-ref702"
-  ]
+  ],
+  "weight_note": "Maximum weight now 25 kg, matching the actual carryable ground-item limit. Native control used 10 kg; larger-weight admission has pure checks."
 }
