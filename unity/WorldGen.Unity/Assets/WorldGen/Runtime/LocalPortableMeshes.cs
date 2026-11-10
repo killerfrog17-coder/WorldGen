@@ -134,6 +134,10 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Trigger:
+                Tube(new Vector3(-.18f,0,0),new Vector3(-.18f,.86f,0),.032f,wood,8);
+                Tube(new Vector3(-.18f,.8f,0),new Vector3(.45f,.08f,0),.03f,wood,8);
+                Tube(new Vector3(-.43f,.22f,0),new Vector3(.48f,.22f,0),.027f,wood,8);break;
             case PortableForm.Torch:
                 Tube(Vector3.zero,new Vector3(0,.88f,0),.13f,wood,12);
                 b.Crown(new Vector3(0,.8f,0),new Vector3(.44f,.2f,.44f),16,6,item.FireRemainingSeconds<=0?new Color(.09f,.065f,.035f,0):new Color(.3f,.22f,.14f,0),12,.012f);Wrap(.68f,.43f,4);break;

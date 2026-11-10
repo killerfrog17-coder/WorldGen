@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public IEnumerator CheckPortableFlow(string output,List<string> report)
     {
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-deadfall-review")){yield return CheckDeadfallFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-portable-fire-review")){yield return CheckPortableFireFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-binders-review")){yield return CheckPaleolithicBindersFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-campcraft-review")){yield return CheckPaleolithicCampcraftFlow(output,report);yield break;}

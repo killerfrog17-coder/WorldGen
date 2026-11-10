@@ -70,7 +70,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(Ready&&!campAudioStarted){campAudioStarted=true;campAudioLoading=StartCoroutine(LoadCampRecordings());}
         if(Ready&&!paused&&!mapOpen&&!CommandChatStopped&&!ecologyOpen&&!DeathVisible)Camp.SimulatedSeconds+=LocalSceneDelta*86400/(PlayerRules.Settings.RealMinutesPerDay*60);
-        UpdateCampPlacement();UpdateBlueprintPlacement();UpdateBlueprintWork();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
+        UpdateDeadfalls();UpdateCampPlacement();UpdateBlueprintPlacement();UpdateBlueprintWork();UpdateCampSleep();if(!Ready||Time.unscaledTimeAsDouble<campUpdateAt)return;campUpdateAt=Time.unscaledTimeAsDouble+.2;
         RefreshFrameStructure();
         long npcVisualStart=System.Diagnostics.Stopwatch.GetTimestamp();int npcVisualsAdded=0;
         foreach(var c in Camp.Objects)
@@ -109,7 +109,8 @@ public sealed partial class LocalTerrainExplorer
     {
         var root=new GameObject("Placed "+c.Kind);root.transform.SetParent(transform,false);root.layer=30;
         var v=new CampVisual{Root=root,SurfaceRotation=CampSurfaceRotation(c),Mass=c.MassKg,Burning=c.Burning,Glowing=c.EmberSeconds>0,Embed=c.EmbedM,FoodState=IsBlueprint(c)?BlueprintContentsState(c):CampFoodState(c)};
-        if(IsBlueprint(c))CreateBlueprintVisual(c,root);
+        if(c.Kind==CampKind.Deadfall)CreateDeadfallVisual(c,root);
+        else if(IsBlueprint(c))CreateBlueprintVisual(c,root);
         else if(c.Kind==CampKind.FrameWood)CreateFrameVisual(c,root);
         else if(c.Kind==CampKind.Stake)
         {

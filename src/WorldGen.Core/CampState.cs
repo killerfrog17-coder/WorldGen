@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace WorldGen.Core
 {
-    public enum CampKind { Fire,Bedding,Stake,FrameWood,Blueprint }
+    public enum CampKind { Fire,Bedding,Stake,FrameWood,Blueprint,Deadfall }
     [Serializable] public sealed class CampObject
     {
         public string Id="camp-"+Guid.NewGuid().ToString("N");public CampKind Kind;public V Position;
@@ -14,6 +14,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double ClearedWidthM,ClearedDepthM;
         public double Heading,EmbedM,SoilDepthM,SoilFirmness=1,Wetness,EmberSeconds,LastSimulatedSeconds;
         public bool Burning;public double AshKg;
+        [System.Runtime.Serialization.OptionalField] public bool TrapArmed,TrapSprung;
         [System.Runtime.Serialization.OptionalField] public double StoneHeatJ;
         public List<Possession> Materials=new List<Possession>();
         [System.Runtime.Serialization.OptionalField] public List<Possession> CookingItems=new List<Possession>();
@@ -48,7 +49,7 @@ namespace WorldGen.Core
                 if(!Finite(c.ClearedWidthM)||!Finite(c.ClearedDepthM)||c.ClearedWidthM<0||c.ClearedDepthM<0||c.ClearedWidthM>100||c.ClearedDepthM>100)throw new ArgumentException("Invalid camp ground footprint.");
                 if(c.FrameJoints==null)c.FrameJoints=new List<FrameJoint>();
                 if(c.FrameJoints.Any(j=>j==null||j.Bindings==null))throw new ArgumentException("Invalid frame joint.");
-                CampBlueprints.Validate(c);
+                CampBlueprints.Validate(c);Deadfalls.Validate(c);
                 foreach(var p in c.OwnedMaterials())if(p==null||string.IsNullOrEmpty(p.Id)||!materials.Add(p.Id)||!Finite(p.MassKg)||p.MassKg<=0||!Finite(p.HeightM)||p.HeightM<=0||!Finite(p.WidthM)||p.WidthM<=0)throw new ArgumentException("Invalid camp material.");
                 foreach(var p in c.CookingItems)PaleolithicWater.Validate(p);
                 if(c.CookingItems.Any(p=>!CampRules.HeatItem(p)||!Finite(p.CookingSeconds)||p.CookingSeconds<0))throw new ArgumentException("Invalid camp food.");
@@ -90,7 +91,7 @@ namespace WorldGen.Core
         }
         public static void Add(CampObject c,Possession material)
         {
-            if(material==null||material.MassKg<=0||c.Materials.Any(p=>p.Id==material.Id)||!(c.Kind==CampKind.Fire?Fuel(material)||FireStone(material):c.Kind==CampKind.Bedding?Bedding(material):c.Kind==CampKind.FrameWood?FrameRules.Material(material):c.Kind==CampKind.Stake&&Plantable(material))||(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood)&&c.Materials.Count>0)throw new ArgumentException("Unsuitable placed material.");
+            if(material==null||material.MassKg<=0||c.Materials.Any(p=>p.Id==material.Id)||!(c.Kind==CampKind.Fire?Fuel(material)||FireStone(material):c.Kind==CampKind.Deadfall?Deadfalls.Accepts(c,material):c.Kind==CampKind.Bedding?Bedding(material):c.Kind==CampKind.FrameWood?FrameRules.Material(material):c.Kind==CampKind.Stake&&Plantable(material))||(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood)&&c.Materials.Count>0)throw new ArgumentException("Unsuitable placed material.");
             var placed=material.Copy();placed.Place=PossessionPlace.Ground;placed.ContainerId="";placed.GroundMoving=false;placed.InFlight=false;placed.GroundVelocity=placed.GroundSpin=new V();
             if(c.Kind==CampKind.Fire&&WoodCrafting.Wood(placed)&&placed.HeightM>.5)
             {
@@ -108,7 +109,7 @@ namespace WorldGen.Core
         public static void Advance(CampObject c,double seconds,double rain,double humidity,double wind,double sun)
         {
             if(!double.IsFinite(seconds)||seconds<0||seconds>1e12)throw new ArgumentOutOfRangeException(nameof(seconds));
-            if(c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood||c.Kind==CampKind.Blueprint&&c.Blueprint?.Design!=CampDesign.RaisedBed)return;
+            if(c.Kind==CampKind.Deadfall||c.Kind==CampKind.Stake||c.Kind==CampKind.FrameWood||c.Kind==CampKind.Blueprint&&c.Blueprint?.Design!=CampDesign.RaisedBed)return;
             // Analytic environmental relaxation; streaming catch-up is O(materials),
             // not a replay of every elapsed simulation frame.
             double wetTarget=rain>.1?D.Clamp(.35+rain*.12):D.Clamp(humidity*.25-sun*.2);

@@ -87,8 +87,9 @@ public sealed partial class LocalTerrainExplorer
             {
                 DrawBlueprintDetails(c);GUILayout.EndScrollView();GUILayout.FlexibleSpace();if(GUILayout.Button("Close",GUILayout.Height(32))){campMenu=null;CaptureMouse();}GUILayout.EndArea();return;
             }
-            GUILayout.Label(c.Kind==CampKind.Fire?"Campfire":c.Kind==CampKind.Bedding?"Bedding":c.Kind==CampKind.FrameWood?"Frame wood":"Planted stick");
-            if(c.Kind==CampKind.FrameWood)
+            GUILayout.Label(c.Kind==CampKind.Deadfall?"Deadfall":c.Kind==CampKind.Fire?"Campfire":c.Kind==CampKind.Bedding?"Bedding":c.Kind==CampKind.FrameWood?"Frame wood":"Planted stick");
+            if(c.Kind==CampKind.Deadfall)DrawDeadfallActions(c);
+            else if(c.Kind==CampKind.FrameWood)
             {
                 GUILayout.Label(FrameSummary(c));
                 for(int i=0;i<c.FrameJoints.Count;i++)
