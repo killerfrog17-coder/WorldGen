@@ -12,6 +12,14 @@ public sealed partial class LocalTerrainExplorer
     static readonly (double,double)[] watercraftCorners={(-.45,-.45),(-.45,.45),(.45,-.45),(.45,.45)};
     bool WatercraftUsable(CampObject c)
     {if(!PrimitiveWatercraft.Boat(c))return false;if(watercraftCheckedPlan!=c.Blueprint||watercraftCheckedRevision!=c.Blueprint.Revision){watercraftCheckedPlan=c.Blueprint;watercraftCheckedRevision=c.Blueprint.Revision;watercraftCheckedComplete=CampBlueprints.Complete(c.Blueprint)&&c.Blueprint.Parts.All(p=>p.Weathering<.65);}return watercraftCheckedComplete&&WatercraftLoad<=PrimitiveWatercraft.CapacityKg(c);}
+    string HeavyLimbReason()
+    {var tree=TraceCombatObstacle(PlayerAttackRay(),3);if(tree==null||!tree.Tree||tree.Source.HeightM<8)return "Look at a reachable trunk of a tree at least eight metres tall.";return ToolResource("tree-"+tree.Source.Id.ToString("x16")).Branches>=3?"The reachable limbs have already been gathered.":"";}
+    void CutHeavyLimb(Possession axe)
+    {
+        if(axe==null||(axe.Kind!=PossessionKind.StoneAxe&&axe.Kind!=PossessionKind.StoneAdze)||axe.UseDamage>=1)return;
+        string why=HeavyLimbReason();if(why.Length>0){InventoryFeedback(why);return;}var tree=TraceCombatObstacle(PlayerAttackRay(),3).Source;var record=ToolResource("tree-"+tree.Id.ToString("x16"));
+        BeginWorldToolWork(axe,"Cutting a thick reachable limb",1800,()=>{if(record.Branches>=3||(tree.Position-Position).Length*frame.RadiusM>4){InventoryFeedback("The reachable limb is no longer available.");return;}record.Branches++;var branch=WoodCrafting.Branch(new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=Math.Min(4.5,Math.Max(1.6,tree.HeightM*.18)),HeightM=Math.Min(.18,.12+tree.HeightM*.001),Variant=0});branch.Id="heavy-limb-"+Guid.NewGuid().ToString("N");branch.NaturalId=0;branch.Position=Position;ReceiveToolMaterial(branch);});inventoryContext=null;
+    }
     double WatercraftLoad=>70*Math.Pow((humanPlayer?.Definition.EyeHeight??1.65f)/1.65,3)+Inventory.CarriedMassKg;
     double WatercraftFloor(CampObject c,double x,double z)
     {var water=SampleMotionWater(x,z);double ground=CampFloor(x,z);return double.IsFinite(water.Surface)&&water.Surface>ground?Math.Max(ground,water.Surface-PrimitiveWatercraft.Draft(c,activeWatercraft==c?WatercraftLoad:0)):ground;}

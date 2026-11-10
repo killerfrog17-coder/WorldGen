@@ -5,7 +5,7 @@ namespace WorldGen.Core
 {
  public static class PrimitiveWatercraft
  {
-  public static readonly PortableItem[] Items={new PortableItem{Kind=PossessionKind.Paddle,Name="Carved wooden paddle",Form=PortableForm.Paddle,Width=.15,Height=1.4,Depth=.035,Mass=1.1,Aliases="paddle"}};
+  public static readonly PortableItem[] Items={new PortableItem{Kind=PossessionKind.Paddle,Name="Carved wooden paddle",Form=PortableForm.Paddle,Width=.12,Height=1.4,Depth=.035,Mass=1.1,Aliases="paddle"}};
   public static readonly PortableRecipe[] Recipes={new PortableRecipe{Id="hew-paddle",Name="Hew a wooden paddle",Output=PossessionKind.Paddle,Primary=new[]{PossessionKind.Branch},MinLength=1.4,MinWidthM=.12,MaxThickness=.25,SoundWood=true,Materials=Array.Empty<CraftMaterialNeed>(),Tools=new[]{CraftCapability.Chop,CraftCapability.Cut},WorkSeconds=7200,Yield=.5}};
   public static bool Design(CampDesign d)=>d==CampDesign.ReedRaft||d==CampDesign.SkinBoat;
   public static bool Boat(CampObject c)=>c?.Kind==CampKind.Blueprint&&c.Blueprint!=null&&Design(c.Blueprint.Design);

@@ -49,11 +49,10 @@ public sealed partial class LocalTerrainExplorer
         if(tool==null||tool.UseDamage>=1)return;var capability=PortableTechnology.Capabilities(tool);if((capability&(CraftCapability.Cut|CraftCapability.Chop))==0)return;
         var tree=obstacle.Source;var record=ToolResource("tree-"+tree.Id.ToString("x16"));bool chop=(capability&CraftCapability.Chop)!=0;
         if(chop&&record.Branches>=3||!chop&&record.Bark>=2){CombatNotice(chop?"No more reachable branches on this tree.":"This accessible patch of bark has already been stripped.");return;}
-        bool heavy=chop&&(tool.Kind==PossessionKind.StoneAxe||tool.Kind==PossessionKind.StoneAdze)&&tree.HeightM>=6;
-        record.Work+=energy;if(record.Work<(heavy?900:chop?180:65)){CombatNotice(chop?"Cutting a reachable branch...":"Loosening a patch of bark...");return;}record.Work=0;
+        record.Work+=energy;if(record.Work<(chop?180:65)){CombatNotice(chop?"Cutting a reachable branch...":"Loosening a patch of bark...");return;}record.Work=0;
         if(chop)
         {
-            record.Branches++;double length=Math.Min(4.5,Math.Max(.6,tree.HeightM*.18));var branch=new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=length,HeightM=heavy?Math.Min(.18,.12+tree.HeightM*.001):.026+record.Branches*.003+Math.Max(0,length-2)*.004,Variant=0};
+            record.Branches++;double length=Math.Min(4.5,Math.Max(.6,tree.HeightM*.18));var branch=new ScatterInstance{Kind=ScatterKind.Branch,Position=tree.Position,WidthM=length,HeightM=.026+record.Branches*.003+Math.Max(0,length-2)*.004,Variant=0};
             var output=WoodCrafting.Branch(branch);output.Id="cut-branch-"+Guid.NewGuid().ToString("N");output.NaturalId=0;output.Position=Position;ReceiveToolMaterial(output);
         }
         else{record.Bark++;ReceiveToolMaterial(PortableTechnology.Create(PossessionKind.BarkSheet,Position));}
