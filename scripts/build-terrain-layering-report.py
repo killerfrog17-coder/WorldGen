@@ -34,13 +34,16 @@ def collect(name):
     return result
 
 
-def build(final_name):
+def build(final_name, canyon_name=None):
     OUT.mkdir(parents=True, exist_ok=True)
     before, after = collect('layers-baseline-60km'), collect(final_name)
+    canyon = collect(canyon_name) if canyon_name else None
     pictures = [('near.jpg', 'chunk-loaded.png'), ('forest.jpg', 'flight-view-0.png'), ('moving.jpg', 'flight-view-3.png')]
     for destination, source in pictures:
         Image.open(ART / final_name / source).convert('RGB').save(OUT / destination, quality=92)
-    for name in ('before', 'candidate-v4', 'contracts-v2', 'forest-physical-v2', 'canyon-physical-v1',
+    if canyon:
+        Image.open(ART / canyon_name / 'flight-view-3.png').convert('RGB').save(OUT / 'canyon.jpg', quality=92)
+    for name in ('before', 'candidate-v4', 'contracts-v2', 'forest-physical-v2', 'canyon-physical-v2',
                  'river-stitch-physical-v2', 'backdrop-physical-v1'):
         source = LAYER / name
         if source.exists():
@@ -52,6 +55,13 @@ def build(final_name):
     rows = [['Nearby terrain', number(before['near']), number(after['near'])],
             ['600 m terrain + forest', number(before['radius600']), number(after['radius600'])],
             ['Entire requested view', number(before['complete']), number(after['complete'])]]
+    phase_names = ['Patch/index setup', 'Height + water queries', 'Surface materials', 'Boundary stitching', 'River-bank refinement', 'Water meshes', 'Cover masks']
+    def phases(name):
+        values = [json.loads(line)['Stages'] for line in (ART / name / 'terrain-build-stages.jsonl').read_text().splitlines()]
+        totals = [sum(row[i] for row in values) for i in range(7)]
+        return [100*v/sum(totals) for v in totals]
+    phase_forest = phases(final_name)
+    phase_canyon = phases(canyon_name) if canyon_name else None
     data = dict(title='WorldGen - Independent Terrain and Forest Detail', section='STREAMING REVIEW', date='10 NOVEMBER 2026',
         footer='Native game captures / Extreme terrain / 60 km view / no FPS-floor claim', pages=[
         dict(title='Independent levels of detail', subtitle='Exact terrain shape, cheaper surface sampling, and regional forest previews.', blocks=[
@@ -66,16 +76,20 @@ def build(final_name):
             dict(images=[dict(file='forest.jpg', caption='500 m above the forest, looking across the full 60 km view. Regional textured previews replace distant tree censuses.')], max_height=245),
             dict(text='Previews approximate coverage and tree type; they are not simulated trees. Detailed trees retain their deterministic world addresses. The canonical terrain and water checks exclude intentionally resampled material attributes.', size=9)]),
         dict(title='Movement and verification', subtitle='Coverage checks, physical equivalence and the remaining limitations.', blocks=[
-            dict(images=[dict(file='moving.jpg', caption='Forward/reverse flight at 200 then 600 m/s. Captures and extra GPU ground audits are diagnostic work, not an FPS benchmark.')], max_height=255),
+            dict(images=[dict(file='moving.jpg', caption='Forward/reverse forest flight at 200 then 600 m/s. Extra GPU ground audits are diagnostic work, not an FPS benchmark.')]+([dict(file='canyon.jpg', caption='Canyon with instant replacements: thin dark coverage seams remain visible. This is a known rendering issue, not an accepted seam fix.')] if canyon else []), max_height=255),
             dict(heading='Checks', text=f'The final flight recorded {after.get("missing_ground_frames", "unknown")} frames without resident ground beneath the player. Pure checks cover 20,826 geometry/water and canopy contracts, plus 158,742 forest-placement, transport and hierarchy assertions. Packaged-worker comparisons preserve complete terrain geometry, normals, water and indices while excluding the intentionally changed surface attributes. Three broad backdrop packets also match in full.'),
-            dict(heading='Limits', text='Loading is improved but not instant. Far canopy still approximates shape and density. These checks do not establish a universal 100 FPS floor or eliminate all streaming spikes. Shared PC demand, paced rendering, added camera renders and GPU readbacks make the diagnostic frame timings unsuitable as gameplay FPS results.'),
+            dict(heading='Limits', text='Loading is improved but not instant. Far canopy still approximates shape and density, with broad crown clusters visible from above. Thin terrain-coverage seams remain in fast canyon flight; disabling coverage masks removes those lines, so they need a separate resident-LOD boundary fix. These checks do not establish a universal 100 FPS floor or eliminate all streaming spikes. Shared PC demand, paced rendering, added camera renders and GPU readbacks make these frame timings unsuitable as gameplay FPS results.'),
             dict(heading='Reproducibility', text='The evidence folder retains package receipts, CSV samples, exact sites, worker comparisons and stage profiles. This PDF, its source manifest and JPEG inputs live outside disposable artifacts. Runtime changes are split into Git commits so individual approaches can be reverted.', size=9)])])
+    if canyon:
+        data['pages'][2]['blocks'].insert(2, dict(heading='Second environment', text=f'Canyon: 600 m terrain-and-forest readiness {number(canyon["radius600"])}; {canyon.get("missing_ground_frames", "unknown")} flight frames without resident ground beneath the player. Full requested view: {number(canyon["complete"])}.'))
+        data['pages'][0]['blocks'] += [dict(heading='Remaining terrain-build cost', table=dict(headers=['Completed mesh stages', 'Forest', 'Canyon'], rows=[[name, f'{phase_forest[i]:.1f}%', f'{phase_canyon[i]:.1f}%'] for i, name in enumerate(phase_names)], widths=[.5,.25,.25])),
+            dict(text='Shares of summed worker stage elapsed time, including cold loading and flight. These exclude scatter, rendering and world preparation, and are not percentages of total loading wall time. Height queries also include landform/water overlays.', size=8.5)]
     (OUT / 'report.json').write_text(json.dumps(data, indent=2), encoding='utf-8')
-    receipt = dict(before=before, after=after, rejected=['Untextured grid canopy v1', 'Mounded canopy v2'],
+    receipt = dict(before=before, after=after, canyon=canyon, terrain_stage_percent=dict(names=phase_names, forest=phase_forest, canyon=phase_canyon), rejected=['Untextured grid canopy v1', 'Mounded canopy v2'],
                    limitations=['No FPS-floor claim', 'Far canopy approximate', 'Diagnostic render overhead'])
     (ROOT / 'assets/verification/terrain-layering-20261110.json').write_text(json.dumps(receipt, indent=2), encoding='utf-8')
     importlib.import_module('build-geography-night-report').build(OUT / 'report.json', OUT / 'WorldGen - Terrain Layering 2026-11-10.pdf')
 
 
 if __name__ == '__main__':
-    build(sys.argv[1])
+    build(sys.argv[1], sys.argv[2] if len(sys.argv)>2 else None)

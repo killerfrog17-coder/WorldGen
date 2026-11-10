@@ -1,0 +1,32 @@
+1.00s: completed=543, canceled=6, discarded key/detail/edges=0/16/8, uploaded=519, preemptions=0, useful worker ms=353958.4; requests missing/resolution/edges=495/20/38; plans accepted/stale=10/0 max ms=148.7; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+6.01s: completed=755, canceled=11, discarded key/detail/edges=1/16/9, uploaded=729, preemptions=0, useful worker ms=361599.6; requests missing/resolution/edges=589/23/162; plans accepted/stale=46/0 max ms=148.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+11.02s: completed=1086, canceled=19, discarded key/detail/edges=3/17/17, uploaded=1045, preemptions=0, useful worker ms=366382.2; requests missing/resolution/edges=726/44/339; plans accepted/stale=120/0 max ms=148.7; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+16.03s: completed=1252, canceled=19, discarded key/detail/edges=5/17/23, uploaded=1200, preemptions=0, useful worker ms=378046.5; requests missing/resolution/edges=850/47/382; plans accepted/stale=217/0 max ms=148.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+21.04s: completed=1397, canceled=20, discarded key/detail/edges=7/17/27, uploaded=1338, preemptions=0, useful worker ms=391317.4; requests missing/resolution/edges=963/47/415; plans accepted/stale=309/0 max ms=148.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+26.04s: completed=1566, canceled=20, discarded key/detail/edges=13/17/36, uploaded=1488, preemptions=0, useful worker ms=401831.0; requests missing/resolution/edges=1078/47/464; plans accepted/stale=405/0 max ms=148.7; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+31.05s: completed=1753, canceled=21, discarded key/detail/edges=17/17/40, uploaded=1665, preemptions=0, useful worker ms=410157.8; requests missing/resolution/edges=1204/47/529; plans accepted/stale=503/0 max ms=148.7; no preparation; active jobs 6
+perspective bottom-third ground gaps=0/3072
+36.07s: completed=1947, canceled=23, discarded key/detail/edges=28/18/45, uploaded=1839, preemptions=0, useful worker ms=420710.3; requests missing/resolution/edges=1342/49/582; plans accepted/stale=600/0 max ms=148.7; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+41.08s: completed=2145, canceled=27, discarded key/detail/edges=34/21/55, uploaded=2014, preemptions=0, useful worker ms=430253.8; requests missing/resolution/edges=1498/53/624; plans accepted/stale=693/0 max ms=148.7; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+46.09s: completed=2281, canceled=29, discarded key/detail/edges=41/21/58, uploaded=2138, preemptions=0, useful worker ms=440077.6; requests missing/resolution/edges=1603/54/661; plans accepted/stale=789/0 max ms=148.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+51.09s: completed=2427, canceled=31, discarded key/detail/edges=48/21/65, uploaded=2267, preemptions=0, useful worker ms=450332.8; requests missing/resolution/edges=1727/54/685; plans accepted/stale=886/0 max ms=148.7; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+56.12s: completed=2570, canceled=32, discarded key/detail/edges=55/24/67, uploaded=2395, preemptions=0, useful worker ms=459613.0; requests missing/resolution/edges=1858/54/694; plans accepted/stale=980/0 max ms=148.7; no preparation; active jobs 4
+perspective bottom-third ground gaps=1/3072
+61.13s: completed=2832, canceled=48, discarded key/detail/edges=65/38/80, uploaded=2616, preemptions=0, useful worker ms=469391.9; requests missing/resolution/edges=1997/85/806; plans accepted/stale=1072/0 max ms=404.8; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+66.13s: completed=3072, canceled=54, discarded key/detail/edges=67/39/91, uploaded=2840, preemptions=0, useful worker ms=474323.1; requests missing/resolution/edges=2110/89/931; plans accepted/stale=1169/0 max ms=404.8; no preparation; active jobs 4
+perspective bottom-third ground gaps=0/3072
+71.15s: completed=3326, canceled=60, discarded key/detail/edges=78/39/96, uploaded=3073, preemptions=0, useful worker ms=478896.9; requests missing/resolution/edges=2248/89/1057; plans accepted/stale=1266/0 max ms=404.8; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+76.16s: completed=3612, canceled=61, discarded key/detail/edges=94/46/107, uploaded=3319, preemptions=0, useful worker ms=480815.8; requests missing/resolution/edges=2401/104/1176; plans accepted/stale=1367/0 max ms=404.8; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072

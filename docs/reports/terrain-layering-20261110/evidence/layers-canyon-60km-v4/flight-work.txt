@@ -1,0 +1,16 @@
+1.01s: completed=1048, canceled=1, discarded key/detail/edges=0/30/13, uploaded=1005, preemptions=0, useful worker ms=677780.4; requests missing/resolution/edges=1018/23/11; plans accepted/stale=10/0 max ms=130.3; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+6.02s: completed=1128, canceled=5, discarded key/detail/edges=0/30/13, uploaded=1085, preemptions=0, useful worker ms=690708.1; requests missing/resolution/edges=1067/27/42; plans accepted/stale=45/0 max ms=130.3; no preparation; active jobs 3
+perspective bottom-third ground gaps=0/3072
+11.04s: completed=1206, canceled=6, discarded key/detail/edges=0/30/13, uploaded=1163, preemptions=0, useful worker ms=705918.9; requests missing/resolution/edges=1145/30/45; plans accepted/stale=119/0 max ms=130.3; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+16.04s: completed=1476, canceled=28, discarded key/detail/edges=8/40/21, uploaded=1399, preemptions=0, useful worker ms=711259.0; requests missing/resolution/edges=1283/66/163; plans accepted/stale=214/0 max ms=130.3; no preparation; active jobs 8
+perspective bottom-third ground gaps=2/3072
+21.06s: completed=1722, canceled=41, discarded key/detail/edges=16/47/35, uploaded=1611, preemptions=0, useful worker ms=714820.5; requests missing/resolution/edges=1397/101/273; plans accepted/stale=302/0 max ms=130.3; no preparation; active jobs 8
+perspective bottom-third ground gaps=1/3072
+26.08s: completed=1898, canceled=61, discarded key/detail/edges=21/55/41, uploaded=1764, preemptions=0, useful worker ms=723334.5; requests missing/resolution/edges=1522/131/314; plans accepted/stale=386/0 max ms=147.0; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+31.10s: completed=2124, canceled=88, discarded key/detail/edges=34/60/61, uploaded=1952, preemptions=0, useful worker ms=729523.1; requests missing/resolution/edges=1580/208/432; plans accepted/stale=468/0 max ms=390.4; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072
+36.13s: completed=2397, canceled=110, discarded key/detail/edges=50/72/87, uploaded=2171, preemptions=0, useful worker ms=734054.7; requests missing/resolution/edges=1657/284/574; plans accepted/stale=553/0 max ms=390.4; no preparation; active jobs 8
+perspective bottom-third ground gaps=0/3072

@@ -1,0 +1,328 @@
+[
+  {
+    "Site": "flight-forest-normal-v14",
+    "Size": 102.4,
+    "Segments": 64,
+    "BuildMilliseconds": 67.8187,
+    "GeometrySamples": 4489,
+    "MaterialSamples": 4225,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 1.3551,
+        "Percent": 1.9710746145778937
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 42.7182,
+        "Percent": 62.13619629581684
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 16.164099999999998,
+        "Percent": 23.511657573240743
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.714100000000002,
+        "Percent": 1.038701484960577
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 3.227799999999995,
+        "Percent": 4.695029622119781
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 4.200800000000001,
+        "Percent": 6.110316759588826
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 0.3692000000000064,
+        "Percent": 0.5370236496953517
+      }
+    ]
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "Size": 819.2,
+    "Segments": 64,
+    "BuildMilliseconds": 164.0134,
+    "GeometrySamples": 4489,
+    "MaterialSamples": 4225,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 0.227,
+        "Percent": 0.13840290365633642
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 149.1478,
+        "Percent": 90.9360731011213
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 13.130300000000005,
+        "Percent": 8.005601964223768
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.0007999999999981355,
+        "Percent": 0.0004877635371137053
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 0.22270000000000323,
+        "Percent": 0.13578117464434614
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 1.2851,
+        "Percent": 0.7835311519328544
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 0.0002000000000066393,
+        "Percent": 0.00012194088428275854
+      }
+    ]
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "Size": 1638.4,
+    "Segments": 32,
+    "BuildMilliseconds": 89.7757,
+    "GeometrySamples": 1225,
+    "MaterialSamples": 1089,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 0.4231,
+        "Percent": 0.471284084833363
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 85.338,
+        "Percent": 95.05658527891642
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 3.5690000000000026,
+        "Percent": 3.9754500089110705
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.0005000000000023874,
+        "Percent": 0.0005569417216209092
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 0.09789999999999566,
+        "Percent": 0.1090491890928485
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 0.34720000000000084,
+        "Percent": 0.38674033149171366
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 0.0002999999999957481,
+        "Percent": 0.00033416503296621383
+      }
+    ]
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "ForestLevel": 0,
+    "Ms": 15.267,
+    "Probes": 1024,
+    "Roots": 123
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "ForestLevel": 2,
+    "Ms": 76.8626,
+    "Probes": 16384,
+    "Roots": 727
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "ForestLevel": 4,
+    "Ms": 87.8831,
+    "Probes": 8192,
+    "Roots": 564
+  },
+  {
+    "Site": "flight-forest-normal-v14",
+    "ForestLevel": 6,
+    "Ms": 564.17,
+    "Probes": 8192,
+    "Roots": 660
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "Size": 102.4,
+    "Segments": 64,
+    "BuildMilliseconds": 190.1291,
+    "GeometrySamples": 4489,
+    "MaterialSamples": 4225,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 0.2226,
+        "Percent": 0.11707834308372574
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 76.553,
+        "Percent": 40.26369451072981
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 7.868099999999998,
+        "Percent": 4.138293401693901
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.0010000000000047748,
+        "Percent": 0.0005259584145745048
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 90.42490000000001,
+        "Percent": 47.55973704183106
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 13.12129999999999,
+        "Percent": 6.901258145123494
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 1.9381999999999948,
+        "Percent": 1.019412599123435
+      }
+    ]
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "Size": 819.2,
+    "Segments": 64,
+    "BuildMilliseconds": 272.0504,
+    "GeometrySamples": 4489,
+    "MaterialSamples": 4225,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 0.3825,
+        "Percent": 0.14059889616082308
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 140.4521,
+        "Percent": 51.627216270508605
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 11.188700000000011,
+        "Percent": 4.112729070521838
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.0009000000000014552,
+        "Percent": 0.00033082093214364803
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 113.82189999999997,
+        "Percent": 41.83851895144466
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 4.54340000000002,
+        "Percent": 1.670057581221141
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 1.6610000000000014,
+        "Percent": 0.6105484092107905
+      }
+    ]
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "Size": 1638.4,
+    "Segments": 32,
+    "BuildMilliseconds": 210.5753,
+    "GeometrySamples": 1225,
+    "MaterialSamples": 1089,
+    "Stages": [
+      {
+        "Name": "patch/index setup",
+        "Ms": 47.2665,
+        "Percent": 22.44630083499584
+      },
+      {
+        "Name": "height/water sampling",
+        "Ms": 50.142199999999995,
+        "Percent": 23.811936693610235
+      },
+      {
+        "Name": "surface materials",
+        "Ms": 11.067000000000007,
+        "Percent": 5.255587177829946
+      },
+      {
+        "Name": "edge stitching",
+        "Ms": 0.0018000000000029104,
+        "Percent": 0.0008547986735437961
+      },
+      {
+        "Name": "channel refinement",
+        "Ms": 96.568,
+        "Percent": 45.85899905924657
+      },
+      {
+        "Name": "water meshes",
+        "Ms": 5.493300000000005,
+        "Percent": 2.6087030852058595
+      },
+      {
+        "Name": "cover masks",
+        "Ms": 0.03709999999998104,
+        "Percent": 0.017618350438004082
+      }
+    ]
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "ForestLevel": 0,
+    "Ms": 2.6905,
+    "Probes": 1024,
+    "Roots": 0
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "ForestLevel": 2,
+    "Ms": 9.2673,
+    "Probes": 16384,
+    "Roots": 0
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "ForestLevel": 4,
+    "Ms": 113.2066,
+    "Probes": 262144,
+    "Roots": 1
+  },
+  {
+    "Site": "flight-canyon-hard-v15",
+    "ForestLevel": 6,
+    "Ms": 55.3766,
+    "Probes": 32768,
+    "Roots": 0
+  }
+]

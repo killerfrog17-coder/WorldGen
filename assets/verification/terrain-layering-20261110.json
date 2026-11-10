@@ -1,0 +1,110 @@
+{
+  "before": {
+    "name": "layers-baseline-60km",
+    "near": 17.801,
+    "radius600": 31.378,
+    "complete": null,
+    "preparation_ms": 14146.619,
+    "summary": "Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.\nShared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.\nPreparation ms: 14146.619\nDetail: 4; effort: 3; view: 60000\nLegacy scheduler: False\nHard chunk updates: False\nFrame p99/max ms: 23.891 / 924.773\nFrames >50ms / >100ms: 5 / 4\n10611 frames; median 16.75ms; p99 17.09ms; worst 279.80ms; over100ms 4; collections 15; largest mesh apply/bind 11.59ms; largest controller query 2.25ms; incremental True / Enabled\n458 / 399 tiles \u00b7 last 261.3 ms \u00b7 max 16477.5 ms/tile\nfields 578/606, roots 258993, pending True, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 81, coarse 81, shadow draws 32, triangles 972; readiness near=True all=True detail=False jobs=0 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0\nradius50 seconds: 1.190\nnear seconds: 17.801\nradius100 seconds: 26.778\nradius300 seconds: 26.778\nradius600 seconds: 31.378\n"
+  },
+  "after": {
+    "name": "layers-canopy-60km-v4",
+    "near": 1.334,
+    "radius600": 13.292,
+    "complete": 115.001,
+    "preparation_ms": 13911.46,
+    "summary": "Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.\nShared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.\nPreparation ms: 13911.460\nDetail: 4; effort: 3; view: 60000\nLegacy scheduler: False\nHard chunk updates: False\nFrame p99/max ms: 25.498 / 919.966\nFrames >50ms / >100ms: 5 / 4\n6743 frames; median 16.74ms; p99 17.14ms; worst 297.52ms; over100ms 2; collections 13; largest mesh apply/bind 10.14ms; largest controller query 2.06ms; incremental True / Enabled\n459 / 399 tiles \u00b7 last 269.6 ms \u00b7 max 8275.7 ms/tile\nfields 1341/1341, roots 87703, pending False, baked local 9, baked forest 9, pending models 0, texture bytes 50331648; shadow proxies True, soft True, casters 81, coarse 81, shadow draws 32, triangles 972; readiness near=True all=True detail=False jobs=0 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0\nradius50 seconds: 1.129\nnear seconds: 1.334\nradius100 seconds: 8.191\nradius300 seconds: 9.854\nradius600 seconds: 13.292\ncomplete seconds: 115.001\n",
+    "missing_ground_frames": 0
+  },
+  "canyon": {
+    "name": "layers-canyon-60km-v4",
+    "near": 1.808,
+    "radius600": 23.25,
+    "complete": null,
+    "preparation_ms": 13656.712,
+    "summary": "Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.\nShared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.\nPreparation ms: 13656.712\nDetail: 4; effort: 3; view: 60000\nLegacy scheduler: False\nHard chunk updates: True\nFrame p99/max ms: 24.145 / 1063.094\nFrames >50ms / >100ms: 3 / 2\n10625 frames; median 16.80ms; p99 17.09ms; worst 90.03ms; over100ms 0; collections 4; largest mesh apply/bind 11.97ms; largest controller query 164.50ms; incremental True / Enabled\n964 / 1420 tiles \u00b7 last 1381.1 ms \u00b7 max 17606.9 ms/tile\nfields 419/1327, roots 0, pending True, baked local 0, baked forest 0, pending models 0, texture bytes 0; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=False jobs=4 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0\nradius50 seconds: 1.391\nnear seconds: 1.808\nradius100 seconds: 12.080\nradius300 seconds: 12.771\nradius600 seconds: 23.250\n",
+    "missing_ground_frames": 0
+  },
+  "terrain_stage_percent": {
+    "names": [
+      "Patch/index setup",
+      "Height + water queries",
+      "Surface materials",
+      "Boundary stitching",
+      "River-bank refinement",
+      "Water meshes",
+      "Cover masks"
+    ],
+    "forest": [
+      7.33582409476211,
+      61.33175255122308,
+      2.5807769784103596,
+      1.4001445895718427,
+      24.50213834343381,
+      2.834632642909997,
+      0.01473079968880756
+    ],
+    "canyon": [
+      13.970015367637165,
+      69.876952704447,
+      4.311282049790207,
+      1.2708707107995114,
+      10.108830597165834,
+      0.4594214944247206,
+      0.0026270757355374387
+    ]
+  },
+  "rejected": [
+    "Untextured grid canopy v1",
+    "Mounded canopy v2"
+  ],
+  "limitations": [
+    "No FPS-floor claim",
+    "Far canopy approximate",
+    "Diagnostic render overhead"
+  ],
+  "final_package": {
+    "BuiltUtc": "2026-11-10T09:56:47.0530348Z",
+    "SourceCommit": "8388fa77944fd21647c38e9d8561b2d3db90f003",
+    "SourceChanges": [],
+    "Backend": "Mono",
+    "Development": false,
+    "ScriptsOnly": true,
+    "Inputs": [
+      {
+        "Assembly": "WorldGen.Core",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+        "Sha256": "cc8579932cac2ee8b42b90696d4984fc2aa83baa66527ad55e56b99fbf7f7029"
+      },
+      {
+        "Assembly": "WorldGen.Serialization",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+        "Sha256": "46d11481b6bb3749f41bbb15fcfaa8d375391e333296316356d5a281ed2f7747"
+      },
+      {
+        "Assembly": "WorldGen.Presentation",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+        "Sha256": "28ae898c646c7ca6f680d54b60554072a20a4d5e6deab5e141af1ca30ca5dfc9"
+      },
+      {
+        "Assembly": "DelaunatorSharp",
+        "Path": "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+        "Sha256": "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+      }
+    ],
+    "TerrainWorkerSha256": "643dca30faec6eeda04aca069d19a80472892eb5b4b93893bd62c92f4316de4b"
+  },
+  "pure_checks": {
+    "geometry_water_and_canopy": 20826,
+    "forest_placement_transport_hierarchy": 158742
+  },
+  "known_rendering_issue": {
+    "case": "layers-canyon-60km-v4",
+    "capture": "flight-view-3.png",
+    "symptom": "Thin dark coverage seams",
+    "same_camera_no_coverage": "lines disappear",
+    "same_camera_no_transitions": "lines remain",
+    "not_claimed_fixed": true
+  },
+  "npc_ai_settings_sha256": "b9cad371276c552ae499d818272577acf90efea8de2678eacf47126aa61dbed0"
+}

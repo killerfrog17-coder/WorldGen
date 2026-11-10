@@ -1,0 +1,185 @@
+{
+  "title": "WorldGen - Independent Terrain and Forest Detail",
+  "section": "STREAMING REVIEW",
+  "date": "10 NOVEMBER 2026",
+  "footer": "Native game captures / Extreme terrain / 60 km view / no FPS-floor claim",
+  "pages": [
+    {
+      "title": "Independent levels of detail",
+      "subtitle": "Exact terrain shape, cheaper surface sampling, and regional forest previews.",
+      "blocks": [
+        {
+          "heading": "What changed",
+          "text": "Terrain height and water retain their canonical evaluators. Fine meshes sample ecological materials on a separate, chart-aligned 32 m grid; narrow water boundaries keep local queries, and slopes still control exposed rock and vegetation. Finer geometry no longer forces equally dense soil queries."
+        },
+        {
+          "text": "Distant forest pages contain at most 64 regional descriptors with no individual-tree probes. GPU previews reuse existing regional tree textures. Actual tree identities and placement are generated close to the camera. Previews wait for resident terrain and blend into ready exact tree pages."
+        },
+        {
+          "heading": "Matched loading check",
+          "table": {
+            "headers": [
+              "Milestone",
+              "Previous build",
+              "Candidate"
+            ],
+            "rows": [
+              [
+                "Nearby terrain",
+                "17.80 s",
+                "1.33 s"
+              ],
+              [
+                "600 m terrain + forest",
+                "31.38 s",
+                "13.29 s"
+              ],
+              [
+                "Entire requested view",
+                "Not complete in 180 s",
+                "115.00 s"
+              ]
+            ],
+            "widths": [
+              0.4,
+              0.3,
+              0.3
+            ]
+          }
+        },
+        {
+          "text": "Same forest site, Extreme terrain, Medium vegetation, Maximum loading effort, 1536 x 864 and a 60 km view. Times start after scene preparation and exclude world-file reading and worker initialization. The PC may also run MapleLegends and YouTube. Full-view readiness differs from the nearby playable footprint.",
+          "size": 9
+        },
+        {
+          "heading": "Where the work went",
+          "text": "The initial exclusive component profile found height/water sampling dominated ordinary terrain tiles. Native profiling also exposed very costly river-bank refinement on coarse distant tiles. Fine soil queries fell from 4,225 to 25 on the sampled dry forest tile. Distant forest pages formerly used 8,192 to 262,144 tree probes; they now use zero."
+        },
+        {
+          "text": "River refinement now indexes short edge corridors instead of scanning every refined point in a large coarse cell. It prepares its dense river-query index when refinement is actually needed. Unused legacy height triangles are no longer constructed for amplified terrain patches.",
+          "size": 9
+        },
+        {
+          "heading": "Remaining terrain-build cost",
+          "table": {
+            "headers": [
+              "Completed mesh stages",
+              "Forest",
+              "Canyon"
+            ],
+            "rows": [
+              [
+                "Patch/index setup",
+                "7.3%",
+                "14.0%"
+              ],
+              [
+                "Height + water queries",
+                "61.3%",
+                "69.9%"
+              ],
+              [
+                "Surface materials",
+                "2.6%",
+                "4.3%"
+              ],
+              [
+                "Boundary stitching",
+                "1.4%",
+                "1.3%"
+              ],
+              [
+                "River-bank refinement",
+                "24.5%",
+                "10.1%"
+              ],
+              [
+                "Water meshes",
+                "2.8%",
+                "0.5%"
+              ],
+              [
+                "Cover masks",
+                "0.0%",
+                "0.0%"
+              ]
+            ],
+            "widths": [
+              0.5,
+              0.25,
+              0.25
+            ]
+          }
+        },
+        {
+          "text": "Shares of summed worker stage elapsed time, including cold loading and flight. These exclude scatter, rendering and world preparation, and are not percentages of total loading wall time. Height queries also include landform/water overlays.",
+          "size": 8.5
+        }
+      ]
+    },
+    {
+      "title": "Actual game views",
+      "subtitle": "Accepted captures from the final candidate; the first two untextured canopy trials were rejected.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "near.jpg",
+              "caption": "Near the ground: existing trees, resources and ground materials. This pass changes sampling and loading, not the tree models."
+            }
+          ],
+          "max_height": 245
+        },
+        {
+          "images": [
+            {
+              "file": "forest.jpg",
+              "caption": "500 m above the forest, looking across the full 60 km view. Regional textured previews replace distant tree censuses."
+            }
+          ],
+          "max_height": 245
+        },
+        {
+          "text": "Previews approximate coverage and tree type; they are not simulated trees. Detailed trees retain their deterministic world addresses. The canonical terrain and water checks exclude intentionally resampled material attributes.",
+          "size": 9
+        }
+      ]
+    },
+    {
+      "title": "Movement and verification",
+      "subtitle": "Coverage checks, physical equivalence and the remaining limitations.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "moving.jpg",
+              "caption": "Forward/reverse forest flight at 200 then 600 m/s. Extra GPU ground audits are diagnostic work, not an FPS benchmark."
+            },
+            {
+              "file": "canyon.jpg",
+              "caption": "Canyon with instant replacements: thin dark coverage seams remain visible. This is a known rendering issue, not an accepted seam fix."
+            }
+          ],
+          "max_height": 255
+        },
+        {
+          "heading": "Checks",
+          "text": "The final flight recorded 0 frames without resident ground beneath the player. Pure checks cover 20,826 geometry/water and canopy contracts, plus 158,742 forest-placement, transport and hierarchy assertions. Packaged-worker comparisons preserve complete terrain geometry, normals, water and indices while excluding the intentionally changed surface attributes. Three broad backdrop packets also match in full."
+        },
+        {
+          "heading": "Second environment",
+          "text": "Canyon: 600 m terrain-and-forest readiness 23.25 s; 0 flight frames without resident ground beneath the player. Full requested view: Not complete in 180 s."
+        },
+        {
+          "heading": "Limits",
+          "text": "Loading is improved but not instant. Far canopy still approximates shape and density, with broad crown clusters visible from above. Thin terrain-coverage seams remain in fast canyon flight; disabling coverage masks removes those lines, so they need a separate resident-LOD boundary fix. These checks do not establish a universal 100 FPS floor or eliminate all streaming spikes. Shared PC demand, paced rendering, added camera renders and GPU readbacks make these frame timings unsuitable as gameplay FPS results."
+        },
+        {
+          "heading": "Reproducibility",
+          "text": "The evidence folder retains package receipts, CSV samples, exact sites, worker comparisons and stage profiles. This PDF, its source manifest and JPEG inputs live outside disposable artifacts. Runtime changes are split into Git commits so individual approaches can be reverted.",
+          "size": 9
+        }
+      ]
+    }
+  ]
+}
