@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
             throw new InvalidOperationException("Chunk check requires --worldgen-no-animals and spectator");
         var rows=new List<string>{"seconds,terrainM,forestM,readyM,drawnFogM,tiles,terrainJobs,completedJobs,scatterJobs,forestJobs,activeWorkers"};
         var frames=new List<double>();var milestones=new Dictionary<string,double>();
-        double start=Time.realtimeSinceStartupAsDouble,last=start,next=start,deadline=start+180;
+        double start=Time.realtimeSinceStartupAsDouble,last=start,next=start,deadline=start+180,nextState=start+5;
         double[] radii={50,100,300,600};bool viewed=false;
         BeginLoadingProfile();
         while(Time.realtimeSinceStartupAsDouble<deadline)
@@ -39,6 +39,8 @@ public sealed partial class LocalTerrainExplorer
                 next=now+.25;
                 rows.Add(string.Join(",",new[]{elapsed,terrainRevealRadius,forestRevealRadius,fogSafeRadius,renderedStreamingFog,tiles.Count,jobs.Count,jobs.Count(j=>j.Task.IsCompleted),scatterJobs.Count,forestJobs.Count,ActiveWorkerCount}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));
             }
+            if(now>=nextState)
+            {nextState=now+5;File.AppendAllText(Path.Combine(output,"loading-work.txt"),elapsed.ToString("F2",CultureInfo.InvariantCulture)+"s: "+CheckStreamingState+"; "+PerformanceGroundPublication+"; install="+CanInstall+" scatter reserve="+reserveScatterFrame+" uploadMs="+frameUploadMs+"\n");}
             if(AllReady&&!DetailPlanning&&jobs.Count==0&&!ForestPending&&ScatterReady&&milestones.ContainsKey("radius600"))
             {milestones["complete"]=elapsed;break;}
             yield return null;
