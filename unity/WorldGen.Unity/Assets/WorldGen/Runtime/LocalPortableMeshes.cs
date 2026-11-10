@@ -134,6 +134,32 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Necklace:
+                Arc(Vector3.zero,.47f,.42f,.88f,cord,.012f,32);
+                Tube(new Vector3(0,.88f,.42f),new Vector3(0,.27f,.58f),.012f,cord,6);
+                b.Crown(new Vector3(0,.18f,.58f),new Vector3(.11f,.11f,.025f),16,7,bone,48,.004f);break;
+            case PortableForm.Mat:
+            {
+                Color reed=new Color(.57f,.56f,.28f,0);
+                if(item.HeightM>.08)
+                {
+                    const int steps=32;int start=b.V.Count;
+                    for(int end=0;end<2;end++)for(int k=0;k<=steps;k++)
+                    {float a=k*Mathf.PI*2/steps,r=.43f+.009f*Mathf.Sin(a*16);b.Add(new Vector3(end==0?-.5f:.5f,.5f+Mathf.Cos(a)*r,Mathf.Sin(a)*r),reed,new Vector2(end,k/(float)steps));}
+                    for(int k=0;k<steps;k++){int v=start+k;b.Triangle(v,v+1,v+steps+1);b.Triangle(v+1,v+steps+2,v+steps+1);}
+                    foreach(float x in new[]{-.5f,.5f})
+                    {int center=b.Add(new Vector3(x,.5f,0),reed,new Vector2(.5f,.5f));for(int k=0;k<steps;k++){float a=k*Mathf.PI*2/steps,c=(k+1)*Mathf.PI*2/steps;int v=b.Add(new Vector3(x,.5f+Mathf.Cos(a)*.43f,Mathf.Sin(a)*.43f),reed,Vector2.zero),w=b.Add(new Vector3(x,.5f+Mathf.Cos(c)*.43f,Mathf.Sin(c)*.43f),reed,Vector2.one);if(x<0)b.Triangle(center,v,w);else b.Triangle(center,w,v);}}
+                    foreach(float x in new[]{-.3f,.3f})for(int k=0;k<32;k++){float a=k*Mathf.PI/16,c=(k+1)*Mathf.PI/16;Tube(new Vector3(x,.5f+Mathf.Cos(a)*.445f,Mathf.Sin(a)*.445f),new Vector3(x,.5f+Mathf.Cos(c)*.445f,Mathf.Sin(c)*.445f),.015f,cord,5);}
+                }
+                else
+                {
+                    for(int row=0;row<30;row++)
+                    {float z=-.49f+row*.0333f;Quad(new Vector3(-.49f,.45f,z),new Vector3(.49f,.45f,z),new Vector3(.49f,.45f,z+.027f),new Vector3(-.49f,.45f,z+.027f),reed);}
+                    for(int row=0;row<12;row++)
+                    {float x=-.48f+row*.087f;Tube(new Vector3(x,.5f,-.49f),new Vector3(x,.5f,.49f),.014f,cord,5);}
+                }
+                break;
+            }
             case PortableForm.Clay:
                 b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.43f,.46f),20,8,new Color(.47f,.31f,.21f,0),57,.035f);break;
             case PortableForm.Pot:

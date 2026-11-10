@@ -1,0 +1,24 @@
+{
+  "status": "source and pure checks complete; native review pending",
+  "controls": {
+    "mats_jewellery": 12,
+    "portable_tree": 977
+  },
+  "scope": [
+    "Twined mat consumes eight real prepared reed-strip bundles and binding",
+    "Rolled packing dimensions; spread bedding and reed shelter covering",
+    "Carved/pierced bone pendant consumes thread, retains tools and source-animal provenance",
+    "Independent worn neck attachment; occasional ornaments for NPCs whose band actually practices adornment"
+  ],
+  "limits": [
+    "Prototype shared-material meshes; no separate cloth simulation or new high-resolution jewellery texture",
+    "Woven mats are implemented separately from ancient loose grass bedding; no claim the 200 ka bedding itself was woven",
+    "NPC autonomous weaving and wholesale camp-mat transport policy are not added by this item pass"
+  ],
+  "sources": [
+    "https://digitalcommons.usf.edu/kip_articles/6115/",
+    "https://www.journals.uchicago.edu/doi/10.1086/317381",
+    "https://www.arch.cam.ac.uk/research/projects/archived-projects/origins-weaving-project",
+    "https://content.www.wellcomecollection.org/works/baq87sph"
+  ]
+}

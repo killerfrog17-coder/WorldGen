@@ -34,11 +34,11 @@ public sealed partial class LocalTerrainExplorer
             case PortableForm.Spear:case PortableForm.Arrow:return 3;
             case PortableForm.Bow:return 4;
             case PortableForm.Fibre:case PortableForm.Cord:case PortableForm.Sling:case PortableForm.Net:case PortableForm.Belt:return 5;
-            case PortableForm.GrindingStone:return 0;
+            case PortableForm.GrindingStone:case PortableForm.Clay:return 0;
             case PortableForm.Hide:case PortableForm.Strip:case PortableForm.Garment:return 6;
-            case PortableForm.Pouch:case PortableForm.Pack:case PortableForm.Satchel:case PortableForm.Quiver:case PortableForm.Case:case PortableForm.Frame:case PortableForm.Basket:case PortableForm.BarkBox:return 7;
-            case PortableForm.Bone:case PortableForm.Antler:case PortableForm.Needle:return 8;
-            case PortableForm.Reed:return 9;
+            case PortableForm.Pouch:case PortableForm.Pack:case PortableForm.Satchel:case PortableForm.Quiver:case PortableForm.Case:case PortableForm.Frame:case PortableForm.Basket:case PortableForm.BarkBox:case PortableForm.Pot:return 7;
+            case PortableForm.Bone:case PortableForm.Antler:case PortableForm.Needle:case PortableForm.Necklace:return 8;
+            case PortableForm.Reed:case PortableForm.Mat:return 9;
             case PortableForm.Hook:return 10;
             case PortableForm.Feather:return 11;
             case PortableForm.Shaft:return 1;

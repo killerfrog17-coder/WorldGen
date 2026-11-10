@@ -129,7 +129,7 @@ namespace WorldGen.Core
         public static bool Done(CampBlueprint p,CampComponent c)=>HasMaterial(p,c)&&(State(p,c)?.WorkSeconds??0)+1e-8>=c.Seconds;
         public static bool Complete(CampBlueprint p)=>Components(p).All(c=>Done(p,c));
         public static int Stage(CampBlueprint p)=>Components(p).Where(c=>!Done(p,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
-        public static bool CoverMaterial(CampBlueprint p,Possession item)=>item!=null&&(p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:p.Cover==CampCover.Reed?item.Kind==PossessionKind.ReedBundle:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle);
+        public static bool CoverMaterial(CampBlueprint p,Possession item)=>item!=null&&(p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:p.Cover==CampCover.Reed?item.Kind==PossessionKind.ReedBundle||item.Kind==PossessionKind.WovenMat:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle||item.Kind==PossessionKind.WovenMat);
         public static bool Suitable(CampBlueprint p,CampComponent c,Possession item)
         {
             if(item==null||item.MassKg<=0||item.UseDamage>=.8)return false;

@@ -117,8 +117,11 @@ public sealed partial class LocalTerrainExplorer
         }
         else if(c.Kind==CampKind.Bedding)
         {
-            var mat=new GameObject("Layered loose bedding",typeof(MeshFilter),typeof(MeshRenderer));mat.transform.SetParent(root.transform,false);mat.layer=30;
-            mat.GetComponent<MeshFilter>().sharedMesh=LocalScatterMeshes.BuildCampMat((float)c.BeddingDepthM,c.Materials.Any(p=>p.Kind==PossessionKind.LeafLitter),c.Id.GetHashCode());mat.GetComponent<MeshRenderer>().sharedMaterial=PortableMaterial();
+            if(c.Materials.Any(p=>p.Kind!=PossessionKind.WovenMat))
+            {var mat=new GameObject("Layered loose bedding",typeof(MeshFilter),typeof(MeshRenderer));mat.transform.SetParent(root.transform,false);mat.layer=30;
+            mat.GetComponent<MeshFilter>().sharedMesh=LocalScatterMeshes.BuildCampMat((float)c.BeddingDepthM,c.Materials.Any(p=>p.Kind==PossessionKind.LeafLitter),c.Id.GetHashCode());mat.GetComponent<MeshRenderer>().sharedMaterial=PortableMaterial();}
+            int layer=0;foreach(var p in c.Materials.Where(p=>p.Kind==PossessionKind.WovenMat))
+            {var spread=p.Copy();spread.WidthM=.75;spread.DepthM=1.8;spread.HeightM=.025;var woven=CreatePossessionVisual(spread,30);woven.transform.SetParent(root.transform,false);woven.transform.localPosition=Vector3.up*((float)c.BeddingDepthM+.005f+layer++*.004f);}
             foreach(var p in c.Materials.Where(p=>PortableTechnology.Item(p.Kind)?.Form==PortableForm.Hide))
             {var hide=CreatePossessionVisual(p,30);hide.transform.SetParent(root.transform,false);hide.transform.localRotation=Quaternion.Euler(90,0,0);hide.transform.localPosition=new Vector3(0,(float)c.BeddingDepthM+.025f,0);}
         }

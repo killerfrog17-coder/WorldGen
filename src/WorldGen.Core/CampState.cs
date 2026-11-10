@@ -25,7 +25,7 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public CampBlueprint Blueprint;
         public double MassKg=>Materials.Sum(p=>p.MassKg)+(FrameJoints??new List<FrameJoint>()).Sum(j=>(j.Bindings??new List<Possession>()).Sum(p=>p.MassKg))+(Blueprint?.Parts?.Sum(s=>s.Materials.Sum(p=>p.MassKg))??0);
         public double FuelKg=>Materials.Where(CampRules.Fuel).Sum(p=>p.MassKg);
-        public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,Materials.Sum(p=>p.MassKg/(p.Kind==PossessionKind.LeafLitter?45:p.Kind==PossessionKind.ReedBundle?40:CampRules.Hide(p)?650:32))/1.8):0;
+        public double BeddingDepthM=>Kind==CampKind.Bedding?Math.Min(.4,Materials.Sum(p=>p.MassKg/(p.Kind==PossessionKind.LeafLitter?45:p.Kind==PossessionKind.ReedBundle?40:p.Kind==PossessionKind.WovenMat?75:CampRules.Hide(p)?650:32))/1.8):0;
         public double Stability=>Kind!=CampKind.Stake||Materials.Count==0?0:D.Clamp(EmbedM/Math.Max(.08,Materials[0].HeightM*.2)*Math.Sqrt(Materials[0].WidthM/.03)*SoilFirmness);
         public double FuelEnergyKg {get{double sum=0;foreach(var p in Materials)if(CampRules.Fuel(p))sum+=p.MassKg*CampRules.FuelEnergy(p);return sum;}}
         public double FirePowerKw=>!Burning?EmberSeconds>0?.8*D.Clamp(EmberSeconds/1800):0:8*(1-Math.Exp(-FuelEnergyKg/2))*(1-Wetness*.7);
@@ -72,7 +72,7 @@ namespace WorldGen.Core
         public static bool NeedsHeat(Possession p)=>PaleolithicClay.Green(p)?p.Dried:CampWaterHeating.DirectVessel(p)?p.WaterLitres>0&&!p.WaterBoiled:Cookable(p)&&!p.Cooked&&!p.Burnt;
         public static string HeatLabel(Possession p)=>PaleolithicClay.Green(p)?"Fire ":CampWaterHeating.DirectVessel(p)?"Boil water in ":"Cook ";
         public static double HeatProgress(Possession p)=>PaleolithicClay.Green(p)?p.CookingSeconds/PaleolithicClay.FiringSeconds:CampWaterHeating.DirectVessel(p)?p.WaterBoiled?1:p.CookingSeconds/(120+240*p.WaterLitres):p.CookingSeconds/CookingDuration(p);
-        public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
+        public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.WovenMat||p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Hide(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Plantable(Possession p)=>WoodCrafting.Wood(p)&&p.HeightM>=.35&&p.WidthM<=.09&&p.WoodSoundness>=.35;
         public static string IgniteReason(CampObject fire,bool drillAvailable)

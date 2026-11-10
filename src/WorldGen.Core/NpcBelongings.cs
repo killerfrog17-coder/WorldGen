@@ -66,6 +66,7 @@ namespace WorldGen.Core
                 if(Wears(14))Garment(PossessionKind.FurCoat);else if(Wears(13))Garment(PossessionKind.HideTunic);else if(Wears(8))Garment(PossessionKind.HideWrap);
                 if(Wears(13)){Garment(PossessionKind.HideLeggings);Garment(PossessionKind.HideFootwear);}
                 if(Wears(14))Garment(PossessionKind.HideHood);
+                if(person.AgeYears>=7&&Wears(41)&&hash%4==0)Garment(PossessionKind.BonePendant);
             }
             if(person.AgeYears<7)return stock;
             if(person.AgeYears>=12)

@@ -62,7 +62,12 @@ public sealed partial class LocalTerrainExplorer
     {
         if(PaleolithicClothing.Garment(p)){PoseGarment(root,p,body);return;}
         root.transform.rotation=body.rotation;
-        if(p.Place==PossessionPlace.SlungBack)
+        if(p.Place==PossessionPlace.Neck)
+        {
+            var neck=bones.TryGetValue("neck_01",out var anchor)?anchor.position:bones["spine_02"].position+Vector3.up*.18f;
+            root.transform.position=neck-Vector3.up*.27f+body.forward*.03f;
+        }
+        else if(p.Place==PossessionPlace.SlungBack)
         {root.transform.position=bones["spine_02"].position-body.forward*.23f-Vector3.up*(float)p.HeightM*.48f;root.transform.rotation=body.rotation*Quaternion.Euler(0,0,28);}
         else if(p.Place==PossessionPlace.Back)
             root.transform.position=bones["spine_02"].position-body.forward*(.15f+(float)p.DepthM*.5f)-Vector3.up*((float)p.HeightM*.5f+.08f);

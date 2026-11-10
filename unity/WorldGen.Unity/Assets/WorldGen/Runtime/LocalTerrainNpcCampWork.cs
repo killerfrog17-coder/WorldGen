@@ -186,7 +186,7 @@ public sealed partial class LocalTerrainExplorer
         var bed=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Kind==CampKind.Bedding&&c.NpcHousehold==actor.Resident.Household);
         double wanted=NpcBeddingGoal(group,actor.Resident.Household);
         if(bed==null||bed.Materials.Sum(p=>p.MassKg)>=wanted)return false;
-        var stock=actor.Belongings;var material=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle));
+        var stock=actor.Belongings;var material=stock.Items.FirstOrDefault(p=>stock.Carried(p)&&p.CampMaterial==0&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.WovenMat));
         actor.CurrentActivity=HumanActivity.BuildCamp;actor.TaskWaiting=false;
         if(material!=null)
         {
