@@ -134,9 +134,25 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.GrindingStone:
+                const int segments=28;int first=b.V.Count;
+                for(int ring=0;ring<=4;ring++)for(int side=0;side<=segments;side++)
+                {float r=ring/4f,a=side*Mathf.PI*2/segments;float irregular=1+.025f*Mathf.Sin(a*5+item.Variant);b.Add(new Vector3(Mathf.Cos(a)*r*.49f*irregular,.55f+.25f*r*r,Mathf.Sin(a)*r*.49f*irregular),stone,new Vector2(.5f+Mathf.Cos(a)*r*.5f,.5f+Mathf.Sin(a)*r*.5f));}
+                for(int ring=0;ring<4;ring++)for(int side=0;side<segments;side++){int v=first+ring*(segments+1)+side;if(ring>0)b.Triangle(v,v+1,v+segments+1);b.Triangle(v+1,v+segments+2,v+segments+1);}
+                int baseVertex=b.Add(Vector3.up*.08f,stone,new Vector2(.5f,.5f));
+                for(int side=0;side<segments;side++)
+                {
+                    float a=side*Mathf.PI*2/segments,c=(side+1)*Mathf.PI*2/segments;
+                    Vector3 Rim(float angle){float radius=.49f*(1+.025f*Mathf.Sin(angle*5+item.Variant));return new Vector3(Mathf.Cos(angle)*radius,.8f,Mathf.Sin(angle)*radius);}
+                    var bottomA=new Vector3(Mathf.Cos(a)*.44f,.08f,Mathf.Sin(a)*.44f);var bottomC=new Vector3(Mathf.Cos(c)*.44f,.08f,Mathf.Sin(c)*.44f);
+                    Quad(Rim(a),Rim(c),bottomC,bottomA,stone);int ba=b.Add(bottomA,stone,Vector2.zero),bc=b.Add(bottomC,stone,Vector2.one);b.Triangle(baseVertex,ba,bc);
+                }
+                break;
             case PortableForm.Food:
                 Color food=item.Burnt?new Color(.09f,.065f,.045f,0):item.Cooked?new Color(.39f,.22f,.11f,0):new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,0);
-                if(item.Kind==PossessionKind.Mushroom)
+                if(item.Kind==PossessionKind.PlantCake)
+                    b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.35f,.48f),20,6,food,38,.03f);
+                else if(item.Kind==PossessionKind.Mushroom)
                 {Tube(Vector3.zero,new Vector3(0,.62f,0),.11f,new Color(.78f,.72f,.58f,0));b.Crown(new Vector3(0,.67f,0),new Vector3(.5f,.22f,.5f),18,6,food,29,.015f);}
                 else if(item.Kind==PossessionKind.Berries||item.Kind==PossessionKind.Nuts)
                 {for(int i=0;i<9;i++)b.Crown(new Vector3((i%3-1)*.26f,.15f+(i%2)*.23f,(i/3-1)*.26f),Vector3.one*.19f,10,5,food,15+i,.025f);}

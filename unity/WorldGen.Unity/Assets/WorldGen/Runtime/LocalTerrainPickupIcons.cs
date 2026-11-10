@@ -34,7 +34,8 @@ public sealed partial class LocalTerrainExplorer
             case PortableForm.Spear:case PortableForm.Arrow:return 3;
             case PortableForm.Bow:return 4;
             case PortableForm.Fibre:case PortableForm.Cord:case PortableForm.Sling:case PortableForm.Net:case PortableForm.Belt:return 5;
-            case PortableForm.Hide:case PortableForm.Strip:return 6;
+            case PortableForm.GrindingStone:return 0;
+            case PortableForm.Hide:case PortableForm.Strip:case PortableForm.Garment:return 6;
             case PortableForm.Pouch:case PortableForm.Pack:case PortableForm.Satchel:case PortableForm.Quiver:case PortableForm.Case:case PortableForm.Frame:case PortableForm.Basket:case PortableForm.BarkBox:return 7;
             case PortableForm.Bone:case PortableForm.Antler:case PortableForm.Needle:return 8;
             case PortableForm.Reed:return 9;
@@ -57,7 +58,7 @@ public sealed partial class LocalTerrainExplorer
             if(pickupIconRequests!=null)return (texture=flakeableStonePickup)!=null;
             if(flakeableStonePickup!=null){texture=flakeableStonePickup;return true;}
         }
-        if(StoneCrafting.Rock(item))
+        if(StoneCrafting.Rock(item)||item.Kind==PossessionKind.Grindstone)
         {
             int size=(int)StoneCrafting.Size(item);
             if(pickupIconRequests!=null)return (texture=rockSizePickups[size])!=null;

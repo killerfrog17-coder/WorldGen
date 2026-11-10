@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
     Texture2D PortableIcon(Possession p)
     {
         var d=PortableTechnology.Item(p.Kind);
+        if(d.Form==PortableForm.GrindingStone)return rockSizePickups[(int)StoneCrafting.Size(p)]??inventoryRockIcon;
         if(!portableIcons.TryGetValue(p.Kind,out var icon))
         {
             icon=new Texture2D(64,64,TextureFormat.RGBA32,false);var pixels=new Color[4096];

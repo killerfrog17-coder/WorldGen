@@ -31,7 +31,11 @@ namespace WorldGen.Core
             if(mode!=GameMode.Survival)return;
             double net=litres*Math.Max(-1.8,1-Math.Pow(water.SalinityPpt/7,1.2));
             PlayerMetabolism.Hydrate(state,net);
-            if(water.Contamination<=0||state.WaterSicknessSeconds>0)return;
+            Expose(state,water.Contamination,litres,chance);
+        }
+        public static void Expose(PlayerSurvival state,double hazardPerLitre,double litres,double chance)
+        {
+            if(state==null||state.Incapacitated||!double.IsFinite(litres)||litres<=0||!double.IsFinite(hazardPerLitre)||hazardPerLitre<=0||state.WaterSicknessSeconds>0)return;
             if(state.WaterExposureThreshold<=0)
             {
                 // One saved susceptibility draw per 24-hour exposure window,
@@ -42,7 +46,7 @@ namespace WorldGen.Core
                 state.WaterExposureSequence=state.WaterExposureSequence==int.MaxValue?0:state.WaterExposureSequence+1;
                 state.WaterExposureAgeSeconds=state.WaterExposureHazard=0;
             }
-            state.WaterExposureHazard+=water.Contamination*litres;
+            state.WaterExposureHazard+=D.Clamp(hazardPerLitre)*litres;
             if(state.WaterExposureHazard<state.WaterExposureThreshold)return;
             double response=state.WaterExposureResponse;
             // Deliberate gameplay distribution, not measured prehistoric rates.

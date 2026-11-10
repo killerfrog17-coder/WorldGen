@@ -13,6 +13,7 @@ public sealed partial class LocalTerrainExplorer
     public IEnumerator CheckPortableFlow(string output,List<string> report)
     {
         if(Environment.GetCommandLineArgs().Contains("--worldgen-clothing-review")){yield return CheckPaleolithicClothingFlow(output,report);yield break;}
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-processing-review")){yield return CheckPaleolithicProcessingFlow(output,report);yield break;}
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException(text);report.Add("PASS "+text);Debug.Log("PORTABLE CHECK PASS "+text);}
         IEnumerator Image(string name){yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());Destroy(image);}
         Possession Add(PossessionKind kind,string species="") {var p=PortableTechnology.Create(kind,Position,species,1);Inventory.Items.Add(p);SetCraftWorkArea(p);return p;}

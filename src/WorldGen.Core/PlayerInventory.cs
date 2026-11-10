@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse,CampStorage,Torso,Legs,Feet,Head }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel,Grindstone,PlantMeal,PlantCake }
     [Serializable] public sealed class NaturalToolRecord
     {
         public string Id="";public double Work;public int Bark,Branches,Digging;
@@ -50,6 +50,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public string FoodSpecies;
         [System.Runtime.Serialization.OptionalField] public double FoodKcalPerKg,FoodWaterPerKg,FoodToxicity,FoodDelayHours;
         [System.Runtime.Serialization.OptionalField] public bool Cooked,Burnt;
+        [System.Runtime.Serialization.OptionalField] public PossessionKind FoodSourceKind;
+        [System.Runtime.Serialization.OptionalField] public double FoodWaterContamination;
         [System.Runtime.Serialization.OptionalField] public double CookingSeconds;
         [System.Runtime.Serialization.OptionalField] public string CampOwner;
         [System.Runtime.Serialization.OptionalField] public double DryingSeconds;
@@ -57,8 +59,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double WaterLitres,WaterSalinityPpt,WaterContamination,WaterTurbidity,WaterHeatSeconds;
         [System.Runtime.Serialization.OptionalField] public LocalWaterKind StoredWaterKind;
         [System.Runtime.Serialization.OptionalField] public bool WaterBoiled;
-        public string Name=>StoneCrafting.Rock(this)?StoneCrafting.SizeName(this):PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
-        public int Hands=>StoneCrafting.Rock(this)?StoneCrafting.CarryHands(this):PortableTechnology.Item(Kind)?.Hands??1;
+        public string Name=>Kind==PossessionKind.Grindstone?PortableTechnology.Name(this):StoneCrafting.Rock(this)?StoneCrafting.SizeName(this):PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
+        public int Hands=>StoneCrafting.Rock(this)||Kind==PossessionKind.Grindstone?StoneCrafting.CarryHands(this):PortableTechnology.Item(Kind)?.Hands??1;
         public int PackedWidth=>Rotated?CellsHigh:CellsWide;
         public int PackedHeight=>Rotated?CellsWide:CellsHigh;
         public int ContainerWidth=>Kind==PossessionKind.TestBag?6:PortableTechnology.Item(Kind)?.StorageWidth??0;

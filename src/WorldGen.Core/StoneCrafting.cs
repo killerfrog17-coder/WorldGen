@@ -20,7 +20,7 @@ namespace WorldGen.Core
     /// <summary>Ordinary stones acquire roles by properties, not by renaming or conversion.</summary>
     public static class StoneCrafting
     {
-        public static bool Rock(Possession p)=>p!=null&&(p.Kind==PossessionKind.SmallRock||p.Kind==PossessionKind.LargeRock);
+        public static bool Rock(Possession p)=>p!=null&&(p.Kind==PossessionKind.SmallRock||p.Kind==PossessionKind.LargeRock||p.Kind==PossessionKind.Grindstone);
         // Physical categories also apply to old saves and depleted cores; the
         // two original possession-kind IDs remain compatible with every tool
         // and construction recipe. Category is independent of flaking suitability.
@@ -49,7 +49,8 @@ namespace WorldGen.Core
             if(p.MassKg>10||p.WidthM>.45)return "This piece is too large for this hand-flaking method.";
             return "";
         }
-        public static bool StrikingStone(Possession p)=>Rock(p)&&p.Hands==1&&p.MassKg>=.06&&p.MassKg<=2&&p.WidthM>=.035&&p.WidthM<=.22&&p.HeightM/p.WidthM>=.22&&(ToolStone.Family(p.Variant)!=RockFamily.Mudstone);
+        public static bool StrikingProperties(Possession p)=>p!=null&&p.Hands==1&&p.MassKg>=.06&&p.MassKg<=2&&p.WidthM>=.035&&p.WidthM<=.22&&p.HeightM/p.WidthM>=.22&&(ToolStone.Family(p.Variant)!=RockFamily.Mudstone);
+        public static bool StrikingStone(Possession p)=>Rock(p)&&StrikingProperties(p);
         public static string PairReason(Possession workpiece,Possession tool)
         {
             var reason=WorkpieceReason(workpiece);if(reason.Length>0)return reason;

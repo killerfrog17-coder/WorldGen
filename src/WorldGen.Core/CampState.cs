@@ -64,7 +64,7 @@ namespace WorldGen.Core
         public static bool Kindling(Possession p)=>p!=null&&(p.Kind==PossessionKind.KindlingBundle||WoodCrafting.Wood(p)&&p.WidthM<=.025);
         public static bool Fuel(Possession p)=>p!=null&&(Tinder(p)||Kindling(p)||WoodCrafting.Wood(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle);
         public static double FuelEnergy(Possession p)=>WoodCrafting.Wood(p)||p.Kind==PossessionKind.KindlingBundle?1:p.Kind==PossessionKind.BarkSheet?.85:p.Kind==PossessionKind.ReedBundle?.4:.22;
-        public static bool Cookable(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.EdibleRoot||p.Kind==PossessionKind.Mushroom);
+        public static bool Cookable(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.EdibleRoot||p.Kind==PossessionKind.Mushroom||p.Kind==PossessionKind.PlantCake);
         public static double CookingDuration(Possession p)=>Math.Max(240,(p.Kind==PossessionKind.EdibleRoot?1200:600)*Math.Pow(Math.Max(.03,p.MassKg)/.25,.35));
         public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Hide(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);

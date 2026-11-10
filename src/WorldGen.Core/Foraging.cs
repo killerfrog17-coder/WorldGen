@@ -20,12 +20,13 @@ namespace WorldGen.Core
     }
     public static class Foraging
     {
-        public static bool Food(Possession p)=>p!=null&&p.Kind>=PossessionKind.Berries&&p.Kind<=PossessionKind.AnimalFat;
+        public static bool Food(Possession p)=>p!=null&&(p.Kind>=PossessionKind.Berries&&p.Kind<=PossessionKind.AnimalFat||p.Kind==PossessionKind.PlantMeal||p.Kind==PossessionKind.PlantCake);
         public static string Name(Possession p)
         {
             if(!Food(p))return null;
             string name=PortableTechnology.Item(p.Kind)?.Name??p.Kind.ToString();
-            if(p.Cooked)name=name.Replace("Raw ","").Replace("raw ","");
+            if(p.Kind==PossessionKind.PlantMeal)name=p.FoodSourceKind==PossessionKind.Nuts?"Ground nuts":p.FoodSourceKind==PossessionKind.EdibleRoot?"Pounded roots":name;
+            if(p.Cooked)name=name.Replace("Raw ","").Replace("raw ","").Replace("Uncooked ","");
             string prefix=p.Burnt?"Charred ":p.Dried?(p.Smoked?"Smoke-dried ":"Dried "):p.Cooked?"Cooked ":"";
             if(p.Dried)name=name.Replace("Raw ","").Replace("raw ","");
             if(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.AnimalFat)return prefix+(string.IsNullOrEmpty(p.AppearanceSpecies)?name:PortableTechnology.SpeciesName(p.AppearanceSpecies)+" "+name.ToLowerInvariant());
@@ -82,6 +83,8 @@ namespace WorldGen.Core
             double mass=Math.Min(p.MassKg,sample?.005:p.Kind==PossessionKind.Nuts?.06:p.Kind==PossessionKind.AnimalFat?.06:.25);
             double kcal=mass*p.FoodKcalPerKg*(p.Burnt?.5:1);
             PlayerMetabolism.Eat(state,mass,kcal,mass*p.FoodWaterPerKg);
+            if(!p.Cooked&&p.FoodWaterContamination>0)
+                WaterDrinking.Expose(state,p.FoodWaterContamination,mass*p.FoodWaterPerKg,Rng.Value(unchecked((int)Rng.StreamHash(p.Id??"")),"food-water-exposure",state.WaterExposureSequence));
             state.Energy=Math.Min(100,state.Energy+kcal/150);state.Stamina=Math.Min(state.Stamina,state.MaximumStamina);
             if(p.FoodToxicity>0)
             {
@@ -105,6 +108,7 @@ namespace WorldGen.Core
         }
         public static void ValidateFood(Possession p)
         {
+            if(!double.IsFinite(p.FoodWaterContamination)||p.FoodWaterContamination<0||p.FoodWaterContamination>1||!Enum.IsDefined(typeof(PossessionKind),p.FoodSourceKind))throw new ArgumentException("Invalid processed food source.");
             if(!ItemUseRules.Finite(p.CookingSeconds)||p.CookingSeconds<0||p.CookingSeconds>1e9)throw new ArgumentException("Invalid cooking state.");
             if(p.FoodSpecies!=null&&p.FoodSpecies.Length>160||!ItemUseRules.Finite(p.FoodKcalPerKg)||p.FoodKcalPerKg<0||p.FoodKcalPerKg>10000||!ItemUseRules.Finite(p.FoodWaterPerKg)||p.FoodWaterPerKg<0||p.FoodWaterPerKg>1||!ItemUseRules.Finite(p.FoodToxicity)||p.FoodToxicity<0||p.FoodToxicity>1||!ItemUseRules.Finite(p.FoodDelayHours)||p.FoodDelayHours<0||p.FoodDelayHours>72)throw new ArgumentException("Invalid food state.");
         }

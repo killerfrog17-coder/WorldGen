@@ -35,7 +35,7 @@ public sealed partial class LocalTerrainExplorer
         int grounded=0;
         foreach(var p in Inventory.Items.Where(p=>involved.Contains(p.Id)&&(p.Place==PossessionPlace.RightHand||p.Place==PossessionPlace.LeftHand)))
         {p.Place=PossessionPlace.Ground;p.ContainerId="";SetCraftWorkArea(p,grounded++);}
-        var primary=Inventory.Find(plan.PrimaryId);var tool=plan.Tools.Select(Inventory.Find).FirstOrDefault(p=>p.Hands==1);
+        var primary=Inventory.Find(plan.PrimaryId);var tool=plan.Tools.Select(Inventory.Find).OrderBy(p=>(PortableTechnology.Capabilities(p)&CraftCapability.GrindingSurface)!=0?1:0).FirstOrDefault(p=>p.Hands==1);
         bool prepared=true;
         if(primary.Hands==2){if(primary.Place!=PossessionPlace.Ground){primary.Place=PossessionPlace.Ground;primary.ContainerId="";SetCraftWorkArea(primary);}if(tool!=null)prepared=Inventory.Move(tool.Id,PossessionPlace.RightHand,"",0,0,false,out reason);}
         else {prepared=Inventory.Move(primary.Id,tool==null?PossessionPlace.RightHand:PossessionPlace.LeftHand,"",0,0,false,out reason);if(prepared&&tool!=null)prepared=Inventory.Move(tool.Id,PossessionPlace.RightHand,"",0,0,false,out reason);}
@@ -49,7 +49,8 @@ public sealed partial class LocalTerrainExplorer
     {PauseItemCraft(job);Inventory.Crafts.Remove(job);inventoryContext=null;inventoryNotice="Work cancelled; materials retained.";inventoryNoticeUntil=Time.unscaledTime+3;}
     void PlayPortableCraftSound(ItemCraftJob job)
     {
-        var recipe=PortableCrafting.Recipe(job.RecipeId);if(recipe==null||recipe.Tools.Length==0)return;
+        var recipe=PortableCrafting.Recipe(job.RecipeId);if(recipe==null)return;
+        if(recipe.Tools.Length==0){PlayItemEffect("fibre-handle",view.transform.position,.12f,true);craftSoundAt=Time.unscaledTimeAsDouble+1.5;return;}
         if(recipe.Tools.Any(c=>(c&(CraftCapability.Strike|CraftCapability.Grind))!=0))PlayStoneCraftImpact();else PlayCraftSound(ItemCraftAction.PortableRecipe);
         craftSoundAt=Time.unscaledTimeAsDouble+1.5;
     }

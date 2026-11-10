@@ -50,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
     {
         // The same size/suitability silhouettes must be recognizable in a pack
         // and on the ground; a normalized model thumbnail hid that distinction.
-        if(StoneCrafting.Rock(item)&&PickupGraphic(item,out var stoneMask,out var stoneUv)&&stoneUv==new Rect(0,0,1,1))return stoneMask;
+        if(StoneCrafting.Rock(item)&&item.Kind!=PossessionKind.Grindstone&&PickupGraphic(item,out var stoneMask,out var stoneUv)&&stoneUv==new Rect(0,0,1,1))return stoneMask;
         var thumbnail=ItemThumbnail(item);if(thumbnail!=null)return thumbnail;
         if(PortableTechnology.Item(item.Kind)!=null)return PortableIcon(item);
         if(item.Kind==PossessionKind.TestBag)return inventoryBagIcon;
