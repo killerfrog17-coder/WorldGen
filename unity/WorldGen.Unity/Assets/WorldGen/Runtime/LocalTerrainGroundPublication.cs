@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
     // value-type edit lists keep this work out of the managed allocation stream.
     sealed class GroundPublication
     {
-        public TerrainTileKey Key;public Tile Product;public bool Retiring;public LocalTerrainFrame Frame;
+        public TerrainTileKey Key;public Tile Product;public bool Retiring,Fallback;public LocalTerrainFrame Frame;
         public double OriginX,OriginZ;public int Resident,ResidentCount,Canopy,Forest;public IEnumerator Work;
         public readonly GroundChanges Changes=new GroundChanges();
         public readonly List<ScatterGroundEdit> Scatter=new List<ScatterGroundEdit>();
@@ -33,7 +33,7 @@ public sealed partial class LocalTerrainExplorer
     double groundPublicationMaxPrepareMs,groundPublicationMaxCommitMs;
     public string PerformanceGroundPublication=>"cumulative_including_loading slices="+groundPublicationSlices+" commits="+groundPublicationCommits+" restarts="+groundPublicationRestarts+" max_prepare_ms="+groundPublicationMaxPrepareMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" max_commit_ms="+groundPublicationMaxCommitMs.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" pending="+GroundPublicationPending+" key="+groundPublication.Key.X+","+groundPublication.Key.Z+","+groundPublication.Key.Level+" resident="+groundPublication.Resident+"/"+residentRevision+" canopy="+groundPublication.Canopy+"/"+canopySourceRevision+" topology="+groundPublication.Forest+"/"+forestRootTopologyRevision;
 
-    bool StageGroundPublication(TerrainTileKey key,Tile product)
+    bool StageGroundPublication(TerrainTileKey key,Tile product,bool fallback=false)
     {
         if(!WorldGenPerformance.StagedGroundPublication){groundStageBypass=GroundStageBypass.Disabled;return false;}
         if(GroundPublicationPending){groundStageBypass=GroundStageBypass.Pending;return false;}
@@ -42,7 +42,7 @@ public sealed partial class LocalTerrainExplorer
         if(scatterChunks.Count==0&&forestFields.Count==0){groundStageBypass=GroundStageBypass.NoRoots;return false;}
         foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame)){groundStageBypass=GroundStageBypass.UnpreparedGroups;return false;}
         groundStageBypass=GroundStageBypass.Staged;
-        product.Root.SetActive(false);groundPublication.Retiring=false;groundPublication.Key=key;groundPublication.Product=product;
+        product.Root.SetActive(false);groundPublication.Retiring=false;groundPublication.Fallback=fallback;groundPublication.Key=key;groundPublication.Product=product;
         RestartGroundPublication();
         if(groundPublication.Changes.Count==0){groundStageBypass=GroundStageBypass.Unchanged;groundPublication.Product=null;groundPublication.ClearEdits();product.Root.SetActive(true);return false;}
         return true;
@@ -79,7 +79,8 @@ public sealed partial class LocalTerrainExplorer
             if(wanted.ContainsKey(plan.Key)||!tiles.TryGetValue(plan.Key,out var retiring)||!ReferenceEquals(retiring,plan.Product)||!CanRetireTransition(plan.Key))
             {plan.Product=null;plan.ClearEdits();return;}
         }
-        else if(!wanted.TryGetValue(plan.Key,out int segments)||segments!=plan.Product.Segments||
+        else if(plan.Fallback? !backdrops.ContainsKey(plan.Key)||!BackdropNeeded(plan.Key):
+            !wanted.TryGetValue(plan.Key,out int segments)||segments!=plan.Product.Segments||
             !wantedEdges.TryGetValue(plan.Key,out var edges)||!TerrainEdges.Equal(edges,plan.Product.Edges))
         {var obsolete=plan.Product;plan.Product=null;plan.ClearEdits();CacheTerrain(plan.Key,obsolete);return;}
         if(plan.Resident!=residentRevision||plan.ResidentCount!=tiles.Count||plan.Canopy!=canopySourceRevision||plan.Forest!=forestRootTopologyRevision||

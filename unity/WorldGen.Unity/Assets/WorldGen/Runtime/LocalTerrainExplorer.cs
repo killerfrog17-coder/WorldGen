@@ -306,7 +306,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
                 else streamingDiscardEdges++;
                 continue;
             }
-            Upload(job.Key,upload,job.Edges);
+            Upload(job.Key,upload,job.Edges,fallback:job.Backdrop);
         }
         WorldGenPerformance.TraceEnd(35,installTrace);
         long retirementTrace=WorldGenPerformance.TraceBegin();
@@ -397,7 +397,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
     }
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
-    void Upload(TerrainTileKey key,TerrainUpload data,double[] edges,PreparedFrame prepared=null,bool cacheOnly=false)
+    void Upload(TerrainTileKey key,TerrainUpload data,double[] edges,PreparedFrame prepared=null,bool cacheOnly=false,bool fallback=false)
     {
         streamingInstalled++;streamingWorkerMs+=data.BuildMilliseconds;
         var timer=System.Diagnostics.Stopwatch.StartNew();var root=new GameObject("Terrain "+key.X+","+key.Z+" L"+key.Level);root.transform.SetParent(prepared==null?terrainRoot.transform:prepared.Root.transform,false);
@@ -419,7 +419,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         BindTerrainTile(product,product,key,Vector4.zero);
         product.CoverBuffers=data.TakeCoverBuffers();
         if(cacheOnly){CacheTerrain(key,product);return;}
-        if(prepared==null&&StageGroundPublication(key,product))
+        if(prepared==null&&StageGroundPublication(key,product,fallback))
         {LargestUploadMs=Math.Max(LargestUploadMs,timer.Elapsed.TotalMilliseconds);frameUploadMs+=timer.Elapsed.TotalMilliseconds;return;}
         if(target.TryGetValue(key,out var old)){if(prepared==null)BeginTerrainReplacement(key,product,old);else DestroyTile(old);}
         else if(prepared==null)BeginTerrainReplacement(key,product,null);

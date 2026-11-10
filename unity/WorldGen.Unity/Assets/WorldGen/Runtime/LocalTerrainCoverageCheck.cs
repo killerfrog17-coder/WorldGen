@@ -131,6 +131,21 @@ public sealed partial class LocalTerrainExplorer
         explorer.wanted.Clear();
         explorer.tiles.Remove(child);explorer.CacheTerrain(child,tile);explorer.ResetStreamingReuse(false);
         if(explorer.CachedTerrainTiles!=0)throw new Exception("Chart invalidation retained old products");
+        // A fallback and the final requested mesh can share one address while
+        // deliberately using different resolutions/edges. This used to stage,
+        // reject and restage forever, consuming every balanced upload slot.
+        var fallbackHost=new GameObject("Fallback publication regression");var fallbackOwner=fallbackHost.AddComponent<LocalTerrainExplorer>();fallbackOwner.enabled=false;fallbackOwner.terrainRoot=fallbackHost;
+        var fallbackKey=new TerrainTileKey(0,0,0,1);fallbackOwner.wanted[fallbackKey]=16;fallbackOwner.wantedEdges[fallbackKey]=new[]{64d,64d,64d,64d};
+        var fallbackEdges=new[]{128d,128d,128d,128d};fallbackOwner.backdrops[fallbackKey]=fallbackEdges;
+        fallbackOwner.forestFields.Add(new WorldGen.Core.ForestPageKey(0,0,0,0),new ForestField{Source=new WorldGen.Core.ForestPage()});
+        var fallbackTile=new Tile{Root=Quad("Valid nonfinal coverage",1024,0,Color.green),Segments=8,Edges=fallbackEdges,Heights=new float[81]};
+        bool oldStaging=WorldGenPerformance.StagedGroundPublication;WorldGenPerformance.StagedGroundPublication=true;
+        if(!fallbackOwner.StageGroundPublication(fallbackKey,fallbackTile,fallback:true))throw new Exception("Fallback regression did not exercise staged publication");
+        for(int i=0;i<10&&fallbackOwner.GroundPublicationPending;i++)fallbackOwner.AdvanceGroundPublication();
+        if(fallbackOwner.GroundPublicationPending||!fallbackOwner.tiles.TryGetValue(fallbackKey,out var shown)||!ReferenceEquals(shown,fallbackTile)||!shown.Root.activeSelf)
+            throw new Exception("Useful fallback was rejected merely for differing from the final mesh detail");
+        WorldGenPerformance.StagedGroundPublication=oldStaging;
+        File.WriteAllText(Path.Combine(output,"fallback-publication.txt"),"PASS: a useful staged 8-segment fallback publishes while its same-address final request still requires 16 segments and different edges; no reject/restage loop.");
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
         Application.Quit(0);
     }
