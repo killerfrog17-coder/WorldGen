@@ -1,0 +1,23 @@
+{
+  "source": "f3a299f4",
+  "nativeChecks": 23,
+  "pureWaterChecks": 17,
+  "portableChecks": 857,
+  "npcBelongingsChecks": 18,
+  "accepted": "Actual rendered seawater E-fill and inventory fill/drink/pour, occupied spear/blade conservation, physical mass and full player capture/reload. Both native screenshots inspected.",
+  "items": [
+    "Hide waterskin, 2 L; shoulder attachment",
+    "Laced bark water vessel, 1.5 L"
+  ],
+  "npc": "Only an actual carried vessel fills at the reachable real freshwater source; ground vessels are not magically filled. Contents are exposed in dialogue context.",
+  "limitations": [
+    "Shared heat/purification API is tested, but no playable boiling action has been connected yet.",
+    "First-pass vessel models reuse existing generated portable materials.",
+    "Native shoreline checks validate seawater; freshwater hydration/mixing are covered by rule checks, not a separate native freshwater site.",
+    "No crowd-performance claim."
+  ],
+  "screenshots": [
+    "docs\\reports\\paleolithic-night-20261110\\filled-waterskin.jpg",
+    "docs\\reports\\paleolithic-night-20261110\\water-vessel-context.jpg"
+  ]
+}

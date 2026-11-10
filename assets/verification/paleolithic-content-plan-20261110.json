@@ -59,7 +59,7 @@
     {
       "id": 8,
       "technology": "Hide wraps",
-      "status": "new code, native visual QA pending",
+      "status": "functional prototype: rule and native QA passed; garment art refinement remains",
       "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
     },
     {
@@ -89,13 +89,13 @@
     {
       "id": 13,
       "technology": "Fitted clothing",
-      "status": "new code, native visual QA pending",
+      "status": "functional prototype: rule and native QA passed; garment art refinement remains",
       "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
     },
     {
       "id": 14,
       "technology": "Insulated clothing",
-      "status": "new code, native visual QA pending",
+      "status": "functional prototype: rule and native QA passed; garment art refinement remains",
       "scope": "Six actual craftable garments, body attachments, source-hide provenance, hot/cold effects and NPC routine equipment"
     },
     {
@@ -185,8 +185,8 @@
     {
       "id": 29,
       "technology": "Water containers",
-      "status": "not implemented",
-      "scope": "Finite portable water, fill/drink/pour/heat, water quality and carried mass"
+      "status": "finite vessels passed rule/native QA; playable boiling pending",
+      "scope": "Actual 2L waterskin/1.5L bark vessel; fill/drink/pour, source quality, salinity, physical mass, save/load, finite NPC source filling. Heating API awaiting in-game source."
     },
     {
       "id": 30,
@@ -278,11 +278,12 @@
   "research": [
     "https://pubmed.ncbi.nlm.nih.gov/38941472/",
     "https://pmc.ncbi.nlm.nih.gov/articles/PMC2973873/",
-    "https://doi.org/10.1126/science.1216295"
+    "https://doi.org/10.1126/science.1218643"
   ],
   "next": [
-    "Finish actual garment visual and physical QA",
-    "Finite water vessels and gathering/processing toolchain",
-    "Complete other missing techniques and structures before moving to crowds/rivers"
+    "Grinding, processed plant food and reusable measured-water crafting",
+    "Clay collection, drying/firing and heated vessels",
+    "Remaining adhesive/flaking/mat/adornment/fire transport/trap/watercraft gaps",
+    "Then crowds and rivers; older geography follow-ups remain last"
   ]
 }

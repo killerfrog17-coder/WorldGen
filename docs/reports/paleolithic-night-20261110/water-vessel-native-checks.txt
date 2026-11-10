@@ -1,0 +1,23 @@
+PASS Actual coastal terrain loads without modifying the world
+PASS A current rendered dry shore has physically reachable sea water
+PASS Real sea water is identified as saline
+PASS Water regression starts with a stone spear and blade, without a bag
+PASS 73 original/bounds-filtered water aims, 10 wet targets, 0 broad-phase rejections
+PASS Centre aim reaches actual water from the dry bank
+PASS Actual E interaction with sea water worsens hydration
+PASS Drinking restores the original occupied hand
+PASS Drinking does not drop either occupied hand onto the seabed
+PASS Current native water aim is available for the vessel checks
+PASS Actual new waterskin can be worn independently of both occupied hands
+PASS Live inventory fill uses the reachable rendered sea source
+PASS A waterskin preserves actual seawater salinity
+PASS Filling adds real water mass without dropping or deleting either held tool
+PASS Live stored-water drink consumes a mouthful and salt water still worsens hydration
+PASS Actual game content is rendered: water-vessel-context
+PASS Live pour action restores the empty vessel mass
+PASS The off hand can hold the vessel while a spear remains in the right
+PASS Actual E prompt and interaction fill a left-hand vessel instead of drinking
+PASS Off-hand fill retains every original item
+PASS Full player capture/reload retains finite water and its equipment location
+PASS Actual game content is rendered: filled-waterskin
+PASS no runtime errors or exceptions
