@@ -9,13 +9,14 @@ using WorldGen.Presentation;
 public sealed partial class LocalTerrainExplorer
 {
     readonly bool detailBaseline=Environment.GetCommandLineArgs().Contains("--worldgen-detail-baseline");
+    readonly bool legacyLoader=Environment.GetCommandLineArgs().Contains("--worldgen-loader-legacy");
     TerrainDetailOptions detailOptions=new TerrainDetailOptions();
     TerrainDetailEstimator detailEstimator;
     Task<Dictionary<TerrainTileKey,int>> detailPlan;
     CancellationTokenSource detailCancellation;
     int detailRevision=-1,detailGeneration,plannedPixels;float plannedFov;
     double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=TerrainStreamingReveal.InitialDistance,fogCheckAt;
-    bool detailDirty;
+    bool detailDirty;double renderedStreamingFog=TerrainStreamingReveal.InitialDistance;
     TerrainQualityFootprint fogFootprint;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
     struct BackdropEntry{public TerrainTileKey Key;public double[] Value;public int Order;}
@@ -29,7 +30,17 @@ public sealed partial class LocalTerrainExplorer
     // awaiting their bounded install are no longer consuming a CPU permit
     // (including while the user has disabled their drawing).
     int ActiveWorkerCount
-    {get{int count=jobs.Count+scatterJobs.Count;foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;if(animalPlan!=null&&!animalPlan.IsCompleted)count++;return count;}}
+    {get{
+        int count=0;
+        foreach(var work in jobs)if(legacyLoader||!work.Task.IsCompleted)count++;
+        foreach(var work in scatterJobs)if(legacyLoader||!work.Task.IsCompleted)count++;
+        foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;
+        if(animalPlan!=null&&!animalPlan.IsCompleted)count++;
+        // A finished payload releases its CPU lane, but never allows an
+        // unbounded producer queue while main-thread publication is occupied.
+        if(!legacyLoader&&jobs.Count+scatterJobs.Count>=WorkerLimit*2)return Math.Max(count,WorkerLimit);
+        return count;
+    }}
     bool reserveScatterFrame;double lastStreamingOpportunity;
     // A necessary visible-set rebuild cannot be delayed when the camera turns.
     // Prefer a different frame for optional uploads, but guarantee an upload
@@ -49,7 +60,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();backdropRevision++;streamedFog=TerrainStreamingReveal.InitialDistance;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
+        detailDirty=true;backdrops.Clear();backdropRevision++;renderedStreamingFog=streamedFog=TerrainStreamingReveal.InitialDistance;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -125,6 +136,10 @@ public sealed partial class LocalTerrainExplorer
     {
         if(detailBaseline)return;
         if(NearTerrainPending()||!CanRequest)return;
+        // Coarse background charts do not satisfy the requested-quality reveal
+        // gate. Fill the first visible neighbourhood before spending the same
+        // limited lanes on distant fallback charts.
+        if(!legacyLoader&&terrainRevealRadius<Math.Min(600,viewDistance*.75))return;
         if(sortedBackdropRevision!=backdropRevision)
         {
             backdropOrder.Clear();int order=0;foreach(var p in backdrops)backdropOrder.Add(new BackdropEntry{Key=p.Key,Value=p.Value,Order=order++});
@@ -151,7 +166,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateStreamingFogBody()
     {
-        if(detailBaseline){streamedFog=viewDistance*.98;SetFog();return;}
+        if(detailBaseline){renderedStreamingFog=streamedFog=viewDistance*.98;SetFog();return;}
         double now=Time.realtimeSinceStartupAsDouble;
         if(now>=fogCheckAt)
         {
@@ -167,6 +182,7 @@ public sealed partial class LocalTerrainExplorer
         // replacing a forest page must not pull the whole visible world inward.
         // A late product uses its local transition instead of restarting fog.
         streamedFog=TerrainStreamingReveal.Advance(streamedFog,fogSafeRadius,viewDistance*.98,Time.unscaledDeltaTime);
+        renderedStreamingFog=TerrainStreamingReveal.Smooth(renderedStreamingFog,TerrainVideoOptions.LoadingFog?streamedFog:viewDistance*.98,Time.unscaledDeltaTime,TerrainVideoOptions.LoadingFogSeconds);
         SetFog();
     }
 }

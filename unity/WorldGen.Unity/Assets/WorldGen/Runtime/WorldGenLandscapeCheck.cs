@@ -351,6 +351,8 @@ public sealed partial class LocalTerrainExplorer
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{if(arguments.Contains("--worldgen-landscape-keep-open"))Application.Quit(0);},world,play,worker:worker);
+        if(arguments.Contains("--worldgen-chunk-loading-check"))
+        {yield return owner.CheckChunkLoading(output,preparation);yield break;}
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(owner.Ready&&owner.NearReady&&owner.Error=="","Actual worker terrain neighbourhood is uploaded without errors");double loadSeconds=timer.Elapsed.TotalSeconds;

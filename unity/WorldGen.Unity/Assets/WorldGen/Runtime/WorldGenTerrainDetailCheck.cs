@@ -14,10 +14,10 @@ public sealed partial class WorldGenRuntime
         var report=new List<string>();
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var options=TerrainVideoOptions.Current;options.Quality=2;options.Effort=1;options.ViewDistanceM=60000;options.FullDetailTiles=1.5;TerrainVideoOptions.Revision++;
-        var session=WorldLibrary.ReadPlaySession(Argument("--worldgen-local-terrain-check",""));play.Settings.HorizontalScale=.1;
+        var session=WorldLibrary.ReadPlaySession(Argument("--worldgen-local-terrain-check",""));play.Settings.HorizontalScale=.1;play.Mode=GameMode.Spectator;
         double start=Time.realtimeSinceStartupAsDouble,deadline=start+120;ExploreTerrain(session.PlayerPosition);
-        while((terrainExplorer==null||!terrainExplorer.Ready)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
-        var e=terrainExplorer;if(e==null||!e.Ready)throw new Exception("Adaptive explorer unavailable");e.TestView(120,20,12);e.BeginLoadingProfile();
+        while((terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+        var e=terrainExplorer;if(e==null||!e.Ready||!e.NearReady)throw new Exception("Adaptive explorer unavailable");e.TestView(120,20,12);e.BeginLoadingProfile();
         bool near=false,horizon=false;
         while(Time.realtimeSinceStartupAsDouble<deadline)
         {

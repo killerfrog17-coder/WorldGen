@@ -194,13 +194,18 @@ public sealed partial class LocalTerrainExplorer
             if(work.Task.IsFaulted){Debug.LogWarning("Terrain scatter request failed: "+work.Task.Exception);error=work.Task.Exception.GetBaseException().Message;debugOpen=true;CaptureMouse();continue;}
             if(!work.Task.IsCanceled&&scatterWanted.Contains(work.Key)){installingScatter=new ScatterChunk{Source=work.Task.Result};installingScatterKey=work.Key;installingScatterFrame=null;}break;
         }
+        // Dense local scatter may need hundreds of bounded install slices.
+        // It must not consume the only upload allowance every frame while
+        // completed forest pages hold the entire loading horizon at zero.
+        bool forestFirst=!legacyLoader&&!mapOpen&&(Time.frameCount&1)==0&&forestRevealRadius<terrainRevealRadius&&forestJobs.Any(j=>j.Task.IsCompletedSuccessfully);
+        if(forestFirst){UpdateTreeImpostors();UpdateForestFields();}
         InstallScatterSlice();
         if(!mapOpen&&installingScatter==null&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.ContainsKey(key)||HasScatterJob(key))continue;RequestScatter(key);break;}
         }
-        if(!mapOpen){long t=WorldGenPerformance.TraceBegin();UpdateTreeImpostors();WorldGenPerformance.TraceEnd(10,t);t=WorldGenPerformance.TraceBegin();UpdateForestFields();WorldGenPerformance.TraceEnd(12,t);}
+        if(!mapOpen&&!forestFirst){long t=WorldGenPerformance.TraceBegin();UpdateTreeImpostors();WorldGenPerformance.TraceEnd(10,t);t=WorldGenPerformance.TraceBegin();UpdateForestFields();WorldGenPerformance.TraceEnd(12,t);}
         if(scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
     }
     bool HasScatterJob(ScatterKey key){if(installingScatter!=null&&installingScatterKey.Equals(key))return true;foreach(var job in scatterJobs)if(job.Key.Equals(key))return true;return false;}
@@ -238,7 +243,7 @@ public sealed partial class LocalTerrainExplorer
             ProjectScatterRoot(chunk,i);PrepareScatterRootBounds(chunk,i);
             if(i==0&&processed==0&&installingScatterAt==1)chunk.AllBounds=chunk.Bounds[i];else chunk.AllBounds.Encapsulate(chunk.Bounds[i]);
             processed++;
-            if((processed&15)==0&&(processed>=384||System.Diagnostics.Stopwatch.GetTimestamp()-started>System.Diagnostics.Stopwatch.Frequency*.0015))break;
+            if((processed&15)==0&&(processed>=(legacyLoader?384:1536)||System.Diagnostics.Stopwatch.GetTimestamp()-started>System.Diagnostics.Stopwatch.Frequency*.0015))break;
         }
         WorldGenPerformance.TraceEnd(11,trace);
         frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;

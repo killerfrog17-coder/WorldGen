@@ -67,6 +67,7 @@ public sealed partial class LocalTerrainExplorer
     void InitializeHumans()
     {
         if(humansInitialized)return;humansInitialized=true;
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-loading-check"))return;
         humanLibrary=Resources.Load<WorldGenHumanLibrary>("HumanAppearance/Library")??Resources.Load<WorldGenHumanLibrary>("Humans/HumanLibrary");
         kimodoHumanLibrary=Resources.Load<WorldGenHumanMotionBank>("HumanKimodo/Library");
         if(humanLibrary==null||humanLibrary.People==null||humanLibrary.People.Length!=6){Debug.LogWarning("MPFB human library unavailable");return;}

@@ -211,7 +211,7 @@ public sealed partial class LocalTerrainExplorer
         var oldRoot=terrainRoot;var oldTiles=tiles;
         ClearInventoryPhysics();ResetStreamingReuse(false);
         frame=pending.Frame;tiles=pending.Tiles;terrainRoot=pending.Root;preparedFrame=null;
-        double previousFog=streamedFog;ResetDetailFrame();streamedFog=previousFog;fogSafeRadius=previousFog;
+        double previousFog=streamedFog,previousRenderedFog=renderedStreamingFog;ResetDetailFrame();streamedFog=previousFog;renderedStreamingFog=previousRenderedFog;fogSafeRadius=previousFog;
         generation++;walkingPatch=null;originX=Math.Floor(x/2048)*2048;originZ=Math.Floor(z/2048)*2048;
         // The remaining prepared jobs already use the adopted chart: keep them,
         // rather than discarding valid work because the generation stamp changed.

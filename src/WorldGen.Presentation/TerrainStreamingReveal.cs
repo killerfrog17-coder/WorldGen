@@ -12,7 +12,18 @@ namespace WorldGen.Presentation
         {
             limit=Math.Max(0,limit);current=Math.Min(limit,Math.Max(0,current));
             double target=Math.Min(limit,Math.Max(current,ready));
-            return Math.Min(target,current+Math.Max(3000,current*2)*Math.Max(0,seconds));
+            if(target==current)return current;
+            return Smooth(current,target,seconds,3);
+        }
+        // Blend apparent distance rather than racing across the first few
+        // hundred metres at the same speed as a distant horizon.
+        public static double Smooth(double current,double target,double seconds,double transitionSeconds)
+        {
+            current=Math.Max(0,current);target=Math.Max(0,target);if(seconds<=0)return current;
+            if(current==target)return current;
+            double blend=1-Math.Exp(-Math.Min(.1,seconds)*5/Math.Max(.5,transitionSeconds));
+            double next=Math.Exp(Math.Log(current+100)+(Math.Log(target+100)-Math.Log(current+100))*blend)-100;
+            return Math.Abs(next-target)<=Math.Max(.05,target*.0001)?target:next;
         }
     }
 }

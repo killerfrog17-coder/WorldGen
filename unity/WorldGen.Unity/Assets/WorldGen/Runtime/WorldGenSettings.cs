@@ -7,6 +7,12 @@ public static partial class TerrainVideoOptions
     public static readonly TerrainDetailOptions Current=new TerrainDetailOptions();
     public static int Revision;
     public static int SurfaceQuality=2;
+    public static bool LoadingFog=true;
+    public static float LoadingFogSeconds=3;
+    public static void SaveLoadingFog()
+    {
+        PlayerPrefs.SetInt("terrain-loading-fog",LoadingFog?1:0);PlayerPrefs.SetFloat("terrain-loading-fog-seconds",LoadingFogSeconds);PlayerPrefs.Save();
+    }
     public static bool SurfaceTextures=true;
     public static readonly string[] SurfaceQualityNames={"Very low","Low","Medium","High","Ultra"};
     // Physical metres, independent of mesh/world scale. Full detail, texture
@@ -43,6 +49,7 @@ public static partial class TerrainVideoOptions
     public static void Load()
     {
         HumanAnimationOptions.Load();
+        LoadingFog=PlayerPrefs.GetInt("terrain-loading-fog",1)!=0;LoadingFogSeconds=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-loading-fog-seconds",3),.5f,10);
         Current.Quality=Mathf.Clamp(PlayerPrefs.GetInt("terrain-quality",2),0,4);
         Current.Effort=Mathf.Clamp(PlayerPrefs.GetInt("terrain-effort",1),0,3);
         Current.ViewDistanceM=Mathf.Clamp(PlayerPrefs.GetFloat("terrain-distance",200000),1000,250000);
@@ -132,6 +139,11 @@ public sealed partial class WorldGenRuntime
             GUILayout.Label("Loading effort changes background CPU concurrency and per-frame upload allowance, not the final detail. Maximum can reduce FPS while loading.",MutedStyle());
         }
         if(GUI.changed)TerrainVideoOptions.Save();GUI.changed|=changed;
+        bool previousFogChanged=GUI.changed;GUI.changed=false;
+        TerrainVideoOptions.LoadingFog=GUILayout.Toggle(TerrainVideoOptions.LoadingFog,"Loading fog");
+        GUILayout.Label("Fog transition  "+TerrainVideoOptions.LoadingFogSeconds.ToString("0.0")+" s");
+        TerrainVideoOptions.LoadingFogSeconds=Mathf.Round(GUILayout.HorizontalSlider(TerrainVideoOptions.LoadingFogSeconds,.5f,10)*2)/2;
+        if(GUI.changed)TerrainVideoOptions.SaveLoadingFog();GUI.changed|=previousFogChanged;
         bool beforeSurfaceChanged=GUI.changed;GUI.changed=false;
         GUILayout.Space(12);GUILayout.Label("GROUND SURFACE",SectionStyle());
         bool textures=GUILayout.Toggle(TerrainVideoOptions.SurfaceTextures,"Ground textures (lighting and shadows stay on when disabled)");

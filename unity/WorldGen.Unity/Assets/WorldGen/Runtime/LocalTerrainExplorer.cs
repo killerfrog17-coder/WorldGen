@@ -94,7 +94,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     }
     void SetFog()
     {
-        float distance=(float)Math.Min(viewDistance*.98,streamedFog);
+        float distance=(float)Math.Min(viewDistance*.98,renderedStreamingFog);
         // Detached diagnostic cameras must not expose ground beyond the loaded
         // player-centred disk. Ordinary gameplay never sets this camera.
         if(landscapeReviewCamera.HasValue)

@@ -37,6 +37,20 @@ static class TerrainStreamingRevealTests
             Check(distance==limit,"Steady completed loading reaches the configured limit");
         }
         Check(TerrainStreamingReveal.Advance(1000,limit,limit,0)==1000,"Paused time cannot expand the border");
+        foreach(double target in new[]{8d,1000,58800})
+        {
+            double previous=target==8?58800:8,current=previous;
+            for(int i=0;i<600;i++)
+            {
+                current=TerrainStreamingReveal.Smooth(current,target,1d/60,3);
+                Check(current>=Math.Min(previous,target)&&current<=Math.Max(previous,target),"Fog setting transitions remain between current distance and target in both directions");
+                previous=current;
+            }
+            Check(current==target,"Fog toggle or transition eventually settles exactly");
+        }
+        Check(TerrainStreamingReveal.Smooth(8,limit,0,3)==8,"Paused presentation does not move fog");
+        Check(TerrainStreamingReveal.Smooth(8,limit,5,3)==TerrainStreamingReveal.Smooth(8,limit,.1,3),"A stalled frame cannot skip the fog transition");
+        Check(TerrainStreamingReveal.Smooth(8,limit,.05,1)>TerrainStreamingReveal.Smooth(8,limit,.05,5),"Transition setting controls reveal speed");
         foreach(double scale in new[]{.1,1d})
         {
             var surface=TerrainLod.Plan(0,0,6000,scale:scale).Where((p,i)=>i%5!=0).ToDictionary(p=>p.Key,p=>p.Value);
