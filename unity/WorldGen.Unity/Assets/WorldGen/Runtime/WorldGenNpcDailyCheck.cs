@@ -54,7 +54,10 @@ public sealed partial class LocalTerrainExplorer
         var parent=adults.FirstOrDefault(p=>group.Residents.Members.Any(k=>k.AgeYears<14&&(k.Mother==p.ResidentId||k.Father==p.ResidentId||k.Household==p.Resident.Household)));Check(parent!=null,"A real parent or household caregiver is physically present with children");
         var child=group.Residents.Members.First(k=>k.AgeYears<14&&(k.Mother==parent.ResidentId||k.Father==parent.ResidentId||k.Household==parent.Resident.Household));var social=NpcMemoryFor(parent.ResidentId).Social;
         social.See(child.Id,frame.Position(cx+20,cz+5),Math.Max(0,PlayerRules.SolarDays-1));
-        double previousDay=PlayerRules.SolarDays;PlayerRules.SolarDays+=1;parent.Planet=group.Anchor;parent.SimulationAge=100;parent.Daily=null;
+        double previousDay=PlayerRules.SolarDays;PlayerRules.SolarDays+=1;parent.Planet=group.Anchor;parent.SimulationAge=100;
+        // This case explicitly represents a continuously observed failed
+        // check-in, rather than inferring one from an unobserved time jump.
+        parent.Daily=new NpcDailyState{ObservedAtSolarDay=PlayerRules.SolarDays,WatchingSinceSolarDay=previousDay-1};
         var home=new HumanActivitySample{Activity=HumanActivity.Rest,Position=group.Anchor};V goal=group.Anchor;PrepareNpcDailyTask(parent,group,home,ref goal);
         Check(social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Missing&&e.Subject==child.Id),"A household caregiver worries about a genuinely known overdue child without automatically requiring a search");
         Check(!social.KnownPeople.First(p=>p.Person==child.Id).SeenDead&&!social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Death&&e.Subject==child.Id),"Absence does not reveal death or the child's current location");

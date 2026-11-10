@@ -5,6 +5,14 @@ namespace WorldGen.Core
     public enum NpcAbsenceResponse { None,Worried,AskAround,WaitForDaylight,Search }
     public static class NpcAbsence
     {
+        public static bool ResumeObservation(NpcKnownPerson known,double observedSince,double day,double hour,double daylight,double age,bool atCamp,HumanActivitySample plan)
+        {
+            // A stale last sighting does not prove a check-in was missed
+            // during an interval that was never locally observed/simulated.
+            // Preserve actual established concerns and accepted searches.
+            if(known.SeenDead||known.ConcernSinceSolarDay>0||known.SearchUntilSolarDay>day||known.LastSeenSolarDay>=observedSince||known.ExpectedReturnSolarDay>=observedSince)return false;
+            Expect(known,day,hour,daylight,age,atCamp,plan);return true;
+        }
         // A social expectation, never a query for the absent person's real position.
         public static double ExpectedBack(double day,double hour,double daylight,double age,bool atCamp)
         {

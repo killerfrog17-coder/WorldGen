@@ -42,9 +42,11 @@ public sealed partial class LocalTerrainExplorer
         // A limited setup crew suspends noncritical outings; most of the band
         // remains free to gather, care for children and keep watch. Actual
         // social/safety priorities can still interrupt an assigned worker.
-        var available=livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id&&p.Health>40&&p.Resident.AgeYears>=14&&p.Threat==null&&p.Routine!=null&&p.Routine.Activity!=HumanActivity.Sleep&&p.Routine.Activity!=HumanActivity.Childcare&&p.Routine.Activity!=HumanActivity.Watch&&group.TenderDuty?.Person!=p.ResidentId&&p.MaterialTask?.Delivering!=true&&HumanDistance(p.Planet,group.Anchor)<80).ToArray();
-        group.CampWorkers.Clear();int count=Math.Min(4,Math.Max(1,available.Length/4));
-        foreach(var p in available.OrderByDescending(p=>p.Routine.Activity==HumanActivity.BuildCamp||p.Routine.Activity==HumanActivity.RepairShelter||p.Routine.Activity==HumanActivity.Craft?1:0).ThenByDescending(p=>p.Resident.Skills?.Length>4?p.Resident.Skills[4]:0).ThenBy(p=>p.ResidentId).Take(count))group.CampWorkers.Add(p.ResidentId);
+        var available=livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id&&p.Health>40&&p.Resident.AgeYears>=14&&p.Threat==null&&p.Routine!=null&&p.Routine.Activity!=HumanActivity.Sleep&&p.Routine.Activity!=HumanActivity.Childcare&&p.Routine.Activity!=HumanActivity.Watch&&group.TenderDuty?.Person!=p.ResidentId&&p.MaterialTask?.Delivering!=true&&(HumanDistance(p.Planet,group.Anchor)<80||group.CampWorkers.Contains(p.ResidentId)&&p.CampTask?.Packing==false)).ToArray();
+        // Fetching a pole is still construction work. Do not dismiss that
+        // worker at the camp boundary and replace them every three seconds.
+        var chosen=available.OrderByDescending(p=>group.CampWorkers.Contains(p.ResidentId)?1:0).ThenByDescending(p=>p.Routine.Activity==HumanActivity.BuildCamp||p.Routine.Activity==HumanActivity.RepairShelter||p.Routine.Activity==HumanActivity.Craft?1:0).ThenByDescending(p=>p.Resident.Skills?.Length>4?p.Resident.Skills[4]:0).ThenBy(p=>p.ResidentId).Take(Math.Min(4,Math.Max(group.CampWorkers.Count,Math.Max(1,available.Length/4)))).Select(p=>p.ResidentId).ToArray();
+        group.CampWorkers.Clear();foreach(long person in chosen)group.CampWorkers.Add(person);
     }
     double NpcBeddingGoal(LivingGroup group,long household)=>.9+Math.Min(5,group.Residents.Members.Count(p=>p.Household==household))*.5;
     bool NeedsNpcCampWork(LivingGroup group)

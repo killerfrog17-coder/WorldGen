@@ -34,6 +34,11 @@ static class NpcAbsenceTests
         Check(known.ExpectedReason!="changed"&&copy.KnownPeople[0].SearchUntilSolarDay==10.8,"Absence expectations and accepted searches copy independently");
         var serializer=new DataContractSerializer(typeof(NpcSocialState));using(var stream=new MemoryStream())
         {serializer.WriteObject(stream,social);stream.Position=0;var saved=(NpcSocialState)serializer.ReadObject(stream);saved.Validate();Check(saved.KnownPeople[0].ExpectedReturnSolarDay==10.4&&saved.KnownPeople[0].SearchUntilSolarDay==10.8,"Expected returns and accepted searches survive save/reload");}
+        var stale=new NpcKnownPerson{Person=9,LastSeenSolarDay=2,ExpectedReturnSolarDay=2.4,ExpectedReason="usual evening return"};
+        Check(NpcAbsence.ResumeObservation(stale,5,5,9,12,30,true,null)&&stale.LastSeenSolarDay==2&&NpcAbsence.OverdueHours(stale,5,30)==0,"An unloaded interval renews the next expected check-in without inventing a sighting or a missed return");
+        Check(NpcAbsence.OverdueHours(stale,5.6,30)>0,"A genuinely missed check-in during the new observed interval still becomes overdue");
+        stale.ConcernSinceSolarDay=5.6;stale.SearchUntilSolarDay=6;
+        Check(!NpcAbsence.ResumeObservation(stale,5.8,5.8,16,12,30,true,null),"Unloading does not erase an established concern or an accepted search");
         Console.WriteLine("NPC absence checks PASS: "+checks);
     }
 }

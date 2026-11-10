@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
     {
         public long Playmate,Missing;public double ChooseAt,ConcernAt,SearchUntil,SearchStarted,SearchPointAt,HideUntil;
         public V PlayGoal,HideGoal,SearchAnchor,SearchGoal;public string PlayRole="";
+        public double ObservedAtSolarDay=-1,WatchingSinceSolarDay=-1;
     }
     bool PrepareNpcDailyTask(HumanActor actor,LivingGroup group,HumanActivitySample routine,ref V target)
     {
@@ -17,6 +18,8 @@ public sealed partial class LocalTerrainExplorer
         {PrepareNpcPlay(actor,group,routine,ref target);return true;}
         if(actor.Resident.AgeYears<16)return false;
         bool resume=actor.Daily==null;var daily=actor.Daily??(actor.Daily=new NpcDailyState());var social=NpcMemoryFor(actor.ResidentId).Social;
+        if(daily.ObservedAtSolarDay<0||PlayerRules.SolarDays-daily.ObservedAtSolarDay>.125)daily.WatchingSinceSolarDay=PlayerRules.SolarDays;
+        daily.ObservedAtSolarDay=PlayerRules.SolarDays;
         if(resume)
         {
             // Only a saved, explicitly accepted search resumes. A reported
@@ -58,6 +61,7 @@ public sealed partial class LocalTerrainExplorer
             var tie=social.Relationships.FirstOrDefault(t=>t.Other==person.Id);closeKin|=person.Household==actor.Resident.Household||tie!=null&&(tie.Affection>.5||tie.Trust>.65);
             if(person.AgeYears<14&&(person.Household==actor.Resident.Household||routine.Activity==HumanActivity.Childcare&&sourceWorld.Prehistory.Foragers.Cultures[group.Residents.Culture].ChildcareCooperation>.5))closeKin=true;
             if(!closeKin||known.ConcernNextSolarDay>PlayerRules.SolarDays||social.Incidents.Any(e=>e.Kind==NpcIncidentKind.Returned&&e.Subject==person.Id&&PlayerRules.SolarDays-e.SolarDay<.08))continue;
+            NpcAbsence.ResumeObservation(known,daily.WatchingSinceSolarDay,PlayerRules.SolarDays,group.Situation.LocalHour,group.Situation.DaylightHours,person.AgeYears,HumanDistance(known.LastPosition,group.Anchor)<35,group.Activities?.FirstOrDefault(p=>p.Person==person.Id));
             if(string.IsNullOrEmpty(known.ExpectedReason))
             {
                 // Bootstrap only from the saved last sighting and customary

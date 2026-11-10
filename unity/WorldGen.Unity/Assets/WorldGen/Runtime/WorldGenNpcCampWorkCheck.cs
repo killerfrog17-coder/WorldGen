@@ -92,6 +92,13 @@ public sealed partial class LocalTerrainExplorer
         Check(!initial.NpcNeedsInitialStock&&!initial.OwnedMaterials().Any()&&expectedIds.SequenceEqual(recovered.Select(p=>p.Id).OrderBy(id=>id))&&Math.Abs(expectedMass-staged.Sum(p=>p.MassKg))<1e-8,"An initial partially erected camp stages its complete finite stock once with exact original IDs and mass");
         int countBefore=Inventory.Items.Count;StageInitialNpcSupplies(initial);Check(Inventory.Items.Count==countBefore,"A second initial-stock request cannot manufacture another load");
         foreach(var p in staged)Inventory.Items.Remove(p);Camp.Objects.Remove(initial);
+        var crewBefore=group.CampWorkers.ToArray();var carrierPoint=carrier.Planet;var carrierRoutine=carrier.Routine;var carrierTask=carrier.CampTask;var carrierMaterial=carrier.MaterialTask;bool crewNeed=group.NeedsCampWork;var tenderBefore=group.TenderDuty;
+        try
+        {
+            TerrainHandoff.Coordinates(frame,group.Anchor,out double crewX,out double crewZ);carrier.Planet=frame.Position(crewX+120,crewZ);carrier.Routine=new HumanActivitySample{Activity=HumanActivity.BuildCamp};carrier.CampTask=new NpcCampTask{Packing=false};carrier.MaterialTask=null;group.TenderDuty=null;group.NeedsCampWork=true;group.CampWorkers.Clear();group.CampWorkers.Add(carrier.ResidentId);group.CampWorkersAt=0;
+            UpdateNpcCampWorkers(group);Check(group.CampWorkers.Contains(carrier.ResidentId)&&group.CampWorkers.Count<=4,"An assigned builder fetching real wood beyond the camp boundary remains on the bounded construction crew");
+        }
+        finally{carrier.Planet=carrierPoint;carrier.Routine=carrierRoutine;carrier.CampTask=carrierTask;carrier.MaterialTask=carrierMaterial;group.NeedsCampWork=crewNeed;group.TenderDuty=tenderBefore;group.CampWorkers.Clear();foreach(long person in crewBefore)group.CampWorkers.Add(person);}
         StoreLivingCamp(group);CaptureLivingPerson(actor);InvalidateCampVisual(workedShelter);
         LivingState.Copy().Validate();Check(true,"Physical camp work and local itinerary state validate for saving");
         actor.Routine=routine;group.Situation.Phase=initialPhase;npcThoughts=true;
