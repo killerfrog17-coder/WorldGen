@@ -1,0 +1,67 @@
+{
+  "seen": [
+    "RawOchre",
+    "RawClay",
+    "PlantGum",
+    "PlantResin"
+  ],
+  "attempted": 1,
+  "rows": [
+    {
+      "kind": "ochre",
+      "cell": 481,
+      "region": 10,
+      "position": [
+        -0.024002504,
+        -0.151163852,
+        -0.988217269
+      ],
+      "Clay": 0.18,
+      "Iron": 0.5083054190926449,
+      "DepthM": 0.28063717344891415
+    },
+    {
+      "kind": "clay",
+      "cell": 12765,
+      "region": 54,
+      "position": [
+        0.206926262,
+        -0.700262828,
+        -0.683237509
+      ],
+      "Clay": 0.3803015458761997,
+      "Iron": 0.3147478398899733,
+      "DepthM": 0.4394374012195652
+    },
+    {
+      "kind": "PlantGum",
+      "cell": 12765,
+      "region": 54,
+      "Id": 6919301440416514055,
+      "position": [
+        0.206803132,
+        -0.700209936,
+        -0.683328992
+      ],
+      "Name": "Merdora linvalis",
+      "MorphologyCode": 87021712,
+      "MassKg": 0.06,
+      "Kind": 101
+    },
+    {
+      "kind": "PlantResin",
+      "cell": 12765,
+      "region": 54,
+      "Id": 6919301440416514079,
+      "position": [
+        0.206905613,
+        -0.700194721,
+        -0.683313559
+      ],
+      "Name": "Pelpela cergalis",
+      "MorphologyCode": 406771096,
+      "MassKg": 0.06,
+      "Kind": 102
+    }
+  ]
+}

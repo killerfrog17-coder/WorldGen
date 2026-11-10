@@ -1,0 +1,32 @@
+{
+  "status": "source/pure/world checks complete; native rendering and actual application review pending",
+  "controls": {
+    "binders": 18,
+    "portable_tree": 1008,
+    "foraging": 33,
+    "item_use": 82,
+    "camp": 69
+  },
+  "world_sources": "paleolithic-resource-world-20261110.json: actual clay/ochre local profiles plus two real generated gum/resin trees in one bounded wooded plot; first two survey attempts were invalid diagnostics (JSON vector recursion, then polar plots with no tree admission), not successful evidence",
+  "scope": [
+    "Actual inherited tree gum/resin forage products with finite existing harvest ledgers",
+    "Finite ochre-rich soil digging and reusable grinding tools",
+    "Gum/ochre and resin/charcoal compound mixtures, warmed on actual hearth stones",
+    "Five-gram adhesive applications into existing hafted weapons; modest existing wear reduction",
+    "Two-gram ochre/five-ml water gear markings, persisted and rendered with existing materials",
+    "Thirty-gram charcoal gathering from actual cooled hearth residue"
+  ],
+  "limits": [
+    "Gameplay formulation amounts/curing times, not claims of an optimal chemical recipe",
+    "No autonomous NPC adhesive manufacture or new advanced hunting/tracking",
+    "Gear markings only; no cave-wall painting or facial/body-paint interface",
+    "One no-fetch shader marking blend; no additional texture/pass; no measured FPS improvement claim",
+    "Hearth residue represents ash/charcoal together in the existing fire model",
+    "Native binder check supplies its raw gum; actual resource placement is independently checked against the world generator"
+  ],
+  "sources": [
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC2700998/",
+    "https://exarc.net/issue-2021-4/ea/beeswax-addition-production-european-stone-age-adhesives",
+    "https://pmc.ncbi.nlm.nih.gov/articles/PMC4794155/"
+  ]
+}

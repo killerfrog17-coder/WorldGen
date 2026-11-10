@@ -161,7 +161,7 @@ static partial class LocalScatterMeshes
                 break;
             }
             case PortableForm.Clay:
-                b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.43f,.46f),20,8,new Color(.47f,.31f,.21f,0),57,.035f);break;
+                b.Crown(new Vector3(0,.48f,0),new Vector3(.48f,.43f,.46f),20,8,item.Kind==PossessionKind.RawClay?new Color(.47f,.31f,.21f,0):new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z,0),57,.035f);break;
             case PortableForm.Pot:
             {
                 // One closed, thick-walled lathed surface: rounded belly,

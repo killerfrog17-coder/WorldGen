@@ -68,10 +68,10 @@ namespace WorldGen.Core
         public static double FuelEnergy(Possession p)=>WoodCrafting.Wood(p)||p.Kind==PossessionKind.KindlingBundle?1:p.Kind==PossessionKind.BarkSheet?.85:p.Kind==PossessionKind.ReedBundle?.4:.22;
         public static bool Cookable(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawMeat||p.Kind==PossessionKind.RawFish||p.Kind==PossessionKind.EdibleRoot||p.Kind==PossessionKind.Mushroom||p.Kind==PossessionKind.PlantCake);
         public static double CookingDuration(Possession p)=>Math.Max(240,(p.Kind==PossessionKind.EdibleRoot?1200:600)*Math.Pow(Math.Max(.03,p.MassKg)/.25,.35));
-        public static bool HeatItem(Possession p)=>Cookable(p)||PaleolithicClay.Green(p)||CampWaterHeating.DirectVessel(p);
-        public static bool NeedsHeat(Possession p)=>PaleolithicClay.Green(p)?p.Dried:CampWaterHeating.DirectVessel(p)?p.WaterLitres>0&&!p.WaterBoiled:Cookable(p)&&!p.Cooked&&!p.Burnt;
-        public static string HeatLabel(Possession p)=>PaleolithicClay.Green(p)?"Fire ":CampWaterHeating.DirectVessel(p)?"Boil water in ":"Cook ";
-        public static double HeatProgress(Possession p)=>PaleolithicClay.Green(p)?p.CookingSeconds/PaleolithicClay.FiringSeconds:CampWaterHeating.DirectVessel(p)?p.WaterBoiled?1:p.CookingSeconds/(120+240*p.WaterLitres):p.CookingSeconds/CookingDuration(p);
+        public static bool HeatItem(Possession p)=>Cookable(p)||p?.Kind==PossessionKind.AdhesiveMixture||p?.Kind==PossessionKind.CompoundAdhesive||PaleolithicClay.Green(p)||CampWaterHeating.DirectVessel(p);
+        public static bool NeedsHeat(Possession p)=>p?.Kind==PossessionKind.AdhesiveMixture?true:PaleolithicClay.Green(p)?p.Dried:CampWaterHeating.DirectVessel(p)?p.WaterLitres>0&&!p.WaterBoiled:Cookable(p)&&!p.Cooked&&!p.Burnt;
+        public static string HeatLabel(Possession p)=>p?.Kind==PossessionKind.AdhesiveMixture?"Warm ":PaleolithicClay.Green(p)?"Fire ":CampWaterHeating.DirectVessel(p)?"Boil water in ":"Cook ";
+        public static double HeatProgress(Possession p)=>p?.Kind==PossessionKind.AdhesiveMixture?p.CookingSeconds/900:p?.Kind==PossessionKind.CompoundAdhesive?1:PaleolithicClay.Green(p)?p.CookingSeconds/PaleolithicClay.FiringSeconds:CampWaterHeating.DirectVessel(p)?p.WaterBoiled?1:p.CookingSeconds/(120+240*p.WaterLitres):p.CookingSeconds/CookingDuration(p);
         public static bool Bedding(Possession p)=>p!=null&&(p.Kind==PossessionKind.WovenMat||p.Kind==PossessionKind.DryGrass||p.Kind==PossessionKind.LeafLitter||p.Kind==PossessionKind.ReedBundle||p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Hide(Possession p)=>p!=null&&(p.Kind==PossessionKind.RawHide||p.Kind==PossessionKind.ScrapedHide||p.Kind==PossessionKind.WorkedHide);
         public static bool Plantable(Possession p)=>WoodCrafting.Wood(p)&&p.HeightM>=.35&&p.WidthM<=.09&&p.WoodSoundness>=.35;
@@ -136,7 +136,9 @@ namespace WorldGen.Core
             CampWaterHeating.AdvanceStones(c,heated,remaining,power,c.EmberSeconds>0);
             foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())
             {
-                if(PaleolithicClay.Green(p)){if(heated>0&&power>=3)PaleolithicClay.Fire(p,heated*Math.Min(2,power/3));}
+                if(p.Kind==PossessionKind.AdhesiveMixture){if(c.Materials.Any(FireStone))PaleolithicBinders.Heat(p,heatDose);}
+                else if(p.Kind==PossessionKind.CompoundAdhesive){}
+                else if(PaleolithicClay.Green(p)){if(heated>0&&power>=3)PaleolithicClay.Fire(p,heated*Math.Min(2,power/3));}
                 else if(CampWaterHeating.DirectVessel(p))CampWaterHeating.HeatPot(p,heatDose);
                 else {p.CookingSeconds+=heatDose;double duration=CookingDuration(p);if(p.CookingSeconds>=duration)p.Cooked=true;if(p.CookingSeconds>=duration*3)p.Burnt=true;}
             }

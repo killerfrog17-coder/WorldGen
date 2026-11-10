@@ -1,6 +1,6 @@
 param(
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-b',
-    [ValidateSet('Clothing','Water','Processing','ClayHeat','Stonework','Campcraft')][string]$Kind='Clothing',
+    [ValidateSet('Clothing','Water','Processing','ClayHeat','Stonework','Campcraft','Binders')][string]$Kind='Clothing',
     [ValidatePattern('^[a-z0-9-]+$')][string]$Name='clothing-native-v3'
 )
 $ErrorActionPreference='Stop'
@@ -19,7 +19,7 @@ $check=if($Kind -eq 'Water'){'--worldgen-item-use-check'}else{'--worldgen-portab
 $arguments=@('-monitor',$monitor,'-screen-width','1280','-screen-height','800','-screen-fullscreen','0',
     $check,('"'+$fixture+'"'),
     '--worldgen-output',('"'+$output+'"'),'--worldgen-library-root',('"'+$output+'/save-library"'),'-logFile',('"'+$output+'/player.log"'))
-if($Kind -eq 'Water'){$arguments+=@('--worldgen-water-update-check','--worldgen-water-vessels-review')}elseif($Kind -eq 'Campcraft'){$arguments+='--worldgen-campcraft-review'}elseif($Kind -eq 'Stonework'){$arguments+='--worldgen-stonework-review'}elseif($Kind -eq 'ClayHeat'){$arguments+='--worldgen-clay-heat-review'}elseif($Kind -eq 'Processing'){$arguments+='--worldgen-processing-review'}else{$arguments+='--worldgen-clothing-review'}
+if($Kind -eq 'Water'){$arguments+=@('--worldgen-water-update-check','--worldgen-water-vessels-review')}elseif($Kind -eq 'Binders'){$arguments+='--worldgen-binders-review'}elseif($Kind -eq 'Campcraft'){$arguments+='--worldgen-campcraft-review'}elseif($Kind -eq 'Stonework'){$arguments+='--worldgen-stonework-review'}elseif($Kind -eq 'ClayHeat'){$arguments+='--worldgen-clay-heat-review'}elseif($Kind -eq 'Processing'){$arguments+='--worldgen-processing-review'}else{$arguments+='--worldgen-clothing-review'}
 # These checks include the actual inventory OnGUI output. A hidden batch-mode
 # swap chain produced black captures despite valid native skin geometry.
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Normal -PassThru

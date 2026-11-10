@@ -132,17 +132,17 @@ public sealed partial class LocalTerrainExplorer
                 var ash=new GameObject("Ash and charcoal",typeof(MeshFilter),typeof(MeshRenderer));ash.layer=30;ash.transform.SetParent(root.transform,false);
                 ash.GetComponent<MeshFilter>().sharedMesh=LocalScatterMeshes.BuildCampAsh(Mathf.Clamp((float)Math.Sqrt(c.AshKg)*1.2f,.12f,.44f));ash.GetComponent<MeshRenderer>().sharedMaterial=PortableMaterial();
             }
-            int i=0;
+            int i=0;Vector3 warmStonePosition=Vector3.zero;bool hasWarmStone=false;
             foreach(var p in c.Materials)
             {
                 var part=CreatePossessionVisual(p,30);part.transform.SetParent(root.transform,false);float angle=i*2.39996f;
-                if(StoneCrafting.Rock(p)){part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.44f,.02f,Mathf.Cos(angle)*.44f);part.transform.localRotation=Quaternion.Euler(0,i++*137,0);continue;}
+                if(StoneCrafting.Rock(p)){part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.44f,.02f,Mathf.Cos(angle)*.44f);part.transform.localRotation=Quaternion.Euler(0,i++*137,0);if(!hasWarmStone){warmStonePosition=part.transform.localPosition+Vector3.up*((float)p.HeightM+.006f);hasWarmStone=true;}continue;}
                 float radius=WoodCrafting.Wood(p)?.18f:.07f;part.transform.localPosition=new Vector3(Mathf.Sin(angle)*radius,.035f+(i%3)*.018f,Mathf.Cos(angle)*radius);
                 part.transform.localRotation=Quaternion.Euler(78+(i%4)*6,i*137,0);
                 i++;
             }
             int cooking=0;foreach(var p in c.CookingItems??Enumerable.Empty<Possession>())
-            {var visualFood=p.Copy();if(p.Cooked)visualFood.Tint=p.Burnt?new V(.08,.055,.035):new V(.34,.18,.085);var part=CreatePossessionVisual(visualFood,30);part.transform.SetParent(root.transform,false);float angle=cooking++*2.39996f;part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.28f,.16f,Mathf.Cos(angle)*.28f);part.transform.localRotation=Quaternion.Euler(0,cooking*137,0);}
+            {var visualFood=p.Copy();if(p.Cooked)visualFood.Tint=p.Burnt?new V(.08,.055,.035):new V(.34,.18,.085);var part=CreatePossessionVisual(visualFood,30);part.transform.SetParent(root.transform,false);float angle=cooking++*2.39996f;part.transform.localPosition=new Vector3(Mathf.Sin(angle)*.28f,.16f,Mathf.Cos(angle)*.28f);part.transform.localRotation=Quaternion.Euler(0,cooking*137,0);if(hasWarmStone&&(p.Kind==PossessionKind.AdhesiveMixture||p.Kind==PossessionKind.CompoundAdhesive))part.transform.localPosition=warmStonePosition;}
             if(c.Burning||c.EmberSeconds>0)
             {
                 if(campEmberMaterial==null){campEmberMaterial=new Material(Resources.Load<Shader>("WorldGenCampFlame"));campEmberMaterial.SetFloat("_EmberMode",1);}

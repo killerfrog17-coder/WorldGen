@@ -36,6 +36,7 @@ public sealed partial class LocalTerrainExplorer
         {var text=Resources.Load<TextAsset>("PortableCoatRegions");portableCoatRegions=text==null?new Dictionary<string,PortableCoatRegion>():JsonUtility.FromJson<PortableCoatRegionList>(text.text).regions.ToDictionary(r=>r.slug);}
         portableItemProps.Clear();portableItemProps.SetFloat("_Preview",root.layer==29?1:0);
         bool worn=PortableTechnology.Worn(p.Place)||p.Place==PossessionPlace.Container&&PortableTechnology.Belt(Inventory.Find(p.ContainerId))&&Inventory.Carried(p);
+        portableItemProps.SetColor("_MarkColour",new Color((float)p.PigmentColour.X,(float)p.PigmentColour.Y,(float)p.PigmentColour.Z));portableItemProps.SetFloat("_MarkCoverage",p.PigmentMarked?1:0);
         portableItemProps.SetFloat("_Wearer",root.layer!=29&&worn&&Inventory.Items.Contains(p)?1:0);
         if(PortableFur(p)&&animalModels.TryGetValue(p.AppearanceSpecies,out var model))
         {

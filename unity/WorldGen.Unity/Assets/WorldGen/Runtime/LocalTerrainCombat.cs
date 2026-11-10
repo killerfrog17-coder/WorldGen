@@ -126,14 +126,14 @@ public sealed partial class LocalTerrainExplorer
     {
         if(item==null||StoneCrafting.Rock(item))return;
         bool projectile=item.Kind==PossessionKind.Arrow||item.Kind==PossessionKind.UnfletchedArrow||item.Kind==PossessionKind.SpearDart;
-        item.UseDamage=Math.Min(1,item.UseDamage+Math.Max(0,energy)*(projectile?(hard?.012:.0018):hard?.00006:.00013));
+        item.UseDamage=Math.Min(1,item.UseDamage+Math.Max(0,energy)*(item.HaftBonded?.8:1)*(projectile?(hard?.012:.0018):hard?.00006:.00013));
         if((PortableTechnology.Capabilities(item)&(CraftCapability.Cut|CraftCapability.Scrape))!=0)item.EdgeSharpness=Math.Max(0,item.EdgeSharpness-Math.Max(0,energy)*(hard?.00055:.00012));
     }
     void SplitLooseSpear(Possession item)
     {
         if(item?.Kind!=PossessionKind.LooseStoneSpear)return;
-        var point=PortableTechnology.Create(PossessionKind.StonePoint,Position);point.Variant=item.Variant;point.MassKg=Math.Min(item.MassKg*.2,.12);item.MassKg-=point.MassKg;Inventory.Items.Add(point);ReleasePossession(point,true);
-        item.Kind=PossessionKind.NotchedShaft;item.WidthM=item.DepthM=.03;item.CellsWide=1;
+        var point=PortableTechnology.Create(PossessionKind.StonePoint,Position);point.Variant=item.Variant;point.PressureFinished=item.PressureFinished;point.MassKg=Math.Min(item.MassKg*.2,.12);item.MassKg-=point.MassKg;Inventory.Items.Add(point);ReleasePossession(point,true);
+        item.Kind=PossessionKind.NotchedShaft;item.PressureFinished=false;item.WidthM=item.DepthM=.03;item.CellsWide=1;
         if(!item.InFlight&&inventoryVisuals.TryGetValue(item.Id,out var root)){RemoveDroppedBody(item.Id);DestroyInventoryVisual(root);inventoryVisuals.Remove(item.Id);inventoryVisualPlaces.Remove(item.Id);}
     }
     partial void ToolHitTree(Possession tool,CombatObstacle obstacle,double energy);

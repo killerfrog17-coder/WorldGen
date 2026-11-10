@@ -91,6 +91,7 @@ public sealed partial class LocalTerrainExplorer
     {
         TerrainMapViewport.Degrees(source.Plant.Position,out double latitude,out _);
         if(!InventoryReach(source.Bounds.ClosestPoint(view.transform.localPosition))){reason="Out of reach.";return false;}
+        if((product.Kind==PossessionKind.PlantGum||product.Kind==PossessionKind.PlantResin)&&(source.Plant.Position-Position).Length*frame.RadiusM>2.5){reason="Move close to the trunk to collect its dried exudate.";return false;}
         if(!product.Available(skyYear,latitude,CurrentWeather.TemperatureC)){reason="Not in season.";return false;}
         if(product.Kind==PossessionKind.EdibleRoot&&!CraftAccessible().Any(p=>p.Kind==PossessionKind.DiggingStick&&ItemUseRules.Condition(p)>0)){reason="A digging stick is needed.";return false;}
         var record=Inventory.ToolResources.FirstOrDefault(r=>r.Id==ForageLedgerKey(source,product));

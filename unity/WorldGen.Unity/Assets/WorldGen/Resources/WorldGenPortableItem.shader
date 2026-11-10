@@ -6,6 +6,7 @@ Shader "WorldGen/PortableItem"
         _ItemSurfaces("Shared craft surface atlas",2D)="white"{}
         _HasFur("Use original coat",Float)=0 _Coat("Coat",Float)=0
         _FurRect("Torso UV rectangle",Vector)=(0,0,1,1)
+        _MarkColour("Ochre marking",Color)=(.65,.24,.1,1) _MarkCoverage("Applied pigment",Float)=0
         _Preview("Inventory lighting",Float)=0 _Wearer("Camera-scoped wearer",Float)=0
         _BaseMap("Shadow opacity",2D)="white"{} _BaseColor("Shadow tint",Color)=(1,1,1,1) _Cutoff("Cutoff",Float)=0 _Cull("Cull",Float)=0
         _VegetationSceneEnabled("Shared lighting",Float)=1 _FogDistance("Fog distance",Float)=60000
@@ -22,7 +23,7 @@ Shader "WorldGen/PortableItem"
         #include "WorldGenAir.hlsl"
         TEXTURE2D_ARRAY(_SourceCoats);SAMPLER(sampler_SourceCoats);
         TEXTURE2D(_ItemSurfaces);SAMPLER(sampler_ItemSurfaces);
-        float _HasFur,_Coat,_Preview,_Wearer,_FogDistance;float4 _FurRect;float _WorldGenFirstPersonHumanId;
+        float _HasFur,_Coat,_Preview,_Wearer,_FogDistance,_MarkCoverage;float4 _FurRect,_MarkColour;float _WorldGenFirstPersonHumanId;
         struct A{float4 position:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;float2 surface:TEXCOORD1;half4 color:COLOR;};
         struct O{float4 position:SV_POSITION;float3 world:TEXCOORD0;float3 normal:TEXCOORD1;float2 uv:TEXCOORD2;half4 color:COLOR;nointerpolation float surface:TEXCOORD3;};
         O vert(A a){O o;o.position=TransformObjectToHClip(a.position.xyz);o.world=TransformObjectToWorld(a.position.xyz);o.normal=TransformObjectToWorldNormal(a.normal);o.uv=a.uv;o.color=a.color;o.surface=a.surface.x;return o;}
@@ -45,6 +46,7 @@ Shader "WorldGen/PortableItem"
                 half3 surface=i.surface>7.5?half3(1,1,1):SAMPLE_TEXTURE2D(_ItemSurfaces,sampler_ItemSurfaces,texuv).rgb;
                 color=i.surface>7.5?i.color.rgb:surface*(.7+.6*i.color.rgb);
                 if(_HasFur>.5&&i.color.a>.5)color=SAMPLE_TEXTURE2D_ARRAY(_SourceCoats,sampler_SourceCoats,lerp(_FurRect.xy,_FurRect.zw,saturate(i.uv)),_Coat).rgb;
+                if(_MarkCoverage>.5)color=lerp(color,_MarkColour.rgb,.8*step(.34,frac(i.uv.y*3)));
                 half3 n=normalize(i.normal)*IS_FRONT_VFACE(face,1,-1);
                 if(_Preview>.5){half light=.45+.5*saturate(dot(n,normalize(float3(-.5,.8,-.6))));return half4(color*light,1);}
                 InputData input=(InputData)0;input.positionWS=i.world;input.normalWS=n;input.viewDirectionWS=GetWorldSpaceNormalizeViewDir(i.world);

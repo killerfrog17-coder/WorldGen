@@ -53,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
         string detail=StoneCrafting.Rock(p)?StoneCrafting.Material(p)+". "+(StoneCrafting.FractureQuality(p)>0?"Can produce cutting flakes.":"Unsuitable for flaking."):WoodCrafting.Wood(p)?WoodDescription(p):p.Name;
         if(!string.IsNullOrEmpty(p.AppearanceSpecies))detail+=" - material from "+PortableTechnology.SpeciesName(p.AppearanceSpecies)+".";
         GUILayout.Label(detail,label);
-        if(ItemUseRules.Profile(p).Weapon)GUILayout.Label("Condition "+Math.Round(ItemUseRules.Condition(p)*100)+"%"+((PortableTechnology.Item(p.Kind)?.Capability&(CraftCapability.Cut|CraftCapability.Scrape))!=0?" · edge "+Math.Round(p.EdgeSharpness*100)+"%":""),label);
+        if(ItemUseRules.Profile(p).Weapon)GUILayout.Label("Condition "+Math.Round(ItemUseRules.Condition(p)*100)+"%"+((PortableTechnology.Item(p.Kind)?.Capability&(CraftCapability.Cut|CraftCapability.Scrape))!=0?" · edge "+Math.Round(p.EdgeSharpness*100)+"%":"")+(p.HaftBonded?" - bonded haft":""),label);
         void ActionButton(string title,bool ready,string reason,Action run)
         {
             bool enabled=GUI.enabled;GUI.enabled=enabled&&ready;if(GUILayout.Button(new GUIContent(title,ready?"":reason),InventoryControlStyle(GUI.skin.button,scale),GUILayout.Height(30*scale)))run();GUI.enabled=enabled;
@@ -75,6 +75,8 @@ public sealed partial class LocalTerrainExplorer
             ActionButton("Pour out water",p.WaterLitres>0,"The vessel is empty.",()=>{EmptyWaterVessel(p);inventoryContext=null;});
         }
         if(PaleolithicClay.Green(p))GUILayout.Label(p.Dried?"Air-dried; ready for a well-fueled fire.":"Drying "+Math.Round(p.DryingSeconds/PaleolithicClay.DrySeconds*100)+"%",label);
+        if(PaleolithicBinders.Haft(p)){var why=BondHaftReason(p);ActionButton("Seal the haft with adhesive",why.Length==0,why,()=>BeginBondHaft(p));}
+        if(PaleolithicBinders.Paintable(p)){var why=PaintItemReason(p);ActionButton("Apply ochre markings",why.Length==0,why,()=>BeginPaintItem(p));}
         if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));
         if(CampRules.Tinder(p))ActionButton("Lay a campfire here",true,"",()=>BeginCampPlacement(p,CampKind.Fire));
         if(CampRules.Bedding(p))ActionButton("Spread as bedding",true,"",()=>BeginCampPlacement(p,CampKind.Bedding));
@@ -95,6 +97,7 @@ public sealed partial class LocalTerrainExplorer
         if(p.Kind==PossessionKind.DiggingStick)
         {
             ActionButton("Dig fibrous roots here",true,"",()=>{BeginDigging(p);inventoryContext=null;});
+            var ochreReason=OchreDigReason();ActionButton("Dig ochre-rich earth here",ochreReason.Length==0,ochreReason,()=>BeginDigOchre(p));
             var clayReason=DigClayReason();ActionButton("Dig clay here",clayReason.Length==0,clayReason,()=>{BeginDigClay(p);inventoryContext=null;});
         }
         if(p.Kind==PossessionKind.HandLine||p.Kind==PossessionKind.FibreNet)ActionButton(p.Kind==PossessionKind.FibreNet?"Gather nearby fish":"Fish with hand-line",true,"",()=>{BeginFishing(p);inventoryContext=null;});

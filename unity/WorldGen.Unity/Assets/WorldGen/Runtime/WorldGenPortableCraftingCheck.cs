@@ -12,6 +12,7 @@ public sealed partial class LocalTerrainExplorer
 {
     public IEnumerator CheckPortableFlow(string output,List<string> report)
     {
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-binders-review")){yield return CheckPaleolithicBindersFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-campcraft-review")){yield return CheckPaleolithicCampcraftFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-stonework-review")){yield return CheckAdvancedStoneworkFlow(output,report);yield break;}
         if(Environment.GetCommandLineArgs().Contains("--worldgen-clay-heat-review")){yield return CheckPaleolithicClayHeatFlow(output,report);yield break;}
@@ -62,10 +63,11 @@ public sealed partial class WorldGenRuntime
         double deadline=Time.realtimeSinceStartupAsDouble+180;while((Busy||!worldReady||humans==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         if(!worldReady||Busy||humans==null)throw new InvalidOperationException("Portable crafting fixture unavailable");
         var fixturePoint=TerrainMapViewport.FromDegrees(50,10);
-        if(Environment.GetCommandLineArgs().Contains("--worldgen-clay-heat-review"))
+        bool binderReview=Environment.GetCommandLineArgs().Contains("--worldgen-binders-review");
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-clay-heat-review")||binderReview)
         {
             var ground=GroundEnvironment.For(world);
-            int cell=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>30&&world.ElevationM[i]<800&&world.Ecology.Habitat[i].MeanTenthsC>80&&PaleolithicClay.ClayGround(ground.Cell(i))).OrderBy(i=>(world.Surface.Cells[i].Position-fixturePoint).Length).DefaultIfEmpty(-1).First();
+            int cell=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>world.ElevationM[i]>30&&world.ElevationM[i]<800&&world.Ecology.Habitat[i].MeanTenthsC>80&&(binderReview?PaleolithicBinders.OchreGround(ground.Cell(i)):PaleolithicClay.ClayGround(ground.Cell(i)))).OrderBy(i=>(world.Surface.Cells[i].Position-fixturePoint).Length).DefaultIfEmpty(-1).First();
             if(cell<0)throw new InvalidOperationException("Fixture world has no suitable mapped clay deposit.");
             fixturePoint=world.Surface.Cells[cell].Position;Debug.Log("CLAY mapped fixture cell="+cell+" clay="+ground.Cell(cell).Clay+" depth="+ground.Cell(cell).DepthM);
         }

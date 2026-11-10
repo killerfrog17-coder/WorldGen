@@ -26,7 +26,7 @@ namespace WorldGen.Core
         public static void Complete(Possession item,bool edge)
         {
             item.UseDamage=Math.Max(0,item.UseDamage-(edge?.85:.65));
-            if(edge){item.EdgeSharpness=.9;item.MassKg*=.985;}
+            if(edge){if(PaleolithicBinders.Haft(item)&&item.HaftBonded){item.HaftBonded=false;item.MassKg=Math.Max(.001,item.MassKg-.005);}item.EdgeSharpness=.9;item.MassKg*=.985;}
             else if(item.Kind==PossessionKind.WoodenSpear||item.Kind==PossessionKind.DiggingStick||item.Kind==PossessionKind.BonePoint||item.Kind==PossessionKind.BarbedPoint||item.Kind==PossessionKind.BoneAwl)
             {item.HeightM*=.99;item.MassKg*=.99;item.CellsHigh=Math.Max(1,(int)Math.Ceiling(item.HeightM/.1));}
         }
