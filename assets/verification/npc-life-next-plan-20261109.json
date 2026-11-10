@@ -25,5 +25,30 @@
     "Dialogue separates firsthand, reported, planned and completed facts and focuses on current speaker/question",
     "Full actual camp cycle conserves goods and reuses original materials; off-screen known-group progress never reseeds stock",
     "Conversation joins/interruptions/ending release holds and keep direct player requests ahead of ambient work"
-  ]
+  ],
+  "checkpoint": {
+    "source": "f46539b9",
+    "selected": "A9cb8034f protected",
+    "candidate": "B building frozen runtime f46539b9",
+    "completed": [
+      "schedule expectations and concern/search separation",
+      "bounded real completed-action memories and grounded live Qwen follow-ups",
+      "joined/ending social encounters",
+      "actual asynchronous unload/return same-material repair",
+      "children fixed play anchor; packing hold updates actor schedules"
+    ],
+    "validationPending": [
+      "new unobserved-gap concern fix in native daily test",
+      "stable construction crew native test",
+      "full migration through original-material reassembly"
+    ],
+    "priorRuns": {
+      "grounded-v1": "social/material/camp/dialogue pass; daily movement fixture corrected and passes v2",
+      "combined-v1": "camp incl unload/return and daily pass",
+      "cycle-v11": "failed departure",
+      "cycle-v12": "stopped after diagnostic false missing children and stale packing schedules",
+      "cycle-v13": "departure/travel/portable identity pass; 23 supplies and 5940 work increments at arrival, stopped after identifying unobserved-gap false concerns and unstable crew; no full-cycle acceptance"
+    },
+    "next": "Finish B build without source edits; restore three known Unity autos; native camp,daily then full cycle at supported 15-minute solar day; do not claim default-day timing or every roof complete."
+  }
 }
