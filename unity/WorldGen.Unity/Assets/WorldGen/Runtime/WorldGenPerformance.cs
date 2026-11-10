@@ -165,6 +165,7 @@ static class WorldGenNativeGcProbe
         {
             if(string.IsNullOrEmpty(path))throw new ArgumentException("GC probe DLL required");
             Start(path);GC.Collect();GC.WaitForPendingFinalizers();GC.Collect();
+            File.WriteAllText(Path.Combine(output,"gc-runtime-state.txt"),"incremental="+UnityEngine.Scripting.GarbageCollector.isIncremental+" mode="+UnityEngine.Scripting.GarbageCollector.GCMode+" slice_ns="+UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds);
             int events=Write(output,true);File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS actual Mono collection/start-stop callbacks: "+events+" events\n");Application.Quit(0);
         }
         catch(Exception e){Debug.LogException(e);Application.Quit(1);}

@@ -354,7 +354,7 @@ public sealed partial class LocalTerrainExplorer
         int id=unchecked((int)(hash&0x3fffffffu))+100000;
         while(humanNpcs.Any(p=>p.Id==id))id++;
         var ageModel=Resources.Load<WorldGenHumanAgeLibrary>("HumanAges/Library")?.Find(humanLibrary.People[variant].Variant,person.AgeYears);
-        var actor=CreateHuman(variant,id,true,ageModel);actor.ResidentId=person.Id;actor.GroupId=group.Situation.Band.Id;actor.Resident=person;actor.Routine=activity;
+        var actor=CreateHuman(variant,id,true,ageModel);actor.ResidentId=person.Id;actor.GroupId=group.Situation.Band.Id;actor.Resident=person;actor.Routine=activity;if(AutomaticNpcPose(actor))actor.Graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.GameTime);
         actor.Root.name=person.Name+" · "+group.Situation.Band.Name;
         actor.Health=memory?.Health??100;actor.Bleeding=memory?.Bleeding?.Copy();
         if(actor.Bleeding!=null)
@@ -380,6 +380,7 @@ public sealed partial class LocalTerrainExplorer
         actor.SimulationAge+=dt;
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||actor.Routine==null)return;
         if(actor.Routine.Activity==HumanActivity.Carried){UpdateCarriedHuman(actor,dt);return;}
+        bool automaticPose=deferNpcPoses&&AutomaticNpcPose(actor);
         long cost=profileLiving?System.Diagnostics.Stopwatch.GetTimestamp():0;
         bool tending=(group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp)&&group.TenderDuty?.Person==actor.ResidentId&&Time.unscaledTimeAsDouble<group.TendUntil;
         var routine=tending?group.TenderDuty:actor.Routine;actor.CurrentActivity=routine.Activity;
@@ -475,7 +476,8 @@ public sealed partial class LocalTerrainExplorer
                 double strikeAge=actor.SimulationAge-actor.NpcAttackStarted;
                 if(strikeAge>=0&&strikeAge<.7)upperRole=ItemUseRules.Profile(actor.Belongings?.QuickHeld).Primary==ItemPrimaryUse.Thrust?"SpearThrust1":"Punch";
                 actor.Shared?.Carry(actor.NpcCrawling||actor.TargetSpeed>2.5f||carryRole=="FuelTend"?null:upperRole,strikeAge>=0&&strikeAge<.7?strikeAge:(float)actor.SimulationAge+HumanHash(actor.ResidentId)%100,elapsed);
-                actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);
+                if(automaticPose){actor.DeferredPose=true;actor.DeferredCrouch=crouch&&role==null;}
+                else{actor.Graph.Evaluate(0);if(crouch&&role==null)CorrectHumanCrouch(actor);ApplyHumanAgePose(actor);}
                 string groundRole=role??(actual<.08f?"Idle":actual<2?"Walk":actual<4.5f?"Run":"Sprint");
                 actor.PoseGroundLift=0;
                 if(actor.AgeModel!=null)actor.PoseGroundLift=actor.AgeModel.Offset(groundRole);
@@ -485,7 +487,7 @@ public sealed partial class LocalTerrainExplorer
         }
         actor.Planet=frame.Position(actor.Motor.X,actor.Motor.Z);
         actor.Root.transform.localPosition=new Vector3((float)(actor.Motor.X-originX),(float)(actor.Motor.Y-TerrainMotion.EyeHeightM)+actor.PoseGroundLift*actor.Root.transform.localScale.y,(float)(actor.Motor.Z-originZ));actor.Root.transform.localRotation=Quaternion.Euler(0,actor.Yaw,0);
-        UpdateNpcProps(actor,group,actor.NpcCrawling||actor.TargetSpeed>2.5f?null:carryRole);
+        if(!automaticPose)UpdateNpcProps(actor,group,actor.NpcCrawling||actor.TargetSpeed>2.5f?null:carryRole);
         LivingCost(4,cost);
     }
     static float personRunSpeed(ForagerPersonSample person)=>person.AgeYears<10?2.8f:person.AgeYears>65?3.2f:4.8f;

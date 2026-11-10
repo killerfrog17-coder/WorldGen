@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         public long ResidentId,GroupId;public ForagerPersonSample Resident;public HumanActivitySample Routine;
         public double AnimationAt,VisitorCheckAt,WorkSoundAt;public bool SeesVisitor;public GameObject WorkProp;
         public double SimulationAge,PoseAge,AvoidUntil;public float AvoidYaw;
-        public float PoseGroundLift;
+        public float PoseGroundLift;public bool DeferredPose,DeferredCrouch;
         public double NavigationX,NavigationZ;
         public Collider NpcWallCollider;public float NpcWallSide;public double NpcWallUntil;
         public Dictionary<string,Transform> Bones;public readonly List<NpcProp> NpcProps=new List<NpcProp>();public string PropRole="";
@@ -192,6 +192,8 @@ public sealed partial class LocalTerrainExplorer
         if(profileLiving)Array.Clear(livingCosts,0,livingCosts.Length);
         long livingTickStart=System.Diagnostics.Stopwatch.GetTimestamp();UpdateLivingHumans(stopped,dt);UpdateNpcMinds(stopped);
         int localSteps=stopped?1:LocalSceneSteps;float localDt=stopped?0:campResting||campSleeping?(float)(LocalSceneDelta/localSteps):dt;
+        deferNpcPoses=true;try
+        {
         foreach(var npc in humanNpcs)
         {
             if(npc.ResidentId!=0){if(!livingBenchmarkFreeze)for(int step=0;step<localSteps;step++)UpdateLivingHuman(npc,stopped,localDt);continue;}
@@ -226,6 +228,7 @@ public sealed partial class LocalTerrainExplorer
             npc.Root.transform.localPosition=new Vector3((float)(npc.Motor.X-originX),(float)(npc.Motor.Y-TerrainMotion.EyeHeightM),(float)(npc.Motor.Z-originZ));
             npc.Root.transform.localRotation=Quaternion.Euler(0,npc.Yaw,0);
         }
+        }finally{deferNpcPoses=false;}
         livingTickMs=ElapsedHumanMs(livingTickStart);WaitCpu(livingTickStart);
         humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.

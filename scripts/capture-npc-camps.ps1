@@ -8,6 +8,7 @@ param(
     [switch]$Performance,
     [switch]$Crowd,
     [switch]$CrowdClose,
+    [switch]$AutomaticComparison,
     [string]$GcProbe="",
     [switch]$Cycle,
     [switch]$HaulFrame,
@@ -43,6 +44,7 @@ foreach($case in $Cases){
     $arguments=@('-screen-width',$captureWidth,'-screen-height',$captureHeight,'-screen-fullscreen','0','-monitor',$npcReviewMonitorIndex,'--worldgen-npc-check',('"'+$fixture+'"'),'--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))+$settings[$case]
     if($Performance){$arguments+=@('--worldgen-npc-perf','--worldgen-npc-perf-seconds',[string]$Seconds)}
     if($Crowd){if(!$Performance){throw 'Crowd is a controlled performance fixture only.'};$arguments+='--worldgen-npc-crowd'}
+    if($AutomaticComparison){if(!$Crowd){throw 'AutomaticComparison requires controlled crowd.'};$arguments+='--worldgen-npc-automatic-comparison'}
     if($CrowdClose){if(!$Crowd){throw 'CrowdClose requires the controlled crowd fixture.'};$arguments+='--worldgen-npc-crowd-close'}
     if($Cycle){$arguments+='--worldgen-npc-cycle'}
     if($HaulFrame){if(!$Cycle){throw 'HaulFrame is a controlled cycle fixture only.'};$arguments+='--worldgen-npc-haul-frame'}
