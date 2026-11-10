@@ -15,5 +15,8 @@ namespace WorldGen.Core
             =>Math.Max(.6,Math.Min(2000,3*Math.Sqrt(Math.Max(0,sourceDischarge))));
         public static double Depth(double sourceDischarge,double worldScale,double halfWidth)
             =>Math.Min(Math.Min(55,halfWidth*.75),.25+.7*Math.Pow(Discharge(sourceDischarge,worldScale),.35));
+        // A bounded dry-bank margin for mean-flow receiving pools. This is an
+        // approximate stage allowance, not a claim of a universal bankfull level.
+        public static double BankFreeboard(double halfWidth)=>Math.Max(.2,Math.Min(4,halfWidth*.06));
     }
 }

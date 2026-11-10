@@ -14,6 +14,7 @@ static class RiverBankContactAudit
         var cache=Path.Combine(Path.GetDirectoryName(Path.GetFullPath(output))!,"bank-cache-"+Path.GetFileNameWithoutExtension(output));
         var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1,directory:cache);
         double preparation=timer.Elapsed.TotalSeconds;int probes=0,bad=0,wetCovered=0;
+        Console.WriteLine($"BANK prepare {preparation:F3}s, fitting {terrain.Amplification.RiverscapeFittingMilliseconds:F1}ms, cached={terrain.Amplification.UsedCachedRiverDatums}");
         var failures=new List<object>();var summaries=new List<object>();
         var h=world.Hydrology;
         double Q(int id)=>(h.NorthernSpringDischargeM3PerS[id]+h.NorthernSummerDischargeM3PerS[id]+h.NorthernAutumnDischargeM3PerS[id]+h.NorthernWinterDischargeM3PerS[id])*.25;
@@ -23,6 +24,24 @@ static class RiverBankContactAudit
             foreach(var channel in terrain.Hydrology.Channels.Where(c=>{double half=Math.Max(.6,Math.Min(2000,3*Math.Sqrt(Math.Max(0,Q(c.From)))));return half>=band.min&&half<band.max;}).OrderBy(c=>Rng.Mix((uint)c.From^73421u)))
             {
                 var spans=terrain.Amplification.RiverReach(channel.From);if(spans.Length==0)continue;
+                bool FanContains(V point,bool start)
+                {
+                    var endpoint=start?spans[0]:spans[^1];
+                    var flag=typeof(RiverscapeSpan).GetField(start?"PoolA":"PoolB");
+                    if(flag!=null&&!(bool)flag.GetValue(endpoint)!)return false;
+                    V center=start?endpoint.A:endpoint.B;double half=start?endpoint.WidthA:endpoint.WidthB;
+                    if(half<=0)return false;
+                    double r=RiverscapeKernel.JunctionRadius(half),radius=terrain.RadiusM*.1;
+                    if((point-center).Length*radius>r+.001)return false;
+                    for(int i=0;i<RiverscapeKernel.JunctionSides;i++)
+                    {
+                        V a=RiverscapeKernel.JunctionPoint(center,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,radius);
+                        V b=RiverscapeKernel.JunctionPoint(center,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,radius);
+                        V cross=V.Cross(b-a,point-a);
+                        if(cross.X*center.X+cross.Y*center.Y+cross.Z*center.Z< -1e-14)return false;
+                    }
+                    return true;
+                }
                 count++;
                 for(int station=0;station<=16;station++)
                 {
@@ -41,12 +60,14 @@ static class RiverBankContactAudit
                         V b=(s.B+s.SideB*(side*(s.WidthB+2)/(terrain.RadiusM*.1))).Unit;
                         V p=(a*(1-t)+b*t).Unit;var sample=patch.Geometry(p);
                         probes++;bandProbes++;
-                        bool covered=sample.Underwater&&sample.WaterSurfaceM>=level-.03;
+                        // The renderer removes ribbon fragments inside junction
+                        // fans. Such an internal edge is not an open shoreline.
+                        bool covered=sample.Underwater&&sample.WaterSurfaceM>=level-.03||FanContains(p,true)||FanContains(p,false);
                         if(covered)wetCovered++;
                         if(sample.ElevationM<level-.08&&!covered)
                         {
                             bad++;bandBad++;
-                            if(failures.Count<100)failures.Add(new{Band=band.name,Source=channel.From,Span=index,T=t,Side=side,Width=width,Level=level,Ground=sample.ElevationM,Clearance=level-sample.ElevationM,Position=new[]{p.X,p.Y,p.Z}});
+                            if(failures.Count<100)failures.Add(new{Band=band.name,Source=channel.From,Receiver=spans[^1].To,Span=index,T=t,Side=side,Width=width,Level=level,Ground=sample.ElevationM,PreWater=sample.PreWaterElevationM,Clearance=level-sample.ElevationM,StartLevel=spans[0].LevelA,EndLevel=spans[^1].LevelB,DistanceToStart=(p-spans[0].A).Length*terrain.RadiusM*.1,DistanceToEnd=(p-spans[^1].B).Length*terrain.RadiusM*.1,Position=new[]{p.X,p.Y,p.Z}});
                         }
                     }
                 }
@@ -56,7 +77,7 @@ static class RiverBankContactAudit
             Console.WriteLine($"BANK {band.name}: {count} reaches, {bandProbes} probes, {bandBad} exposed edges");
         }
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
-        File.WriteAllText(output,JsonSerializer.Serialize(new{Version=typeof(LocalTerrain).GetField("Version")!.GetRawConstantValue(),PreparationSeconds=preparation,UsedCached=terrain.Amplification.UsedCachedRiverDatums,Probes=probes,OpenEdgeProbes=bad,CoveredByOtherWater=wetCovered,Bands=summaries,Failures=failures,Scope="Sampled actual scalar ground at paired outer render edges; native mesh/perimeter validation still required"},new JsonSerializerOptions{WriteIndented=true}));
+        File.WriteAllText(output,JsonSerializer.Serialize(new{Version=typeof(LocalTerrain).GetField("Version")!.GetRawConstantValue(),PreparationSeconds=preparation,FittingMs=terrain.Amplification.RiverscapeFittingMilliseconds,UsedCached=terrain.Amplification.UsedCachedRiverDatums,Probes=probes,OpenEdgeProbes=bad,CoveredByOtherWaterOrFan=wetCovered,Bands=summaries,Failures=failures,Scope="Sampled actual scalar ground at paired outer render edges, excluding fragments removed inside rendered fans; native mesh/perimeter validation still required"},new JsonSerializerOptions{WriteIndented=true}));
         if(bad>0)throw new Exception($"River bank contact: {bad}/{probes} sampled edges end above uncovered terrain; evidence retained");
         Console.WriteLine($"PASS {probes} sampled river bank-contact probes");
     }

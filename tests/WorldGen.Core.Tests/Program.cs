@@ -1,7 +1,6 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
-if(args.Contains("--river-fitting-parallel-audit")){RiverFittingParallelAudit.Run(args[1],args[2]);return;}
 if(args.Contains("--river-node-joins")){RiverNodeJoinTests.Controls();return;}
 if(args.Contains("--river-node-joins-world")){RiverNodeJoinTests.World(args[1],args.Length>2?args[2]:null);return;}
 if(args.Contains("--river-longitudinal-profile")){RiverLongitudinalProfileTests.Run();return;}

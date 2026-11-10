@@ -19,6 +19,13 @@ static class RiverNodeJoinTests
         var first=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));
         var again=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));
         Check(first.SequenceEqual(again)&&first[0].Equals(P(0))&&first[^1].Equals(P(1000)),"Shared-tangent channel fitting is deterministic and keeps endpoints");
+        foreach(double uncut in new[]{-5d,0,100})foreach(double cut in new[]{uncut-100,uncut-5,uncut})
+        foreach(double bank in new[]{uncut-150,uncut-10,uncut+5})foreach(double distance in new[]{-1d,0,2,2.25,3,5,7.999,8,9})
+        {
+            double result=RiverscapeKernel.ProtectBank(cut,uncut,bank,distance);
+            Check(double.IsFinite(result)&&result>=cut&&result<=uncut,"Combining river cuts preserves banks without raising original terrain");
+            if(distance<0||distance>=8||bank<=cut)Check(result==cut,"Distant or already-satisfied bank constraints do not change terrain");
+        }
         Console.WriteLine($"PASS {checks} river join/collar controls");
     }
     public static void World(string path,string cache)
@@ -30,7 +37,7 @@ static class RiverNodeJoinTests
             var before=terrain.Amplification.RiverReach(channel.From);if(before.Length==0)continue;
             var a=before[^1];if(a.To<0||a.PoolB)continue;
             var after=terrain.Amplification.RiverReach(a.To);Check(after.Length>0,"Ordinary endpoint has its actual downstream channel");var b=after[0];
-            Check(!b.PoolA&&a.B.Equals(b.A)&&a.SideB.Equals(b.SideA),"Both reaches share exact endpoint position and cross-section orientation");
+            Check(!b.PoolA&&a.B.Equals(b.A)&&a.SideB.Equals(b.SideA),$"Join {channel.From}->{a.To}: pool={b.PoolA}, endpoint delta={(a.B-b.A).Length:R}, side delta={(a.SideB-b.SideA).Length:R}");
             Check(a.WidthB==b.WidthA&&a.DepthB==b.DepthA&&a.LevelB==b.LevelA,"Width, bed depth and water head agree exactly across an ordinary join");
             foreach(int sign in new[]{-1,1})
             {

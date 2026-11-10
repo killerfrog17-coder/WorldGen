@@ -9,9 +9,6 @@ namespace WorldGen.Core
     public static class TerrainQueryTiming
     {
         [ThreadStatic] public static bool Enabled;
-        // Exact serial preparation path for offline equivalence/cost controls.
-        // Gameplay never sets this; it does not alter terrain resolution.
-        [ThreadStatic] public static bool SerialRiverFitting;
         [ThreadStatic] static long[] ticks;
         public static long Begin()=>Enabled?Stopwatch.GetTimestamp():0;
         public static void End(int phase,long started)
