@@ -1,0 +1,14 @@
+PASS Actual coast provides shallow rendered water for both line and hand-net controls
+PASS Two real fish enter the ordinary actor spawn queue: Queued 2 Coastal forage fish (guild). Spawning is spread across frames; /spawn clear cancels pending spawns.
+PASS Actual fish skins and normal wildlife health load
+PASS A settled actual water column remains valid after shoreline detail arrives
+PASS Controlled fish pose uses a finite current water surface
+PASS The real hook and hand-line works on this actual shallow-water fish
+PASS Timed fishing lands the original actor as a corpse, not replacement food
+PASS Fishing retains its real reusable gear and saves the caught individual's identity
+PASS Controlled fish pose uses a finite current water surface
+PASS The real knotted fibre net works on this actual shallow-water fish
+PASS Timed fishing lands the original actor as a corpse, not replacement food
+PASS Fishing retains its real reusable gear and saves the caught individual's identity
+PASS Full capture/reload retains both catches, reusable gear and physical inventory
+PASS no runtime errors or exceptions

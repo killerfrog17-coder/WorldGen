@@ -1,0 +1,14 @@
+{
+  "status": "native14 PASS",
+  "native": "artifacts/paleolithic-night-20261110/fishing-native-v5",
+  "source": "f93dfdc2",
+  "scope": [
+    "Actual original fish actors in actual finite settled coastal water",
+    "Ordinary line and net action, timed work, reusable gear and saved original corpse identities"
+  ],
+  "fixture_limits": [
+    "Fish encounters are controlled through normal actor spawning; this is not an ecological encounter-rate test",
+    "Earlier failed fixtures used stale/NaN water poses or an unnecessarily narrow depth search; no production fishing change was needed"
+  ],
+  "canonical_checks": "docs\\reports\\paleolithic-night-20261110\\fishing-checks.txt"
+}

@@ -11,7 +11,7 @@
     {
       "id": 0,
       "technology": "Flake cutting",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Stone flake knapping and cutting"
     },
     {
@@ -23,37 +23,37 @@
     {
       "id": 2,
       "technology": "Scraping",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Scrapers and hide scraping"
     },
     {
       "id": 3,
       "technology": "Woodworking and wooden spears",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Wood shaping, digging sticks and spears"
     },
     {
       "id": 4,
       "technology": "Spearhead hafting",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Bound spear assembly"
     },
     {
       "id": 5,
       "technology": "Fire tending",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Fuel, embers and relighting"
     },
     {
       "id": 6,
       "technology": "Hide working",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Scrape/soften hides with provenance"
     },
     {
       "id": 7,
       "technology": "Binding and cordage",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Plant/bark/sinew cord and thread"
     },
     {
@@ -65,7 +65,7 @@
     {
       "id": 9,
       "technology": "Fire making",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Hand drill set and fire interaction"
     },
     {
@@ -77,13 +77,13 @@
     {
       "id": 11,
       "technology": "Piercing tools and bone awls",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Bone awls and stone borers"
     },
     {
       "id": 12,
       "technology": "Sewing",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Lacing/sewing items"
     },
     {
@@ -101,7 +101,7 @@
     {
       "id": 15,
       "technology": "Bone points",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Bone points and spears"
     },
     {
@@ -113,19 +113,19 @@
     {
       "id": 17,
       "technology": "Bows",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Bow, ammunition and ranged attacks"
     },
     {
       "id": 18,
       "technology": "Barbed points",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Barbed points and harpoons"
     },
     {
       "id": 19,
       "technology": "Fishing lines and gorges",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted: actual hand-line and net native14 checks on real shallow-water fish, reusable tools, original corpses and save/reload; no fabricated food",
       "scope": "Gorges, line and local fishing"
     },
     {
@@ -137,31 +137,31 @@
     {
       "id": 21,
       "technology": "Eyed needles",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Needles and needle cases"
     },
     {
       "id": 22,
       "technology": "Spear throwers",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Thrower, darts and ranged attacks"
     },
     {
       "id": 23,
       "technology": "Food preservation",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Drying/smoking on racks"
     },
     {
       "id": 24,
       "technology": "Fishing nets",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted: actual hand-line and net native14 checks on real shallow-water fish, reusable tools, original corpses and save/reload; no fabricated food",
       "scope": "Fibre net and local fish collection"
     },
     {
       "id": 25,
       "technology": "Snares and traps",
-      "status": "New functional prototype: 15 pure and 15 native checks; actual-material deadfall, small-fauna contact, finite damage, reset and save",
+      "status": "Functional representative deadfall: 17 pure and 15 native checks; actual 2-25 kg weight, finite bait, real fauna contact, reset/save; snares not a second implemented trap variant",
       "scope": "Representative deadfall only; snares/pitfalls and autonomous trap tending remain variants for later"
     },
     {
@@ -179,7 +179,7 @@
     {
       "id": 28,
       "technology": "Baskets and woven carriers",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Woven carriers and inventory packing"
     },
     {
@@ -197,31 +197,31 @@
     {
       "id": 31,
       "technology": "Cold-weather shelters",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Covered shelters and exposure protection"
     },
     {
       "id": 32,
       "technology": "Food storage",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Camp storage/cache access"
     },
     {
       "id": 33,
       "technology": "Bifacial hand tools",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Handaxes and edge maintenance"
     },
     {
       "id": 34,
       "technology": "Shelter frames",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Adjustable camp shelter frames"
     },
     {
       "id": 35,
       "technology": "Hide coverings",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Source-specific hide coverings"
     },
     {
@@ -233,13 +233,13 @@
     {
       "id": 37,
       "technology": "Fishhooks",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted: actual hand-line and net native14 checks on real shallow-water fish, reusable tools, original corpses and save/reload; no fabricated food",
       "scope": "Fishhooks and hand line"
     },
     {
       "id": 38,
       "technology": "Ground-edge axes",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Grind/haft axes and adzes"
     },
     {
@@ -251,7 +251,7 @@
     {
       "id": 40,
       "technology": "Slings",
-      "status": "existing, requires focused final audit",
+      "status": "Existing representative route accepted in final native audit: portable38, combat184, woodwork16, camp98, nature32 and land-blueprints261 checks; not new final art or autonomous NPC production",
       "scope": "Slings and physical stone projectiles"
     },
     {
