@@ -259,8 +259,9 @@ public sealed partial class LocalTerrainExplorer
         {
             if(Camp.Objects.Any(c=>c.Id==obj.Id))continue;
             if(obj.Blueprint!=null&&obj.Blueprint.FloorHeights==null)SurveyLivingShelter(obj,!newStock);
+            WeatherNpcCampObject(group,obj);
             CatchUpNpcHearth(obj);obj.LastSimulatedSeconds=Camp.SimulatedSeconds;Camp.Objects.Add(obj);
-            if(newStock&&existing.Length==0&&memory==null&&(group.Situation.Phase==HumanCampPhase.SettingUp||group.Situation.Phase==HumanCampPhase.Packing)&&obj.Blueprint!=null)obj.NpcNeedsInitialStock=true;
+            if(newStock&&existing.Length==0&&memory==null&&group.Situation.Phase==HumanCampPhase.SettingUp&&obj.Blueprint!=null)obj.NpcNeedsInitialStock=true;
             if(obj.NpcNeedsInitialStock)npcInitialSupplyQueue.Enqueue(obj);
         }
         group.CampLoaded=true;
@@ -308,8 +309,14 @@ public sealed partial class LocalTerrainExplorer
         else if(group.Residents!=null)
         {
             var past=new HumanGroupSituation{Band=group.Situation.Band,Camp=group.Situation.Camp,Phase=HumanCampPhase.Occupied,LocalHour=12};
-            foreach(var obj in HumanCampLayout.Create(past,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds).Where(o=>o.Kind==CampKind.Fire||o.Kind==CampKind.Bedding))
+            foreach(var obj in HumanCampLayout.Create(past,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds))
             {
+                obj.WeatheredThroughCalendarDay=Math.Max(0,group.Situation.DepartureDay);
+                if(obj.Blueprint!=null)
+                {
+                    while(NpcCampWork.NextPacking(obj.Blueprint,NpcCarryCampPoles(group),NpcTakeCampCover(group)) is CampComponent taken)NpcCampWork.Remove(obj,taken.Key);
+                    SurveyLivingShelter(obj,true);
+                }
                 if(obj.Kind==CampKind.Fire){obj.Burning=false;obj.EmberSeconds=0;obj.Materials.RemoveAll(CampRules.Fuel);obj.AshKg=.12*Math.Max(.15,1-group.TraceAge/60);}
                 if(!Camp.Objects.Any(c=>c.Id==obj.Id))Camp.Objects.Add(obj);
             }

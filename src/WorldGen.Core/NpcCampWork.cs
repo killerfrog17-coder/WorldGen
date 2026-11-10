@@ -51,8 +51,12 @@ namespace WorldGen.Core
             bool Part(Possession p)=>p.CampMaterial==group&&p.OwnerHousehold==household&&(WoodCrafting.Wood(p)||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle||FrameRules.Binding(p));
             var existing=stock.Items.FirstOrDefault(p=>p.Kind==PossessionKind.CampBundle&&p.CampMaterial==group&&p.OwnerHousehold==household&&p.BundledMaterials!=null);
             var tie=existing==null?stock.Items.FirstOrDefault(p=>p.CampMaterial==group&&p.OwnerHousehold==household&&FrameRules.Binding(p)):null;
+            // Flexible covers can roll together in their own outer sheet.
+            // This does not let an unlashed hide bind a load of wooden poles.
+            if(existing==null&&tie==null)tie=stock.Items.FirstOrDefault(p=>Part(p)&&(CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle));
             if(existing==null&&tie==null)return null;
-            var goods=stock.Items.Where(p=>p!=tie&&Part(p)).OrderByDescending(WoodCrafting.Wood).ToArray();double mass=existing?.MassKg??tie.MassKg;
+            bool wrapped=tie!=null&&!FrameRules.Binding(tie);
+            var goods=stock.Items.Where(p=>p!=tie&&Part(p)&&(!wrapped||CampRules.Hide(p)||p.Kind==PossessionKind.BarkSheet||p.Kind==PossessionKind.ReedBundle)).OrderByDescending(WoodCrafting.Wood).ToArray();double mass=existing?.MassKg??tie.MassKg;
             var chosen=new List<Possession>();foreach(var p in goods)if(mass+p.MassKg<=maximumKg&&(existing?.BundledMaterials.Count??0)+chosen.Count<24){chosen.Add(p);mass+=p.MassKg;}
             if(chosen.Count==0||existing==null&&chosen.Count<2)return null;
             if(existing==null)
@@ -75,10 +79,10 @@ namespace WorldGen.Core
             if(p.BundledMaterials==null)return;
             if(p.Kind!=PossessionKind.CampBundle||p.BundledMaterials.Count<3||p.BundledMaterials.Count>25||p.BundledMaterials.Any(i=>i==null||i.BundledMaterials!=null||i.MassKg<=0||!double.IsFinite(i.MassKg)||string.IsNullOrEmpty(i.Id))||p.BundledMaterials.Select(i=>i.Id).Distinct().Count()!=p.BundledMaterials.Count||Math.Abs(p.MassKg-p.BundledMaterials.Sum(i=>i.MassKg))>1e-7)throw new ArgumentException("Invalid bound shelter materials.");
         }
-        public static bool Portable(CampBlueprint plan,CampComponent part,bool scarceWood)
-            =>part.Kind==CampPartKind.Binding||part.Kind==CampPartKind.Cover&&(plan.Cover==CampCover.Hide||plan.Cover==CampCover.Bark||plan.Cover==CampCover.Reed)||scarceWood&&(part.Kind==CampPartKind.Post||part.Kind==CampPartKind.Beam||part.Kind==CampPartKind.Rib);
-        public static CampComponent NextPacking(CampBlueprint plan,bool scarceWood)
-            =>CampBlueprints.Components(plan).Where(c=>Portable(plan,c,scarceWood)&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage).ThenBy(c=>c.Key,StringComparer.Ordinal).FirstOrDefault();
+        public static bool Portable(CampBlueprint plan,CampComponent part,bool scarceWood,bool takeCover=true)
+            =>scarceWood&&(part.Kind==CampPartKind.Binding||part.Kind==CampPartKind.Post||part.Kind==CampPartKind.Beam||part.Kind==CampPartKind.Rib)||takeCover&&part.Kind==CampPartKind.Cover&&(plan.Cover==CampCover.Hide||plan.Cover==CampCover.Bark||plan.Cover==CampCover.Reed);
+        public static CampComponent NextPacking(CampBlueprint plan,bool scarceWood,bool takeCover=true)
+            =>CampBlueprints.Components(plan).Where(c=>Portable(plan,c,scarceWood,takeCover)&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage).ThenBy(c=>c.Key,StringComparer.Ordinal).FirstOrDefault();
         public static Possession[] Remove(CampObject shelter,string key)
         {
             var state=shelter?.Blueprint?.Parts.FirstOrDefault(p=>p.Key==key);if(state==null)return Array.Empty<Possession>();

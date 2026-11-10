@@ -11,6 +11,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void AdvanceLivingCampLife(LivingGroup group)
     {
+        if(group.CampLoaded)WeatherNpcCamp(group);
         bool active=group.Situation.Phase==HumanCampPhase.Occupied||group.Situation.Phase==HumanCampPhase.SettingUp;
         group.NeedsCampWork=active&&NeedsNpcCampWork(group);
         UpdateNpcCampWorkers(group);

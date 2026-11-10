@@ -15,6 +15,11 @@ public sealed partial class LocalTerrainExplorer
         npcModel??=new NpcModelClient();npcModel.Config.Enabled=false;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
         double until=Time.unscaledTimeAsDouble+100;while((!livingGroups.TryGetValue(PlayerRules.Identity.Group,out var ready)||!ready.CampLoaded||!livingPeople.Values.Any(p=>p.GroupId==PlayerRules.Identity.Group&&p.Resident.AgeYears>=18))&&Time.unscaledTimeAsDouble<until)yield return null;
         Check(livingGroups.TryGetValue(PlayerRules.Identity.Group,out var group)&&group.CampLoaded,"The actual generated household camp is loaded");paused=true;livingQueryAt=Time.unscaledTimeAsDouble+180;while(livingWork!=null)yield return null;
+        bool initialCarryPoles=group.Situation.Camp.CarryPoles;
+        if(!NpcTakeCampCover(group)&&!NpcCarryCampPoles(group))Check(!Camp.Objects.Where(o=>o.NpcGroup==group.Situation.Band.Id&&o.Blueprint!=null).Any(o=>NpcCampParts(o).Any(c=>NpcCampWork.Portable(o.Blueprint,c,false,false))),"The natural woodland policy leaves its whole shelter standing");
+        // The physical removal/hauling tests below deliberately choose a
+        // transport decision, rather than forcing all natural forest camps to pack.
+        group.Situation.Camp.CarryPoles=true;
         var shelter=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Blueprint!=null&&NpcCampWork.NextPacking(c.Blueprint,NpcCarryCampPoles(group))!=null);Check(shelter!=null,"The actual shelter contains recoverable portable contributions");
         var actor=livingPeople.Values.First(p=>p.GroupId==group.Situation.Band.Id&&p.Resident.AgeYears>=18);actor.Threat=null;npcPlans.Clear();group.TenderDuty=null;
         var currentHouse=LivingHouse(actor);Check(currentHouse!=null,"The actual adult has a household shelter at the current camp");
@@ -128,6 +133,15 @@ public sealed partial class LocalTerrainExplorer
         Check(CampBlueprints.Done(returnedHouse.Blueprint,offlinePart)&&restored.Any(p=>offlineIds.Contains(p.Id))&&Math.Abs(restored.Sum(p=>p.MassKg)-offlineMass)<1e-8,"Unobserved repair uses the same finite staged roof material after unload and return");
         Check(!Inventory.Items.Any(p=>offlineIds.Contains(p.Id)),"The returned shelter does not leave a duplicate loose roof material behind");
         PlayerRules.SolarDays=savedSolar;LivingState.Copy().Validate();Check(true,"Unloaded camp catch-up preserves valid saved local state");
-        paused=false;DisposeNpcMinds();
+        TerrainHandoff.Coordinates(frame,returnedHouse.Position,out double wx,out double wz);motion.Place(wx+6,wz-5,CampFloor(wx+6,wz-5));humanCamera.Restore(0,false);UpdateHumans();
+        for(int i=0;i<8;i++){UpdateCamera();var point=transform.TransformPoint(new Vector3((float)(wx-originX),(float)CampFloor(wx,wz)+1,(float)(wz-originZ)));var d=transform.InverseTransformDirection(point-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
+        paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"shelter-weather-before");paused=true;
+        var climate=sourceWorld.Prehistory.Foragers.Districts[group.Situation.Band.District];double oldWear=returnedHouse.Blueprint.Parts.Sum(p=>p.Weathering);
+        var fallen=CampWeathering.Advance(returnedHouse,Math.Max(LivingClock.CalendarDay,returnedHouse.WeatheredThroughCalendarDay)+720,climate.AnnualRainMm,climate.MeanC,climate.Canopy);Inventory.Items.AddRange(fallen);InvalidateCampVisual(returnedHouse);
+        Check(fallen.Length>0||returnedHouse.Blueprint.Parts.Sum(p=>p.Weathering)>oldWear,"Two controlled calendar years produce actual weathered component state in the production camp model");
+        Check(!returnedHouse.OwnedMaterials().Any(p=>fallen.Any(f=>f.Id==p.Id)),"Weathered debris is not simultaneously installed in the shelter");
+        paused=false;yield return NpcLifeImage(output,"shelter-weather-after");livingBenchmarkFreeze=false;
+        Camp.Validate();LivingState.Copy().Validate();Check(true,"Weathered shelter and actual fallen materials remain save-valid");
+        group.Situation.Camp.CarryPoles=initialCarryPoles;paused=false;DisposeNpcMinds();
     }
 }

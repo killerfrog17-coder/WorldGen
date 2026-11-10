@@ -22,11 +22,13 @@ public sealed partial class LocalTerrainExplorer
     NpcCampTravel NpcTravel(LivingGroup group)
     {var record=NpcGroupRecord(group.Situation.Band.Id);return record.Travel??(record.Travel=new NpcCampTravel());}
     bool NpcCarryCampPoles(LivingGroup group)
-        =>group.Situation.Camp.CarryPoles||sourceWorld.Prehistory.Foragers.Districts[group.Residents.District].Canopy<.2||group.Situation.Camp.Design==CampDesign.ConicalTent;
+        =>group.Situation.Camp.CarryPoles||sourceWorld.Prehistory.Foragers.Districts[group.Residents.District].Canopy<.15;
+    bool NpcTakeCampCover(LivingGroup group)
+        =>group.Situation.Camp.Cover==CampCover.Hide||NpcCarryCampPoles(group);
     bool NpcCampNeedsPacking(LivingGroup group)
     {
         long id=group.Situation.Band.Id;
-        if(Camp.Objects.Any(c=>c.NpcGroup==id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&(c.NpcNeedsInitialStock||NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0))))return true;
+        if(Camp.Objects.Any(c=>c.NpcGroup==id&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null&&(c.NpcNeedsInitialStock||NpcCampParts(c).Any(p=>NpcCampWork.Portable(c.Blueprint,p,NpcCarryCampPoles(group),NpcTakeCampCover(group))&&CampBlueprints.State(c.Blueprint,p)?.Materials.Count>0))))return true;
         foreach(var load in Inventory.Items)if(load.Kind==PossessionKind.CampBundle&&load.Place==PossessionPlace.Ground&&load.CampMaterial==id&&HumanDistance(load.Position,group.Anchor)<60)
             if(livingPeople.Values.Any(p=>p.GroupId==id&&p.Health>40&&p.Resident.AgeYears>=12&&load.OwnerHousehold==p.Resident.Household&&load.MassKg<=(p.Resident.AgeYears<16?12:24)&&!p.Belongings.Items.Any(i=>i.Kind==PossessionKind.CampBundle&&p.Belongings.Carried(i))))return true;
         // Do not leave a useful personal cutting/fire kit behind merely
@@ -103,7 +105,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var house in Camp.Objects.Where(c=>c.NpcGroup==actor.GroupId&&c.NpcSite==group.Situation.Camp.Id&&c.Blueprint!=null).OrderBy(c=>c.NpcHousehold==actor.Resident.Household?0:1).ThenBy(c=>HumanDistance(c.Position,actor.Planet)))
             {
                 var plan=house.Blueprint;var definitions=NpcCampParts(house);int stage=definitions.Where(c=>!CampBlueprints.Done(plan,c)).Select(c=>c.Stage).DefaultIfEmpty(4).Min();
-                var choices=packing?definitions.Where(c=>NpcCampWork.Portable(plan,c,NpcCarryCampPoles(group))&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage):definitions.Where(c=>c.Stage==stage&&!CampBlueprints.Done(plan,c)).OrderBy(c=>c.Key);
+                var choices=packing?definitions.Where(c=>NpcCampWork.Portable(plan,c,NpcCarryCampPoles(group),NpcTakeCampCover(group))&&CampBlueprints.State(plan,c)?.Materials.Count>0).OrderByDescending(c=>c.Stage):definitions.Where(c=>c.Stage==stage&&!CampBlueprints.Done(plan,c)).OrderBy(c=>c.Key);
                 part=choices.FirstOrDefault(c=>!NpcCampPartClaimed(actor,house,c.Key));if(part==null)continue;shelter=house;task.Object=house.Id;task.Part=part.Key;task.Work=0;break;
             }
         }

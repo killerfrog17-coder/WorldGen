@@ -25,8 +25,8 @@ public sealed partial class LocalTerrainExplorer
         var identities=group.Residents.Members.Select(p=>p.Id).OrderBy(id=>id).ToArray();
         int fullParts=owner.Camp.Objects.Where(o=>o.NpcGroup==band&&o.NpcSite==oldSite&&o.Blueprint!=null).Sum(o=>o.Blueprint.Parts.Count);
         var portable=owner.Camp.Objects.Where(o=>o.NpcGroup==band&&o.NpcSite==oldSite&&o.Blueprint!=null)
-            .SelectMany(o=>owner.NpcCampParts(o).Where(p=>NpcCampWork.Portable(o.Blueprint,p,owner.NpcCarryCampPoles(group))).SelectMany(p=>CampBlueprints.State(o.Blueprint,p)?.Materials??new List<Possession>())).ToDictionary(p=>p.Id,p=>p.MassKg);
-        Check(portable.Count>0,"The observed departure starts with real portable shelter materials");
+            .SelectMany(o=>owner.NpcCampParts(o).Where(p=>NpcCampWork.Portable(o.Blueprint,p,owner.NpcCarryCampPoles(group),owner.NpcTakeCampCover(group))).SelectMany(p=>CampBlueprints.State(o.Blueprint,p)?.Materials??new List<Possession>())).ToDictionary(p=>p.Id,p=>p.MassKg);
+        Check(true,portable.Count>0?"The observed departure starts with real materials selected for transport":"This woodland departure leaves the existing shelters standing rather than selecting them for transport");
         int Parts()=>owner.Camp.Objects.Where(o=>o.NpcGroup==band&&o.NpcSite==oldSite&&o.Blueprint!=null).Sum(o=>o.Blueprint.Parts.Count);
         Possession[] ActualGoods()
         {
@@ -65,11 +65,11 @@ public sealed partial class LocalTerrainExplorer
         }
         Date(initial.DepartureDay+.0001);
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Packing,"The actual community enters its scheduled packing phase");
-        yield return Await(()=>Parts()<fullParts,"Actual workers remove shelter components instead of itinerary progress deleting them");
+        if(portable.Count>0)yield return Await(()=>Parts()<fullParts,"Actual workers remove only shelter components selected for transport");
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Travelling&&!group.CampLoaded,"The camp is packed away as the family group departs");
         var packedGoods=ActualGoods().Where(p=>portable.ContainsKey(p.Id)).ToArray();
         Check(packedGoods.Length==portable.Count&&packedGoods.Select(p=>p.Id).Distinct().Count()==portable.Count&&packedGoods.All(p=>Math.Abs(p.MassKg-portable[p.Id])<1e-8),"A work-delayed departure preserves every original portable contribution instead of an abandoned trace deleting the active camp");
-        Check(owner.LivingState.Camps.Any(c=>c.Site==oldSite&&c.AbandonedCalendarDay>=0&&c.Objects.Any(o=>o.Kind==CampKind.Bedding)&&c.Objects.Where(o=>o.Blueprint!=null).All(o=>!owner.NpcCampParts(o).Any(p=>NpcCampWork.Portable(o.Blueprint,p,owner.NpcCarryCampPoles(group))&&CampBlueprints.State(o.Blueprint,p)?.Materials.Count>0))),"Departure leaves dated bedding/hearths and any uncarried frames, with their portable contributions actually removed");
+        Check(owner.LivingState.Camps.Any(c=>c.Site==oldSite&&c.AbandonedCalendarDay>=0&&c.Objects.Any(o=>o.Kind==CampKind.Bedding)&&c.Objects.Where(o=>o.Blueprint!=null).All(o=>!owner.NpcCampParts(o).Any(p=>NpcCampWork.Portable(o.Blueprint,p,owner.NpcCarryCampPoles(group),owner.NpcTakeCampCover(group))&&CampBlueprints.State(o.Blueprint,p)?.Materials.Count>0))),"Departure leaves dated bedding/hearths and any uncarried frames, with their portable contributions actually removed");
         var walking=owner.livingPeople.Values.Where(p=>p.GroupId==band&&p.Health>0&&p.Resident.AgeYears>=12).ToDictionary(p=>p.ResidentId,p=>p.Planet);
         double walkUntil=Time.realtimeSinceStartupAsDouble+18;while(Time.realtimeSinceStartupAsDouble<walkUntil){TickClock();yield return null;}
         Check(owner.livingPeople.Values.Any(p=>walking.TryGetValue(p.ResidentId,out var start)&&owner.HumanDistance(start,p.Planet)>1),"Observed travellers physically begin moving after packing");
@@ -103,7 +103,8 @@ public sealed partial class LocalTerrainExplorer
             Date(owner.LivingClock.CalendarDay+toMorning*baseline.CalendarRate);
         }
         yield return Await(()=>group.Situation.Phase==HumanCampPhase.Occupied,"The new visit proceeds from setup into occupation");
-        yield return Await(()=>owner.npcCampSupplied>supplied&&owner.npcCampWorked>worked&&owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).SelectMany(c=>c.OwnedMaterials()).Any(p=>portable.ContainsKey(p.Id)),"A real worker supplies and works with an original recovered contribution at the new camp",600);
+        if(portable.Count>0)yield return Await(()=>owner.npcCampSupplied>supplied&&owner.npcCampWorked>worked&&owner.Camp.Objects.Where(c=>c.NpcGroup==band&&c.NpcSite==newSite&&c.Blueprint!=null).SelectMany(c=>c.OwnedMaterials()).Any(p=>portable.ContainsKey(p.Id)),"A real worker supplies and works with an original recovered contribution at the new camp",600);
+        else Check(owner.LivingState.Camps.First(c=>c.Site==oldSite).Objects.Where(c=>c.Blueprint!=null).Sum(c=>c.Blueprint.Parts.Count)==fullParts,"Leaving a woodland camp preserves every original fitted component for a later return");
         Check(identities.SequenceEqual(group.Residents.Members.Select(p=>p.Id).OrderBy(id=>id)),"Families and personal identities survive packing, travel and arrival");
         Check(owner.Camp.Objects.Select(c=>c.Id).Distinct().Count()==owner.Camp.Objects.Count,"Travel and old-site traces create no duplicate camp objects");
         owner.Camp.Validate();owner.CaptureLivingHumans();owner.LivingState.Validate();

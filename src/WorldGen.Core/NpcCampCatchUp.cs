@@ -7,7 +7,7 @@ namespace WorldGen.Core
     // possessions. No global tribes, daily ticks or replacement supplies.
     public static class NpcCampCatchUp
     {
-        public static void Apply(HumanCampMemory origin,HumanCampMemory destination,HumanPersonMemory[] people,ForagerPersonSample[] roster,PlayerInventory loose,bool carryPoles,double workSeconds)
+        public static void Apply(HumanCampMemory origin,HumanCampMemory destination,HumanPersonMemory[] people,ForagerPersonSample[] roster,PlayerInventory loose,bool carryPoles,double workSeconds,bool takeCover=true)
         {
             if(origin==null||destination==null||origin.Group!=destination.Group||workSeconds<=0)return;
             long group=origin.Group;
@@ -18,7 +18,7 @@ namespace WorldGen.Core
             if(moved)
             {
                 foreach(var shelter in origin.Objects.Where(o=>o.Blueprint!=null))
-                    while(NpcCampWork.NextPacking(shelter.Blueprint,carryPoles) is CampComponent part)
+                    while(NpcCampWork.NextPacking(shelter.Blueprint,carryPoles,takeCover) is CampComponent part)
                     {
                         double seconds=Math.Max(15,part.Seconds*.25);if(workSeconds<seconds)break;workSeconds-=seconds;
                         loose.Items.AddRange(NpcCampWork.Remove(shelter,part.Key));

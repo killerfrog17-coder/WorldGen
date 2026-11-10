@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 namespace WorldGen.Core
@@ -11,8 +11,9 @@ namespace WorldGen.Core
     [Serializable] public sealed class CampPartState
     {
         public string Key=""; public double WorkSeconds;
+        [System.Runtime.Serialization.OptionalField] public double Weathering;
         public List<Possession> Materials=new List<Possession>();
-        public CampPartState Copy()=>new CampPartState{Key=Key,WorkSeconds=WorkSeconds,Materials=Materials.Select(p=>p.Copy()).ToList()};
+        public CampPartState Copy()=>new CampPartState{Key=Key,WorkSeconds=WorkSeconds,Weathering=Weathering,Materials=Materials.Select(p=>p.Copy()).ToList()};
     }
     [Serializable] public sealed class CampBlueprint
     {
@@ -131,7 +132,7 @@ namespace WorldGen.Core
         public static bool CoverMaterial(CampBlueprint p,Possession item)=>item!=null&&(p.Cover==CampCover.Hide?CampRules.Hide(item):p.Cover==CampCover.Bark?item.Kind==PossessionKind.BarkSheet:p.Cover==CampCover.Reed?item.Kind==PossessionKind.ReedBundle:item.Kind==PossessionKind.DryGrass||item.Kind==PossessionKind.LeafLitter||item.Kind==PossessionKind.ReedBundle);
         public static bool Suitable(CampBlueprint p,CampComponent c,Possession item)
         {
-            if(item==null||item.MassKg<=0)return false;
+            if(item==null||item.MassKg<=0||item.UseDamage>=.8)return false;
             if(c.Kind==CampPartKind.Binding)return FrameRules.Binding(item);
             if(c.Kind==CampPartKind.Cover)return CoverMaterial(p,item);
             if(c.Kind==CampPartKind.Stonework)return StoneCrafting.Rock(item);
@@ -183,7 +184,7 @@ namespace WorldGen.Core
             var s=State(p,c);double work=Math.Min(seconds,c.Seconds-s.WorkSeconds);s.WorkSeconds+=work;if(work>0&&s.WorkSeconds>=c.Seconds)p.Revision++;return work;
         }
         public static double CoverFraction(CampBlueprint p)
-        {var covers=Components(p).Where(c=>c.Kind==(p.Design==CampDesign.StoneWindbreak?CampPartKind.Stonework:CampPartKind.Cover)).ToArray();return covers.Length==0?0:covers.Sum(c=>Done(p,c)?Math.Min(c.Kg*1.2,Supplied(p,c)):0)/covers.Sum(c=>c.Kg);}
+        {var covers=Components(p).Where(c=>c.Kind==(p.Design==CampDesign.StoneWindbreak?CampPartKind.Stonework:CampPartKind.Cover)).ToArray();return covers.Length==0?0:covers.Sum(c=>Done(p,c)?Math.Min(c.Kg*1.2,Supplied(p,c))*(1-.65*(State(p,c)?.Weathering??0)):0)/covers.Sum(c=>c.Kg);}
         public static bool Thicken(CampBlueprint p,PlayerInventory inventory,string id,out string reason)
         {
             reason="";var source=inventory.Find(id);if(source==null||!CoverMaterial(p,source)||inventory.Crafts.Any(j=>PortableCrafting.Affects(j,id))){reason="Suitable loose covering is needed.";return false;}
@@ -247,7 +248,7 @@ namespace WorldGen.Core
             if(p.FloorHeights!=null&&(p.FloorHeights.Length!=9||p.FloorHeights.Any(f=>!double.IsFinite(f)||Math.Abs(f)>2)))throw new ArgumentException("Invalid construction footing survey.");
             var defs=Components(p).ToDictionary(d=>d.Key);var keys=new HashSet<string>();
             foreach(var s in p.Parts)
-            {if(s==null||!keys.Add(s.Key)||!defs.TryGetValue(s.Key,out var d)||s.Materials==null||!double.IsFinite(s.WorkSeconds)||s.WorkSeconds<0||s.WorkSeconds>d.Seconds+.001||s.Materials.Any(i=>!Suitable(p,d,i))||d.Kg==0&&s.Materials.Count>1||d.Kg>0&&s.Materials.Sum(i=>i.MassKg)>d.Kg*(d.Kind==CampPartKind.Cover?2.5:1)+.001)throw new ArgumentException("Invalid construction contribution.");}
+            {if(s==null||!keys.Add(s.Key)||!defs.TryGetValue(s.Key,out var d)||s.Materials==null||!double.IsFinite(s.Weathering)||s.Weathering<0||s.Weathering>1||!double.IsFinite(s.WorkSeconds)||s.WorkSeconds<0||s.WorkSeconds>d.Seconds+.001||s.Materials.Any(i=>!Suitable(p,d,i))||d.Kg==0&&s.Materials.Count>1||d.Kg>0&&s.Materials.Sum(i=>i.MassKg)>d.Kg*(d.Kind==CampPartKind.Cover?2.5:1)+.001)throw new ArgumentException("Invalid construction contribution.");}
         }
     }
 }

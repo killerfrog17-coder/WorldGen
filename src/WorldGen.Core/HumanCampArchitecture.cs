@@ -30,7 +30,7 @@ namespace WorldGen.Core
             else if(temperature>27&&district.AnnualRainMm<900&&style>.65)design=CampDesign.OpenCanopy;
             else if(district.AnnualRainMm>1200)design=style>.55?CampDesign.BrushHut:CampDesign.RidgeTent;
             else design=style>.75&&district.Canopy>.25?CampDesign.BrushHut:CampDesign.LeanTo;
-            bool carry=district.Wood<.2||district.Canopy<.15||cover==CampCover.Hide&&(design==CampDesign.ConicalTent||design==CampDesign.BrushHut);
+            bool carry=district.Wood<.2||district.Canopy<.15;
             return new HumanCampStyle(design,cover,true,carry);
         }
     }

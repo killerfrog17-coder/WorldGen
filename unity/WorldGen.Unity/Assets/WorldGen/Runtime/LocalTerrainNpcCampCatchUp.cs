@@ -39,8 +39,8 @@ public sealed partial class LocalTerrainExplorer
         var external=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==id&&HumanDistance(p.Position,source.Position)<80).ToArray();
         job=new NpcCampCatchUpJob{Site=site,Original=source,From=source.Copy(),To=new HumanCampMemory{Site=site,Group=id,Position=group.Anchor,LastSolarDay=PlayerRules.SolarDays,Disturbed=true,Objects=objects.Select(c=>c.Copy()).ToList()},People=originals.Select(p=>p.Copy()).ToArray(),OriginalPeople=originals,OriginalLoose=external,OriginalLooseMass=external.Select(p=>p.MassKg).ToArray(),Loose=new PlayerInventory{Items=external.Select(p=>p.Copy()).ToList()}};
         if(source.Site==site)job.From=job.To;
-        var roster=group.Residents.Members.ToArray();bool poles=NpcCarryCampPoles(group);
+        var roster=group.Residents.Members.ToArray();bool poles=NpcCarryCampPoles(group),cover=NpcTakeCampCover(group);
         double elapsed=Math.Min(3,PlayerRules.SolarDays-source.LastSolarDay),work=elapsed*8*3600*roster.Count(p=>p.AgeYears>=14);
-        var pending=job;job.Work=Task.Run(()=>NpcCampCatchUp.Apply(pending.From,pending.To,pending.People,roster,pending.Loose,poles,work));npcCampCatchUps[id]=job;return false;
+        var pending=job;job.Work=Task.Run(()=>NpcCampCatchUp.Apply(pending.From,pending.To,pending.People,roster,pending.Loose,poles,work,cover));npcCampCatchUps[id]=job;return false;
     }
 }

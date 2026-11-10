@@ -13,7 +13,7 @@ static class HumanCampArchitectureTests
         {
             var c=new ForagerCulture{Seed=seed,Id=seed,Residence=ForagerResidence.CollectorCamps};
             var forest=new ForagerDistrict{Canopy=.8,Wood=.8,AnnualRainMm=1600,Aridity=.9};var temperate=new HabitatCell{ColdTenthsC=-120,WarmTenthsC=240,Biome=Biome.TemperateForest};
-            var winter=HumanCampArchitecture.Select(c,forest,temperate,tech,3,false);Check(winter.Cover==CampCover.Hide&&winter.CarryPoles&&winter.Available,"Cold-season camps retain weather protection and valuable fitted frames");seen.Add(winter.Design);
+            var winter=HumanCampArchitecture.Select(c,forest,temperate,tech,3,false);Check(winter.Cover==CampCover.Hide&&!winter.CarryPoles&&winter.Available,"A cold forest camp can carry valuable hides while leaving the locally abundant frame standing");seen.Add(winter.Design);
             var summer=HumanCampArchitecture.Select(c,forest,temperate,tech,1,false);Check(summer.Cover!=CampCover.Hide,"The same forest need not use a winter skin tent throughout warm summer");seen.Add(summer.Design);
             var baseCamp=HumanCampArchitecture.Select(c,forest,temperate,tech,1,true);Check(baseCamp.Design==CampDesign.BrushHut||baseCamp.Design==CampDesign.LongHut,"Longer residence and shared building tradition allow round or elongated huts");seen.Add(baseCamp.Design);
             var desert=new ForagerDistrict{Wood=.05,Canopy=.02,Aridity=.12,AnnualRainMm=100};var hot=new HabitatCell{ColdTenthsC=190,WarmTenthsC=380,Biome=Biome.Desert};var dry=HumanCampArchitecture.Select(c,desert,hot,tech,1,false);

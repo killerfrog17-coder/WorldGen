@@ -78,13 +78,13 @@ namespace WorldGen.Core
                 var e=V.Cross(new V(0,0,1),anchor).Unit;if(e.Length<.1)e=new V(0,1,0);var n=V.Cross(anchor,e).Unit;
                 double length=Math.Sqrt(east*east+north*north);return length<1e-6?anchor:(anchor*Math.Cos(length/radiusM)+(e*east+n*north)*(Math.Sin(length/radiusM)/length)).Unit;
             }
-            CampObject Object(CampKind kind,string name,V position)=>new CampObject{Id=prefix+"-"+name,Kind=kind,NpcGroup=band,NpcSite=site,Position=position,LastSimulatedSeconds=campSeconds,Heading=Unit("camp-orientation",site)*360};
+            CampObject Object(CampKind kind,string name,V position)=>new CampObject{Id=prefix+"-"+name,Kind=kind,NpcGroup=band,NpcSite=site,Position=position,WeatheredThroughCalendarDay=Math.Max(0,group.ArrivalDay),LastSimulatedSeconds=campSeconds,Heading=Unit("camp-orientation",site)*360};
             Possession Item(PossessionKind kind,V position,string key,double kg=0)
             {
                 var p=PortableTechnology.Item(kind)!=null?PortableTechnology.Create(kind,position):new Possession{Kind=kind,Position=position,WoodSoundness=.9,WoodStraightness=.8};
                 p.Id=prefix+"-material-"+key;p.OwnerGroup=band;p.OwnerName=people.Name;if(kg>0)p.MassKg=kg;return p;
             }
-            double completion=group.Phase==HumanCampPhase.SettingUp?group.Progress:group.Phase==HumanCampPhase.Packing?1-group.Progress:group.Phase==HumanCampPhase.Travelling?0:1;
+            double completion=group.Phase==HumanCampPhase.SettingUp?group.Progress:group.Phase==HumanCampPhase.Travelling?0:1;
             var households=people.Members.GroupBy(p=>p.Household).OrderBy(h=>h.Key).ToArray();
             double ring=Math.Max(6,Math.Sqrt(households.Length)*3.6),orientation=Unit("camp-layout",site)*Math.PI*2;
             foreach(var household in households)

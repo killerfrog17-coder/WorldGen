@@ -16,11 +16,12 @@ static partial class LocalScatterMeshes
         {
             bool done=CampBlueprints.Done(plan,c);if(!preview&&done!=completed)continue;
             if(omitHide&&c.Kind==CampPartKind.Cover&&plan.Cover==CampCover.Hide)continue;
-            int start=b.V.Count;int surface=1;var points=c.Points.Select(P).ToArray();
+            int start=b.V.Count;int surface=1;var points=c.Points.Select(P).ToArray();float weather=(float)(CampBlueprints.State(plan,c)?.Weathering??0);
             if(c.Kind==CampPartKind.Cover)
             {
                 surface=plan.Cover==CampCover.Hide?4:plan.Cover==CampCover.Bark?2:7;
                 var color=plan.Cover==CampCover.Hide?new Color(.55f,.4f,.27f,0):plan.Cover==CampCover.Bark?new Color(.42f,.32f,.22f,0):new Color(.54f,.46f,.24f,0);
+                color=Color.Lerp(color,new Color(.39f,.38f,.31f,0),weather*.65f);
                 for(int face=0;face<points.Length;face+=4)Quad(points[face],points[face+1],points[face+2],points[face+3],color);
                 if(plan.Cover==CampCover.Brush||plan.Cover==CampCover.Reed)
                 {
@@ -77,7 +78,7 @@ static partial class LocalScatterMeshes
             else
             {
                 var source=CampBlueprints.State(plan,c)?.Materials.FirstOrDefault();if(source?.Kind==PossessionKind.Bone)surface=5;float radius=(float)(source?.WidthM??c.WidthM)*.5f;
-                for(int i=1;i<points.Length;i++)b.Tube(points[i-1],points[i],radius,radius*.9f,8,new Color(.39f,.28f,.17f,0));
+                for(int i=1;i<points.Length;i++)b.Tube(points[i-1],points[i],radius,radius*.9f,8,Color.Lerp(new Color(.39f,.28f,.17f,0),new Color(.44f,.43f,.38f,0),weather*.7f));
                 b.Crown(points[points.Length-1],Vector3.one*radius*.9f,8,2,new Color(.68f,.54f,.32f,0),start,.05f);
             }
             for(int i=start;i<b.V.Count;i++)tags.Add(new Vector2(surface,0));

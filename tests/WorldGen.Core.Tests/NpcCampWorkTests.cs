@@ -15,13 +15,15 @@ static class NpcCampWorkTests
         var cargo=new List<Possession>();int count=0;
         while(NpcCampWork.NextPacking(shelter.Blueprint,false) is CampComponent part)
         {cargo.AddRange(NpcCampWork.Remove(shelter,part.Key));if(++count>1000)throw new Exception("Packing did not terminate");}
-        Check(cargo.Any(CampRules.Hide)&&cargo.Any(p=>FrameRules.Binding(p)),"Portable hide coverings and lashings are recovered");
+        Check(cargo.Any(CampRules.Hide)&&!cargo.Any(FrameRules.Binding)&&shelter.Blueprint.Parts.Any(p=>p.Materials.Any(FrameRules.Binding)),"Hide covers are recovered while the standing woodland frame retains its structural lashings");
         Check(shelter.Blueprint.Parts.Any(s=>s.Materials.Any(WoodCrafting.Wood)),"A wooded temporary camp retains its actual reusable frame");
         Check(Math.Abs(shelter.MassKg+cargo.Sum(p=>p.MassKg)-mass)<1e-9,"Dismantling conserves total material mass");
         Check(ids.SetEquals(shelter.OwnedMaterials().Concat(cargo).Select(p=>p.Id)),"Dismantling conserves exact identities");
         Check(cargo.First(p=>p.Id==hideId).AppearanceSpecies=="Elk"&&cargo.First(p=>p.Id==hideId).SourceAnimalId==914,"Packing preserves the animal provenance of a covering");
         Check(cargo.All(p=>p.CampMaterial==7&&!NpcMaterialUse.Fuel(p)),"Tent materials are not automatically consumed as fire fuel");
         Check(NpcCampWork.Remove(shelter,"not-there").Length==0,"The same component cannot be recovered repeatedly");
+        var forestHut=shelter.Copy();forestHut.Blueprint.Cover=CampCover.Brush;HumanCampLayout.FitShelter(forestHut,new double[9]);
+        Check(NpcCampWork.NextPacking(forestHut.Blueprint,false,false)==null&&CampBlueprints.Complete(forestHut.Blueprint),"A woodland shelter left for reuse is not dismantled at all");
         var inventory=new PlayerInventory{Items=cargo};var replacement=CampBlueprints.Create(CampDesign.LeanTo,2,2,CampCover.Hide);
         foreach(var part in shelter.Blueprint.Parts)replacement.Parts.Add(part.Copy());
         for(int k=0;k<100;k++)
