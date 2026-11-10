@@ -168,7 +168,7 @@ public sealed partial class LocalTerrainExplorer
     void ScheduleBackdrop()
     {
         if(detailBaseline)return;
-        bool coveredFlight=motion.Flying&&CenterReady;
+        bool coveredFlight=motion.Flying&&HeightAboveGround>80&&CenterReady;
         if(!coveredFlight&&NearTerrainPending()||!CanRequest)return;
         // Coarse background charts do not satisfy the requested-quality reveal
         // gate. Fill the first visible neighbourhood before spending the same

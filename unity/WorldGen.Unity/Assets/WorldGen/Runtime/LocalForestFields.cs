@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         for(int level=1;level<=15;level++,parent=parent.Parent)
             if(forestFields.TryGetValue(parent,out var coarse)&&coarse.Ready){forestBirth[field.Id]=Time.realtimeSinceStartup;coarse.RetireAfter=Time.realtimeSinceStartup+.7f;}
     }
-    ComputeShader forestCull;bool forestHashDirty;LocalTerrainFrame forestFrame;V forestPlanAt;double forestPlanRange=-1,nextForestVisibility;int forestGroundRevision=-1,forestCoverageRevision=-1;
+    ComputeShader forestCull;bool forestHashDirty;LocalTerrainFrame forestFrame;V forestPlanAt;double forestPlanRange=-1,forestPlanAltitude=-1,nextForestVisibility;int forestGroundRevision=-1,forestCoverageRevision=-1;
     readonly Vector4[] forestPlanes=new Vector4[6];readonly Plane[] forestPlaneWork=new Plane[6];Vector3 forestVisibilityEye=new Vector3(float.NaN,0,0);
     ForestCoverageFootprint forestFootprint;int forestFootprintEpoch=-1;
     bool forestCoveragePlanned,forestUnavailable;V forestCoverageAt;double forestCoverageRange,forestRetryAt;
@@ -136,16 +136,6 @@ public sealed partial class LocalTerrainExplorer
     static uint ForestKeyHash(int x,int z,int level,int face=0)=>ForestMix(unchecked((uint)x*73856093u^(uint)z*19349663u^(uint)level*83492791u^(uint)face*15485863u));
     ArtModel ForestArt(int code,bool macro=false)
     {
-        if(macro)
-        {
-            long canopyKey=ScatterArtKey(ScatterKind.GeneratedTree,code,2)|(1L<<50);
-            if(scatterArt.TryGetValue(canopyKey,out var existing))return existing;
-            var material=new Material(Resources.Load<Shader>("WorldGenForest"));material.SetFloat("_ForestMacro",1);
-            material.SetFloat("_ForestCrown",(int)new TreeMorphology(code).Form);
-            material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);
-            var canopy=new ArtModel{Parts=new[]{new ArtPart{Material=material}},TreeStand=true,TreeBaked=true,Generated=true,TreeCode=code,LastUsed=Time.realtimeSinceStartupAsDouble};
-            scatterArt.Add(canopyKey,canopy);return canopy;
-        }
         code=TreeFlora.RenderCode(code);long key=ScatterArtKey(ScatterKind.GeneratedTree,code,2)|(1L<<49);
         if(scatterArt.TryGetValue(key,out var model))return model;
         model=CreateRebuiltTree(key,code,2);model.TreeStand=true;return model;
@@ -195,10 +185,10 @@ public sealed partial class LocalTerrainExplorer
             forestPlan=null;
         }
         double moved=(Position-forestPlanAt).Length*frame.RadiusM;
-        if(forestPlan==null&&(forestPlanRange!=viewDistance||moved>128||forestOptions!=TerrainVideoOptions.VegetationRevision||flightForestCoverage!=(motion.Flying&&HeightAboveGround>80)))
+        if(forestPlan==null&&(forestPlanRange!=viewDistance||moved>128||Math.Abs(HeightAboveGround-forestPlanAltitude)>128||forestOptions!=TerrainVideoOptions.VegetationRevision||flightForestCoverage!=(motion.Flying&&HeightAboveGround>80)))
         {
             if(forestOptions!=TerrainVideoOptions.VegetationRevision)nextForestVisibility=0;
-            forestPlanAt=Position;forestPlanRange=viewDistance;forestOptions=TerrainVideoOptions.VegetationRevision;
+            forestPlanAt=Position;forestPlanRange=viewDistance;forestPlanAltitude=HeightAboveGround;forestOptions=TerrainVideoOptions.VegetationRevision;
             // Preserve the old exact-census radius. Only submission changes;
             // moving the GPU handoff must not coarsen the forest population.
             var at=Position;double range=viewDistance,exact=Math.Max(384,TerrainVideoOptions.TreeFarLod*2+128),inner=0,altitude=Math.Max(0,HeightAboveGround);var source=scatter;
@@ -329,7 +319,7 @@ public sealed partial class LocalTerrainExplorer
             uint densityHash=Rng.Mix((uint)tree.Id^Rng.Mix((uint)(tree.Id>>32))^0x9a65c4u)&0xffffffu;
             int candidateSide=LocalScatter.TreeCandidateSide,slotId=(int)(tree.Id&65535),cellX=(int)((tree.Id>>40)&0xfffff)*candidateSide+slotId%candidateSide,cellY=(int)((tree.Id>>20)&0xfffff)*candidateSide+slotId/candidateSide;
             var root=new ForestRoot{Position=new Vector3((float)px,height-.045f,(float)pz),Width=(float)(tree.WidthM*source.CrownScale),Height=(float)tree.HeightM,Yaw=(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=cellX,CellY=cellY,Face=(uint)page.Key.Face|(densityHash<<8),
-                Tint=macro?new Vector3((float)tree.Color.X,(float)tree.Color.Y,(float)tree.Color.Z):new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
+                Tint=macro?new Vector3((float)(tree.Color.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z/Math.Max(.01,shared.Z))):new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
             ProjectForestRootGround(ref root,out int groundLevel);
             int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}DirtyForestRoot(batch,slot);forestRootCount++;
             if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
@@ -433,7 +423,7 @@ public sealed partial class LocalTerrainExplorer
             if(batch.Capacity<batch.Data.Count)
             {
                 batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity,4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);
-                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=batch.Macro?96u:6u}});DirtyAllForestRoots(batch);
+                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=batch.Macro?24u:6u}});DirtyAllForestRoots(batch);
             }
             UploadForestRoots(batch);
             if(!batch.CullValid||!batch.CullMatrix.Equals(matrix)||!batch.CullEye.Equals(eye)||!batch.CullChart.Equals(chart)||!batch.CullRange.Equals(ranges)||batch.CullRevision!=forestRevision)
@@ -441,7 +431,7 @@ public sealed partial class LocalTerrainExplorer
                 batch.Visible.SetCounterValue(0);forestCull.SetInt("_RootCount",batch.Data.Count);forestCull.SetBuffer(0,"_Roots",batch.Roots);forestCull.SetBuffer(0,"_Visible",batch.Visible);forestCull.Dispatch(0,(batch.Data.Count+63)/64,1,1);GraphicsBuffer.CopyCount(batch.Visible,batch.Args,4);
                 batch.CullValid=true;batch.CullMatrix=matrix;batch.CullEye=eye;batch.CullChart=chart;batch.CullRange=ranges;batch.CullRevision=forestRevision;
             }
-            var props=batch.Properties;props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
+            var props=batch.Properties;props.SetFloat("_ForestMacro",batch.Macro?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
             props.SetBuffer("_ForestBirth",forestBirthBuffer);props.SetBuffer("_Tiles",forestHashBuffer);props.SetFloat("_ForestClock",Time.realtimeSinceStartup);props.SetInt("_ForestHashMask",forestHashMask);
             var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)viewDistance*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
             Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,batch.Args,1);ForestDrawCalls++;

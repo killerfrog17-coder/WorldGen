@@ -12,7 +12,7 @@ public sealed partial class LocalTerrainExplorer
     readonly HashSet<ArtModel> treeBakeFailures=new HashSet<ArtModel>();
     const int TreeBakeLimit=96;
     public int BakedTreeModels=>scatterArt.Values.Count(m=>m.TreeBaked&&!m.TreeStand);
-    public int BakedForestModels=>scatterArt.Values.Count(m=>m.TreeBaked&&m.TreeStand);
+    public int BakedForestModels=>scatterArt.Values.Count(m=>m.TreeBaked&&m.TreeStand&&m.TreeColour!=null);
     public int PendingTreeModels=>scatterArt.Values.Count(m=>m.TreeBake&&!m.TreeBaked);
     public long TreeBakeBytes=>(BakedTreeModels+BakedForestModels)*(long)LocalTreeImpostor.Size*LocalTreeImpostor.Size*LocalTreeImpostor.Views*8*4/3;
     ArtModel CreateRebuiltTree(long key,int code,int lod)

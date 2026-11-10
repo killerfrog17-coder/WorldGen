@@ -321,7 +321,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         long schedulingTrace=WorldGenPerformance.TraceBegin();
         bool nearPending=NearTerrainPending();
-        bool coveredFlight=motion.Flying&&WorkerLimit>1&&!double.IsNaN(VisibleGround(motion.X,motion.Z,double.NaN));
+        bool coveredFlight=motion.Flying&&HeightAboveGround>80&&WorkerLimit>1&&!double.IsNaN(VisibleGround(motion.X,motion.Z,double.NaN));
         // Free ONE occupied lane only if neither lane is serving near ground.
         // Continually cancelling all background work would itself cause churn.
         bool urgentContact=!coveredFlight||HeightAboveGround<=detailOptions.FullRadius(HorizontalScale);
