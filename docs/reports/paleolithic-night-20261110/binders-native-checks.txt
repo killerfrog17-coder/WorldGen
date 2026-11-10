@@ -1,0 +1,29 @@
+BINDERS CHECK PASS A real iron-rich deposit with a nearby flat work area exists
+BINDERS CHECK PASS Actual soil enables ochre digging
+BINDERS CHECK PASS Timed native material work finishes
+BINDERS CHECK PASS Actual finite ground work yields ochre-rich earth
+BINDERS CHECK PASS Actual contextual action starts: grind-ochre
+BINDERS CHECK PASS Timed native crafting finishes: grind-ochre
+BINDERS CHECK PASS The dug mineral becomes an actual pigment batch
+BINDERS CHECK PASS Actual contextual action starts: gum-ochre-glue
+BINDERS CHECK PASS Timed native crafting finishes: gum-ochre-glue
+BINDERS CHECK PASS Measured gum/ochre/water produce a real unheated mixture
+BINDERS CHECK PASS Actual work site permits a reachable hearth: Aim at reachable ground.
+BINDERS CHECK PASS Actual grinding stone supplies the hearth warming surface
+BINDERS CHECK PASS The actual mixture appears in quick-fire warming choices
+BINDERS CHECK PASS Warming transfers this exact mixture into the hearth
+BINDERS CHECK PASS Actual fueled warming produces compound adhesive
+BINDERS CHECK PASS The exact prepared glue returns from the fire
+BINDERS CHECK PASS Live hearth and actual glue permit haft sealing
+BINDERS CHECK PASS Timed native material work finishes
+BINDERS CHECK PASS Timed application transfers exactly five grams into the same spear
+BINDERS CHECK PASS Actual remaining pigment and water enable markings
+BINDERS CHECK PASS Timed native material work finishes
+BINDERS CHECK PASS Timed application marks the actual spear
+BINDERS CHECK PASS Painted spear can be held normally
+BINDERS CHECK PASS Rendered native game content: ochre-marked-bonded-spear
+BINDERS CHECK PASS Actual burned fuel supplies finite charcoal-bearing residue
+BINDERS CHECK PASS Timed native material work finishes
+BINDERS CHECK PASS Raking creates actual charcoal and removes thirty grams of hearth residue
+BINDERS CHECK PASS Full native capture/reload retains worked mineral patches, pigments and the bonded weapon
+PORTABLE FLOW PASS 29

@@ -1,5 +1,5 @@
 {
-  "status": "source/pure/world checks complete; native rendering and actual application review pending",
+  "status": "functional prototype: 18 pure, actual world resource proof and 29 native checks passed; actual ochre-marked spear screenshot inspected",
   "controls": {
     "binders": 18,
     "portable_tree": 1008,
@@ -28,5 +28,10 @@
     "https://pmc.ncbi.nlm.nih.gov/articles/PMC2700998/",
     "https://exarc.net/issue-2021-4/ea/beeswax-addition-production-european-stone-age-adhesives",
     "https://pmc.ncbi.nlm.nih.gov/articles/PMC4794155/"
-  ]
+  ],
+  "native": {
+    "run": "binders-native-v1",
+    "build": "e32234f2 FULL Mono NONDEV",
+    "checks": 29
+  }
 }

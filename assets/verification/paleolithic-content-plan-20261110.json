@@ -71,7 +71,7 @@
     {
       "id": 10,
       "technology": "Compound adhesives",
-      "status": "not implemented",
+      "status": "functional prototype: actual material rules, world resource placement and native digging/grinding/warming/measured application/save checks passed; gear markings shown in game",
       "scope": "Gatherable resin/charcoal, compound adhesive preparation and hafting use"
     },
     {
@@ -263,7 +263,7 @@
     {
       "id": 42,
       "technology": "Pigment preparation",
-      "status": "not implemented",
+      "status": "functional prototype: actual material rules, world resource placement and native digging/grinding/warming/measured application/save checks passed; gear markings shown in game",
       "scope": "Gatherable pigment, grinding and application"
     }
   ],
