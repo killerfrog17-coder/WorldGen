@@ -17,6 +17,14 @@ public sealed partial class LocalTerrainExplorer
         Check(livingGroups.TryGetValue(PlayerRules.Identity.Group,out var group)&&group.CampLoaded,"The actual generated household camp is loaded");paused=true;livingQueryAt=Time.unscaledTimeAsDouble+180;while(livingWork!=null)yield return null;
         var shelter=Camp.Objects.FirstOrDefault(c=>c.NpcGroup==group.Situation.Band.Id&&c.Blueprint!=null&&NpcCampWork.NextPacking(c.Blueprint,NpcCarryCampPoles(group))!=null);Check(shelter!=null,"The actual shelter contains recoverable portable contributions");
         var actor=livingPeople.Values.First(p=>p.GroupId==group.Situation.Band.Id&&p.Resident.AgeYears>=18);actor.Threat=null;npcPlans.Clear();group.TenderDuty=null;
+        var currentHouse=LivingHouse(actor);Check(currentHouse!=null,"The actual adult has a household shelter at the current camp");
+        var oldHouse=currentHouse.Copy();oldHouse.Id+="-old-site-lookup-proof";oldHouse.NpcSite=currentHouse.NpcSite^7919;
+        try
+        {
+            Camp.Objects.Insert(0,oldHouse);actor.CampHouse=oldHouse;actor.HouseSite=group.Situation.Camp.Id;actor.HouseCheckAt=actor.SimulationAge+30;
+            Check(LivingHouse(actor)==currentHouse,"An old household shelter nearby cannot replace the current site's cached household destination");
+        }
+        finally{Camp.Objects.Remove(oldHouse);actor.CampHouse=currentHouse;}
         NpcBelongings.Equip(actor.Belongings,Array.Empty<Possession>(),actor.Planet);PublishNpcGroundGoods(actor);
         var initialPhase=group.Situation.Phase;group.Situation.Phase=HumanCampPhase.Packing;group.Situation.Progress=.99;
         string[] BeforeIds()=>Camp.Objects.SelectMany(c=>c.OwnedMaterials()).Concat(Inventory.Items).Concat(livingPeople.Values.SelectMany(p=>p.Belongings?.Items??new List<Possession>())).Select(p=>p.Id).OrderBy(x=>x).ToArray();

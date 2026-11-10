@@ -87,9 +87,9 @@ public sealed partial class LocalTerrainExplorer
     CampObject LivingHouse(HumanActor actor)
     {
         if(!livingGroups.TryGetValue(actor.GroupId,out var group)||group.Situation.Phase==HumanCampPhase.Travelling)return null;
-        if(actor.HouseSite==group.Situation.Camp.Id&&actor.SimulationAge<actor.HouseCheckAt)return actor.CampHouse;
+        if(actor.HouseSite==group.Situation.Camp.Id&&actor.CampHouse?.NpcSite==group.Situation.Camp.Id&&actor.SimulationAge<actor.HouseCheckAt)return actor.CampHouse;
         actor.HouseSite=group.Situation.Camp.Id;actor.HouseCheckAt=actor.SimulationAge+1;actor.CampHouse=null;
-        foreach(var house in Camp.Objects)if(house.NpcGroup==actor.GroupId&&house.NpcHousehold==actor.Resident.Household&&house.Blueprint!=null){actor.CampHouse=house;break;}
+        foreach(var house in Camp.Objects)if(house.NpcGroup==actor.GroupId&&house.NpcSite==group.Situation.Camp.Id&&house.NpcHousehold==actor.Resident.Household&&house.Blueprint!=null){actor.CampHouse=house;break;}
         return actor.CampHouse;
     }
     bool LivingDoorwayGoal(HumanActor actor,CampObject house,ref double x,ref double z)
