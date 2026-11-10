@@ -1,0 +1,35 @@
+PASS Wear actual garment: FurCoat
+PASS Wear actual garment: HideLeggings
+PASS Wear actual garment: HideFootwear
+PASS Wear actual garment: HideHood
+PASS Pack remains independent of clothing
+PASS Actual native inventory actor exists
+PASS Screenshot contains rendered game content: clothes-front
+PASS Screenshot contains rendered game content: clothes-back
+PASS Garment uses the actor's skin weights: FurCoat
+PASS Skin bind poses are retained: FurCoat
+PASS Folded object is hidden while worn: FurCoat
+PASS Garment uses the actor's skin weights: HideLeggings
+PASS Skin bind poses are retained: HideLeggings
+PASS Folded object is hidden while worn: HideLeggings
+PASS Garment uses the actor's skin weights: HideFootwear
+PASS Skin bind poses are retained: HideFootwear
+PASS Folded object is hidden while worn: HideFootwear
+PASS Garment uses the actor's skin weights: HideHood
+PASS Skin bind poses are retained: HideHood
+PASS Folded object is hidden while worn: HideHood
+PASS Cached appearance invalidates when actual pigment changes
+PASS Repeated cached appearance retains actual fur and player visibility
+PASS Removing pigment refreshes the same native garment skin
+PASS Take coat off without losing it
+PASS Removing clothing restores the folded ground item
+PASS Re-equip the same coat
+PASS Hood covers hair without scalp clipping
+PASS Remove hood
+PASS Removing hood restores the wearer's original hair
+PASS Put hood back on
+PASS Another person's outfit is not clipped by first-person player visibility
+PASS Native walking pose retains finite, metre-scale garment geometry
+PASS Native inventory supplies full cold outfit protection
+PASS Screenshot contains rendered game content: clothes-outfit
+PASS no runtime errors or exceptions

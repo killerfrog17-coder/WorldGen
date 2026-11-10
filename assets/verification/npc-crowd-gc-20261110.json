@@ -1,0 +1,524 @@
+{
+  "scope": "Native Mono pre-stop to post-restart intervals overlapping recorded slow frames; overlap is evidence, not proof of sole causation.",
+  "events": 1272,
+  "complete_stop_resume_intervals": 212,
+  "unmatched_intervals": 0,
+  "windows": [
+    {
+      "mode": "normal",
+      "clock_bridge_uncertainty_ms": 0.0793,
+      "mean_frame_ms": 10.768926956209606,
+      "p99_frame_ms": 18.386200000009012,
+      "worst_frames": [
+        {
+          "frame_ms": 39.59980000000485,
+          "npc_ms": 6.2406,
+          "stop_resume_overlap_ms": 9.33
+        },
+        {
+          "frame_ms": 35.15849999999432,
+          "npc_ms": 6.6484,
+          "stop_resume_overlap_ms": 7.192
+        },
+        {
+          "frame_ms": 33.553300000008335,
+          "npc_ms": 5.7208,
+          "stop_resume_overlap_ms": 6.7799
+        },
+        {
+          "frame_ms": 33.515200000010736,
+          "npc_ms": 7.195,
+          "stop_resume_overlap_ms": 6.146
+        },
+        {
+          "frame_ms": 32.16650000000243,
+          "npc_ms": 6.43,
+          "stop_resume_overlap_ms": 6.0523
+        },
+        {
+          "frame_ms": 32.11059999999577,
+          "npc_ms": 18.6201,
+          "stop_resume_overlap_ms": 6.703
+        },
+        {
+          "frame_ms": 31.98460000000125,
+          "npc_ms": 6.2668,
+          "stop_resume_overlap_ms": 5.9697
+        },
+        {
+          "frame_ms": 31.80209999999306,
+          "npc_ms": 5.969,
+          "stop_resume_overlap_ms": 6.6138
+        },
+        {
+          "frame_ms": 31.628400000002443,
+          "npc_ms": 5.0517,
+          "stop_resume_overlap_ms": 6.486
+        },
+        {
+          "frame_ms": 31.099600000004557,
+          "npc_ms": 6.3623,
+          "stop_resume_overlap_ms": 6.3574
+        },
+        {
+          "frame_ms": 31.0030999999924,
+          "npc_ms": 6.2861,
+          "stop_resume_overlap_ms": 6.7768
+        },
+        {
+          "frame_ms": 30.698999999998478,
+          "npc_ms": 5.5023,
+          "stop_resume_overlap_ms": 6.5649
+        },
+        {
+          "frame_ms": 30.57220000000882,
+          "npc_ms": 18.6913,
+          "stop_resume_overlap_ms": 7.1279
+        },
+        {
+          "frame_ms": 30.5396999999914,
+          "npc_ms": 18.7944,
+          "stop_resume_overlap_ms": 6.7279
+        },
+        {
+          "frame_ms": 30.33690000000888,
+          "npc_ms": 6.7362,
+          "stop_resume_overlap_ms": 6.9336
+        },
+        {
+          "frame_ms": 30.29589999999871,
+          "npc_ms": 5.2627,
+          "stop_resume_overlap_ms": 6.3749
+        },
+        {
+          "frame_ms": 30.17130000000634,
+          "npc_ms": 5.4437,
+          "stop_resume_overlap_ms": 6.284
+        },
+        {
+          "frame_ms": 29.268700000002923,
+          "npc_ms": 5.9719,
+          "stop_resume_overlap_ms": 6.7847
+        },
+        {
+          "frame_ms": 28.370100000003617,
+          "npc_ms": 5.322,
+          "stop_resume_overlap_ms": 7.0503
+        },
+        {
+          "frame_ms": 28.265499999989174,
+          "npc_ms": 14.8228,
+          "stop_resume_overlap_ms": 5.7933
+        },
+        {
+          "frame_ms": 20.522299999996108,
+          "npc_ms": 6.2141,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 20.47939999999926,
+          "npc_ms": 4.7202,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 19.389599999996676,
+          "npc_ms": 4.7924,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 19.185500000006073,
+          "npc_ms": 4.4425,
+          "stop_resume_overlap_ms": 4.1336
+        }
+      ],
+      "allocation_counter_available": false
+    },
+    {
+      "mode": "render-only",
+      "clock_bridge_uncertainty_ms": 0.00015,
+      "mean_frame_ms": 8.007113290632503,
+      "p99_frame_ms": 13.309600000013688,
+      "worst_frames": [
+        {
+          "frame_ms": 28.17550000000324,
+          "npc_ms": 0.0844,
+          "stop_resume_overlap_ms": 6.8463
+        },
+        {
+          "frame_ms": 27.65619999999558,
+          "npc_ms": 0.0827,
+          "stop_resume_overlap_ms": 6.6272
+        },
+        {
+          "frame_ms": 27.094399999981533,
+          "npc_ms": 0.0814,
+          "stop_resume_overlap_ms": 6.8384
+        },
+        {
+          "frame_ms": 26.969300000018848,
+          "npc_ms": 0.0835,
+          "stop_resume_overlap_ms": 7.7709
+        },
+        {
+          "frame_ms": 26.493399999992562,
+          "npc_ms": 0.1145,
+          "stop_resume_overlap_ms": 6.8632
+        },
+        {
+          "frame_ms": 26.441700000020774,
+          "npc_ms": 14.4999,
+          "stop_resume_overlap_ms": 7.2802
+        },
+        {
+          "frame_ms": 26.36900000001674,
+          "npc_ms": 0.0822,
+          "stop_resume_overlap_ms": 6.4921
+        },
+        {
+          "frame_ms": 26.287599999989197,
+          "npc_ms": 0.1256,
+          "stop_resume_overlap_ms": 6.8172
+        },
+        {
+          "frame_ms": 25.934100000000626,
+          "npc_ms": 14.9307,
+          "stop_resume_overlap_ms": 7.4294
+        },
+        {
+          "frame_ms": 25.523499999991373,
+          "npc_ms": 0.0857,
+          "stop_resume_overlap_ms": 6.2827
+        },
+        {
+          "frame_ms": 25.488599999988537,
+          "npc_ms": 0.0842,
+          "stop_resume_overlap_ms": 7.9039
+        },
+        {
+          "frame_ms": 25.10720000000788,
+          "npc_ms": 0.0815,
+          "stop_resume_overlap_ms": 7.9617
+        },
+        {
+          "frame_ms": 25.09680000000003,
+          "npc_ms": 0.0929,
+          "stop_resume_overlap_ms": 7.3722
+        },
+        {
+          "frame_ms": 24.972100000013597,
+          "npc_ms": 0.0836,
+          "stop_resume_overlap_ms": 6.4701
+        },
+        {
+          "frame_ms": 24.90749999998343,
+          "npc_ms": 0.0814,
+          "stop_resume_overlap_ms": 7.2868
+        },
+        {
+          "frame_ms": 24.722500000024183,
+          "npc_ms": 0.0819,
+          "stop_resume_overlap_ms": 7.7177
+        },
+        {
+          "frame_ms": 23.996799999991936,
+          "npc_ms": 0.0852,
+          "stop_resume_overlap_ms": 9.0643
+        },
+        {
+          "frame_ms": 23.885699999993903,
+          "npc_ms": 0.0847,
+          "stop_resume_overlap_ms": 7.675
+        },
+        {
+          "frame_ms": 23.82910000000038,
+          "npc_ms": 0.0832,
+          "stop_resume_overlap_ms": 7.8948
+        },
+        {
+          "frame_ms": 23.738500000007434,
+          "npc_ms": 0.0847,
+          "stop_resume_overlap_ms": 8.1323
+        },
+        {
+          "frame_ms": 23.11910000000239,
+          "npc_ms": 0.0915,
+          "stop_resume_overlap_ms": 7.4857
+        },
+        {
+          "frame_ms": 23.077699999987544,
+          "npc_ms": 0.1652,
+          "stop_resume_overlap_ms": 7.647
+        },
+        {
+          "frame_ms": 22.1650000000011,
+          "npc_ms": 0.0839,
+          "stop_resume_overlap_ms": 7.0042
+        },
+        {
+          "frame_ms": 19.00230000001102,
+          "npc_ms": 0.1222,
+          "stop_resume_overlap_ms": 0.0
+        }
+      ],
+      "allocation_counter_available": false
+    },
+    {
+      "mode": "no-residents",
+      "clock_bridge_uncertainty_ms": 0.0002,
+      "mean_frame_ms": 5.796397102009265,
+      "p99_frame_ms": 12.060700000006364,
+      "worst_frames": [
+        {
+          "frame_ms": 36.875299999991284,
+          "npc_ms": 0.0914,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 28.260699999975714,
+          "npc_ms": 0.0849,
+          "stop_resume_overlap_ms": 6.7932
+        },
+        {
+          "frame_ms": 28.036000000014383,
+          "npc_ms": 0.082,
+          "stop_resume_overlap_ms": 7.559
+        },
+        {
+          "frame_ms": 27.516800000000785,
+          "npc_ms": 0.0817,
+          "stop_resume_overlap_ms": 8.2499
+        },
+        {
+          "frame_ms": 26.836500000001706,
+          "npc_ms": 0.0873,
+          "stop_resume_overlap_ms": 7.7839
+        },
+        {
+          "frame_ms": 26.825999999999794,
+          "npc_ms": 15.2707,
+          "stop_resume_overlap_ms": 7.501
+        },
+        {
+          "frame_ms": 26.427899999987403,
+          "npc_ms": 0.0965,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 26.126500000003716,
+          "npc_ms": 0.1326,
+          "stop_resume_overlap_ms": 7.2433
+        },
+        {
+          "frame_ms": 26.022599999976137,
+          "npc_ms": 0.1802,
+          "stop_resume_overlap_ms": 7.2328
+        },
+        {
+          "frame_ms": 25.52990000000932,
+          "npc_ms": 0.082,
+          "stop_resume_overlap_ms": 7.9498
+        },
+        {
+          "frame_ms": 25.332899999995107,
+          "npc_ms": 0.0853,
+          "stop_resume_overlap_ms": 9.6383
+        },
+        {
+          "frame_ms": 25.07479999999873,
+          "npc_ms": 15.8717,
+          "stop_resume_overlap_ms": 7.7204
+        },
+        {
+          "frame_ms": 25.03129999999487,
+          "npc_ms": 0.0802,
+          "stop_resume_overlap_ms": 7.4074
+        },
+        {
+          "frame_ms": 24.566700000008268,
+          "npc_ms": 0.1021,
+          "stop_resume_overlap_ms": 9.6179
+        },
+        {
+          "frame_ms": 24.49020000000246,
+          "npc_ms": 0.0853,
+          "stop_resume_overlap_ms": 7.2433
+        },
+        {
+          "frame_ms": 24.433200000004263,
+          "npc_ms": 0.0858,
+          "stop_resume_overlap_ms": 7.7693
+        },
+        {
+          "frame_ms": 24.42699999997444,
+          "npc_ms": 0.0799,
+          "stop_resume_overlap_ms": 7.63
+        },
+        {
+          "frame_ms": 24.304400000005444,
+          "npc_ms": 0.0796,
+          "stop_resume_overlap_ms": 7.5733
+        },
+        {
+          "frame_ms": 24.204700000012735,
+          "npc_ms": 0.079,
+          "stop_resume_overlap_ms": 7.4731
+        },
+        {
+          "frame_ms": 24.13759999998888,
+          "npc_ms": 0.0822,
+          "stop_resume_overlap_ms": 7.5261
+        },
+        {
+          "frame_ms": 24.06720000001883,
+          "npc_ms": 0.0816,
+          "stop_resume_overlap_ms": 7.3688
+        },
+        {
+          "frame_ms": 23.9754999999775,
+          "npc_ms": 0.0818,
+          "stop_resume_overlap_ms": 7.5004
+        },
+        {
+          "frame_ms": 23.616799999985005,
+          "npc_ms": 0.1079,
+          "stop_resume_overlap_ms": 7.9545
+        },
+        {
+          "frame_ms": 23.60049999998637,
+          "npc_ms": 0.0803,
+          "stop_resume_overlap_ms": 7.7569
+        }
+      ],
+      "allocation_counter_available": false
+    },
+    {
+      "mode": "normal-repeat",
+      "clock_bridge_uncertainty_ms": 0.00035,
+      "mean_frame_ms": 10.8294272464814,
+      "p99_frame_ms": 18.712899999997035,
+      "worst_frames": [
+        {
+          "frame_ms": 39.366099999995185,
+          "npc_ms": 6.3013,
+          "stop_resume_overlap_ms": 7.6058
+        },
+        {
+          "frame_ms": 36.570699999998624,
+          "npc_ms": 6.8012,
+          "stop_resume_overlap_ms": 8.4866
+        },
+        {
+          "frame_ms": 36.327700000015284,
+          "npc_ms": 7.2364,
+          "stop_resume_overlap_ms": 7.7684
+        },
+        {
+          "frame_ms": 36.072600000011334,
+          "npc_ms": 5.5934,
+          "stop_resume_overlap_ms": 8.582
+        },
+        {
+          "frame_ms": 35.21670000000654,
+          "npc_ms": 6.5487,
+          "stop_resume_overlap_ms": 8.4903
+        },
+        {
+          "frame_ms": 34.7336000000098,
+          "npc_ms": 21.4628,
+          "stop_resume_overlap_ms": 7.0561
+        },
+        {
+          "frame_ms": 34.706599999992704,
+          "npc_ms": 5.7888,
+          "stop_resume_overlap_ms": 7.9571
+        },
+        {
+          "frame_ms": 34.64880000001358,
+          "npc_ms": 6.7507,
+          "stop_resume_overlap_ms": 7.9788
+        },
+        {
+          "frame_ms": 34.331699999995635,
+          "npc_ms": 6.6805,
+          "stop_resume_overlap_ms": 7.9029
+        },
+        {
+          "frame_ms": 33.674500000017815,
+          "npc_ms": 6.4348,
+          "stop_resume_overlap_ms": 7.8859
+        },
+        {
+          "frame_ms": 32.491500000020324,
+          "npc_ms": 5.6163,
+          "stop_resume_overlap_ms": 8.0437
+        },
+        {
+          "frame_ms": 32.289500000018734,
+          "npc_ms": 5.61,
+          "stop_resume_overlap_ms": 9.3167
+        },
+        {
+          "frame_ms": 32.20550000000344,
+          "npc_ms": 6.4962,
+          "stop_resume_overlap_ms": 9.1468
+        },
+        {
+          "frame_ms": 31.97380000000294,
+          "npc_ms": 5.6088,
+          "stop_resume_overlap_ms": 7.5881
+        },
+        {
+          "frame_ms": 31.15059999998948,
+          "npc_ms": 19.736,
+          "stop_resume_overlap_ms": 7.7535
+        },
+        {
+          "frame_ms": 30.62029999998117,
+          "npc_ms": 5.6309,
+          "stop_resume_overlap_ms": 8.3474
+        },
+        {
+          "frame_ms": 30.560699999995222,
+          "npc_ms": 18.9258,
+          "stop_resume_overlap_ms": 7.877
+        },
+        {
+          "frame_ms": 30.219499999986965,
+          "npc_ms": 5.9888,
+          "stop_resume_overlap_ms": 8.5363
+        },
+        {
+          "frame_ms": 30.108399999988933,
+          "npc_ms": 5.8134,
+          "stop_resume_overlap_ms": 8.8772
+        },
+        {
+          "frame_ms": 28.348899999997457,
+          "npc_ms": 5.5616,
+          "stop_resume_overlap_ms": 8.6728
+        },
+        {
+          "frame_ms": 23.47000000000321,
+          "npc_ms": 4.7735,
+          "stop_resume_overlap_ms": 0.0
+        },
+        {
+          "frame_ms": 22.745799999995597,
+          "npc_ms": 5.359,
+          "stop_resume_overlap_ms": 3.06
+        },
+        {
+          "frame_ms": 20.809000000014066,
+          "npc_ms": 6.6263,
+          "stop_resume_overlap_ms": 0.6591
+        },
+        {
+          "frame_ms": 19.793099999986907,
+          "npc_ms": 5.3652,
+          "stop_resume_overlap_ms": 0.0
+        }
+      ],
+      "allocation_counter_available": false
+    }
+  ]
+}

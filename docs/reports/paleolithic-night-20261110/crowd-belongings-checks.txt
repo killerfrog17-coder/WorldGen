@@ -1,0 +1,19 @@
+PASS Two actual adult residents exist
+PASS The physical actor uses its saved inventory rather than a prop-only loadout
+PASS Repeated visual task changes create or delete no actual goods
+PASS Every displayed NPC possession is a real carried item
+PASS The real resident wears a persistent carrier for the visual transfer test
+PASS Switching the same actual tool between hands preserves its visual object and updates the grip
+PASS Adding and removing a held item retains the unchanged worn carrier and removes only that item visual
+PASS A healthy resident's complete belongings survive session copying
+PASS Personal belongings remain marked as another person's property
+PASS An owned real ground item can actually be stolen
+PASS A seeing owner remembers who took the specific item
+PASS A resident behind a real wall does not learn the theft magically
+PASS Possession changes physically while the original ownership remains recorded
+PASS Witnessed theft changes mood and the directed relationship
+PASS The aimed owned item uses the actual red theft-prompt style
+PASS An actual other household's bedding has private-use status
+PASS No possession ID exists in both the world and an NPC inventory
+PASS Owned goods and social consequences validate after the real transfer
+PASS captured session validates with conversation memories

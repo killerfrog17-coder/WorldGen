@@ -1,0 +1,33 @@
+PASS The controlled resident's actual camp is loaded
+PASS Two actual generated children are present, without inserting fake residents
+PASS The actual community has a shared hearth
+PASS The actual hearth's trampled clearing is available to perception
+PASS NPC/animal sight does not use invisible grass inside the cleared court
+PASS Physical play uses the actual other child as a partner
+PASS Debug activities name the actual playmate and game
+PASS The existing material-backed hearth is actually lit for the crossing check
+PASS A chasing child routes around a lit hearth rather than through its centre
+PASS Actual adult bandmates are available
+PASS More than twelve actual bandmates are available for the fair visual-check probe
+PASS Bounded visual checks eventually recognise every visible actual bandmate beyond the first twelve
+PASS A real parent or household caregiver is physically present with children
+PASS A household caregiver worries about a genuinely known overdue child without automatically requiring a search
+PASS Absence does not reveal death or the child's current location
+PASS Actually seeing the child again resolves the search
+PASS A real adult bandmate has an established friendship for scheduled-absence checks
+PASS Seven hours away on a real expected party schedule does not create a missing alarm or search
+PASS A reported concern does not automatically restore an unaccepted search
+PASS An actual other family's sleeping place is marked private
+PASS An actual willing adult is available for the spoken search request
+PASS An awake missing person within earshot answers the call instead of being recruited to search for themselves
+PASS An audible request recruits actual nearby adults with explicitly reported last-known information
+PASS Search recruits do not gain supernatural knowledge of an unseen death
+PASS The actual household roster includes a young child for the caregiver check
+PASS The normal resident/model factory creates that same real young child
+PASS Without a reachable caregiver the young child remains where put down instead of teleporting to a distant adult
+PASS An actual adult who approaches within reach can take over care
+PASS The real caregiver remembers taking responsibility for the child
+PASS Sleep/play/search and social memories remain valid local state
+PASS Children actually move through the camp during ten seconds of normal play updates
+PASS The play evidence image is captured during actual movement
+PASS captured session validates with conversation memories
