@@ -216,9 +216,9 @@ public sealed partial class LocalTerrainExplorer
         if(TestHoldHandoff){TestHandoffWaiting=true;return;}
         CommitPreparedFrame(pending,x,z);
     }
-    void SchedulePreparedWork(bool reserveCurrentSlot)
+    void SchedulePreparedWork(bool reserveCurrentSlot,bool coveredFlight=false)
     {
-        var pending=preparedFrame;if(pending?.Wanted==null||NearTerrainPending())return;
+        var pending=preparedFrame;if(pending?.Wanted==null||!coveredFlight&&NearTerrainPending())return;
         if(reserveCurrentSlot&&jobs.Any(j=>j.Prepared!=null))return;
         // First fill the actual requested coarse distance leaves (not extra
         // roots). Refinement churn near a fast traveller must not starve them.

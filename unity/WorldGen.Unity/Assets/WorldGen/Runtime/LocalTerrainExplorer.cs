@@ -304,15 +304,23 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         long schedulingTrace=WorldGenPerformance.TraceBegin();
         bool nearPending=NearTerrainPending();
+        bool coveredFlight=motion.Flying&&WorkerLimit>1&&!double.IsNaN(VisibleGround(motion.X,motion.Z,double.NaN));
         // Free ONE occupied lane only if neither lane is serving near ground.
         // Continually cancelling all background work would itself cause churn.
         if(nearPending&&ActiveWorkerCount>=WorkerLimit&&!jobs.Any(j=>WorkMatchesCurrent(j)&&ImmediateTerrain(j.Key)))
         {
             var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
             if(forest!=null)forest.Cancellation.Cancel();
-            else jobs.LastOrDefault(j=>j.Prepared!=null||!ImmediateTerrain(j.Key))?.Cancellation?.Cancel();
+            else
+            {
+                var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key));
+                if(background!=null)background.Cancellation?.Cancel();
+                else if(!coveredFlight)jobs.LastOrDefault(j=>j.Prepared!=null)?.Cancellation?.Cancel();
+            }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
+        if(coveredFlight&&preparedFrame!=null&&ReanchorDistance>=ReanchorLimit*.65)
+            SchedulePreparedWork(reserveCurrentSlot:true,coveredFlight:true);
         // Share the outward loading front instead of finishing a bare horizon
         // before the forest gets any worker time. Alternate with terrain on a
         // single-worker machine; never reserve this turn ahead of near ground
