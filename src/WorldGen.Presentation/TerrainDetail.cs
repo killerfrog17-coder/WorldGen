@@ -21,6 +21,14 @@ namespace WorldGen.Presentation
         public double UploadBudgetMs=>Budgets[Math.Max(0,Math.Min(3,Effort))];
         public double RequestInterval=>Effort==0?.025:0;
         public double FullRadius(double scale)=>TerrainLod.BaseSizeM*scale*Math.Max(1.5,Math.Min(8,FullDetailTiles));
+        public double ProtectedRadius(double scale,double altitude)
+        {
+            double full=FullRadius(scale),height=Math.Max(0,Math.Abs(altitude)-TerrainMotion.EyeHeightM);
+            // A ground-contact floor must not demand metre-scale meshes under
+            // an aircraft thousands of metres away. Screen-space error and
+            // proximity refinement still govern the airborne landscape.
+            return full*Math.Max(0,Math.Min(1,(full-height)/(full*.5)));
+        }
         public TerrainDetailOptions Copy()=>(TerrainDetailOptions)MemberwiseClone();
     }
 
@@ -85,7 +93,7 @@ namespace WorldGen.Presentation
             Func<TerrainTileKey,int,double> error,int height=1080,double fov=68,IReadOnlyDictionary<TerrainTileKey,int>? previous=null,CancellationToken token=default)
         {
             if(scale<.01||scale>2||double.IsNaN(scale))throw new ArgumentOutOfRangeException(nameof(scale));
-            double range=Math.Max(1000,Math.Min(250000,options.ViewDistanceM)),full=options.FullRadius(scale);
+            double range=Math.Max(1000,Math.Min(250000,options.ViewDistanceM)),full=options.ProtectedRadius(scale,altitude);
             var result=new Dictionary<TerrainTileKey,int>();
             int root=Math.Max(0,(int)Math.Floor(Math.Log(128/scale,2)));double size=TerrainLod.BaseSizeM*scale*(1<<root);
             var ancestors=new HashSet<TerrainTileKey>();

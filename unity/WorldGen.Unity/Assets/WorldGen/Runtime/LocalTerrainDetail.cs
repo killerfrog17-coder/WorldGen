@@ -10,6 +10,7 @@ public sealed partial class LocalTerrainExplorer
 {
     readonly bool detailBaseline=Environment.GetCommandLineArgs().Contains("--worldgen-detail-baseline");
     readonly bool legacyLoader=Environment.GetCommandLineArgs().Contains("--worldgen-loader-legacy");
+    readonly bool legacyPlanRefresh=Environment.GetCommandLineArgs().Contains("--worldgen-plan-bootstrap-legacy");
     TerrainDetailOptions detailOptions=new TerrainDetailOptions();
     TerrainDetailEstimator detailEstimator;
     Task<Dictionary<TerrainTileKey,int>> detailPlan;
@@ -74,7 +75,7 @@ public sealed partial class LocalTerrainExplorer
         {
             detailRevision=TerrainVideoOptions.Revision;detailOptions=TerrainVideoOptions.Current.Copy();
             viewDistance=Math.Min(detailOptions.ViewDistanceM,MaximumViewDistance);SetFog();
-            CancelPreparedFrame();RefreshWanted();
+            CancelPreparedFrame();RefreshWanted(resetDetail:true);
         }
         if(detailBaseline){detailDirty=false;return;}
         if(plannedPixels!=Screen.height||Math.Abs(plannedFov-view.fieldOfView)>.1)
@@ -87,8 +88,13 @@ public sealed partial class LocalTerrainExplorer
                 if(!(detailCancellation?.IsCancellationRequested==true&&fault is OperationCanceledException))
                 {Debug.LogWarning("Terrain detail plan failed: "+detailPlan.Exception);error=fault.Message;debugOpen=true;}
             }
-            else if(!detailPlan.IsCanceled&&detailGeneration==generation&&Math.Abs(detailX-motion.X)<TerrainLod.ReplanDistance(HorizontalScale)&&Math.Abs(detailZ-motion.Z)<TerrainLod.ReplanDistance(HorizontalScale))
-                AdoptDetailPlan(detailPlan.Result);
+            else if(!detailPlan.IsCanceled&&detailGeneration==generation)
+            {
+                double ageDistance=Math.Max(Math.Abs(detailX-motion.X),Math.Abs(detailZ-motion.Z));
+                if(ageDistance<=Math.Max(detailOptions.FullRadius(HorizontalScale),Math.Abs(HeightAboveGround)))
+                    AdoptDetailPlan(TerrainStreamingPlan.ProtectNear(detailPlan.Result,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,HeightAboveGround),detailOptions.FinestSegments));
+                else detailDirty=true;
+            }
             detailPlan=null;detailCancellation?.Dispose();detailCancellation=null;
         }
         if(detailPlan!=null||!detailDirty)return;

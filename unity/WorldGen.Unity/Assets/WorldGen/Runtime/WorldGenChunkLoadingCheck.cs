@@ -56,6 +56,8 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllLines(Path.Combine(output,"chunk-loading.txt"),report);
         if(!milestones.ContainsKey("radius600"))throw new InvalidOperationException("600m all-direction terrain/forest footprint not loaded in 180 seconds");
         Capture(Path.Combine(output,"chunk-loaded.png"));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-motion"))yield return CheckChunkPlanMotion(output);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-fast-flight"))yield return CheckChunkFastFlight(output);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-travel"))
         {
             var travel=new List<string>{"seconds,east,nearReady,terrainM,forestM,tiles,activeWorkers"};
@@ -76,5 +78,65 @@ public sealed partial class LocalTerrainExplorer
         }
         File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS empty spectator loading check\n");
         Close();Application.Quit(0);
+    }
+    IEnumerator CheckChunkPlanMotion(string output)
+    {
+        var before=new Dictionary<TerrainTileKey,int>(wanted);
+        var probes=before.Select(p=>(X:(p.Key.X+.5)*p.Key.SizeM,Z:(p.Key.Z+.5)*p.Key.SizeM,Spacing:p.Key.SizeM/p.Value))
+            .Where(p=>Math.Abs(p.X)<viewDistance*.7&&Math.Abs(p.Z)<viewDistance*.7).ToArray();
+        double Spacing(IReadOnlyDictionary<TerrainTileKey,int> plan,double x,double z)
+        {
+            for(int level=0;level<24;level++)
+            {
+                double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);
+                var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
+                if(plan.TryGetValue(key,out int segments))return key.SizeM/segments;
+            }
+            return double.PositiveInfinity;
+        }
+        var rows=new List<string>{"step,east,downgradedProbes,requestedTiles,residentTiles,buildRequests,cacheHits,previousSurfaces"};
+        int worstDowngrades=0;long builds=TerrainBuildRequests,hits=TerrainCacheHits;BeginLoadingProfile();
+        for(int step=1;step<=6;step++)
+        {
+            // Keep the full estimator pending for one second. This explicitly
+            // exercises the in-flight interval, rather than hoping a fast CPU
+            // catches the temporary zero-relief plan in a screenshot.
+            double east=step*TerrainLod.ReplanDistance(HorizontalScale)*1.05;
+            PerformanceTravel(east);RefreshWanted();detailDirty=false;
+            int downgraded=probes.Count(p=>Spacing(wanted,p.X,p.Z)>p.Spacing*(1+1e-9));
+            worstDowngrades=Math.Max(worstDowngrades,downgraded);
+            rows.Add(string.Join(",",step,east.ToString("R",CultureInfo.InvariantCulture),downgraded,wanted.Count,tiles.Count,TerrainBuildRequests-builds,TerrainCacheHits-hits,previousTerrain.Count));
+            if(!legacyPlanRefresh&&downgraded!=0)throw new InvalidOperationException("Movement replaced known relief with coarser temporary requests");
+            double until=Time.realtimeSinceStartupAsDouble+1;
+            while(Time.realtimeSinceStartupAsDouble<until){if(Error!="")throw new InvalidOperationException(Error);yield return null;}
+            if(step==1||step==6)Capture(Path.Combine(output,"motion-step-"+step+".png"));
+        }
+        File.WriteAllLines(Path.Combine(output,"plan-motion.csv"),rows);
+        File.WriteAllText(Path.Combine(output,"plan-motion.txt"),"Legacy bootstrap="+legacyPlanRefresh+"; worst downgraded probes="+worstDowngrades+"; builds="+(TerrainBuildRequests-builds)+"; cache hits="+(TerrainCacheHits-hits)+"\n"+EndLoadingProfile());
+        detailDirty=true;
+    }
+    IEnumerator CheckChunkFastFlight(string output)
+    {
+        var origin=frame;var rows=new List<string>{"seconds,speed,east,altitude,viewM,terrainM,forestM,tiles,jobs,nearReady,groundAtPlayer,missingNearProbes,handoffs,buildRequests"};
+        TestView(500,90,12);double start=Time.realtimeSinceStartupAsDouble,last=start,east=0,next=start;
+        long initialBuilds=TerrainBuildRequests;int missingFrames=0;BeginLoadingProfile();
+        while(Time.realtimeSinceStartupAsDouble-start<40)
+        {
+            double now=Time.realtimeSinceStartupAsDouble,t=now-start,dt=Math.Min(.1,now-last);last=now;
+            double speed=t<8?200:600;if(t>=24)speed=-600;
+            east+=speed*dt;var at=origin.Position(east,0);TerrainHandoff.Coordinates(frame,at,out double x,out double z);
+            TrackStreamingMotion(x-motion.X,z-motion.Z,Math.Max(.001,dt));motion.X=x;motion.Z=z;motion.Y=Ground(x,z)+500;motion.Flying=true;
+            heading=(float)(Math.Atan2(V.Dot(origin.East,frame.East),V.Dot(origin.East,frame.North))*180/Math.PI)+(speed<0?180:0);UpdateCamera();
+            int missing=0;foreach(double distance in new[]{0d,200,600})foreach(double angle in new[]{0d,Math.PI*.5,Math.PI,Math.PI*1.5})
+                if(double.IsNaN(VisibleGround(x+Math.Cos(angle)*distance,z+Math.Sin(angle)*distance,double.NaN)))missing++;
+            bool playerGround=!double.IsNaN(VisibleGround(x,z,double.NaN));if(!playerGround)missingFrames++;
+            if(now>=next)
+            {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}
+            if(Error!="")throw new InvalidOperationException(Error);
+            yield return null;
+        }
+        File.WriteAllLines(Path.Combine(output,"fast-flight.csv"),rows);
+        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse, 500m altitude; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
+        Capture(Path.Combine(output,"fast-flight.png"));
     }
 }

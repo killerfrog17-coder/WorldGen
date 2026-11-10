@@ -1,10 +1,13 @@
 param(
     [ValidateSet('slot-a','slot-b')][string]$Slot='slot-a',
     [ValidatePattern('^[a-z0-9-]+$')][string]$Name,
-    [ValidateSet('SandSea','WoodedSwamp','GlacialTrough','TemperateForest','Grassland')][string]$Kind='TemperateForest',
+    [ValidateSet('SandSea','WoodedSwamp','GlacialTrough','TemperateForest','Grassland','Canyon')][string]$Kind='TemperateForest',
     [string]$World='artifacts/terrain-surfaces-20261107/playable.world',
     [switch]$Legacy,
-    [switch]$Travel
+    [switch]$Travel,
+    [switch]$Motion,
+    [switch]$LegacyPlan,
+    [switch]$FastFlight
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -21,6 +24,9 @@ $arguments=@('-batchmode','-screen-width','1536','-screen-height','864','-screen
     '--worldgen-output',('"'+$output+'"'),'-logFile',('"'+$output+'/player.log"'))
 if($Legacy){$arguments+='--worldgen-loader-legacy'}
 if($Travel){$arguments+='--worldgen-chunk-travel'}
+if($Motion){$arguments+='--worldgen-chunk-motion'}
+if($LegacyPlan){$arguments+='--worldgen-plan-bootstrap-legacy'}
+if($FastFlight){$arguments+='--worldgen-chunk-fast-flight'}
 $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
 Write-Output ($Name+' PID '+$process.Id)
 $process.WaitForExit()

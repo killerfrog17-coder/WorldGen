@@ -334,13 +334,15 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         nearMemoFrame=Time.frameCount;nearMemoRevision=residentRevision;nearMemoCount=tiles.Count;nearMemoWanted=wanted;nearMemoX=motion.X;nearMemoZ=motion.Z;
         return nearMemoPending=NearTerrainPendingFresh();
     }
-    void RefreshWanted()
+    void RefreshWanted(bool resetDetail=false)
     {
+        bool bootstrap=resetDetail||detailBaseline||legacyPlanRefresh||double.IsNaN(plannedX);
         plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=HeightAboveGround;
-        detailCancellation?.Cancel();detailDirty=true;
-        wanted=InitialDetailPlan(motion.X,motion.Z,plannedAltitude);priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
+        if(bootstrap)detailCancellation?.Cancel();detailDirty=true;
+        wanted=bootstrap?InitialDetailPlan(motion.X,motion.Z,plannedAltitude):TerrainStreamingPlan.ProtectNear(wanted,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,plannedAltitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance));
+        priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
         wantedEdges.Clear();foreach(var pair in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
-        foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);}
+        foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
         foreach(var job in jobs)
             if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();
         double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);

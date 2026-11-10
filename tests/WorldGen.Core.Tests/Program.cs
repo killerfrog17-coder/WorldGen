@@ -168,6 +168,7 @@ if(args.Contains("--survival-hud-only")){SurvivalHudTests.Run();return;}
 if(args.Contains("--vegetation-community-only")){VegetationCommunityTests.Run();return;}
 if(args.Contains("--coverage-ancestors")){CoverageAncestorTests.Run();return;}
 if(args.Contains("--streaming-fog-only")){TerrainStreamingRevealTests.Run();return;}
+if(args.Contains("--streaming-plan-only")){TerrainStreamingPlanTests.Run();return;}
 if(args.Contains("--sound-file-index")){WildlifeSoundFileIndexTests.Run();return;}
 if(args.Contains("--tree-rendering-lod-only")){TreeRenderingLodTests.Run();return;}
 if(args.Contains("--sun-shadow-budget-only")){SunShadowBudgetTests.Run();return;}
