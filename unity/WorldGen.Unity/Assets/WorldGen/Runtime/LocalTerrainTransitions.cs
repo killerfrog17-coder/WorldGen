@@ -38,7 +38,16 @@ public sealed partial class LocalTerrainExplorer
         {
             var tile=pair.Value;
             if(tile.FadeIn>0&&Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds){tile.FadeIn=0;coverageDirty=true;}
-            if(tile.FadeOut>0&&wanted.ContainsKey(pair.Key))
+            if(tile.FadeOut>0&&!wanted.ContainsKey(pair.Key)&&wanted.Keys.Any(k=>k.Level<pair.Key.Level&&Overlaps(pair.Key,k)))
+            {
+                // The camera reversed a coarsening decision. New fine products
+                // inherit this parent's visibility, so an old outgoing stamp
+                // would make every replacement vanish until the whole subtree
+                // eventually retires. Restore the fallback before revealing
+                // those descendants; never fade from an already empty region.
+                tile.FadeIn=tile.FadeOut=0;coverageDirty=true;
+            }
+            else if(tile.FadeOut>0&&wanted.ContainsKey(pair.Key))
             {
                 double p=TerrainCoverage.Fade(Time.time,tile.FadeIn,tile.FadeOut),lo=0,hi=1;
                 for(int i=0;i<16;i++){double mid=(lo+hi)*.5;if(mid*mid*(3-2*mid)<p)lo=mid;else hi=mid;}

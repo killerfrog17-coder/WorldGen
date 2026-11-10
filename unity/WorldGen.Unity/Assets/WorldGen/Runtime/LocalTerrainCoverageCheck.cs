@@ -98,6 +98,12 @@ public sealed partial class LocalTerrainExplorer
         explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
         explorer.wanted.Clear();explorer.wanted.Add(child,64);tile.Segments=64;tile.FadeIn=tile.FadeOut=0;
+        newParent.FadeOut=Math.Max(.001f,Time.time-4);explorer.UpdateTerrainTransitions();
+        if(newParent.FadeOut!=0||explorer.TerrainTiming(child).Out!=0||explorer.TerrainTiming(child).In!=0)
+            throw new Exception("Reversing coarsening left wanted fine terrain inheriting an obsolete parent fade");
+        explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var reversed=Capture("coarsening-reversed");
+        if(reversed[32*128+32].g<=reversed[32*128+32].r)throw new Exception("Reversed coarsening did not restore the wanted fine surface");
         if(!explorer.CanRetireTransition(parent))throw new Exception("A fully ready fine replacement did not release its parent");
         bool oldKeep=WorldGenPerformance.KeepBackdrops;WorldGenPerformance.KeepBackdrops=true;explorer.backdrops[parent]=new double[4];
         if(explorer.CanRetireTransition(parent))throw new Exception("A still-planned coarse backdrop was unnecessarily retired");
