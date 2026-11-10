@@ -20,7 +20,7 @@ static class RiverNodeJoinTests
         {
             double theta=angle*Math.PI/180,half=75,r=RiverscapeKernel.ConfluenceRadius(half,Math.Cos(theta));
             Check(double.IsFinite(r)&&r>=RiverscapeKernel.JunctionRadius(half)-1e-8,"Confluence stage includes its node disk");
-            Check(Math.Abs(r*Math.Sin(theta*.5)-RiverscapeKernel.JunctionRadius(half))<1e-7,"Shared stage includes the farthest overlap of incident corridors");
+            Check(Math.Abs((r-half-2)*Math.Sin(theta*.5)-RiverscapeKernel.JunctionRadius(half))<1e-7,"Shared stage includes the farthest overlap plus the full paired section");
         }
         var first=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));
         var again=RiverPlanform.Build(t=>P(t*1000),64,1000,20,.001,.8,.1,radius,81,new V(0,1,.3),new V(0,1,-.2));

@@ -5,6 +5,29 @@ using WorldGen.Serialization;
 
 static class RiverMeshDiagnostic
 {
+    public static void Nodes(string input,string output,int[] sources)
+    {
+        var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var h=world.Hydrology;
+        var amp=terrain.Amplification;var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+        var nodes=(Array)amp.GetType().GetField("rootNodes",flags)!.GetValue(amp)!;
+        var datums=amp.ExportRiverDatums();var collars=(double[])amp.GetType().GetField("riverCollarRadii",flags)!.GetValue(amp)!;
+        var seen=new HashSet<int>();var rows=new List<object>();
+        foreach(int source in sources)
+        {
+            int id=source;
+            for(int k=0;k<12&&id>=0;k++)
+            {
+                if(!seen.Add(id))break;object node=nodes.GetValue(id)!;var t=node.GetType();object Field(string name)=>t.GetField(name)!.GetValue(node)!;
+                int body=h.WaterBody[id];object lake=body<0?null!:new{h.Waters[body].Id,h.Waters[body].SurfaceElevationM,h.Waters[body].OutletCell,h.Waters[body].DownstreamCell,h.Waters[body].Endorheic};
+                var spans=amp.RiverReach(id);var position=world.Surface.Cells[id].Position;var actual=terrain.Patch(position,30000).Geometry(position);
+                rows.Add(new{Id=id,Receiver=h.Receiver[id],Ocean=h.OceanConnected[id],RawElevation=world.ElevationM[id],Type=Field("Type").ToString(),Height=Field("Height"),Crust=Field("Crust"),Water=Field("Water"),LakeKey=Field("LakeKey"),Flow=Field("Flow"),Datum=datums[id],Collar=collars[id],Body=lake,Actual=new{actual.ElevationM,actual.WaterSurfaceM,Kind=actual.WaterKind.ToString(),actual.WaterBodyKey},Spans=spans.Length,Head=spans.Length>0?new[]{spans[0].LevelA,spans[^1].LevelB}:Array.Empty<double>()});
+                id=h.Receiver[id];
+            }
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+        File.WriteAllText(output,JsonSerializer.Serialize(rows,new JsonSerializerOptions{WriteIndented=true,NumberHandling=System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals}));
+        Console.WriteLine("Node diagnosis: "+rows.Count+" actual nodes; "+output);
+    }
     public static void Run(string input,int source,double x,double z,string output)
     {
         var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);

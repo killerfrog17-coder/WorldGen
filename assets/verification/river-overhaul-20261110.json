@@ -1,5 +1,5 @@
 {
-  "status": "Active unaccepted experiments. Existing selected game and slot-b checkpoint remain unchanged. No river candidate built.",
+  "status": "Active UNACCEPTED river experiments on work/river-hydraulics-20261110. Selected slotA8388fa77 and shortcut protected. SlotB currently contains experimental e456fc76; accepted main38988946 is restorable.",
   "baseline_package": "slot-b Mono NONDEV 268b874c over FULL13592ee2",
   "world": {
     "recipe_seed": 73421,
@@ -6183,7 +6183,7 @@
       "status": "Removed from current runtime and tests. Original unaccepted implementation retained in checkpoint4e30634e."
     }
   },
-  "next": "Resolve actual confluence overlap/field discontinuity, then major LOD/open-edge and actual native confluence controls. Foundation must pass before longitudinal variation. SlotA/shortcut protected.",
+  "next": "Prototype local combined water surface instead of independent overlapping sheets. Restore fast inner-perimeter global fitting; retain proven dry-bank tile-border correction. Candidate stays experimental until actual mesh/native/LOD/load gates pass.",
   "latest_controls": {
     "join_and_bank_bounds_pure": 424,
     "actual_join_checks": 384,
@@ -6245,5 +6245,29 @@
     "results": "All three selected major shorelines pass (worst 0.011m). One submerged point remains obscured by 0.062m of interpolated terrain in source127655. Exact scalar field is 0.36m underwater. Diagnostic shows a steep narrow ridge from bank composition; next compare retiring that provisional guard approach now that confluence stages agree.",
     "cold_fitting_ms": 37752.9,
     "scope": "No loading or FPS acceptance. More expensive fitting remains to be addressed."
-  }
+  },
+  "local_cut_union_v86": {
+    "major_checks": 1497,
+    "major_sites": 3,
+    "lods": 3,
+    "shoreline_max_clearance_m": 0.0174,
+    "bank_contact": "FAILED35/5566,31knownlegacy plus4new failures. Bank guards retired; no artificial bank restoration remains."
+  },
+  "exact_corridor_trials": [
+    {
+      "version": 87,
+      "status": "CANCELLED during cold preparation after >115 CPU seconds; full world fine geometry preparation is rejected, not valid acceptance evidence."
+    },
+    {
+      "version": 88,
+      "fitting_ms": 43600,
+      "status": "FAILED33/5558 edges. Four source86 regressions reduced to two, but not accepted."
+    },
+    {
+      "version": 89,
+      "legacy_world_fitting_ms": 117300.3,
+      "fresh_world_fitting_ms": 87379.1,
+      "status": "REJECTED cold preparation cost; also FAILED32/5558 saved-world edges and5/5392 fresh Continents edges. Concurrent functional audits; no controlled performance or startup claim."
+    }
+  ]
 }
