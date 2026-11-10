@@ -8,11 +8,11 @@ namespace WorldGen.Core
     {
         public static readonly PortableItem[] Items={new PortableItem{Kind=PossessionKind.DeadfallTrigger,Name="Carved deadfall trigger",Form=PortableForm.Trigger,Width=.3,Height=.32,Depth=.05,Mass=.16,Aliases="deadfall trigger|trap trigger"}};
         public static readonly PortableRecipe[] Recipes={new PortableRecipe{Id="carve-deadfall-trigger",Name="Carve a deadfall trigger",Output=PossessionKind.DeadfallTrigger,Primary=new[]{PossessionKind.Branch,PossessionKind.TrimmedPole},Materials=Array.Empty<CraftMaterialNeed>(),Tools=new[]{CraftCapability.Cut},MinLength=.9,MinWidthM=.015,MaxThickness=.045,SoundWood=true,WorkSeconds=600,Yield=.65}};
-        public static bool Weight(Possession p)=>StoneCrafting.Rock(p)&&p.MassKg>=2&&p.MassKg<=12&&p.WidthM>=.15&&p.HeightM<=p.WidthM*1.1;
+        public static bool Weight(Possession p)=>StoneCrafting.Rock(p)&&p.MassKg>=2&&p.MassKg<=25&&p.WidthM>=.15&&p.HeightM<=p.WidthM*1.1;
         public static Possession Stone(CampObject c)=>c?.Materials.FirstOrDefault(Weight);
         public static Possession Bait(CampObject c)=>c?.Materials.FirstOrDefault(Foraging.Food);
         public static bool Accepts(CampObject c,Possession p)=>c?.Kind==CampKind.Deadfall&&!c.TrapArmed&&p!=null&&(p.Kind==PossessionKind.DeadfallTrigger&&!c.Materials.Any(x=>x.Kind==p.Kind)||Weight(p)&&Stone(c)==null||Foraging.Food(p)&&Bait(c)==null);
-        public static string SetReason(CampObject c)=>c?.Kind!=CampKind.Deadfall?"Choose a deadfall.":c.TrapArmed?"The deadfall is already set.":!c.Materials.Any(p=>p.Kind==PossessionKind.DeadfallTrigger)?"Add a carved wooden trigger.":Stone(c)==null?"Add a broad stone weighing 2 to 12 kg.":Bait(c)==null?"Add a little food as bait.":"";
+        public static string SetReason(CampObject c)=>c?.Kind!=CampKind.Deadfall?"Choose a deadfall.":c.TrapArmed?"The deadfall is already set.":!c.Materials.Any(p=>p.Kind==PossessionKind.DeadfallTrigger)?"Add a carved wooden trigger.":Stone(c)==null?"Add a broad stone weighing 2 to 25 kg.":Bait(c)==null?"Add a little food as bait.":"";
         public static bool Arm(CampObject c){if(SetReason(c).Length>0)return false;c.TrapArmed=true;c.TrapSprung=false;return true;}
         public static double DropHeight(CampObject c)=>Math.Min(.4,Math.Max(.18,(Stone(c)?.WidthM??0)*.65));
         public static double Damage(CampObject c)=>Stone(c) is Possession rock?ItemUseRules.ImpactDamage(rock.MassKg,Math.Sqrt(2*9.81*DropHeight(c)),0)*1.15:0;

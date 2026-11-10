@@ -18,6 +18,7 @@ static class DeadfallTests
   Check(Deadfalls.Spring(c)==damage&&c.TrapSprung&&!c.TrapArmed&&c.Materials.Count==2&&Math.Abs(c.MassKg-(mass-bait.MassKg))<1e-8,"Springing consumes only actual bait and retains recoverable stone and trigger");Check(Deadfalls.Spring(c)==0,"The same trap cannot hit twice without a deliberate reset");
   Check(!Deadfalls.Arm(c),"Reset needs new physical bait");var second=bait.Copy();second.Id="second-bait";CampRules.Add(c,second);Check(Deadfalls.Arm(c)&&!c.TrapSprung,"New bait and resetting reuse the same original stone and wood");
   var state=new CampState{Objects={c}};state.Validate();CampRules.Advance(c,86400,0,.5,3,.5);Check(c.TrapArmed&&c.Materials.Count==3,"Elapsed time never fabricates a catch or removes the trap's real materials");
+  var heavy=rock.Copy();heavy.MassKg=25;Check(Deadfalls.Weight(heavy),"A genuinely carryable twenty-five kilogram stone can supply a heavier deadfall");heavy.MassKg=26;Check(!Deadfalls.Weight(heavy),"A heavier inaccessible boulder cannot be conjured into this portable deadfall");
   Console.WriteLine($"PASS {n} physical deadfall crafting, swept contacts, impact, reset and save checks");
  }
 }
