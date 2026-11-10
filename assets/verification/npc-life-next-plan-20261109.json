@@ -3,7 +3,8 @@
     "Schedule-aware absence, concern and selective searches",
     "Grounded dialogue and actual completed-action evidence",
     "Packing/travel/rebuilding including leaving and returning",
-    "Greetings, joining, interruptions and natural conversation endings"
+    "Greetings, joining, interruptions and natural conversation endings",
+    "Owner steering: leave untransported shelters/frames and structural ties standing; climate/material-dependent ageing and abandoned-site remains"
   ],
   "order": [
     "absence",
@@ -27,9 +28,9 @@
     "Conversation joins/interruptions/ending release holds and keep direct player requests ahead of ambient work"
   ],
   "checkpoint": {
-    "source": "f5c02f25",
+    "source": "05eb5c28 built; source render-sync guard pending",
     "selected": "A9cb8034f protected",
-    "candidate": "B rebuilding frozen f5c02f25",
+    "candidate": "B05eb5c28 Mono NONDEV built, weather-v1 camp check running; A protected",
     "completed": [
       "schedule expectations and concern/search separation",
       "bounded real completed-action memories and grounded live Qwen follow-ups",
@@ -39,8 +40,10 @@
       "final B camp checks incl retaining real builder beyond boundary and unload/return roof repair pass"
     ],
     "validationPending": [
-      "f5c current-site cached household regression in native camp check",
-      "full migration through original-material reassembly"
+      "new packing policy native camp/forest departure",
+      "cold portable full-cycle reuse",
+      "weather before/after images and fresh-cover age regression",
+      "source render-sync guard and final build"
     ],
     "priorRuns": {
       "grounded-v1": "social/material/camp/dialogue pass; daily movement fixture corrected and passes v2",
@@ -48,7 +51,8 @@
       "cycle-v11": "failed departure",
       "cycle-v12": "stopped after diagnostic false missing children and stale packing schedules",
       "cycle-v13": "departure/travel/portable identity pass; 23 supplies and 5940 work increments at arrival, stopped after identifying unobserved-gap false concerns and unstable crew; no full-cycle acceptance",
-      "cycle-v14": "15min departure/travel/identities pass; no initial false searches; arrival chose nearby abandoned household shelter. Stopped, current-site filter/cache regression added. No full-cycle acceptance."
+      "cycle-v14": "15min departure/travel/identities pass; no initial false searches; arrival chose nearby abandoned household shelter. Stopped, current-site filter/cache regression added. No full-cycle acceptance.",
+      "cycle-v15": "Old bark-hauling policy: departure/travel/exact cargo passed, arrival made29supplies/2055work but original cover reuse timed out. Superseded by owner steering: forest bark shelters now left standing; cold/portable case remains required."
     },
     "next": "Finish B build unchanged, restore 3 known autos, native camp then full morning cycle 15min; retain honest evidence of previous incomplete runs.",
     "coreChecks": 949

@@ -135,8 +135,9 @@ public sealed partial class LocalTerrainExplorer
         Check(!Inventory.Items.Any(p=>offlineIds.Contains(p.Id)),"The returned shelter does not leave a duplicate loose roof material behind");
         Check(CampBlueprints.State(returnedHouse.Blueprint,offlinePart).Weathering<1e-9,"A newly fitted cover does not inherit the old frame's unobserved weather exposure");
         PlayerRules.SolarDays=savedSolar;LivingState.Copy().Validate();Check(true,"Unloaded camp catch-up preserves valid saved local state");
-        TerrainHandoff.Coordinates(frame,returnedHouse.Position,out double wx,out double wz);motion.Place(wx+6,wz-5,CampFloor(wx+6,wz-5));humanCamera.Restore(0,false);UpdateHumans();
-        for(int i=0;i<8;i++){UpdateCamera();var point=transform.TransformPoint(new Vector3((float)(wx-originX),(float)CampFloor(wx,wz)+1,(float)(wz-originZ)));var d=transform.InverseTransformDirection(point-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
+        TerrainHandoff.Coordinates(frame,returnedHouse.Position,out double wx,out double wz);motion.Place(wx+25,wz+25,CampFloor(wx+25,wz+25));UpdateHumans();
+        var weatherFocus=new Vector3((float)(wx-originX),(float)CampFloor(wx,wz)+1,(float)(wz-originZ));
+        landscapeReviewCamera=new Vector3((float)(wx-originX+6),(float)CampFloor(wx+6,wz-5)+3,(float)(wz-originZ-5));landscapeReviewRotation=Quaternion.LookRotation(weatherFocus-landscapeReviewCamera.Value);UpdateCamera();
         paused=false;livingBenchmarkFreeze=true;yield return NpcLifeImage(output,"shelter-weather-before");paused=true;
         var climate=sourceWorld.Prehistory.Foragers.Districts[group.Situation.Band.District];double oldWear=returnedHouse.Blueprint.Parts.Sum(p=>p.Weathering);
         var fallen=CampWeathering.Advance(returnedHouse,Math.Max(LivingClock.CalendarDay,returnedHouse.WeatheredThroughCalendarDay)+720,climate.AnnualRainMm,climate.MeanC,climate.Canopy);Inventory.Items.AddRange(fallen);InvalidateCampVisual(returnedHouse);
@@ -144,6 +145,6 @@ public sealed partial class LocalTerrainExplorer
         Check(!returnedHouse.OwnedMaterials().Any(p=>fallen.Any(f=>f.Id==p.Id)),"Weathered debris is not simultaneously installed in the shelter");
         paused=false;yield return NpcLifeImage(output,"shelter-weather-after");livingBenchmarkFreeze=false;
         Camp.Validate();LivingState.Copy().Validate();Check(true,"Weathered shelter and actual fallen materials remain save-valid");
-        group.Situation.Camp.CarryPoles=initialCarryPoles;paused=false;DisposeNpcMinds();
+        landscapeReviewCamera=null;group.Situation.Camp.CarryPoles=initialCarryPoles;paused=false;DisposeNpcMinds();
     }
 }
