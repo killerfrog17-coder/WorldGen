@@ -1,0 +1,2 @@
+shelter-weather-before id=npc-8800000036-6b8c3fa32f69c332-house-493303289106923775 site=7749639028905460530 parts=29 vertices=1578 root=(-5.89, 0.16, -10.61) camera=(0.11, 3.13, -15.61) target=(-5.89, 1.16, -10.61) viewport=(0.50, 0.50, 8.06)
+shelter-weather-after id=npc-8800000036-6b8c3fa32f69c332-house-493303289106923775 site=7749639028905460530 parts=19 vertices=1104 root=(-5.89, 0.16, -10.61) camera=(0.11, 3.13, -15.61) target=(-5.89, 1.16, -10.61) viewport=(0.50, 0.50, 8.06)

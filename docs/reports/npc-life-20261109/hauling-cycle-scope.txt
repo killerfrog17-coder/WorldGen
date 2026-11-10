@@ -1,0 +1,1 @@
+Supported 15-minute solar day. Actual worker packing, observed initial travel, explicit coarse journey skip, actual terrain arrival and daylight original-material reassembly after an explicit morning clock advance when needed. Not an uninterrupted whole-route follow, default-day balance test or proof that every shelter finishes.

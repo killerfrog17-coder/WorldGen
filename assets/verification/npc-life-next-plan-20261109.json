@@ -30,7 +30,7 @@
   "checkpoint": {
     "source": "ec65ef43",
     "selected": "A9cb8034f protected",
-    "candidate": "B building runtime-frozen ec65ef43; A9cb remains selected/protected",
+    "candidate": "Bec65ef43 ACCEPTED; root shortcut selects B; A9cb fallback protected",
     "completed": [
       "schedule expectations and concern/search separation",
       "bounded real completed-action memories and grounded live Qwen follow-ups",
@@ -38,13 +38,12 @@
       "actual asynchronous unload/return same-material repair",
       "children fixed play anchor; packing hold updates actor schedules",
       "final B camp checks incl retaining real builder beyond boundary and unload/return roof repair pass",
-      "Owner steering implemented: forest fixed shelters/frame ties stay; cover rolls preserve identity; material and climate-dependent calendar weathering"
+      "Owner steering implemented: forest fixed shelters/frame ties stay; cover rolls preserve identity; material and climate-dependent calendar weathering",
+      "ec65 native camp43PASS incl actual production visual readiness and inspected weather-before/after pair",
+      "natural woodland full departure/arrivalPASS intact old shelters",
+      "controlled hauling full-cyclePASS original material physically supplied/worked at new site"
     ],
-    "validationPending": [
-      "ec65 native camp visual readiness/final weather pictures",
-      "controlled actual-material transport full cycle",
-      "final shortcut/PDF/docs/Git handoff"
-    ],
+    "validationPending": [],
     "priorRuns": {
       "grounded-v1": "social/material/camp/dialogue pass; daily movement fixture corrected and passes v2",
       "combined-v1": "camp incl unload/return and daily pass",
@@ -58,7 +57,7 @@
       "natural-v1-morning": "Natural woodland full departure/arrival PASS: no teardown, every original fitted component left at old site, identities and save/serialization retained.",
       "natural-v1-cold": "Fixture could not find an admitted actual cold-region community in this world/date; not a runtime migration result. Replaced with explicit hauling-decision fixture, no fabricated natural-community claim."
     },
-    "next": "Finish B build unchanged; restore known3autos; native camp(weather-v3) then morning cycle with explicit -HaulFrame control; inspect all actual images, no false visual success claim.",
-    "coreChecks": 949
+    "next": "Delivered current scoped NPC-life and woodland/weather steering; further NPC economy/hunting/maintenance refinement only when requested.",
+    "coreChecks": 1439
   }
 }

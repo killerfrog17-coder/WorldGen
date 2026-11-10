@@ -1,0 +1,21 @@
+PASS An actual adult resident is available for the real-model dialogue review
+PASS An actual scraper gift records receipt, without fabricating a repair
+PASS The real player dialogue queue admits question 1
+PASS Qwen delivers the streamed reply to question 1: 
+PASS The real request distinguishes physical receipt from unperformed repair
+PASS The actual model does not claim the unperformed scraper repair
+PASS The real player dialogue queue admits question 2
+PASS Qwen delivers the streamed reply to question 2: 
+PASS The real player dialogue queue admits question 3
+PASS Qwen delivers the streamed reply to question 3: 
+PASS A time/weather follow-up uses current observations without the old scraper conversation
+PASS The real player dialogue queue admits question 4
+PASS Qwen delivers the streamed reply to question 4: 
+PASS The real player dialogue queue admits question 5
+PASS Qwen delivers the streamed reply to question 5: 
+PASS The controlled welcoming host has an actual invitation action
+PASS The visitor asks to stay through the real player interaction queue
+PASS The real model responds through the expanded community-action schema: 
+PASS The generated invitation actually establishes guest permission before the conversation ends
+PASS Actual model conversations and their local state validate for saving
+PASS captured session validates with conversation memories

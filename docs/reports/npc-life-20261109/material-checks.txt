@@ -1,0 +1,19 @@
+PASS An actual adult resident exists for material work
+PASS A real uncollected fallen branch exists in loaded scatter
+PASS A second actual worker is available to coordinate a material target
+PASS An active single-item claim excludes another worker without excluding its owner
+PASS An interrupted worker's expired claim releases the actual resource
+PASS Gathering the actual fallen branch uses the player's shared depletion ledger
+PASS The gathered branch is a single real owned possession
+PASS The same natural branch cannot be gathered twice
+PASS A depleted single-item target is abandoned immediately so a worker can choose another source
+PASS A real harvested branch transfers its finite mass to the hearth
+PASS The worker finds actual local tinder material
+PASS Gathering fine material creates a real carried bundle
+PASS Actually feeding the fine bundle relights live embers
+PASS A real placed regional plant has a known edible above-ground product
+PASS The worker harvests the actual regional plant in its controlled fruiting season
+PASS Eating reduces the real harvested food quantity
+PASS NPC knapping uses the same real stone recipe and removes mass from its core
+PASS Harvested goods, natural ledgers, actual food consumption and crafting validate together
+PASS captured session validates with conversation memories

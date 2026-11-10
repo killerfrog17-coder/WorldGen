@@ -1,0 +1,9 @@
+NPC absence checks PASS: 22
+Human daily life checks PASS: 407
+NPC completed-work checks PASS: 14
+NPC conversation checks PASS: 22
+NPC social response checks PASS: 28
+NPC camp material checks PASS: 426
+NPC mind checks PASS: 27
+Camp architecture checks PASS: 482 / ConicalTent, RidgeTent, BrushHut, LeanTo, LongHut, OpenCanopy
+NPC camp weather checks PASS: 11

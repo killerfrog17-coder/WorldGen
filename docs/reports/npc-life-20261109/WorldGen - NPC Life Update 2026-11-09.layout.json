@@ -1,0 +1,168 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 236.32976377952775,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\children-at-camp.jpg",
+    "bottom": 263.08976377952774,
+    "height": 185
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 206.60976377952775,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 163.20976377952775,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 112.80976377952774,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 247.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\grounded-dialogue.jpg",
+    "bottom": 263.08976377952774,
+    "height": 185
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 217.48976377952775,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 161.28976377952773,
+    "height": 51.2
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 134.56976377952773,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 91.16976377952773,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 287.32976377952775,
+    "height": 21.76
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\weather-before.jpg",
+    "bottom": 314.08976377952774,
+    "height": 210
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 276.44976377952776,
+    "height": 32.64
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\npc-life-20261109\\weather-after.jpg",
+    "bottom": 314.08976377952774,
+    "height": 210
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 246.72976377952776,
+    "height": 14.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 203.32976377952775,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  }
+]

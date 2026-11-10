@@ -1,0 +1,192 @@
+{
+  "title": "WorldGen - NPC Life Update",
+  "section": "NPC LIFE UPDATE",
+  "date": "9 November 2026",
+  "footer": "Actual packaged-game captures | Functional QA at 30 FPS | Runtime ec65ef43 | No FPS gain claim",
+  "pages": [
+    {
+      "title": "Absence is not an emergency",
+      "subtitle": "Expected returns, selective concern and conversations grounded in actual local events.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Situation",
+              "What happens"
+            ],
+            "widths": [
+              0.25,
+              0.75
+            ],
+            "rows": [
+              [
+                "Ordinary outing",
+                "Known foraging, water and fuel trips carry an expected return. Adults are generally expected around evening, with a reasonable delay allowed."
+              ],
+              [
+                "Someone overdue",
+                "Concern, asking for news, waiting until daylight and searching are separate responses. Relationship, age, risk, duty and personality matter."
+              ],
+              [
+                "Information limits",
+                "They know the last observed or reported place, not the absent person's actual location or fate. A rumour alone does not assign a search."
+              ],
+              [
+                "Unobserved interval",
+                "Old timestamps do not prove someone missed a check-in while unloaded. A new observation window establishes the next expected return, without inventing a sighting; established concerns and accepted searches remain."
+              ],
+              [
+                "False alarms fixed",
+                "Children no longer drift indefinitely while following each other in pretend play. Packing holds also keep residents' schedules at the actual camp."
+              ],
+              [
+                "Conversation",
+                "You can join an ongoing exchange, interrupt it and end it without leaving permanent listening holds. Recent contact helps avoid repeated introductions."
+              ]
+            ]
+          }
+        },
+        {
+          "images": [
+            {
+              "file": "children-at-camp.jpg",
+              "caption": "Actual controlled play/search test in the packaged game. Actor placement is controlled for the checks; the subsequent ten-second movement uses normal updates."
+            }
+          ],
+          "max_height": 185
+        },
+        {
+          "heading": "Speech uses evidence",
+          "text": "Successful physical actions now leave bounded records: receiving an item, gathering, delivering, building, dismantling, eating, drinking and tending fire. A duty or a possession is not proof the action happened. Memories distinguish witnessed events from reports."
+        },
+        {
+          "text": "Live Qwen check: after receiving a scraper, Nusa says she just received it rather than claiming a completed repair. She names the actual coordinator, then answers a time/weather follow-up from current observations. The full short transcript is preserved beside this PDF."
+        }
+      ]
+    },
+    {
+      "title": "Camps keep their real materials",
+      "subtitle": "Local continuity while present and while away, without simulating every tribe worldwide.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Change",
+              "Behavior"
+            ],
+            "widths": [
+              0.25,
+              0.75
+            ],
+            "rows": [
+              [
+                "Arrival logistics",
+                "Packing follows the travel decision. Ordinary woodland bark/brush/reed shelters remain standing, including frame lashings. Valuable hide coverings can roll together; wood loads require actual lashing."
+              ],
+              [
+                "Work access",
+                "Broad roof components are approached from an exposed edge rather than always targeting the centre beneath the roof."
+              ],
+              [
+                "Stable construction crew",
+                "A builder fetching wood outside the camp keeps the assignment instead of being replaced each scan. The crew remains bounded and yields to essential duties or danger."
+              ],
+              [
+                "Unobserved work",
+                "Returning to a known camp evaluates bounded background catch-up from saved people, actual carried/staged materials and elapsed time. Existing frames are reused; fresh replacements do not inherit old weather exposure."
+              ],
+              [
+                "Finite supplies",
+                "Catch-up cannot replace stolen material or invent missing wood. Incomplete shelters may still require residents to gather more real resources."
+              ],
+              [
+                "Scale",
+                "This applies only to locally encountered bands. Distant unvisited bands remain deterministic broad projections; there are no global per-person conversations or daily tasks."
+              ]
+            ]
+          }
+        },
+        {
+          "images": [
+            {
+              "file": "grounded-dialogue.jpg",
+              "caption": "Real local Qwen replies and a generated invitation that grants actual guest permission. The debug thoughts overlay is enabled for verification."
+            }
+          ],
+          "max_height": 185
+        },
+        {
+          "heading": "Verification",
+          "text": "1,439 focused Core checks passed. Packaged checks passed: camp/material continuity and weather 43; daily life/absence 33; social 26; material gathering/crafting 19; live Qwen dialogue 21; natural woodland departure/arrival and controlled hauling full cycle both passed. The 15-minute-day hauling fixture selects transport explicitly; the cold-location fixture lacked a qualifying community and is not presented as evidence."
+        },
+        {
+          "heading": "Practical limits",
+          "text": "The local model can still phrase things poorly or infer too much. Travel skips are explicit in the full-cycle checks. Re-use of original materials is verified; this does not establish that every shelter finishes. Advanced hunting, a complete resource economy and species-specific weathering remain future work."
+        }
+      ]
+    },
+    {
+      "title": "Left standing, not forgotten",
+      "subtitle": "Ageing of real NPC shelter components and abandoned-site remains.",
+      "blocks": [
+        {
+          "table": {
+            "headers": [
+              "Material / setting",
+              "Behavior"
+            ],
+            "widths": [
+              0.28,
+              0.72
+            ],
+            "rows": [
+              [
+                "Frames and bindings",
+                "Stay with a woodland structure unless the band intends to transport them. A tent shape alone no longer forces pole hauling."
+              ],
+              [
+                "Coverings",
+                "Hide covers remain valuable portable equipment. Ordinary locally sourced forest roofs can stay in place with the shelter."
+              ],
+              [
+                "Weathering",
+                "Elapsed calendar time, material, rainfall, temperature, canopy exposure and ground contact accumulate wear. Warm damp sites generally weather faster; frozen or dry sites preserve wood longer."
+              ],
+              [
+                "Gradual loss",
+                "Protection and colour change before components fail. Loss of all ground supports brings down the unsupported remainder. Sound fallen materials remain recoverable; rot reduces mass and usability."
+              ]
+            ]
+          }
+        },
+        {
+          "images": [
+            {
+              "file": "weather-before.jpg",
+              "caption": "Before: cropped from the actual production shelter, fixed review camera. Full frame preserved beside the PDF."
+            },
+            {
+              "file": "weather-after.jpg",
+              "caption": "After: same camera, controlled +720 calendar days using the local district climate. Roof panels fail while the remaining frame is retained; this does not simulate two years of NPC activity."
+            }
+          ],
+          "max_height": 210
+        },
+        {
+          "heading": "Scope and cost",
+          "text": "NPC camps age lazily on load and at coarse local intervals. No distant per-camp daily simulation is added. The service-life parameters are gameplay approximations; species-specific timber durability, detailed storm physics and terrain erosion are not modelled."
+        }
+      ],
+      "sources": [
+        [
+          "USDA Wood Handbook",
+          "https://www.fpl.fs.usda.gov/documnts/fplgtr/fplgtr282/fpl_gtr282.pdf"
+        ],
+        [
+          "Milwaukee Public Museum: shelter construction and portable coverings",
+          "https://www.mpm.edu/content/wirp/ICW-30"
+        ]
+      ]
+    }
+  ]
+}

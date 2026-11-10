@@ -1,0 +1,10 @@
+PLAYER: Have you repaired this scraper today, or only received it?
+Nusa: I just got it from you. I haven't had time to fix it yet.
+PLAYER: Who helps lead this band, and what does that person do?
+Nusa: Jirmace organizes our camp discussions and teaches us skills. Natot guides our travels and helps settle disagreements when they happen.
+PLAYER: What time of day is it now, and what is the weather like?
+Nusa: It is morning. The weather is mild and overcast, with a light breeze.
+PLAYER: What kinds of food do people here normally gather or hunt?
+Nusa: We look for edible roots, nuts, fruit, and seeds from the plants. We also hunt large game like deer and wild cattle, as well as smaller animals.
+PLAYER: What do your people do when someone in the band dies?
+Nusa: We bury the person and mark the grave with stones to remember them.

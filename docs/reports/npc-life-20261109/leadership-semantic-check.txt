@@ -1,0 +1,3 @@
+Expected coordinator: Jirmace
+Exact-name present: True
+Reply: Jirmace organizes our camp discussions and teaches us skills. Natot guides our travels and helps settle disagreements when they happen.

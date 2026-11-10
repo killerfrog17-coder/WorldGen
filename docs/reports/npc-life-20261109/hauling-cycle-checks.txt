@@ -1,0 +1,35 @@
+PASS An admitted real simulated community exists
+PASS Actual local terrain and centre tiles are ready
+PASS Natural residents stream from world history, without a spawn command
+PASS Natural camp passes local ground validation and is loaded
+PASS Scheduled home residents are actually present; distant foragers are not required to crowd the camp
+PASS Camp consists of real player-compatible objects/materials
+PASS Native camp validates with real terrain footing surveys
+PASS Occupied camp shelters retain every fitted roof/frame component
+PASS Actual surrounding scatter pages are resident before accepting camp environment captures
+PASS Physical NPCs retain named family identities and actual scheduled tasks
+PASS Broad local group tracking is bounded at 50km plus foraging catchment
+PASS Actual occupied shelter/hearth footprints do not intersect canonical tree trunks or boulders
+PASS 513 real camp candidates have identical indexed and full-scan clearance; sparse open sites need not invent blocked candidates
+PASS Occupied shelter floor has a full-strength ground clearing mask
+PASS Packed compute shader removes grass inside the real camp floor and retains grass outside
+PASS Named camp objects and local memories survive actual player capture and serialization
+PASS Actual named binary save cold-loads resident camp provenance and exact material-backed objects
+PASS Controlled transport-decision fixture: actual existing frame and covers are selected for hauling; this is not a natural forest packing policy
+PASS The observed departure starts with real materials selected for transport
+PASS The actual community enters its scheduled packing phase
+PASS Actual workers remove only shelter components selected for transport
+PASS The camp is packed away as the family group departs
+PASS A work-delayed departure preserves every original portable contribution instead of an abandoned trace deleting the active camp
+PASS Departure leaves dated bedding/hearths and any uncarried frames, with their portable contributions actually removed
+PASS Observed travellers physically begin moving after packing
+PASS The same community reaches its next terrain-validated camp after a coarse journey skip
+PASS The observed arrival starts with uncompleted shelters rather than a replacement factory
+PASS Original portable contributions persist exactly once with unchanged mass through packing and coarse travel to arrival
+PASS The new visit proceeds from setup into occupation
+PASS A real worker supplies and works with an original recovered contribution at the new camp
+PASS Families and personal identities survive packing, travel and arrival
+PASS Travel and old-site traces create no duplicate camp objects
+PASS Physical reassembly creates no duplicated goods across people, active camps and abandoned memories
+PASS Aggression preserves wounds and the actual victim's local memory
+PASS Unloading/revisiting a camp does not duplicate its objects

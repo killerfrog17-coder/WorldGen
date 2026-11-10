@@ -1,0 +1,14 @@
+{
+    "Before":  {
+                   "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+                   "Icon":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe,0",
+                   "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen",
+                   "Arguments":  ""
+               },
+    "After":  {
+                  "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+                  "Icon":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe,0",
+                  "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen",
+                  "Arguments":  ""
+              }
+}
