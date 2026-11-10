@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
         SetInventoryOpen(true);yield return Finish("weave-mat",mat);Check(mat.Kind==PossessionKind.WovenMat&&Inventory.AtHand(PossessionPlace.RightHand)==spear,"Actual strip bundles become one rolled mat and restore the spear hand");
         var bone=Add(PossessionKind.Bone,"deer");Add(PossessionKind.Thread);Add(PossessionKind.StoneBlade);Add(PossessionKind.StoneBorer);yield return Finish("bone-pendant",bone);
         Check(bone.Kind==PossessionKind.BonePendant&&MovePossession(bone.Id,PossessionPlace.Neck),"Actual source-bone pendant equips on its independent neck attachment");
-        RenderInventoryPreview();Check(inventoryPreviewGear.Count>0,"Actual character portrait renders worn jewellery");inventoryContext=new NearbyPossession{Item=bone};inventoryMenuAt=new Vector2(Screen.width*.65f,Screen.height*.2f);yield return Shot("bone-pendant-and-reed-mat");inventoryContext=null;SetInventoryOpen(false);
+        RenderInventoryPreview();Check(inventoryPreviewGear.Any(g=>g.name==bone.Name),"Actual character portrait renders this worn jewellery");inventoryContext=new NearbyPossession{Item=bone};inventoryMenuAt=new Vector2(Screen.width*.65f,Screen.height*.2f);yield return Shot("bone-pendant-and-reed-mat");inventoryContext=null;SetInventoryOpen(false);
         // Use actual placement validation instead of assuming one fixed point
         // near a terrain fixture is flat enough for a bed.
         BeginCampPlacement(mat,CampKind.Bedding);bool placed=false;CampObject bed=null;
@@ -37,7 +37,9 @@ public sealed partial class LocalTerrainExplorer
             if(!campPlaceValid)continue;ConfirmCampPlacement();bed=Camp.Objects.Last();placed=true;break;
         }
         Check(placed,"A real woven mat places as bedding through existing placement controls");Check(!Inventory.Items.Contains(mat)&&bed.Materials.Any(p=>p.Id==mat.Id),"Placement transfers the same mat to the actual bed");
-        campUpdateAt=0;UpdateCamp();Check(campVisuals[bed.Id].Root.GetComponentsInChildren<MeshFilter>().Any(f=>f.sharedMesh!=null&&f.sharedMesh.vertexCount>100),"Bedding renders the actual spread woven surface");yield return Shot("spread-woven-bedding");
+        campUpdateAt=0;UpdateCamp();Check(campVisuals[bed.Id].Root.GetComponentsInChildren<MeshFilter>().Any(f=>f.sharedMesh!=null&&f.sharedMesh.vertexCount>100),"Bedding renders the actual spread woven surface");var bedTarget=campVisuals[bed.Id].Root.transform.localPosition+Vector3.up*.025f;
+        landscapeReviewCamera=view.transform.localPosition;landscapeReviewRotation=Quaternion.LookRotation(bedTarget-landscapeReviewCamera.Value,Vector3.up);UpdateCamera();
+        yield return Shot("spread-woven-bedding");landscapeReviewCamera=null;UpdateCamera();
         Check(CampRules.BedComfort(bed)>.38&&CampRules.BedInsulation(bed)>0,"Woven bedding contributes actual comfort and insulation");
         var saved=new PlaySession();StorePlayer(saved);WorldJson.Read<PlaySession>(WorldJson.Write(saved)).Validate();Check(true,"Full native capture/reload accepts jewellery, woven material and its placed bed");
     }
