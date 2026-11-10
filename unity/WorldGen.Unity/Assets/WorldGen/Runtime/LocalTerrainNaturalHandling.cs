@@ -67,6 +67,7 @@ public sealed partial class LocalTerrainExplorer
         if(motion.Swimming)return body.forward;
         if(item.Kind==PossessionKind.Bow)return body.forward;
         if(item.Kind==PossessionKind.Torch)return (Vector3.up+body.forward*.22f).normalized;
+        if(item.Kind==PossessionKind.Paddle)return (Vector3.up-body.forward*.2f).normalized;
         if(NaturalPole(item))return (body.forward*.76f-body.right*(SupportSpear(item)?.65f:.16f)*side+Vector3.up*.06f).normalized;
         if(item.Hands==2)return Vector3.up;
         float above=inventoryBones["pelvis"].position.y-body.position.y+.15f*NaturalScale;
@@ -382,7 +383,7 @@ public sealed partial class LocalTerrainExplorer
         if(motion.Swimming){FitNaturalSwimming(main,other);return;}
         bool gather=Time.unscaledTimeAsDouble-viewGatherAt<HumanActionDuration("Gather");
         if(main.Kind==PossessionKind.Bow)FitNaturalBow(main);
-        else if(NaturalPole(main))FitNaturalPole(main,SupportSpear(main)&&!gather);
+        else if(NaturalPole(main))FitNaturalPole(main,(main.Hands==2||SupportSpear(main))&&!gather);
         else if(main.Hands<2)FitNaturalSmallItem(main);
         else FitNaturalLarge(main);
         var charge=itemCharge??pendingRanged?.Charge;
@@ -423,7 +424,7 @@ public sealed partial class LocalTerrainExplorer
             Vector3 normal=Vector3.Cross(fingers,axis).normalized;
             root.transform.rotation=normal.sqrMagnitude>.001f?Quaternion.LookRotation(normal,axis):Quaternion.FromToRotation(Vector3.up,axis);
         }
-        float fraction=StoneCrafting.Rock(item)||bow?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f;
+        float fraction=item.Kind==PossessionKind.Paddle?.82f:StoneCrafting.Rock(item)||bow?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f;
         if(item.Hands==2&&!NaturalPole(item)&&!bow){grip=(SharedGripPosition("r")+SharedGripPosition("l"))*.5f;fraction=.08f;}
         root.transform.position=grip-root.transform.up*(float)item.HeightM*fraction;
         if(bow)UpdateBowString(root,item,true);

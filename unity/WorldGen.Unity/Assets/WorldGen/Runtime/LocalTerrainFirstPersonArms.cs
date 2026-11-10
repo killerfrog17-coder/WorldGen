@@ -236,7 +236,7 @@ public sealed partial class LocalTerrainExplorer
             bool longItem=LongViewSpear(item)||item.Kind==PossessionKind.SpearThrower||workWood;
             string side=item.Place==PossessionPlace.LeftHand?"L":"R";var socket=viewArms.Bones[(longItem?"SpearGrip.":"Grip.")+(bow?"L":side)];
             visual.Root.transform.rotation=socket.rotation*(bow?Quaternion.Euler(0,90,0):Quaternion.identity);
-            float grip=(float)item.HeightM*(bow?.5f:StoneCrafting.Rock(item)?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f);
+            float grip=(float)item.HeightM*(item.Kind==PossessionKind.Paddle?.82f:bow?.5f:StoneCrafting.Rock(item)?.5f:WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)?.Long==true?.35f:.18f);
             visual.Root.transform.position=socket.position-visual.Root.transform.up*grip;
             if(item.Hands==2&&!bow&&!longItem)
             {visual.Root.transform.rotation=view.transform.rotation;visual.Root.transform.position=(viewArms.Bones["Grip.R"].position+viewArms.Bones["Grip.L"].position)*.5f+view.transform.up*.01f;}

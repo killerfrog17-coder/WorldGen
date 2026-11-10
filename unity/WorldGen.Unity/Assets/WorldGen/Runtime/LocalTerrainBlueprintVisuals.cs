@@ -97,7 +97,7 @@ static partial class LocalScatterMeshes
         if(points.Length>4)
         {
             var pieces=new List<Mesh>();for(int i=0;i<points.Length;i+=4)pieces.Add(BuildCampHide(points.Skip(i).Take(4).ToArray(),from,to));
-            var combined=new Mesh();combined.CombineMeshes(pieces.Select(m=>new CombineInstance{mesh=m,transform=Matrix4x4.identity}).ToArray());foreach(var piece in pieces)UnityEngine.Object.Destroy(piece);return combined;
+            var combined=new Mesh{name="Camp donor hide patches"};combined.CombineMeshes(pieces.Select(m=>new CombineInstance{mesh=m,transform=Matrix4x4.identity}).ToArray());foreach(var piece in pieces)UnityEngine.Object.Destroy(piece);return combined;
         }
         using var b=new Builder();Vector3 P(V v)=>new Vector3((float)v.X,(float)v.Y,(float)v.Z);
         var a=Vector3.Lerp(P(points[0]),P(points[1]),from);var c=Vector3.Lerp(P(points[0]),P(points[1]),to);var d=Vector3.Lerp(P(points[3]),P(points[2]),to);var e=Vector3.Lerp(P(points[3]),P(points[2]),from);
