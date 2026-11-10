@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
         if(key=="list")return new PlayCommandResult(true,new[]{"Portable items (/give <name> [count]); /give materials supplies raw test inputs:"}.Concat(PortableTechnology.Items.Select(p=>p.Name)).Concat(new[]{"Animal hides: /give deer hide [count], /give elk hide coat=1 [count]. Stones/branches remain available."}).ToArray());
         if(key=="materials")
         {
-            foreach(var pair in new[]{(PossessionKind.RawFibre,12),(PossessionKind.BarkSheet,4),(PossessionKind.ReedBundle,5),(PossessionKind.RawHide,4),(PossessionKind.Bone,8),(PossessionKind.Antler,3),(PossessionKind.Sinew,4),(PossessionKind.Feather,4)})
+            foreach(var pair in new[]{(PossessionKind.RawClay,4),(PossessionKind.RawFibre,12),(PossessionKind.BarkSheet,4),(PossessionKind.ReedBundle,5),(PossessionKind.RawHide,4),(PossessionKind.Bone,8),(PossessionKind.Antler,3),(PossessionKind.Sinew,4),(PossessionKind.Feather,4)})
                 portableGiveRequests.Enqueue((PortableTechnology.Create(pair.Item1,Position,pair.Item1==PossessionKind.RawHide?"deer":""),pair.Item2));
             UpdatePortableGive();return new PlayCommandResult(true,"Giving raw crafting materials; overflow drops nearby. No starter bag, tools or completed products added.");
         }
