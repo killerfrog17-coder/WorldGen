@@ -106,6 +106,10 @@ namespace WorldGen.Presentation
                 }
             }
             if(cuts.Count==0)return original;
+            // A sparse base grid can become a dense mesh at a river. Prime the
+            // shared exact-query index only once we KNOW refinement is needed.
+            // Otherwise every added bank vertex rescans the broad river region.
+            if(terrain.Amplification!=null)patch.RiverSpans();
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
             var samples=new List<LocalTerrainSample>(original);while(samples.Count<mesh.Positions.Length/3)samples.Add(new LocalTerrainSample{WaterSurfaceM=double.NaN,WaterMaskM=-1});
@@ -223,11 +227,15 @@ namespace WorldGen.Presentation
             // valid shared points and left the two sides at different heights.
             var pointBins=new Dictionary<(int,int),List<int>>();
             double stitchTolerance=Math.Max(.00001,mesh.SizeM*2e-7);
+            // A coarse terrain cell can contain thousands of refined bank
+            // vertices. Scanning all of them for every triangle edge made
+            // distant river tiles quadratic. Index at a bounded physical scale.
+            double stitchBin=Math.Min(step,32);
             int before=samples.Count;
             for(int id=0;id<before;id++)
             {
                 double x=positions[id*3],z=positions[id*3+2];
-                var key=((int)Math.Floor(x/step),(int)Math.Floor(z/step));
+                var key=((int)Math.Floor(x/stitchBin),(int)Math.Floor(z/stitchBin));
                 if(!pointBins.TryGetValue(key,out var list)){list=new List<int>();pointBins.Add(key,list);}list.Add(id);
             }
             var stitched=new List<int>(indices.Count);
@@ -240,17 +248,27 @@ namespace WorldGen.Presentation
                     double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2];
                     double dx=bx-ax,dz=bz-az,len=dx*dx+dz*dz;if(len<1e-12)continue;
                     var inside=new List<(double,int)>();
-                    int minX=(int)Math.Floor((Math.Min(ax,bx)-stitchTolerance)/step),maxX=(int)Math.Floor((Math.Max(ax,bx)+stitchTolerance)/step);
-                    int minZ=(int)Math.Floor((Math.Min(az,bz)-stitchTolerance)/step),maxZ=(int)Math.Floor((Math.Max(az,bz)+stitchTolerance)/step);
-                    for(int z=minZ;z<=maxZ;z++)for(int x=minX;x<=maxX;x++)
+                    void Candidates(int x,int z)
                     {
-                        if(!pointBins.TryGetValue((x,z),out var list))continue;
+                        if(!pointBins.TryGetValue((x,z),out var list))return;
                         foreach(int id in list)
                         {
                             if(id==a||id==b)continue;
                             double px=positions[id*3]-ax,pz=positions[id*3+2]-az,t=(px*dx+pz*dz)/len;
                             if(t>1e-6&&t<1-1e-6&&Math.Abs(px*dz-pz*dx)<stitchTolerance*Math.Sqrt(len))inside.Add((t,id));
                         }
+                    }
+                    // Traverse the thin segment corridor, not the potentially
+                    // enormous rectangle around a diagonal. Each bin is visited
+                    // once; the existing exact distance predicate still decides.
+                    bool alongX=Math.Abs(dx)>=Math.Abs(dz);double begin=alongX?ax:az,end=alongX?bx:bz,delta=end-begin;
+                    int low=(int)Math.Floor((Math.Min(begin,end)-stitchTolerance)/stitchBin),high=(int)Math.Floor((Math.Max(begin,end)+stitchTolerance)/stitchBin);
+                    for(int major=low;major<=high;major++)
+                    {
+                        double t0=D.Clamp((major*stitchBin-stitchTolerance-begin)/delta),t1=D.Clamp(((major+1)*stitchBin+stitchTolerance-begin)/delta);
+                        double v0=(alongX?az:ax)+(alongX?dz:dx)*t0,v1=(alongX?az:ax)+(alongX?dz:dx)*t1;
+                        int first=(int)Math.Floor((Math.Min(v0,v1)-stitchTolerance)/stitchBin),last=(int)Math.Floor((Math.Max(v0,v1)+stitchTolerance)/stitchBin);
+                        for(int minor=first;minor<=last;minor++)Candidates(alongX?major:minor,alongX?minor:major);
                     }
                     inside.Sort((p,q)=>p.Item1.CompareTo(q.Item1));foreach(var p in inside)polygon.Add(p.Item2);
                 }

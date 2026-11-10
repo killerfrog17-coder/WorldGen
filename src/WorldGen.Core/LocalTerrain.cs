@@ -182,12 +182,12 @@ namespace WorldGen.Core
             var sources = new LocalTerrainProfile[ids.Length]; for (int i = 0; i < ids.Length; i++) sources[i] = profiles[ids[i]];
             var triangleIds = new SortedSet<int>();
             foreach(int id in ids) for(int k=faceOffsets[id];k<faceOffsets[id+1];k++) triangleIds.Add(faces[k]);
-            if(mapOnly&&Amplification!=null)
+            if(Amplification!=null)
             {
                 // Amplified samples never use the fallback cubic triangles or
-                // scaffold. Do not construct them for every coloured-map patch.
+                // scaffold. This holds for physical meshes too, not just maps.
                 var roots=new int[triangleIds.Count];triangleIds.CopyTo(roots);
-                return new LocalTerrainPatch(this,center,halfExtentM,sources,Array.Empty<HeightTriangle>(),seed,Array.Empty<HeightTriangle>(),false,Amplification.Region(roots));
+                return new LocalTerrainPatch(this,center,halfExtentM,sources,Array.Empty<HeightTriangle>(),seed,Array.Empty<HeightTriangle>(),dry,Amplification.Region(roots));
             }
             V east = V.Cross(Math.Abs(center.Z)<.99?new V(0,0,1):new V(0,1,0),center).Unit, north = V.Cross(center,east).Unit;
             var triangles = new List<HeightTriangle>();

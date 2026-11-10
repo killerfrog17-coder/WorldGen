@@ -103,13 +103,13 @@ namespace WorldGen.Presentation
                 if(patch!=null){var value=geometryOnly?patch.Geometry(p):knownGeometry.HasValue?patch.Ecology(p,knownGeometry.Value):patch.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,value);else sampleCache?.Store(p,value);return value;}
                 // A far tile on a shrunken planet spans a large geographical area.
                 // Query bounded subpatches instead of constructing a planet-sized candidate bag.
-                double box=100000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
+                double box=10000*frame.HorizontalScale;int a=(int)Math.Floor(x/box),b=(int)Math.Floor(z/box);
                 // A backdrop visits only a handful of points in each large
                 // subpatch. Priming every river across that whole area can
                 // take longer than sampling the complete coarse tile.
                 // Keep the ordinary exact point query here; dense regular
                 // tiles still prime their shared batch index above.
-                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),150000);token.ThrowIfCancellationRequested();patchCache.Add((a,b),local);}var sampled=geometryOnly?local.Geometry(p):local.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,sampled);else sampleCache?.Store(p,sampled);return sampled;
+                if(!patchCache.TryGetValue((a,b),out var local)){local=terrain.Patch(frame.Position((a+.5)*box,(b+.5)*box),15000);token.ThrowIfCancellationRequested();patchCache.Add((a,b),local);}var sampled=geometryOnly?local.Geometry(p):local.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,sampled);else sampleCache?.Store(p,sampled);return sampled;
             }
             // Material resolution is independent of tessellation. This chart-
             // anchored grid is shared by adjacent tiles, not restarted per tile.
