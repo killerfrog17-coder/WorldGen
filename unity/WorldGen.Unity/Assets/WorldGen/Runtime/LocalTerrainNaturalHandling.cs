@@ -66,6 +66,7 @@ public sealed partial class LocalTerrainExplorer
         var body=humanPlayer.Root.transform;float side=NaturalSide(item)=="r"?1:-1;
         if(motion.Swimming)return body.forward;
         if(item.Kind==PossessionKind.Bow)return body.forward;
+        if(item.Kind==PossessionKind.Torch)return (Vector3.up+body.forward*.22f).normalized;
         if(NaturalPole(item))return (body.forward*.76f-body.right*(SupportSpear(item)?.65f:.16f)*side+Vector3.up*.06f).normalized;
         if(item.Hands==2)return Vector3.up;
         float above=inventoryBones["pelvis"].position.y-body.position.y+.15f*NaturalScale;
@@ -242,6 +243,7 @@ public sealed partial class LocalTerrainExplorer
         }
         float outside=.29f*s+Mathf.Min(.1f,(float)item.WidthM*.3f);
         Vector3 target=body.position+body.right*(outside*sign)+body.forward*.14f*s+Vector3.up*(inventoryBones["pelvis"].position.y-body.position.y+.15f*s);
+        if(item.Kind==PossessionKind.Torch)target+=body.forward*.18f*s+Vector3.up*.3f*s;
         NaturalGrip(side,Ease(target),NaturalWeaponDirection(item));
     }
     void FitNaturalLarge(Possession item,bool swimming=false)
