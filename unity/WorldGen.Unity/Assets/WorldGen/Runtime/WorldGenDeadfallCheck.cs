@@ -33,6 +33,6 @@ public sealed partial class LocalTerrainExplorer
   paused=false;deadfallAt=0;UpdateDeadfalls();rabbit.X=tx+.5;rabbit.Z=tz;rabbit.Planet=frame.Position(rabbit.X,rabbit.Z);double health=rabbit.Health;deadfallAt=0;UpdateDeadfalls();paused=true;
   Check(trap.TrapSprung&&!trap.TrapArmed&&rabbit.Health<health,"The actual runtime sweep springs the trap when the real actor crosses its footprint");Check(Deadfalls.Bait(trap)==null&&trap.Materials.Count==2,"Springing consumes the original bait but retains stone and trigger");
   if(rabbit.Dead)Check(rabbit.Ragdoll!=null&&Wildlife.Individuals.Any(a=>a.Id==rabbit.Spawn.Id&&a.Health==0),"A lethal impact produces the original animal corpse and persistent record");else Check(!rabbit.ThreatWasPlayer,"A surviving animal reacts to the physical trap without magically blaming the unseen player");
-  yield return Shot("sprung-deadfall");Inventory.Validate();Camp.Validate();session=new PlaySession();StorePlayer(session);WorldJson.Read<PlaySession>(WorldJson.Write(session)).Validate();Check(true,"Sprung mechanism and actual injured or dead wildlife persist in the normal full save");landscapeReviewCamera=null;landscapeReviewRotation=null;paused=false;
+  yield return Shot("sprung-deadfall");Inventory.Validate();Camp.Validate();session=new PlaySession();StorePlayer(session);WorldJson.Read<PlaySession>(WorldJson.Write(session)).Validate();Check(true,"Sprung mechanism and actual injured or dead wildlife persist in the normal full save");landscapeReviewCamera=null;landscapeReviewRotation=Quaternion.identity;paused=false;
  }
 }
