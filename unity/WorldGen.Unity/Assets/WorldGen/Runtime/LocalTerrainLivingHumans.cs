@@ -115,10 +115,18 @@ public sealed partial class LocalTerrainExplorer
             foreach(var activity in group.Activities)
             {
                 if(livingPeople.ContainsKey(activity.Person)||PlayerRules.Identity?.Person.Id==activity.Person)continue;
-                V point=LivingPosition(group,activity.Position);
-                if(HumanDistance(point,Position)>650)continue;
                 var memory=LivingState.People.FirstOrDefault(p=>p.Person==activity.Person);if(memory?.Dead==true)continue;
                 var person=group.Residents.Members.First(p=>p.Id==activity.Person);
+                V point=LivingPosition(group,activity.Position);
+                if(group.Situation.Phase!=HumanCampPhase.Travelling&&memory?.Inventory!=null&&memory.Inventory.Items.Any(p=>p.CampMaterial==group.Situation.Band.Id&&memory.Inventory.Carried(p)))
+                {
+                    // Unloaded travellers carrying the roof must arrive with
+                    // it before their analytic daily foraging projection starts.
+                    // This changes birth projection only, never visible actors.
+                    TerrainHandoff.Coordinates(frame,group.Anchor,out double ax,out double az);var offset=HumanCampLayout.HouseholdOffset(group.Residents,person.Household,group.Situation.Camp.Id,sourceWorld.Recipe.Seed);
+                    point=frame.Position(ax+offset.X,az+offset.Z);
+                }
+                if(HumanDistance(point,Position)>650)continue;
                 if(CreateLivingHuman(group,person,activity,point,memory))break;
             }
             if(ElapsedHumanMs(started)>1.5)break;
