@@ -117,9 +117,9 @@ public sealed partial class LocalTerrainExplorer
     }
     IEnumerator CheckChunkFastFlight(string output)
     {
-        var origin=frame;var rows=new List<string>{"seconds,speed,east,altitude,viewM,terrainM,forestM,tiles,jobs,nearReady,groundAtPlayer,missingNearProbes,handoffs,buildRequests"};
+        var origin=frame;var rows=new List<string>{"seconds,speed,east,altitude,viewM,terrainM,forestM,tiles,jobs,nearReady,groundAtPlayer,missingNearProbes,handoffs,buildRequests,meshHeightError,preparedTiles,groundPixelsMissing"};
         TestView(500,90,12);double start=Time.realtimeSinceStartupAsDouble,last=start,east=0,next=start;
-        long initialBuilds=TerrainBuildRequests;int missingFrames=0;BeginLoadingProfile();
+        long initialBuilds=TerrainBuildRequests;int missingFrames=0,lastPixelGaps=0,audits=0;double nextAudit=start+1;BeginLoadingProfile();
         while(Time.realtimeSinceStartupAsDouble-start<40)
         {
             double now=Time.realtimeSinceStartupAsDouble,t=now-start,dt=Math.Min(.1,now-last);last=now;
@@ -130,13 +130,51 @@ public sealed partial class LocalTerrainExplorer
             int missing=0;foreach(double distance in new[]{0d,200,600})foreach(double angle in new[]{0d,Math.PI*.5,Math.PI,Math.PI*1.5})
                 if(double.IsNaN(VisibleGround(x+Math.Cos(angle)*distance,z+Math.Sin(angle)*distance,double.NaN)))missing++;
             bool playerGround=!double.IsNaN(VisibleGround(x,z,double.NaN));if(!playerGround)missingFrames++;
+            if(now>=nextAudit)
+            {
+                nextAudit=now+5;lastPixelGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-ground-"+audits+".png"));
+                Capture(Path.Combine(output,"flight-view-"+audits+".png"));audits++;
+            }
             if(now>=next)
-            {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}
+            {next=now+.2;rows.Add(string.Join(",",new[]{t,speed,east,HeightAboveGround,viewDistance,terrainRevealRadius,forestRevealRadius,tiles.Count,jobs.Count,NearReady?1d:0,playerGround?1d:0,missing,ReanchorCount,TerrainBuildRequests-initialBuilds,VisibleGround(x,z,double.NaN)-Ground(x,z),PreparedTileCount,lastPixelGaps}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));}
             if(Error!="")throw new InvalidOperationException(Error);
             yield return null;
         }
         File.WriteAllLines(Path.Combine(output,"fast-flight.csv"),rows);
-        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse, 500m altitude; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
+        File.WriteAllText(Path.Combine(output,"fast-flight.txt"),"200 then 600 m/s forward and reverse, 500m altitude; frames with no resident ground at player="+missingFrames+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
+    }
+    int CheckFlightGroundPixels(string path)
+    {
+        // Positive-controlled actual shader audit. Only the production ground
+        // renderers enter this camera; the original coverage/fade materials
+        // remain bound, so a resident-but-clipped surface cannot pass.
+        var moved=new List<(GameObject Object,int Layer)>();
+        foreach(var tile in tiles.Values.Concat(previousTerrain.Values))
+            foreach(var renderer in tile.Root.GetComponentsInChildren<MeshRenderer>())
+                if(renderer.gameObject.name=="Land and seabed")
+                {moved.Add((renderer.gameObject,renderer.gameObject.layer));renderer.gameObject.layer=29;}
+        var oldPosition=view.transform.position;var oldRotation=view.transform.rotation;var oldTarget=view.targetTexture;
+        var oldMask=view.cullingMask;var oldClear=view.clearFlags;var oldColour=view.backgroundColor;bool oldOrtho=view.orthographic;
+        float oldSize=view.orthographicSize,oldFar=view.farClipPlane;var prior=RenderTexture.active;
+        var target=new RenderTexture(96,96,24);var pixels=new Texture2D(96,96,TextureFormat.RGB24,false);
+        try
+        {
+            view.transform.position=new Vector3((float)(motion.X-originX),(float)(Ground(motion.X,motion.Z)+10000),(float)(motion.Z-originZ));view.transform.rotation=Quaternion.Euler(90,0,0);
+            view.orthographic=true;view.orthographicSize=40;view.farClipPlane=20000;view.clearFlags=CameraClearFlags.SolidColor;view.backgroundColor=Color.magenta;view.targetTexture=target;
+            Color32[] Read(){view.Render();RenderTexture.active=target;pixels.ReadPixels(new Rect(0,0,96,96),0,0);pixels.Apply();return pixels.GetPixels32();}
+            view.cullingMask=0;var empty=Read();var clear=empty[empty.Length/2];
+            bool Equal(Color32 p)=>Math.Abs(p.r-clear.r)<4&&Math.Abs(p.g-clear.g)<4&&Math.Abs(p.b-clear.b)<4;
+            if(empty.Count(Equal)<empty.Length*.99)throw new InvalidOperationException("Flight ground audit lacks a uniform empty positive control");
+            view.cullingMask=1<<29;var actual=Read();int gaps=actual.Count(Equal);
+            File.WriteAllBytes(path,pixels.EncodeToPNG());return gaps;
+        }
+        finally
+        {
+            foreach(var p in moved)p.Object.layer=p.Layer;
+            view.transform.SetPositionAndRotation(oldPosition,oldRotation);view.targetTexture=oldTarget;view.cullingMask=oldMask;view.clearFlags=oldClear;view.backgroundColor=oldColour;
+            view.orthographic=oldOrtho;view.orthographicSize=oldSize;view.farClipPlane=oldFar;RenderTexture.active=prior;
+            target.Release();Destroy(target);Destroy(pixels);
+        }
     }
 }
