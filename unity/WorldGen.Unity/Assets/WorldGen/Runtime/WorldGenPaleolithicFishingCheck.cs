@@ -20,22 +20,24 @@ public sealed partial class LocalTerrainExplorer
   var fish=animals.Values.Where(a=>a.Manual&&a.Spawn.Profile.slug=="coastal-forage-fish-guild").Take(2).ToArray();Check(fish.Length==2,"Actual fish skins and normal wildlife health load");
   // Re-select the working shallows after the final nearby terrain and fish
   // skins arrive. An early coarse shore sample must never become a NaN pose.
-  bool settledWet=false;double baseX=motion.X,baseZ=motion.Z;
-  for(int ring=1;ring<=24&&!settledWet;ring++)for(int direction=0;direction<16&&!settledWet;direction++)
+  paused=true;bool settledWet=false;
+  for(int ring=1;ring<=100&&!settledWet;ring++)for(int direction=0;direction<32&&!settledWet;direction++)
   {
-   double angle=direction*Math.PI/8,x=baseX+Math.Sin(angle)*ring*.5,z=baseZ+Math.Cos(angle)*ring*.5;var surface=SampleMotionWater(x,z);double depth=surface.Surface-CampFloor(x,z);if(!double.IsFinite(surface.Surface)||depth<1||depth>1.5)continue;
-   motion.Place(x-.9,z,CampFloor(x-.9,z));for(int settle=0;settle<8;settle++)yield return null;surface=SampleMotionWater(x,z);depth=surface.Surface-CampFloor(x,z);if(!double.IsFinite(surface.Surface)||depth<.5)continue;wx=x;wz=z;settledWet=true;
+   double angle=direction*Math.PI/16,x=Math.Sin(angle)*ring*2,z=Math.Cos(angle)*ring*2;var surface=SampleMotionWater(x,z);double depth=surface.Surface-CampFloor(x,z);if(!double.IsFinite(surface.Surface)||depth<.3||depth>1.5)continue;
+   // Keep the angler in these real shallows while arranging the controlled
+   // encounter. No eight-frame gravity drift or stale early shore coordinate.
+   wx=x;wz=z;motion.Place(x-.4,z,CampFloor(x-.4,z));UpdateHumans();UpdateCamera();settledWet=true;
   }
   Check(settledWet,"A settled actual water column remains valid after shoreline detail arrives");
   for(int i=0;i<2;i++)
   {
    var a=fish[i];a.X=wx;a.Z=wz;a.Planet=frame.Position(wx,wz);a.GroundY=CampFloor(wx,wz);a.Speed=a.TargetSpeed=0;a.NextDecision=a.Life+1000;a.Fade=1;
-   double level=SampleMotionWater(wx,wz).Surface;Check(double.IsFinite(level),"Controlled fish pose uses a finite current water surface");UpdateAnimal(a,0);a.Root.transform.localPosition=new Vector3((float)(wx-originX),(float)level-.35f,(float)(wz-originZ));var target=a.Renderer.bounds.center;view.transform.LookAt(target);
+   double level=SampleMotionWater(wx,wz).Surface;Check(double.IsFinite(level),"Controlled fish pose uses a finite current water surface");UpdateAnimal(a,0);a.Root.transform.localPosition=new Vector3((float)(wx-originX),(float)level-.35f,(float)(wz-originZ));var target=a.Renderer.bounds.center;var direction=(target-view.transform.position).normalized;heading=Mathf.Atan2(direction.x,direction.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(direction.y)*Mathf.Rad2Deg;UpdateCamera();
    var gear=PortableTechnology.Create(i==0?PossessionKind.HandLine:PossessionKind.FibreNet,Position);Inventory.Items.Add(gear);SetCraftWorkArea(gear);RefreshInventoryNearby(true);Debug.Log("FISHING contact id="+a.Spawn.Id+" mass="+a.MassKg+" medium="+a.Spawn.Profile.medium+" centerDistance="+Vector3.Distance(a.Renderer.bounds.center,view.transform.position)+" rootDot="+Vector3.Dot(view.transform.forward,(a.Root.transform.position-view.transform.position).normalized)+" kind="+walkingPatch.Sample(a.Planet).WaterKind+" gearAccessible="+AccessiblePossession(gear));BeginFishing(gear);Debug.Log("FISHING result notice="+inventoryNotice+" target="+worldToolWork?.Fish?.Spawn.Id+" expected="+a.Spawn.Id);
    Check(worldToolWork?.Fish==a&&a.FishingTethered,"The real "+gear.Name.ToLowerInvariant()+" works on this actual shallow-water fish");
-   until=Time.unscaledTimeAsDouble+15;while(worldToolWork!=null&&Time.unscaledTimeAsDouble<until)yield return null;
+   paused=false;until=Time.unscaledTimeAsDouble+15;while(worldToolWork!=null&&Time.unscaledTimeAsDouble<until)yield return null;paused=true;
    Check(a.Dead&&a.Ragdoll!=null&&!a.FishingTethered,"Timed fishing lands the original actor as a corpse, not replacement food");Check(Inventory.Find(gear.Id)==gear&&Wildlife.Individuals.Any(p=>p.Id==a.Spawn.Id&&p.Health==0),"Fishing retains its real reusable gear and saves the caught individual's identity");
   }
-  var saved=new PlaySession();StorePlayer(saved);WorldJson.Read<PlaySession>(WorldJson.Write(saved)).Validate();Check(true,"Full capture/reload retains both catches, reusable gear and physical inventory");
+  paused=false;var saved=new PlaySession();StorePlayer(saved);WorldJson.Read<PlaySession>(WorldJson.Write(saved)).Validate();Check(true,"Full capture/reload retains both catches, reusable gear and physical inventory");
  }
 }
