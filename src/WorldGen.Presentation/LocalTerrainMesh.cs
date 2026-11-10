@@ -85,7 +85,12 @@ namespace WorldGen.Presentation
             var patch = extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
             // The same index was previously prepared only by channel refinement,
             // after the regular grid had already scanned every river station.
-            token.ThrowIfCancellationRequested();patch?.RiverSpans();
+            token.ThrowIfCancellationRequested();
+            // Sparse distant grids query only a few hundred points across many
+            // kilometres. Eagerly constructing EVERY small river in that whole
+            // region costs more than the grid. Keep exact point admission there;
+            // dense near grids still amortize the shared finite-span index.
+            if(segments>=32||sizeM<=4096)patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)

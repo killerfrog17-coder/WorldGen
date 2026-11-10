@@ -23,6 +23,7 @@ static class TerrainWorker
         var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:scale);
         var samples=new TerrainSampleCache();
         var scatter=new LocalScatter(terrain,scale);
+        string profilePath=Environment.GetEnvironmentVariable("WORLDGEN_TERRAIN_PROFILE");var profileGate=new object();
         var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();
         writer.Write(TerrainMeshWire.Version);writer.Write(typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"");writer.Write(LocalTerrain.Version);writer.Write(((IPEndPoint)listener.LocalEndpoint).Port);writer.Flush();
         // The player reserves capacity according to its loading-effort setting.
@@ -81,7 +82,17 @@ static class TerrainWorker
                     await slots.WaitAsync(cancellation.Token);
                     try
                     {
-                        if(command==0){var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);}
+                        if(command==0)
+                        {
+                            var timing=string.IsNullOrEmpty(profilePath)?null:new TerrainBuildTiming();
+                            var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples,timing);cancellation.Token.ThrowIfCancellationRequested();
+                            if(timing!=null)
+                            {
+                                var entry=new{East=east,North=north,Size=size,Segments=segments,mesh.BuildMilliseconds,timing.GeometrySamples,timing.FullSurfaceQueries,timing.GeometryQueries,timing.SurfaceFallbacks,Stages=timing.Milliseconds};
+                                lock(profileGate)File.AppendAllText(profilePath,System.Text.Json.JsonSerializer.Serialize(entry)+Environment.NewLine);
+                            }
+                            w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);
+                        }
                         else if(command==1||command==4){var patch=scatter.Build(key,cancellation.Token,includeTrees:command==1);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
                         else{var page=scatter.BuildForest(forest,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteForest(w,page);}
                     }

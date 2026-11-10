@@ -14,7 +14,8 @@ param(
     [switch]$HardUpdates,
     [ValidateRange(0,2000)][double]$FlightSpeed=0,
     [ValidateRange(0,250000)][double]$ViewDistance=0,
-    [ValidateRange(-1,4)][int]$TerrainQuality=-1
+    [ValidateRange(-1,4)][int]$TerrainQuality=-1,
+    [switch]$ProfileStages
 )
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
@@ -41,7 +42,11 @@ if($ViewDistance -gt 0){$arguments+=@('--worldgen-chunk-view',$ViewDistance.ToSt
 if($TerrainQuality -ge 0){$arguments+=@('--worldgen-chunk-quality',[string]$TerrainQuality)}
 if($FlightSpeed -gt 0){$arguments+=@('--worldgen-chunk-flight-speed',$FlightSpeed.ToString('R',[Globalization.CultureInfo]::InvariantCulture))}
 $arguments+=@('--worldgen-chunk-effort',[string]$Effort)
-$process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
+$previousTerrainProfile=[Environment]::GetEnvironmentVariable('WORLDGEN_TERRAIN_PROFILE','Process')
+try {
+    if($ProfileStages){[Environment]::SetEnvironmentVariable('WORLDGEN_TERRAIN_PROFILE',(Join-Path $output 'terrain-build-stages.jsonl'),'Process')}
+    $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle Hidden -PassThru
+} finally {[Environment]::SetEnvironmentVariable('WORLDGEN_TERRAIN_PROFILE',$previousTerrainProfile,'Process')}
 Write-Output ($Name+' PID '+$process.Id)
 $process.WaitForExit()
 [IO.File]::WriteAllText((Join-Path $output 'exit-code.txt'),[string]$process.ExitCode)
