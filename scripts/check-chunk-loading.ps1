@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repoRoot ('builds/'+$Slot+'/WorldGen.exe')
-if(Get-CimInstance Win32_Process -Filter "Name='WorldGen.exe'"){throw 'Leave the running game untouched.'}
+if(Get-CimInstance Win32_Process | Where-Object {$_.Name -ieq 'WorldGen.exe'}){throw 'Leave the running game untouched.'}
 if(Test-Path -LiteralPath (Join-Path $repoRoot ('builds/'+$Slot+'/build-incomplete.txt'))){throw 'Incomplete build.'}
 $output=Join-Path $repoRoot ('artifacts/chunk-loading-20261109/'+$Name)
 if(Test-Path -LiteralPath $output){throw 'Choose a fresh measurement name.'}

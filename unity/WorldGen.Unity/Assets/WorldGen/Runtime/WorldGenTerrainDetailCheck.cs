@@ -9,6 +9,36 @@ using WorldGen.Serialization;
 
 public sealed partial class WorldGenRuntime
 {
+    IEnumerator CheckChunkSettingsRuntime()
+    {
+        string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);
+        bool hadToggle=PlayerPrefs.HasKey("terrain-loading-fog"),hadSeconds=PlayerPrefs.HasKey("terrain-loading-fog-seconds");
+        int oldToggle=PlayerPrefs.GetInt("terrain-loading-fog",1);float oldSeconds=PlayerPrefs.GetFloat("terrain-loading-fog-seconds",3);
+        var errors=new List<string>();Application.LogCallback record=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception)errors.Add(m);};Application.logMessageReceived+=record;
+        var checks=new List<string>();
+        try
+        {
+            int revision=TerrainVideoOptions.Revision;
+            TerrainVideoOptions.LoadingFog=false;TerrainVideoOptions.LoadingFogSeconds=5;TerrainVideoOptions.SaveLoadingFog();
+            if(TerrainVideoOptions.Revision!=revision)throw new Exception("Fog setting invalidated chunk plans");
+            TerrainVideoOptions.LoadingFog=true;TerrainVideoOptions.LoadingFogSeconds=1;TerrainVideoOptions.Load();
+            if(TerrainVideoOptions.LoadingFog||TerrainVideoOptions.LoadingFogSeconds!=5)throw new Exception("Fog settings failed persistence");
+            checks.Add("PASS fog toggle and transition survive preference reload without rebuilding chunks");
+            TerrainVideoOptions.LoadingFog=true;TerrainVideoOptions.LoadingFogSeconds=3;
+            screen="Options";settingsCategory=2;settingsScroll=Vector2.zero;Application.targetFrameRate=60;
+            yield return null;yield return null;yield return new WaitForEndOfFrame();
+            var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"terrain-settings.png"),image.EncodeToPNG());Destroy(image);
+            if(errors.Count!=0)throw new Exception(string.Join("\n",errors));
+            checks.Add("PASS actual Terrain settings render without GUI exceptions; no world, humans, animals or model host started");
+        }
+        finally
+        {
+            if(hadToggle)PlayerPrefs.SetInt("terrain-loading-fog",oldToggle);else PlayerPrefs.DeleteKey("terrain-loading-fog");
+            if(hadSeconds)PlayerPrefs.SetFloat("terrain-loading-fog-seconds",oldSeconds);else PlayerPrefs.DeleteKey("terrain-loading-fog-seconds");
+            PlayerPrefs.Save();Application.logMessageReceived-=record;
+        }
+        File.WriteAllLines(Path.Combine(output,"complete.txt"),checks);Application.Quit(0);
+    }
     IEnumerator CheckTerrainDetail(string output,string hash)
     {
         var report=new List<string>();
