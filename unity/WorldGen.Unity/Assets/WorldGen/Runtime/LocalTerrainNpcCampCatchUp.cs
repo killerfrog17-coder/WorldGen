@@ -34,6 +34,7 @@ public sealed partial class LocalTerrainExplorer
         if(livingPeople.Values.Any(p=>p.GroupId==id))return true;
         var source=LivingState.Camps.Where(c=>c.Group==id).OrderByDescending(c=>c.LastSolarDay).FirstOrDefault();
         if(source==null||PlayerRules.SolarDays-source.LastSolarDay<.02)return true;
+        if(source.Site!=site)foreach(var stored in source.Objects)WeatherNpcCampObject(group,stored);
         var originals=LivingState.People.Where(p=>p.Group==id&&p.Inventory!=null).ToArray();
         if(originals.Length==0)return true;
         var external=Inventory.Items.Where(p=>p.Place==PossessionPlace.Ground&&p.CampMaterial==id&&HumanDistance(p.Position,source.Position)<80).ToArray();

@@ -245,6 +245,10 @@ public sealed partial class LocalTerrainExplorer
     {
         if(npcCampCatchUps.TryGetValue(group.Situation.Band.Id,out var pending)&&!pending.Work.IsCompleted)return;
         var memory=LivingState.Camps.FirstOrDefault(c=>c.Site==group.Situation.Camp.Id);
+        // Age the stored structure before a returning crew fits new material.
+        // Otherwise a freshly replaced cover inherits the entire old absence.
+        if(memory!=null&&!Camp.Objects.Any(c=>c.NpcSite==memory.Site&&c.NpcGroup==memory.Group))
+            foreach(var stored in memory.Objects)WeatherNpcCampObject(group,stored);
         if(memory!=null&&memory.AbandonedCalendarDay>=0&&group.Situation.ArrivalDay>memory.AbandonedCalendarDay)
         {
             foreach(var old in Camp.Objects.Where(c=>c.NpcSite==memory.Site&&c.NpcGroup==memory.Group).ToArray()){InvalidateCampVisual(old);Camp.Objects.Remove(old);}
@@ -253,6 +257,7 @@ public sealed partial class LocalTerrainExplorer
         var existing=Camp.Objects.Where(c=>c.NpcSite==group.Situation.Camp.Id&&c.NpcGroup==group.Situation.Band.Id).ToArray();
         bool newStock=NpcGroupRecord(group.Situation.Band.Id).Travel?.RebuildRequired!=true&&!LivingState.Camps.Any(c=>c.Group==group.Situation.Band.Id&&c.Site!=group.Situation.Camp.Id);
         var objects=existing.Length>0?existing:memory!=null&&memory.Disturbed?memory.Objects.Select(o=>o.Copy()).ToArray():HumanCampLayout.Create(group.Situation,group.Residents,group.Anchor,frame.RadiusM,sourceWorld.Recipe.Seed,Camp.SimulatedSeconds,newStock);
+        if(memory==null&&!newStock)foreach(var obj in objects)obj.WeatheredThroughCalendarDay=LivingClock.CalendarDay;
         foreach(var obj in objects)if(obj.Blueprint!=null&&obj.Blueprint.FloorHeights==null)SurveyLivingShelter(obj,!newStock);
         if(!PrepareUnobservedNpcCamp(group,ref objects))return;
         foreach(var obj in objects)

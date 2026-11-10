@@ -121,6 +121,7 @@ public sealed partial class LocalTerrainExplorer
         var offlineHouse=Camp.Objects.First(o=>o.NpcGroup==group.Situation.Band.Id&&o.Blueprint!=null&&CampBlueprints.Complete(o.Blueprint)&&NpcCampParts(o).Any(c=>c.Kind==CampPartKind.Cover));
         var offlinePart=NpcCampParts(offlineHouse).First(c=>c.Kind==CampPartKind.Cover);
         var offlineGoods=NpcCampWork.Remove(offlineHouse,offlinePart.Key);Inventory.Items.AddRange(offlineGoods);
+        offlineHouse.WeatheredThroughCalendarDay=Math.Max(0,LivingClock.CalendarDay-100);
         var offlineIds=offlineGoods.Select(p=>p.Id).ToHashSet();double offlineMass=offlineGoods.Sum(p=>p.MassKg);
         CaptureLivingHumans();UnloadLivingCamp(group);
         foreach(var person in livingPeople.Values.Where(p=>p.GroupId==group.Situation.Band.Id).ToArray())
@@ -132,6 +133,7 @@ public sealed partial class LocalTerrainExplorer
         var returnedHouse=Camp.Objects.First(o=>o.Id==offlineHouse.Id);var restored=CampBlueprints.State(returnedHouse.Blueprint,offlinePart)?.Materials??new List<Possession>();
         Check(CampBlueprints.Done(returnedHouse.Blueprint,offlinePart)&&restored.Any(p=>offlineIds.Contains(p.Id))&&Math.Abs(restored.Sum(p=>p.MassKg)-offlineMass)<1e-8,"Unobserved repair uses the same finite staged roof material after unload and return");
         Check(!Inventory.Items.Any(p=>offlineIds.Contains(p.Id)),"The returned shelter does not leave a duplicate loose roof material behind");
+        Check(CampBlueprints.State(returnedHouse.Blueprint,offlinePart).Weathering<1e-9,"A newly fitted cover does not inherit the old frame's unobserved weather exposure");
         PlayerRules.SolarDays=savedSolar;LivingState.Copy().Validate();Check(true,"Unloaded camp catch-up preserves valid saved local state");
         TerrainHandoff.Coordinates(frame,returnedHouse.Position,out double wx,out double wz);motion.Place(wx+6,wz-5,CampFloor(wx+6,wz-5));humanCamera.Restore(0,false);UpdateHumans();
         for(int i=0;i<8;i++){UpdateCamera();var point=transform.TransformPoint(new Vector3((float)(wx-originX),(float)CampFloor(wx,wz)+1,(float)(wz-originZ)));var d=transform.InverseTransformDirection(point-view.transform.position).normalized;heading=Mathf.Atan2(d.x,d.z)*Mathf.Rad2Deg;pitch=-Mathf.Asin(d.y)*Mathf.Rad2Deg;UpdateHumans();}
