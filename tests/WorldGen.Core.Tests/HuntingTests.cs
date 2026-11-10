@@ -80,6 +80,12 @@ static class HuntingTests
         var leader=new WildlifeAwarenessState{ThreatIsPlayer=true};WildlifePerception.Alarm(leader,47,-21);leader.LastCueSeconds=9.6;
         var follower=new WildlifeAwarenessState();Check(WildlifePerception.RelayAlarm(follower,leader)&&follower.ThreatIsPlayer&&follower.LastCueSeconds>10,"A social alarm retains its source and ages rather than renewing indefinitely");
         Check(!WildlifePerception.RelayAlarm(new WildlifeAwarenessState(),follower),"An old social cue cannot keep circulating through a herd");
+        var report=new WildlifeAwarenessState();WildlifePerception.Alarm(report,47,-21);report.LastCueSeconds=2;
+        var witnessed=new WildlifeAwarenessState{Sense=WildlifeSense.Sight,LastCueSeconds=0,LastX=-4,LastZ=7,ThreatIsPlayer=true,Suspicion=.7,Mode=WildlifeAwareness.Alert};
+        Check(WildlifePerception.RelayAlarm(witnessed,report)&&witnessed.Mode==WildlifeAwareness.Fleeing,"A peer's alarm can increase urgency while the recipient sees its own threat");
+        Check(witnessed.Sense==WildlifeSense.Sight&&witnessed.LastCueSeconds==0&&witnessed.LastX==-4&&witnessed.LastZ==7&&witnessed.ThreatIsPlayer,"An older report cannot replace a fresh firsthand location or threat identity");
+        witnessed=new WildlifeAwarenessState{Sense=WildlifeSense.Sound,LastCueSeconds=5,LastX=-4,LastZ=7,ThreatIsPlayer=true};report.LastCueSeconds=.1;
+        Check(WildlifePerception.RelayAlarm(witnessed,report)&&witnessed.Sense==WildlifeSense.Social&&Math.Abs(witnessed.LastCueSeconds-.6)<1e-12&&witnessed.LastX==47&&!witnessed.ThreatIsPlayer,"A genuinely newer relayed cue can supersede an old direct memory");
         Check(WildlifePerception.ScentHeight(25)<.025&&WildlifePerception.ScentHeight(0)==1,"A hunter on a high cliff is not smelled as though beside the animal");
         Check(WildlifeNaturalHistory.ThermalMobility(WildlifeNaturalHistory.Native("native-small-lizards-guild",""),0,false)<.2&&WildlifeNaturalHistory.ThermalMobility(WildlifeNaturalHistory.Native("small-native-freshwater-fish-guild",""),-20,true)==1,"Cold air slows terrestrial ectotherms without directly chilling deep-water fish");
         Check(WildlifeNaturalHistory.ThermalMobility(WildlifeNaturalHistory.Native("freshwater-turtle",""),-10,true)==1,"A submerged reptile also avoids using air temperature as its water temperature");

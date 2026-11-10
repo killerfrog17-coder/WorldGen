@@ -132,15 +132,20 @@ namespace WorldGen.Core
         public static bool RelayAlarm(WildlifeAwarenessState receiver,WildlifeAwarenessState source)
         {
             if(source.Mode!=WildlifeAwareness.Fleeing||source.LastCueSeconds>10||receiver.Mode==WildlifeAwareness.Fleeing)return false;
+            bool direct=receiver.Sense==WildlifeSense.Sight||receiver.Sense==WildlifeSense.Sound||receiver.Sense==WildlifeSense.Scent||receiver.Sense==WildlifeSense.Injury;
+            bool keepDirect=direct&&receiver.LastCueSeconds<=source.LastCueSeconds+.5;
             receiver.Suspicion=Math.Min(1,Math.Max(.4,receiver.Suspicion)+.16);
-            receiver.Mode=receiver.Suspicion>=.78?WildlifeAwareness.Fleeing:WildlifeAwareness.Alert;receiver.Sense=WildlifeSense.Social;
+            receiver.Mode=receiver.Suspicion>=.78?WildlifeAwareness.Fleeing:WildlifeAwareness.Alert;
             if(receiver.Mode==WildlifeAwareness.Fleeing)receiver.FlightSeconds=Math.Max(receiver.FlightSeconds,4);
-            receiver.LastX=source.LastX;receiver.LastZ=source.LastZ;
-            receiver.ThreatIsPlayer=source.ThreatIsPlayer;
             receiver.MemorySeconds=Math.Max(receiver.MemorySeconds,source.MemorySeconds);
-            // Preserve the original cue's age: neighbours cannot refresh one
-            // another forever after the real threat has gone quiet.
-            receiver.LastCueSeconds=source.LastCueSeconds+.5;
+            // Peers can increase urgency without overwriting a more recent
+            // firsthand identification/location with an older report. Relayed
+            // cues still age at every hop instead of refreshing indefinitely.
+            if(!keepDirect)
+            {
+                receiver.Sense=WildlifeSense.Social;receiver.LastX=source.LastX;receiver.LastZ=source.LastZ;
+                receiver.ThreatIsPlayer=source.ThreatIsPlayer;receiver.LastCueSeconds=source.LastCueSeconds+.5;
+            }
             return true;
         }
     }

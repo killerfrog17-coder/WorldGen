@@ -1,0 +1,21 @@
+{
+  "scope": "Targeted existing animal cue-priority defect discovered during current combat regression. The failing native assertion remains unchanged.",
+  "before_source": "b5d27c4a",
+  "failure": "InvalidOperationException: ITEM USE Uninjured deer identifies an actual nearby player cue before flight (0.6s)\nLocalTerrainExplorer+<>c__DisplayClass3073_0.<CheckItemUseFlow>g__Check|0 (System.Boolean ok, System.String text) (at <53858cd094ff412aa5d1452bd126fd2b>:0)\nLocalTerrainExplorer+<CheckItemUseFlow>d__3073.MoveNext () (at <53858cd094ff412aa5d1452bd126fd2b>:0)\nUnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <9cbb64a954b741deb68ec58553207f43>:0)\nUnityEngine.StackTraceUtility:ExtractStringFromExceptionInternal(Object, String&, String&)\n",
+  "observed_awareness": {
+    "Suspicion": 0.7870136077853235,
+    "MemorySeconds": 119.27412339999997,
+    "LastX": 0.3038967,
+    "LastZ": 2.0495506999999997,
+    "LastCueSeconds": 1.2258766000000416,
+    "ThreatSeconds": 0.6000000000000001,
+    "FlightSeconds": 4.0,
+    "Mode": 3,
+    "Sense": 4,
+    "ThreatIsPlayer": true
+  },
+  "cause": "RelayAlarm replaced current direct evidence with a conspecific report and added the relay age, even when the recipient just heard/saw its own threat.",
+  "change": "Keep urgency/memory sharing; retain firsthand identity/location/sense/age when it is at least as recent as the incoming relayed cue. Newer reports can still supersede old direct memories; relay chains still age and expire.",
+  "pure_controls": 712,
+  "native_status": "Rerun unchanged item/combat assertion after build; no native pass claimed yet."
+}
