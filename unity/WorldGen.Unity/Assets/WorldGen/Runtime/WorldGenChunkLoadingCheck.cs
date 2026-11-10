@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
             frames.Add((now-last)*1000);last=now;
             if(Error!="")throw new InvalidOperationException(Error);
             if(Ready&&walkingPatch!=null&&!viewed)
-            {TestView(3,20,5);TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,viewDistance*1.5),2,1,3,0);SetDaylight(12,190000.5);viewed=true;}
+            {TestView(3,20,5);TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,viewDistance*1.5),2,1,3,0);PlayerRules.SetLocalSolarHour(12,Math.Atan2(Position.Y,Position.X)*180/Math.PI);nextDaylightAt=0;SetDaylight(12,190000);viewed=true;}
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
             foreach(double radius in radii)
             {

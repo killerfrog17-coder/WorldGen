@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
         public readonly Dictionary<TerrainTileKey,double[]> Edges=new Dictionary<TerrainTileKey,double[]>();
         public readonly List<TerrainTileKey> Priority=new List<TerrainTileKey>();
         public readonly List<TerrainTileKey> CoveragePriority=new List<TerrainTileKey>();
+        public readonly Dictionary<TerrainTileKey,double[]> Backdrops=new Dictionary<TerrainTileKey,double[]>();
         public double X=double.NaN,Z,Altitude,SortAt,Range;
         public int Revision,ScatterRevision=-1;
         public double ScatterOriginX,ScatterOriginZ;
@@ -63,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         var p=preparedFrame;if(p?.Wanted==null)return "no preparation; active jobs "+jobs.Count;
         TerrainHandoff.Coordinates(p.Frame,Position,out double x,out double z);
         var resident=p.Tiles.ToDictionary(pair=>pair.Key,pair=>pair.Value.Segments);
-        double near=motion.Flying?Math.Max(2048*HorizontalScale,Math.Min(1500,Math.Abs(HeightAboveGround)*2)):2048*HorizontalScale;
+        double near=2048*HorizontalScale;
         int missingNear=0,wrongEdges=0;
         foreach(var pair in p.Wanted)if(TerrainLod.DistanceSquared(pair.Key,x,z)<=near*near)
         {if(!p.Tiles.TryGetValue(pair.Key,out var tile)||tile.Segments<pair.Value)missingNear++;else if(!TerrainEdges.Equal(tile.Edges,p.Edges[pair.Key]))wrongEdges++;}
@@ -176,7 +177,17 @@ public sealed partial class LocalTerrainExplorer
             pending.Priority.Clear();pending.Priority.AddRange(pending.Wanted.Keys);pending.Edges.Clear();
             foreach(var pair in terrainEdgeWorkspace.Build(pending.Wanted))pending.Edges.Add(pair.Key,pair.Value);
             pending.CoveragePriority.Clear();pending.CoveragePriority.AddRange(pending.Priority);
-            pending.CoveragePriority.Sort((a,b)=>b.Level.CompareTo(a.Level));pending.SortAt=0;
+            // Fill missing area with bounded intermediate coverage, rather
+            // than spending the chart's sole lane on full distant detail.
+            // Its regular grid is at most 64m; the normal wanted plan still
+            // decides the final mesh resolution and quality reveal gate.
+            pending.Backdrops.Clear();
+            int level=Math.Max(0,(int)Math.Floor(Math.Log(2048/(TerrainLod.BaseSizeM*HorizontalScale),2)));
+            double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<level),step=size/32;
+            for(int j=(int)Math.Floor((z-viewDistance)/size);j<=(int)Math.Floor((z+viewDistance)/size);j++)
+                for(int i=(int)Math.Floor((x-viewDistance)/size);i<=(int)Math.Floor((x+viewDistance)/size);i++)
+                {var key=new TerrainTileKey(i,j,level,HorizontalScale);if(TerrainLod.DistanceSquared(key,x,z)<=viewDistance*viewDistance)pending.Backdrops.Add(key,new[]{step,step,step,step});}
+            pending.SortAt=0;
             foreach(var key in pending.Tiles.Keys.Where(k=>!pending.Wanted.ContainsKey(k)&&!pending.Wanted.Keys.Any(w=>Overlaps(k,w))).ToArray())
             {DestroyTile(pending.Tiles[key]);pending.Tiles.Remove(key);pending.Revision++;}
             // Same replacement rule as the active renderer: do not accumulate
@@ -206,7 +217,9 @@ public sealed partial class LocalTerrainExplorer
         if(Math.Max(Math.Abs(x),Math.Abs(z))>=distance*.85){CancelPreparedFrame();return;}
         var resident=new Dictionary<TerrainTileKey,int>(pending.Tiles.Count);
         foreach(var pair in pending.Tiles)resident.Add(pair.Key,pair.Value.Segments);
-        double near=motion.Flying?Math.Max(2048*HorizontalScale,Math.Min(1500,Math.Abs(altitude)*2)):2048*HorizontalScale;
+        // Match the active chart's contact neighbourhood, not an extra 1.5km
+        // all-fine disk that the visible renderer itself never requires.
+        double near=2048*HorizontalScale;
         foreach(var pair in pending.Wanted)
         {
             var key=pair.Key;
@@ -224,13 +237,16 @@ public sealed partial class LocalTerrainExplorer
     {
         var pending=preparedFrame;if(pending?.Wanted==null||!coveredFlight&&NearTerrainPending())return;
         if(reserveCurrentSlot&&jobs.Any(j=>j.Prepared!=null))return;
-        // First fill the actual requested coarse distance leaves (not extra
-        // roots). Refinement churn near a fast traveller must not starve them.
-        var order=pending.CoveragePriority.Where(k=>!pending.Tiles.ContainsKey(k)&&k.Level>=4).Concat(pending.Priority);
+        double near=2048*HorizontalScale;
+        var order=pending.Priority.Where(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z)<=near*near)
+            .Concat(pending.Backdrops.Keys.OrderBy(k=>TerrainLod.DistanceSquared(k,pending.X,pending.Z)))
+            .Concat(pending.Priority);
         foreach(var key in order)
         {
             if(!CanRequest||ActiveWorkerCount>=WorkerLimit)return;
-            int detail=pending.Wanted[key];var edges=pending.Edges[key];
+            bool backdrop=!pending.Wanted.ContainsKey(key);
+            int detail=backdrop?32:pending.Wanted[key];var edges=backdrop?pending.Backdrops[key]:pending.Edges[key];
+            if(backdrop&&(pending.Tiles.ContainsKey(key)||!pending.Wanted.Keys.Any(w=>Overlaps(key,w)&&!PreparedCovered(pending,w))))continue;
             if(pending.Tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,edges)||
                 jobs.Any(j=>ReferenceEquals(j.Prepared,pending)&&j.Key.Equals(key)))continue;
             var source=terrain;var buildFrame=pending.Frame;var jobCancellation=System.Threading.CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=jobCancellation.Token;
@@ -240,6 +256,12 @@ public sealed partial class LocalTerrainExplorer
                 Task=TerrainUpload.Schedule(()=>producer==null?LocalTerrainMesh.Build(source,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
             if(reserveCurrentSlot)return;
         }
+    }
+    static bool PreparedCovered(PreparedFrame pending,TerrainTileKey key)
+    {
+        for(int depth=0;depth<24-key.Level;depth++)
+            if(pending.Tiles.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale)))return true;
+        return false;
     }
     void CommitPreparedFrame(PreparedFrame pending,double x,double z)
     {
