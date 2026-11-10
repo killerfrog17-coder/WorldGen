@@ -75,6 +75,12 @@ public sealed partial class LocalTerrainExplorer
             ActionButton("Pour out water",p.WaterLitres>0,"The vessel is empty.",()=>{EmptyWaterVessel(p);inventoryContext=null;});
         }
         if(PaleolithicClay.Green(p))GUILayout.Label(p.Dried?"Air-dried; ready for a well-fueled fire.":"Drying "+Math.Round(p.DryingSeconds/PaleolithicClay.DrySeconds*100)+"%",label);
+        if(PortableFire.Item(p))
+        {
+            GUILayout.Label((PortableFire.Burning(p)?"Alight":"Unlit")+(p.FireRemainingSeconds>0?" - "+Math.Ceiling(p.FireRemainingSeconds/60)+" min fuel":""),label);
+            var fireReason=LightPortableReason(p);ActionButton(p.Kind==PossessionKind.Torch?"Light torch":"Load or relight the ember nest",fireReason.Length==0,fireReason,()=>LightPortable(p));
+            if(PortableFire.Burning(p))ActionButton("Extinguish",true,"",()=>ExtinguishPortable(p));
+        }
         if(PaleolithicBinders.Haft(p)){var why=BondHaftReason(p);ActionButton("Seal the haft with adhesive",why.Length==0,why,()=>BeginBondHaft(p));}
         if(PaleolithicBinders.Paintable(p)){var why=PaintItemReason(p);ActionButton("Apply ochre markings",why.Length==0,why,()=>BeginPaintItem(p));}
         if(CampRules.Plantable(p))ActionButton("Plant upright in the ground",true,"",()=>BeginCampPlacement(p,CampKind.Stake));

@@ -37,7 +37,7 @@ public sealed partial class LocalTerrainExplorer
         if(portableGiveRequests.Count==0)return;long start=System.Diagnostics.Stopwatch.GetTimestamp();InitializeInventory();
         while(portableGiveRequests.Count>0)
         {
-            var request=portableGiveRequests.Dequeue();var item=request.item.Copy();item.Id="given-"+Guid.NewGuid().ToString("N");item.Position=Position;PaleolithicClay.CatchUp(item,PlayerRules.SolarDays,0,0);Inventory.Items.Add(item);
+            var request=portableGiveRequests.Dequeue();var item=request.item.Copy();item.Id="given-"+Guid.NewGuid().ToString("N");item.Position=Position;PaleolithicClay.CatchUp(item,PlayerRules.SolarDays,0,0);if(PortableFire.Item(item))PortableFire.Advance(item,PlayerRules.SolarDays,0,0,true);Inventory.Items.Add(item);
             var slot=PortableTechnology.Wear(item);
             if(!(slot.HasValue&&Inventory.Move(item.Id,slot.Value,"",0,0,false,out _))&&!Inventory.Hold(item.Id,out _)&&!Inventory.Stow(item.Id,out _))ReleasePossession(item,true);
             if(request.count>1)portableGiveRequests.Enqueue((request.item,request.count-1));

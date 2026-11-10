@@ -51,6 +51,7 @@ public sealed partial class LocalTerrainExplorer
             TerrainHandoff.Coordinates(frame,c.Position,out double x,out double z);var p=transform.TransformPoint(new Vector3((float)(x-originX),(float)CampFloor(x,z)+.45f,(float)(z-originZ)));
             campLightPositions[campLightCount]=new Vector4(p.x,p.y,p.z,81);float intensity=(float)c.FirePowerKw*3*Mathf.Lerp(1,.08f,(float)(SkyFrame?.Daylight??0))*(.94f+.06f*Mathf.Sin(Time.time*13.7f));campLightColours[campLightCount]=new Vector4(intensity,intensity*.34f,intensity*.075f,1);if(++campLightCount==4)break;
         }
+        if(camera==view&&!campLightTestOff)campLightCount=AddPortableFireLights(campLightCount);
         Shader.SetGlobalInteger("_WorldGenCampLightCount",campLightCount);if(campLightCount>0){Shader.SetGlobalVectorArray("_WorldGenCampLightPositions",campLightPositions);Shader.SetGlobalVectorArray("_WorldGenCampLightColours",campLightColours);}
     }
     void InvalidateCampVisual(CampObject c)

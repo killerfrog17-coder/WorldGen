@@ -40,6 +40,7 @@ namespace WorldGen.Core
                 case PossessionKind.StonePoint:case PossessionKind.BonePoint:case PossessionKind.BarbedPoint:case PossessionKind.StoneBorer:case PossessionKind.BoneAwl:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Block,.72,10,.6,.6,2,.16);
                 case PossessionKind.Arrow:case PossessionKind.UnfletchedArrow:case PossessionKind.SpearDart:return P(ItemPrimaryUse.Thrust,ItemSecondaryUse.Throw,Math.Max(.8,item.HeightM*.8),14,.7,.75,3,.1);
                 case PossessionKind.Bow:return P(ItemPrimaryUse.Bow,ItemSecondaryUse.Block,1,0,0,.55,4,.2);
+                case PossessionKind.Torch:return P(ItemPrimaryUse.Blunt,ItemSecondaryUse.Block,.8,12,0,.55,3,.12);
                 case PossessionKind.Sling:return P(ItemPrimaryUse.Sling,ItemSecondaryUse.None,1,0,0,.8,4,0);
                 case PossessionKind.SpearThrower:return P(ItemPrimaryUse.SpearThrower,ItemSecondaryUse.Block,.8,12,0,.8,5,.2);
                 case PossessionKind.HandLine:return P(ItemPrimaryUse.None,ItemSecondaryUse.Fish,0,0,0,1,1,0);

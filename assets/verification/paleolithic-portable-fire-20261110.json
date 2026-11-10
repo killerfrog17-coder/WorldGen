@@ -1,0 +1,25 @@
+{
+  "status": "source and pure checks complete; native flame/lighting/ignition review pending",
+  "controls": {
+    "portable_fire": 21,
+    "portable_tree": 1034
+  },
+  "scope": [
+    "Actual bark/resin-or-fat torch recipe and real-fuel rewrapping",
+    "Finite solar-time burn/fuel mass, wind/rain/immersion and shelter effects",
+    "Insulated bark carrier takes actual five grams of coals and twenty grams of tinder",
+    "Transported flame/embers ignite an existing prepared fire lay in survival",
+    "Shared maximum of four scene lights; no added Unity lights, shadowed-light agents or all-NPC inventory census"
+  ],
+  "limits": [
+    "Ninety-minute torch and eight-hour ember-carrier durations are first-pass gameplay calibration",
+    "Current local weather approximates unobserved elapsed fuel history",
+    "No autonomous NPC manufacture or scheduled torch use added",
+    "Prototype flame sheets reuse the existing campfire shader; no new bespoke fire animation"
+  ],
+  "sources": [
+    "https://npshistory.com/nature_notes/grca/vol9-1c.htm",
+    "https://www.uwlax.edu/mvac/educators/archaeology-terms/?letter=t&term=126652",
+    "https://www.fs.usda.gov/psw/publications/lake/psw_2013_lake001_anderson.pdf"
+  ]
+}

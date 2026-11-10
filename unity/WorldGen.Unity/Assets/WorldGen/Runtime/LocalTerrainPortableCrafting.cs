@@ -59,7 +59,7 @@ public sealed partial class LocalTerrainExplorer
         if(!PortableCrafting.ResumePlan(Inventory,CraftAccessible(),job,out _,out _)){PauseItemCraft(job);return;}
         var used=job.IngredientIds.ToArray();var output=StoneCrafting.Advance(Inventory,job,Math.Min(.25,Time.unscaledDeltaTime),PlayerRules.Settings);
         if(Time.unscaledTimeAsDouble>=craftSoundAt)PlayPortableCraftSound(job);if(output==null)return;
-        PaleolithicClay.CatchUp(output,PlayerRules.SolarDays,0,0);
+        PaleolithicClay.CatchUp(output,PlayerRules.SolarDays,0,0);if(PortableFire.Item(output))PortableFire.Advance(output,PlayerRules.SolarDays,0,0,true);
         RestoreWorkHands(job);
         foreach(var id in used)
         {

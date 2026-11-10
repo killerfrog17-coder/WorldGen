@@ -5,7 +5,7 @@ using System.Linq;
 namespace WorldGen.Core
 {
     public enum PossessionPlace { Ground,RightHand,LeftHand,Container,Back,Shoulder,Waist,SlungBack,Corpse,CampStorage,Torso,Legs,Feet,Head,Neck }
-    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel,Grindstone,PlantMeal,PlantCake,RawClay,UnfiredClayPot,FiredClayPot,WovenMat,BonePendant,PlantGum,PlantResin,RawOchre,OchrePowder,Charcoal,AdhesiveMixture,CompoundAdhesive }
+    public enum PossessionKind { SmallRock,LargeRock,TestBag,StoneFlake,Branch,TrimmedPole,DiggingStick,WoodenSpear,RawFibre,PreparedFibre,Cordage,Thread,BarkStrips,ReedBundle,RawHide,ScrapedHide,WorkedHide,RawhideStrips,Sinew,SinewCord,Feather,Bone,Antler,StoneBlade,StoneScraper,StoneChopper,Handaxe,StonePoint,Arrowhead,StoneBorer,BoneAwl,BoneNeedle,BonePoint,BarbedPoint,FishingGorge,Fishhook,AntlerRetoucher,WoodHandle,NotchedShaft,LooseStoneSpear,StoneTippedSpear,BoneTippedSpear,Harpoon,HaftedKnife,StoneAxe,StoneAdze,ArrowShaft,UnfletchedArrow,Arrow,BowStave,Bow,SpearThrower,DartShaft,SpearDart,Sling,FishingLine,HandLine,FibreNet,HidePouch,BarkContainer,WovenBasket,HideSatchel,HidePack,CarryFrame,Quiver,FibreBelt,HideBelt,NeedleCase,KnifeSheath,BarkSheet,WeavingStrips,Berries,Fruit,Nuts,Mushroom,EdibleRoot,RawMeat,RawFish,AnimalFat,DryGrass,LeafLitter,TinderBundle,KindlingBundle,HandDrillSet,CampBundle,HideWrap,HideTunic,FurCoat,HideLeggings,HideFootwear,HideHood,Waterskin,BarkWaterVessel,Grindstone,PlantMeal,PlantCake,RawClay,UnfiredClayPot,FiredClayPot,WovenMat,BonePendant,PlantGum,PlantResin,RawOchre,OchrePowder,Charcoal,AdhesiveMixture,CompoundAdhesive,Torch,EmberCarrier }
     [Serializable] public sealed class NaturalToolRecord
     {
         public string Id="";public double Work;public int Bark,Branches,Digging;
@@ -63,6 +63,8 @@ namespace WorldGen.Core
         [System.Runtime.Serialization.OptionalField] public double WaterLitres,WaterSalinityPpt,WaterContamination,WaterTurbidity,WaterHeatSeconds;
         [System.Runtime.Serialization.OptionalField] public LocalWaterKind StoredWaterKind;
         [System.Runtime.Serialization.OptionalField] public bool WaterBoiled;
+        [System.Runtime.Serialization.OptionalField] public bool FireLit;
+        [System.Runtime.Serialization.OptionalField] public double FireRemainingSeconds,FireFuelKg;
         [System.Runtime.Serialization.OptionalField] public double ProcessSolarDays;
         [System.Runtime.Serialization.OptionalField] public bool ProcessClockSet;
         public string Name=>Kind==PossessionKind.Grindstone?PortableTechnology.Name(this):StoneCrafting.Rock(this)?StoneCrafting.SizeName(this):PortableTechnology.Name(this)??(Kind==PossessionKind.Branch?"Branch":Kind==PossessionKind.TrimmedPole?"Trimmed pole":Kind==PossessionKind.DiggingStick?"Digging stick":Kind==PossessionKind.WoodenSpear?"Wooden spear":Kind==PossessionKind.StoneFlake?"Stone flake":"Testing bag");
@@ -132,6 +134,7 @@ namespace WorldGen.Core
             }
             if(place==PossessionPlace.Container)
             {
+                if(item.Kind==PossessionKind.Torch&&PortableFire.Burning(item)){reason="Extinguish the torch before packing it.";return false;}
                 var bag=Find(container);if(bag==null||bag.ContainerWidth==0){reason="No container there.";return false;}
                 if(!PortableTechnology.Holds(bag,item)){reason="That carrier is not suitable for this item.";return false;}
                 if(item.ContainerWidth>0&&!PortableTechnology.Belt(bag)&&Items.Any(p=>p.ContainerId==item.Id)){reason="Empty the container before packing it inside another.";return false;}
@@ -184,7 +187,7 @@ namespace WorldGen.Core
                 if(item.AppearanceSpecies!=null&&(item.AppearanceSpecies.Length>80||item.AppearanceSpecies.Any(c=>!char.IsLetterOrDigit(c)&&c!='-'&&c!='_'))||item.AppearanceCoat<0||item.AppearanceCoat>4095||item.MaterialOrigins!=null&&item.MaterialOrigins.Any(o=>o==null||o.Species==null||o.Species.Length>80||o.Coat<0||o.Coat>4095))throw new ArgumentException("Invalid material provenance.");
                 if(!Finite(item.UseDamage)||item.UseDamage<0||item.UseDamage>1)throw new ArgumentException("Invalid item wear.");
                 if(item.OwnerPerson<0||item.OwnerGroup<0||item.OwnerHousehold<0||item.OwnerName!=null&&item.OwnerName.Length>80)throw new ArgumentException("Invalid item ownership.");
-                Foraging.ValidateFood(item);PaleolithicWater.Validate(item);NpcCampWork.ValidateBundle(item);
+                PortableFire.Validate(item);Foraging.ValidateFood(item);PaleolithicWater.Validate(item);NpcCampWork.ValidateBundle(item);
                 foreach(var part in item.BundledMaterials??Enumerable.Empty<Possession>())
                 {if(!ids.Add(part.Id)||part.NaturalId!=0&&(!natural.Add(part.NaturalId)||!CollectedNatural.Contains(part.NaturalId)))throw new ArgumentException("Duplicate or unrecorded bundled material.");}
                 if(!Finite(item.PigmentColour.Length)||item.PigmentColour.X<0||item.PigmentColour.Y<0||item.PigmentColour.Z<0||item.PigmentColour.X>1||item.PigmentColour.Y>1||item.PigmentColour.Z>1||!Finite(item.ProcessSolarDays)||item.ProcessSolarDays<0||!Finite(item.DryingSeconds)||item.DryingSeconds<0||item.CampOwner!=null&&item.CampOwner.Length>80)throw new ArgumentException("Invalid stored food or camp ownership.");

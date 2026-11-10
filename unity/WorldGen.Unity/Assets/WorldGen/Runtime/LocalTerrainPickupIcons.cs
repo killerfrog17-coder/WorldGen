@@ -41,7 +41,7 @@ public sealed partial class LocalTerrainExplorer
             case PortableForm.Reed:case PortableForm.Mat:return 9;
             case PortableForm.Hook:return 10;
             case PortableForm.Feather:return 11;
-            case PortableForm.Shaft:return 1;
+            case PortableForm.Shaft:case PortableForm.Torch:return 1;
             default:return 2;
         }
     }

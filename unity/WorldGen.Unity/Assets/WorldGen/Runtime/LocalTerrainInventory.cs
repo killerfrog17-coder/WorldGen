@@ -181,7 +181,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateInventory()
     {
-        if(!Ready)return;InitializeInventory();UpdatePickupIconLoads();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();UpdateClayDrying();
+        if(!Ready)return;InitializeInventory();UpdatePickupIconLoads();UpdateItemAudioLoads();UpdateGiveItems();UpdatePortableAppearances();UpdateClayDrying();UpdatePortableFire();
         if((DeathVisible||Spectating)&&inventoryOpen)SetInventoryOpen(false);
         if(DeathVisible){PauseItemCraft(ActiveItemCraft);CancelWorldToolWork();return;}
         if(inventoryOpen||CraftWorking)RefreshInventoryNearby();UpdateStoneCrafting();UpdateWorldToolWork();UpdateItemThumbnails();
@@ -229,6 +229,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         ApplyLegacyPigment(root,item);
+        RegisterPortableFire(root,item);
         root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)(item.Kind==PossessionKind.TestBag?item.DepthM/.55:item.Kind==PossessionKind.StoneFlake||WoodCrafting.Wood(item)||PortableTechnology.Item(item.Kind)!=null?item.DepthM:item.WidthM));return root;
     }
     void UpdateInventoryVisuals()
@@ -264,6 +265,7 @@ public sealed partial class LocalTerrainExplorer
             if(SharedHumanMotion&&sharedCharge!=null&&!sharedCharge.Throw&&sharedCharge.Ammo==item)
             {root.SetActive(false);continue;}
             if(PortableTechnology.Item(item.Kind)!=null&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var priorPortable)||priorPortable!=item.Place)){RestoreFoldedGarment(root);ApplyLegacyPigment(root,item);
+        RegisterPortableFire(root,item);
         root.transform.localScale=new Vector3((float)item.WidthM,(float)item.HeightM,(float)item.DepthM);RefreshPortableRoot(root,item);inventoryVisualPlaces[item.Id]=item.Place;}
             if(item.Kind==PossessionKind.TestBag&&(!inventoryVisualPlaces.TryGetValue(item.Id,out var previous)||previous!=item.Place))
             {

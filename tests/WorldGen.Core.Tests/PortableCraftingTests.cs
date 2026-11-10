@@ -20,6 +20,7 @@ static class PortableCraftingTests
         PlayerInventory Fixture(PortableRecipe recipe)
         {
             var state=new PlayerInventory();state.Items.Add(Make(recipe.Primary[0]));
+            if(recipe.RefuelFire){state.Items[0].FireRemainingSeconds=state.Items[0].FireFuelKg=0;state.Items[0].MassKg*=.6;}
             if(recipe.WholeStone){state.Items[0].MassKg=Math.Max(state.Items[0].MassKg,recipe.MinMassKg);state.Items[0].WidthM=Math.Max(state.Items[0].WidthM,recipe.MinWidthM);}
             foreach(var need in recipe.Materials)for(int i=0;i<need.Count;i++)state.Items.Add(Make(need.Kinds[0]));
             foreach(var kind in new[]{PossessionKind.SmallRock,PossessionKind.HaftedKnife,PossessionKind.BoneAwl,PossessionKind.BoneNeedle,PossessionKind.Grindstone,PossessionKind.AntlerRetoucher})state.Items.Add(Make(kind));

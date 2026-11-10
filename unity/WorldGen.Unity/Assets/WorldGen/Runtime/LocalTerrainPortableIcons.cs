@@ -30,7 +30,7 @@ public sealed partial class LocalTerrainExplorer
                     case PortableForm.Mat:case PortableForm.Fibre:case PortableForm.Reed:case PortableForm.Strip:inside=v>.08f&&v<.92f&&Mathf.Abs(u)<.65f&&Mathf.Abs((u+.05f*Mathf.Sin(v*9))*5-Mathf.Round((u+.05f*Mathf.Sin(v*9))*5))<.18f;break;
                     case PortableForm.Bone:inside=v>.1f&&v<.9f&&Mathf.Abs(u)<(v<.23f||v>.77f?.42f:.15f);color=new Color(.84f,.8f,.66f);break;
                     case PortableForm.Antler:inside=Mathf.Abs(u-.2f*Mathf.Sin(v*5))<.09f||v>.3f&&Mathf.Abs(Mathf.Abs(u)-((v*4)%1)*.65f)<.07f;color=new Color(.8f,.72f,.54f);break;
-                    case PortableForm.Needle:case PortableForm.Shaft:inside=v>.06f&&v<.94f&&Mathf.Abs(u)<.065f;color=d.Form==PortableForm.Needle?new Color(.85f,.81f,.68f):color;break;
+                    case PortableForm.Torch:case PortableForm.Needle:case PortableForm.Shaft:inside=v>.06f&&v<.94f&&Mathf.Abs(u)<.065f;color=d.Form==PortableForm.Needle?new Color(.85f,.81f,.68f):color;break;
                     case PortableForm.Point:case PortableForm.Blade:case PortableForm.Chopper:inside=v>.1f&&v<.92f&&Mathf.Abs(u)<.7f*(1-Mathf.Abs(v-.48f)*1.7f);color=p.Kind==PossessionKind.BonePoint||p.Kind==PossessionKind.BarbedPoint?new Color(.85f,.8f,.64f):new Color(.47f,.49f,.47f);break;
                     case PortableForm.Knife:inside=v>.08f&&v<.9f&&Mathf.Abs(u)<(v>.5f?.24f:.17f);if(v>.5f)color=new Color(.49f,.5f,.48f);break;
                     case PortableForm.Axe:inside=v>.05f&&v<.9f&&Mathf.Abs(u)<.09f||v>.64f&&v<.9f&&Mathf.Abs(u)<.7f;if(v>.6f)color=new Color(.49f,.51f,.48f);break;

@@ -26,7 +26,7 @@ public sealed partial class LocalTerrainExplorer
         var record=ToolResource(GroundWorkKey(Position));
         BeginWorldToolWork(tool,"Digging clay",180,()=>{record.Clay++;ReceiveToolMaterial(PortableTechnology.Create(PossessionKind.RawClay,Position));});
     }
-    CampObject NearbyHeatingFire()=>Camp.Objects.Where(c=>c.Kind==CampKind.Fire&&(c.Position-Position).Length*frame.RadiusM<2.5).OrderBy(c=>(c.Position-Position).Length).FirstOrDefault();
+    CampObject NearbyHeatingFire()=>Camp.Objects.Where(c=>c.Kind==CampKind.Fire&&(c.Position-Position).Length*frame.RadiusM<2.5).OrderByDescending(c=>c.FirePowerKw>0||c.StoneHeatJ>1000).ThenBy(c=>(c.Position-Position).Length).FirstOrDefault();
     Possession BoilingStick()=>CraftAccessible().FirstOrDefault(p=>WoodCrafting.Wood(p)&&p.HeightM>=.35&&p.WidthM<=.06&&p.WoodSoundness>.3);
     string StoneBoilReason(Possession vessel)
     {

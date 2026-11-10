@@ -185,9 +185,13 @@ public sealed partial class LocalTerrainExplorer
     }
     void LightCamp(CampObject c)
     {
-        RefreshInventoryNearby(true);var drill=CraftAccessible().FirstOrDefault(p=>p.Kind==PossessionKind.HandDrillSet&&p.UseDamage<1);string reason=CampRules.IgniteReason(c,drill!=null||UnlimitedResources);
+        RefreshInventoryNearby(true);var drill=CraftAccessible().FirstOrDefault(p=>p.Kind==PossessionKind.HandDrillSet&&p.UseDamage<1);var carriedFire=CraftAccessible().FirstOrDefault(p=>PortableFire.Burning(p)&&(p.Kind!=PossessionKind.EmberCarrier||p.FireFuelKg>=.001));string reason=CampRules.IgniteReason(c,drill!=null||carriedFire!=null||UnlimitedResources);
         if(reason.Length>0){InventoryFeedback(reason);return;}campMenu=null;CaptureMouse();
         if(UnlimitedResources||c.EmberSeconds>0){CampRules.Ignite(c,true);InvalidateCampVisual(c);return;}
+        if(carriedFire!=null)
+        {
+            BeginWorldToolWork(carriedFire,"Carrying live fire into tinder",60,()=>{if(Camp.Objects.Contains(c)&&PortableFire.Ignite(c,carriedFire)){InvalidateCampVisual(c);InventoryFeedback("The tinder catches from the carried fire.");}});return;
+        }
         if(Inventory.Find(drill.Id)==null&&!MovePossession(drill.Id,PossessionPlace.Ground))return;
         BeginWorldToolWork(drill,"Working a hand drill into tinder",480,()=>{if(Camp.Objects.Contains(c)&&CampRules.IgniteReason(c,true).Length==0){CampRules.Ignite(c,true);InvalidateCampVisual(c);InventoryFeedback("The tinder catches. Feed the fire with dry wood.");}});
     }

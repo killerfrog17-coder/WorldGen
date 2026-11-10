@@ -4,6 +4,7 @@ using WorldGen.Presentation;
 if(args.Contains("--paleo-dispersal-audit")){PaleolithicDispersalAudit.Run(args[1],int.Parse(args[2]),args.Length>3?int.Parse(args[3]):200000,args.Length>4?args[4]:"Continents",args.Length>5?int.Parse(args[5]):190000);return;}
 if(args.Contains("--paleo-clothing-only")){PaleolithicClothingTests.Run();return;}
 if(args.Contains("--paleo-water-only")){PaleolithicWaterTests.Run();return;}
+if(args.Contains("--portable-fire-only")){PortableFireTests.Run();return;}
 if(args.Contains("--paleo-resource-world")){PaleolithicResourceWorldTests.Run(args[1],args[2]);return;}
 if(args.Contains("--paleo-binders-only")){PaleolithicBindersTests.Run();return;}
 if(args.Contains("--paleo-campcraft-only")){PaleolithicCampcraftTests.Run();return;}

@@ -134,6 +134,9 @@ static partial class LocalScatterMeshes
         }
         switch(d.Form)
         {
+            case PortableForm.Torch:
+                Tube(Vector3.zero,new Vector3(0,.88f,0),.13f,wood,12);
+                b.Crown(new Vector3(0,.8f,0),new Vector3(.44f,.2f,.44f),16,6,item.FireRemainingSeconds<=0?new Color(.09f,.065f,.035f,0):new Color(.3f,.22f,.14f,0),12,.012f);Wrap(.68f,.43f,4);break;
             case PortableForm.Necklace:
                 Arc(Vector3.zero,.47f,.42f,.88f,cord,.012f,32);
                 Tube(new Vector3(0,.88f,.42f),new Vector3(0,.27f,.58f),.012f,cord,6);
@@ -205,7 +208,8 @@ static partial class LocalScatterMeshes
                 break;
             case PortableForm.Pouch:case PortableForm.Satchel:case PortableForm.Pack:case PortableForm.Quiver:Container(false,false);break;
             case PortableForm.Basket:Container(true,false);break;
-            case PortableForm.BarkBox:Container(false,true);break;
+            case PortableForm.BarkBox:Container(false,true);
+                if(item.Kind==PossessionKind.EmberCarrier)Quad(new Vector3(-.46f,.94f,-.43f),new Vector3(.46f,.94f,-.43f),new Vector3(.46f,.98f,.33f),new Vector3(-.46f,.98f,.33f),new Color(.3f,.22f,.14f,0));break;
             case PortableForm.Frame:
                 foreach(float x in new[]{-.4f,.4f})Tube(new Vector3(x,0,0),new Vector3(x,1,0),.035f,wood);
                 for(int i=0;i<4;i++){float y=.1f+i*.25f;Tube(new Vector3(-.4f,y,0),new Vector3(.4f,y,0),.035f,wood);foreach(float x in new[]{-.4f,.4f})for(int j=0;j<3;j++)Tube(new Vector3(x-.05f,y+j*.018f,-.06f),new Vector3(x+.05f,y+j*.018f,.06f),.018f,cord);}
