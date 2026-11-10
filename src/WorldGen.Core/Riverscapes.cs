@@ -34,7 +34,7 @@ namespace WorldGen.Core
         {if(radius>=1||radius<0)return 0;double x=1-radius*radius;return x*x*x;}
         public static double Smooth(double t){t=D.Clamp(t);return t*t*t*(10+t*(-15+6*t));}
         public static double HalfWidth(double sourceFlow,double scale)=>RiverHydraulics.HalfWidth(sourceFlow,scale);
-        public static bool WaterPoint(in RiverscapeSpan span,V point,double physical,out double level,out double width,out double depth,out double bank)
+        public static bool WaterPoint(in RiverscapeSpan span,V point,double physical,out double level,out double width,out double depth,out double bank,out double support)
         {
             ref readonly var b=ref span.Basis;V p=point-span.A;
             double x=RiverDot(p,b.Axis)*physical,z=RiverDot(p,b.Side)*physical;
@@ -44,11 +44,12 @@ namespace WorldGen.Core
                 s=((x-ax)*(rz-az)-(z-az)*(rx-ax))/det;t=((qx-ax)*(z-az)-(qz-az)*(x-ax))/det;
                 h=ah+(qh-ah)*s+(rh-ah)*t;return Math.Min(1-s-t,Math.Min(s,t));
             }
-            double first=Plane(b.LAX,b.LAZ,b.LBX,b.LBZ,b.RAX,b.RAZ,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out _);
+            double first=Plane(b.LAX,b.LAZ,b.LBX,b.LBZ,b.RAX,b.RAZ,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out double t1);
             double second=Plane(b.RAX,b.RAZ,b.LBX,b.LBZ,b.RBX,b.RBZ,span.LevelA,span.LevelB,span.LevelB,out double h2,out double s2,out double t2);
-            if(Math.Max(first,second)<-1e-7){level=width=depth=bank=0;return false;}
+            if(Math.Max(first,second)<-1e-7){level=width=depth=bank=support=0;return false;}
             double u=D.Clamp(first>=second?s1:s2+t2);level=Math.Max(span.LevelB,Math.Min(span.LevelA,first>=second?h1:h2));
             width=span.WidthA+(span.WidthB-span.WidthA)*u;depth=span.DepthA+(span.DepthB-span.DepthA)*u;
+            support=width*Math.Max(0,1-Math.Abs(first>=second?-1+2*t1:1-2*s2));
             double Edge(double ax,double az,double bx,double bz)
             {double dx=bx-ax,dz=bz-az,t=D.Clamp(((x-ax)*dx+(z-az)*dz)/Math.Max(1e-20,dx*dx+dz*dz));return Math.Sqrt(Math.Pow(x-ax-dx*t,2)+Math.Pow(z-az-dz*t,2));}
             bank=Math.Min(Edge(b.LAX,b.LAZ,b.LBX,b.LBZ),Edge(b.RAX,b.RAZ,b.RBX,b.RBZ));return true;
@@ -520,9 +521,9 @@ namespace WorldGen.Core
                     foreach(int index in nearby)
                     {
                         ref readonly var span=ref localRiverscapes[index];
-                        if(RiverscapeKernel.WaterPoint(in span,point,physical,out double level,out double width,out double depth,out double bank))
+                        if(RiverscapeKernel.WaterPoint(in span,point,physical,out double level,out double width,out double depth,out double bank,out double support))
                         {
-                            V flow=span.Basis.D.Unit;if(span.Primitive!=RiverFlowPrimitive.Waterfall)mix.Add(span.Reach,level,width,depth,bank,flow,span.Speed,span.Turbulence);
+                            V flow=span.Basis.D.Unit;if(span.Primitive!=RiverFlowPrimitive.Waterfall)mix.Add(span.Reach,level,width,depth,support,flow,span.Speed,span.Turbulence);
                             double relative=1-bank/Math.Max(.01,width);if(relative<best){best=relative;fallback=new RiverWaterState(level,flow,span.Speed,span.Turbulence,1);}
                         }
                         Pool(span.From,span.A,span.WidthA,span.PoolA,ref mix);Pool(span.To,span.B,span.WidthB,span.PoolB,ref mix);
@@ -580,7 +581,7 @@ namespace WorldGen.Core
                     // Adjacent paired cross-sections partition longitudinal
                     // space. Round caps at EVERY station used to let a lower
                     // cascade carve underneath the preceding higher ribbon.
-                    double level=span.LevelA+(span.LevelB-span.LevelA)*u,bankDistance=width-distance;
+                    double level=span.LevelA+(span.LevelB-span.LevelA)*u,bankDistance=width-distance,blendSupport=bankDistance;
                     bool inside=bankDistance>=0;
                     if(span.WidthA+span.WidthB>.0001)
                     {
@@ -594,7 +595,7 @@ namespace WorldGen.Core
                             bs=s;bt=t;
                             value=ah+(qh-ah)*s+(rh-ah)*t;return Math.Min(1-s-t,Math.Min(s,t));
                         }
-                        double first=Plane(lax,laz,lbx,lbz,rax,raz,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out _);
+                        double first=Plane(lax,laz,lbx,lbz,rax,raz,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out double t1);
                         double second=Plane(rax,raz,lbx,lbz,rbx,rbz,span.LevelA,span.LevelB,span.LevelB,out double h2,out double s2,out double t2);
                         inside=Math.Max(first,second)>=-1e-7;
                         level=Math.Max(span.LevelB,Math.Min(span.LevelA,first>=second?h1:h2));
@@ -603,6 +604,10 @@ namespace WorldGen.Core
                         // Centre-line projection disagrees at an angled station.
                         u=D.Clamp(first>=second?s1:s2+t2);
                         width=span.WidthA+(span.WidthB-span.WidthA)*u;
+                        // Euclidean distance to a finite slanted bank changes
+                        // derivative and value across a section's end cap. The
+                        // paired lateral coordinate is shared EXACTLY there.
+                        blendSupport=width*Math.Max(0,1-Math.Abs(first>=second?-1+2*t1:1-2*s2));
                         double EdgeDistance(double ax,double az,double qx,double qz)
                         {double ex=qx-ax,ez=qz-az,t=D.Clamp(((x-ax)*ex+(z-az)*ez)/Math.Max(1e-20,ex*ex+ez*ez));return Math.Sqrt(Math.Pow(x-ax-ex*t,2)+Math.Pow(z-az-ez*t,2));}
                         bankDistance=Math.Min(EdgeDistance(lax,laz,lbx,lbz),EdgeDistance(rax,raz,rbx,rbz))*(inside?1:-1);
@@ -640,7 +645,7 @@ namespace WorldGen.Core
                         current.Footprint=double.PositiveInfinity;current.Minimum=current.Maximum=0;current.Gradient=default;
                     }
                     if(!inside)return;
-                    if(span.Primitive!=RiverFlowPrimitive.Waterfall)mix.Add(span.Reach,level,width,depth,bankDistance,d.Unit,span.Speed,span.Turbulence);
+                    if(span.Primitive!=RiverFlowPrimitive.Waterfall)mix.Add(span.Reach,level,width,depth,blendSupport,d.Unit,span.Speed,span.Turbulence);
                     if(relative>=best)return;
                     best=relative;current.Kind=LocalWaterKind.River;current.BodyKey=(ulong)(uint)(span.Reach+1);
                     current.Water=level;current.Mask=level-current.Height;current.Footprint=bankDistance;

@@ -6183,7 +6183,7 @@
       "status": "Removed from current runtime and tests. Original unaccepted implementation retained in checkpoint4e30634e."
     }
   },
-  "next": "Prototype local combined water surface instead of independent overlapping sheets. Restore fast inner-perimeter global fitting; retain proven dry-bank tile-border correction. Candidate stays experimental until actual mesh/native/LOD/load gates pass.",
+  "next": "Keep accepted explicit-ribbon architecture and dry bank border correction. Prototype deterministic on-demand exact node stage + conservative actual-geometry junction collars, clamped between base receiver and base node heads to guarantee monotone edges; avoid expensive global exact fitting. No work beyond rivers per latest owner.",
   "latest_controls": {
     "join_and_bank_bounds_pure": 424,
     "actual_join_checks": 384,
@@ -6272,13 +6272,14 @@
   ],
   "combined_surface_prototype": {
     "version": 92,
-    "status": "UNACCEPTED; current actual mesh controls running",
+    "status": "REJECTED through local95. Preserved on work branch only, not built or accepted.",
     "design": "Local compact cross-channel stage blend, each reach counted once, one partitioned water surface, dedicated128m hydro index; actual standing-water shores still use fine geometry. Retired global corridor fitting and restored original fine inner-perimeter datum pass.",
     "pure_controls": 109,
     "rejected_trials": {
       "v90": "Failed internal edge audit; independent adaptive edges were nonconforming. 47k coarse water triangles,7.63s build unacceptable.",
       "v91": "Rejected; span-constant speed in stage weights caused discontinuous head at stations and pathological refinement (~1M water triangles after stitching). Stage influence now uses continuous station width/depth only."
     },
-    "selected_game": "A8388fa77 unchanged; B still older e456fc76 until next native candidate build."
+    "selected_game": "A8388fa77 unchanged; B still older e456fc76 until next native candidate build.",
+    "latest": "v93 direct hydro/geometry1413 exact pairs and200 section probes passed, but max-winner in same-reach overlapping sections introduced interior head jumps. v94/95 same-reach averaging reduced winner steps but exposed one0.266m cap discontinuity and nonconforming adaptive-mesh edges. v95 first coarse major tile153950water triangles/4.17s; boundary failed. Do not ship or waive."
   }
 }

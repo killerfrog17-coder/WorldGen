@@ -97,7 +97,6 @@ namespace WorldGen.Presentation
             double step=mesh.SizeM/mesh.Segments;
             var spans=patch.RiverSpans(step>32?step*.1:0);if(spans.Length==0)return;
             var positions=new List<float>(mesh.WaterPositions);var colors=new List<float>(mesh.WaterColors);var indices=new List<int>(mesh.WaterTriangles);
-            var waterHeads=new List<double>();for(int i=0;i<positions.Count/3;i++)waterHeads.Add(double.NaN);
             int firstRiverIndex=indices.Count;
             // Reusable Sutherland-Hodgman buffers: no per-pixel/vertex noise
             // raster, physics query or dynamic water simulation is involved.
@@ -141,7 +140,7 @@ namespace WorldGen.Presentation
                         if(fall!=otherFall||fall&&(Math.Abs(colors[found*4+2]-p.T)>.0001||Math.Abs(colors[found*4+3]-p.W)>.0001))continue;
                         double ex=positions[found*3]-p.X,ey=positions[found*3+1]-p.Y,ez=positions[found*3+2]-p.Z;if(ex*ex+ey*ey+ez*ez<.000004)return found;
                     }
-                int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);waterHeads.Add(p.H);
+                int id=positions.Count/3;if(!vertices.TryGetValue(key,out var list)){list=new List<int>();vertices.Add(key,list);}list.Add(id);positions.Add((float)p.X);positions.Add((float)p.Y);positions.Add((float)p.Z);
                 colors.Add((float)p.U);colors.Add((float)p.V);colors.Add((float)p.T);colors.Add((float)p.W);return id;
             }
             void Final(Point a,Point b,Point c,int depth=0)
@@ -316,18 +315,32 @@ namespace WorldGen.Presentation
                     foreach(var p in inside){if(previous>=0&&(p.Item1-previous)*Math.Sqrt(len)<.001)continue;polygon.Add(p.Item2);previous=p.Item1;}
                 }
                 if(polygon.Count==3){stitched.AddRange(polygon);continue;}
-                Point Center()
+                // Clip ears using existing boundary vertices. A newly sampled
+                // centroid can itself land on a thin neighbouring edge and
+                // introduce another T-junction after this pass has indexed it.
+                double Area(int a,int b,int c)
+                {double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2],cx=positions[c*3],cz=positions[c*3+2];return (bx-ax)*(cz-az)-(bz-az)*(cx-ax);}
+                while(polygon.Count>3)
                 {
-                    int a=indices[tri],b=indices[tri+1],c=indices[tri+2];
-                    return new Point{X=(positions[a*3]+positions[b*3]+positions[c*3])/3d,Z=(positions[a*3+2]+positions[b*3+2]+positions[c*3+2])/3d,
-                        H=(waterHeads[a]+waterHeads[b]+waterHeads[c])/3d,W=(colors[a*4+3]+colors[b*4+3]+colors[c*4+3])/3d};
+                    int ear=-1;double largest=1e-8;
+                    for(int i=0;i<polygon.Count;i++)
+                    {
+                        int a=polygon[(i+polygon.Count-1)%polygon.Count],b=polygon[i],c=polygon[(i+1)%polygon.Count];double area=-Area(a,b,c);
+                        if(area<=largest)continue;bool blocked=false;
+                        foreach(int p in polygon)
+                        {
+                            if(p==a||p==b||p==c)continue;
+                            // Include points on the proposed diagonal: clipping
+                            // the opposite corner first would otherwise skip
+                            // every collinear vertex on that shared edge.
+                            if(Area(a,b,p)<=1e-7&&Area(b,c,p)<=1e-7&&Area(c,a,p)<=1e-7){blocked=true;break;}
+                        }
+                        if(!blocked){ear=i;largest=area;}
+                    }
+                    if(ear<0)break;
+                    stitched.Add(polygon[(ear+polygon.Count-1)%polygon.Count]);stitched.Add(polygon[ear]);stitched.Add(polygon[(ear+1)%polygon.Count]);polygon.RemoveAt(ear);
                 }
-                int center=Vertex(Center());for(int i=0;i<polygon.Count;i++)
-                {
-                    int a=polygon[i],b=polygon[(i+1)%polygon.Count];if(a==b||a==center||b==center)continue;
-                    double area=(positions[a*3]-positions[center*3])*(positions[b*3+2]-positions[center*3+2])-(positions[a*3+2]-positions[center*3+2])*(positions[b*3]-positions[center*3]);
-                    if(Math.Abs(area)<1e-7)continue;stitched.Add(center);stitched.Add(a);stitched.Add(b);
-                }
+                if(polygon.Count==3&&Math.Abs(Area(polygon[0],polygon[1],polygon[2]))>1e-8)stitched.AddRange(polygon);
             }
             indices=stitched;
             mesh.WaterPositions=positions.ToArray();mesh.WaterColors=colors.ToArray();mesh.WaterTriangles=indices.ToArray();

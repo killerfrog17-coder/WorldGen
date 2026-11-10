@@ -21,7 +21,7 @@ namespace WorldGen.Core
     public ref struct RiverWaterBlend
     {
         public struct Contribution
-        {internal int Key;internal double Weight,Level,Speed,Turbulence;internal V Flow;}
+        {internal int Key;internal double Weight,Level,Speed,Turbulence,LocalWeight;internal V Flow;}
         Span<Contribution> values;
         Contribution[] rented;
         int count;
@@ -33,9 +33,15 @@ namespace WorldGen.Core
             // creates a head step at every shared station. Width and depth
             // interpolate the actual common station, so this support is C0.
             double weight=RiverscapeKernel.Smooth(bankDistance/width)*Math.Sqrt(Math.Max(.000001,width*depth));
-            var item=new Contribution{Key=key,Weight=weight,Level=level,Flow=flow,Speed=speed,Turbulence=turbulence};
+            var item=new Contribution{Key=key,Weight=weight,LocalWeight=weight,Level=level,Flow=flow,Speed=speed,Turbulence=turbulence};
             for(int i=0;i<count;i++)if(values[i].Key==key)
-            {if(weight>values[i].Weight||weight==values[i].Weight&&level>values[i].Level)values[i]=item;return;}
+            {
+                var old=values[i];
+                if(key<0){if(weight>old.Weight)values[i]=item;return;} // the same node pool is visited by several sections
+                double total=old.LocalWeight+weight;V velocity=(old.Flow*(old.Speed*old.LocalWeight)+flow*(speed*weight))/total;
+                old.Level=(old.Level*old.LocalWeight+level*weight)/total;old.Turbulence=(old.Turbulence*old.LocalWeight+turbulence*weight)/total;
+                old.Speed=velocity.Length;old.Flow=velocity.Unit;old.LocalWeight=total;old.Weight=Math.Max(old.Weight,weight);values[i]=old;return;
+            }
             if(count==values.Length)
             {
                 var next=ArrayPool<Contribution>.Shared.Rent(Math.Max(16,count*2));values.Slice(0,count).CopyTo(next);

@@ -42,10 +42,24 @@ static class RiverWaterBlendTests
     }
     public static void World(string path,string output,int[] sources)
     {
-        var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);int probes=0,mixed=0,bad=0;double max=0;var failures=new List<object>();
+        var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);int probes=0,mixed=0,bad=0,continuityProbes=0,continuityBad=0;double max=0,maxJumpExcess=0;var failures=new List<object>();var discontinuities=new List<object>();
         foreach(int source in sources)
         {
             var spans=terrain.Amplification.RiverReach(source);if(spans.Length==0)throw new Exception("Missing actual field-control reach "+source);
+            var whole=terrain.Patch((spans[0].A+spans[^1].B).Unit,80000);whole.RiverSpans();
+            for(int i=1;i<spans.Length;i++)
+            {
+                var s=spans[i];if(s.Primitive==RiverFlowPrimitive.Waterfall||spans[i-1].Primitive==RiverFlowPrimitive.Waterfall)continue;
+                foreach(double lateral in new[]{-.75,-.25,.25,.75})
+                {
+                    double physical=terrain.RadiusM*.1;V p=(s.A+s.SideA*(s.WidthA*lateral/physical)).Unit,tangent=V.Cross(s.SideA,s.A).Unit;
+                    var a=whole.RiverWater((p-tangent*(.02/physical)).Unit);var b=whole.RiverWater((p+tangent*(.02/physical)).Unit);
+                    var c=whole.RiverWater((p-tangent*(.2/physical)).Unit);var d=whole.RiverWater((p+tangent*(.2/physical)).Unit);
+                    if(!a.Present||!b.Present||!c.Present||!d.Present)continue;continuityProbes++;
+                    double excess=Math.Abs(a.Level-b.Level)-.25*Math.Abs(c.Level-d.Level);maxJumpExcess=Math.Max(maxJumpExcess,excess);
+                    if(excess>.005){continuityBad++;if(discontinuities.Count<20)discontinuities.Add(new{source,Station=i,lateral,NearA=a.Level,NearB=b.Level,FarA=c.Level,FarB=d.Level,excess});}
+                }
+            }
             foreach(var station in new[]{spans[0],spans[spans.Length/2],spans[^1]})
             {
                 V at=(station.A+station.B).Unit;double extent=Math.Max(100,Math.Max(station.WidthA,station.WidthB)*2);var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);var patch=terrain.Patch(at,Math.Max(40000,extent*25));patch.RiverSpans();
@@ -58,8 +72,8 @@ static class RiverWaterBlendTests
                 }
             }
         }
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,probes,mixed,bad,max,failures},new JsonSerializerOptions{WriteIndented=true}));
-        if(bad>0||probes<100||mixed<10)throw new Exception($"Combined river field: {bad}/{probes} unequal queries, {mixed} actual mixed samples");
-        Console.WriteLine($"PASS {probes} paired exact water queries, {mixed} actual overlap samples; max delta {max:R}");
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,probes,mixed,bad,max,continuityProbes,continuityBad,maxJumpExcess,failures,discontinuities},new JsonSerializerOptions{WriteIndented=true}));
+        if(bad>0||continuityBad>0||probes<100||mixed<10)throw new Exception($"Combined river field: {bad}/{probes} unequal queries, {continuityBad}/{continuityProbes} discontinuities, {mixed} actual mixed samples");
+        Console.WriteLine($"PASS {probes} paired exact water queries, {mixed} actual overlap samples, {continuityProbes} continuous section probes; max delta {max:R}");
     }
 }
