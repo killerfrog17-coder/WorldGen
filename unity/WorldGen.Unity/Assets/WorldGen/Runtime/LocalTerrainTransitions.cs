@@ -64,7 +64,7 @@ public sealed partial class LocalTerrainExplorer
         // Share the install allowance so removal cannot add another correction
         // on top of a newly published terrain or forest payload.
         bool paced=WorldGenPerformance.PacedTerrainRetirement;
-        if(paced&&installationsThisFrame!=0)return;
+        if(paced&&!CanInstall)return;
         terrainRetirementScratch.Clear();
         foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key))terrainRetirementScratch.Add(key);
         foreach(var key in terrainRetirementScratch)
