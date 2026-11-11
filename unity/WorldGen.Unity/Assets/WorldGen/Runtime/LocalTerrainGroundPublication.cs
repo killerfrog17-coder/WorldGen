@@ -20,7 +20,9 @@ public sealed partial class LocalTerrainExplorer
         public readonly List<ScatterChunkEdit> Chunks=new List<ScatterChunkEdit>();
         public readonly List<ForestGroundEdit> Roots=new List<ForestGroundEdit>();
         public readonly List<ForestFieldEdit> Fields=new List<ForestFieldEdit>();
-        public void ClearEdits(){(Work as IDisposable)?.Dispose();Scatter.Clear();Groups.Clear();Chunks.Clear();Roots.Clear();Fields.Clear();Changes.Clear();Work=null;}
+        public readonly List<ScatterChunk> SourceChunks=new List<ScatterChunk>();
+        public readonly List<ForestField> SourceFields=new List<ForestField>();
+        public void ClearEdits(){(Work as IDisposable)?.Dispose();Scatter.Clear();Groups.Clear();Chunks.Clear();Roots.Clear();Fields.Clear();SourceChunks.Clear();SourceFields.Clear();Changes.Clear();Work=null;}
     }
     struct ScatterGroundEdit {public ScatterChunk Chunk;public int Index,Level;public float Y;}
     struct ScatterGroupEdit {public ScatterGroup Group;public Bounds Bounds,RootBounds;public int MaximumGroundLevel;}
@@ -173,11 +175,17 @@ public sealed partial class LocalTerrainExplorer
     IEnumerator PrepareGroundPublication(GroundPublication plan)
     {
         if(plan.Changes.Count==0)yield break;
+        // No dictionary enumerator may survive a slice. Empty forest census
+        // certificates can change while physical-root topology stays intact.
+        // Reuse per-plan lists; actual root additions/removals still restart
+        // the plan through its existing canopy/topology revision guards.
+        plan.SourceChunks.Clear();foreach(var chunk in scatterChunks.Values)plan.SourceChunks.Add(chunk);
+        plan.SourceFields.Clear();foreach(var field in forestFields.Values)if(field.Roots.Count>0)plan.SourceFields.Add(field);
         int visited=0;long started=System.Diagnostics.Stopwatch.GetTimestamp();
         bool Due()=>++visited%32==0&&System.Diagnostics.Stopwatch.GetTimestamp()-started>System.Diagnostics.Stopwatch.Frequency*.0007;
         bool Affected(Bounds bounds,double offsetX,double offsetZ,double margin=0)
         {double x0=plan.Key.X*plan.Key.SizeM-offsetX,z0=plan.Key.Z*plan.Key.SizeM-offsetZ;return bounds.max.x>=x0-margin&&bounds.min.x<=x0+plan.Key.SizeM+margin&&bounds.max.z>=z0-margin&&bounds.min.z<=z0+plan.Key.SizeM+margin;}
-        foreach(var chunk in scatterChunks.Values)
+        foreach(var chunk in plan.SourceChunks)
         {
             // A chart reset uses the existing complete projection path instead.
             if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))continue;
@@ -216,7 +224,7 @@ public sealed partial class LocalTerrainExplorer
             }
             if(changed){var bounds=chunk.AllBounds;bounds.SetMinMax(chunkMin,chunkMax);plan.Chunks.Add(new ScatterChunkEdit{Chunk=chunk,Bounds=bounds});}
         }
-        foreach(var field in forestFields.Values)
+        foreach(var field in plan.SourceFields)
         {
             if(!Affected(field.Bounds,0,0))continue;
             var bounds=field.Bounds;bool changed=false;

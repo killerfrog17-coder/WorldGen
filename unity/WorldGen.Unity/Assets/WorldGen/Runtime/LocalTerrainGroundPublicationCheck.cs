@@ -109,7 +109,7 @@ public sealed partial class LocalTerrainExplorer
         VerifyGroundProofScene("before staged ground proof");
         bool holdTerrain=TerrainDiagnostics.HoldTerrain,holdPlants=TerrainDiagnostics.HoldPlants;
         TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
-        int checks=0,slices=0,edits=0,queries=0;var baseline=new GroundProofState(this);
+        int checks=0,slices=0,edits=0,queries=0,metadataMutations=0;var baseline=new GroundProofState(this);
         var keys=tiles.Keys.Where(k=>k.Level==0).OrderBy(k=>TerrainLod.DistanceSquared(k,motion.X,motion.Z)).Take(2).ToList();
         var coarse=tiles.Keys.Where(k=>k.Level>=1).OrderBy(k=>TerrainLod.DistanceSquared(k,motion.X,motion.Z)).First();keys.Add(coarse);
         try
@@ -125,6 +125,15 @@ public sealed partial class LocalTerrainExplorer
                 while(work.MoveNext())
                 {
                     if(!ReferenceEquals(tiles[key],old))throw new InvalidOperationException("Terrain published before root preparation completed");
+                    if(metadataMutations==0&&plan.Roots.Count>0)
+                    {
+                        // A real forest-root slice is suspended. Empty census
+                        // metadata can invalidate the dictionary enumerator
+                        // without changing any physical topology or root.
+                        var certificate=new WorldGen.Core.ForestPageKey(5,int.MaxValue,int.MaxValue,0);
+                        if(forestFields.ContainsKey(certificate))throw new InvalidOperationException("Empty-certificate regression key is occupied");
+                        forestFields.Add(certificate,new ForestField{Source=new WorldGen.Core.ForestPage()});forestFields.Remove(certificate);metadataMutations++;
+                    }
                     slices++;steps++;if(steps>1000)throw new InvalidOperationException("Staged root preparation did not terminate");yield return null;
                 }
                 checks+=baseline.Check("preparation key="+key.X+","+key.Z+"/L"+key.Level+" mode="+mode); // Preparation must not alter any live root.
@@ -148,9 +157,10 @@ public sealed partial class LocalTerrainExplorer
                 finally{tiles[key]=old;residentRevision++;baseline.Restore();scatterGroundChanges.Clear();}
             }
             if(edits==0)throw new InvalidOperationException("Staged terrain proof did not exercise any root corrections");
+            if(metadataMutations==0)throw new InvalidOperationException("Staged terrain proof needs a yielded physical forest-root slice for its empty-metadata mutation regression");
             yield return PerformanceVerifyCachedGroundPublication(output);
             yield return PerformanceVerifyGroundRetirement(output);
-            File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices; live roots unchanged throughout preparation, including removal to coarser/fallback owners.\n");
+            File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices, "+metadataMutations+" empty census add/remove during a suspended forest-root slice; live roots unchanged throughout preparation, including removal to coarser/fallback owners.\n");
         }
         finally{baseline.Restore();TerrainDiagnostics.HoldTerrain=holdTerrain;TerrainDiagnostics.HoldPlants=holdPlants;scatterDirty=true;VerifyGroundProofScene("after staged ground proof");}
     }

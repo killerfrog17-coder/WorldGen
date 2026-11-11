@@ -165,13 +165,16 @@ public sealed partial class LocalTerrainExplorer
         foreach(var batch in forestBatches.Values)batch.Model.LastUsed=Time.realtimeSinceStartupAsDouble;
         if(!ReferenceEquals(forestFrame,frame))
         {
+            long phase=WorldGenPerformance.TraceBegin();
             // Reproject immutable planet-addressed payloads; never reseed a forest
             // because its terrain chart was replaced.
             forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.GroundLevels.Clear();batch.Free.Clear();DirtyAllForestRoots(batch);}
             forestRootCount=0;foreach(var field in forestFields.Values){field.Roots.Clear();ProjectForest(field);}forestRevision++;forestHashDirty=true;
+            WorldGenPerformance.TraceEnd(58,phase);
         }
         if(forestPlan!=null&&forestPlan.IsCompleted)
         {
+            long phase=WorldGenPerformance.TraceBegin();
             if(forestPlan.IsCompletedSuccessfully)
             {
                 forestPriority=forestPlan.Result;forestWanted.Clear();foreach(var key in forestPriority)forestWanted.Add(key);forestNextRequest=0;forestMaintenanceDirty=true;
@@ -183,6 +186,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(forestPlan.IsFaulted)Debug.LogWarning("Forest plan: "+forestPlan.Exception.GetBaseException().Message);
             forestPlan=null;
+            WorldGenPerformance.TraceEnd(55,phase);
         }
         double moved=(Position-forestPlanAt).Length*frame.RadiusM;
         if(forestPlan==null&&(forestPlanRange!=viewDistance||moved>128||Math.Abs(HeightAboveGround-forestPlanAltitude)>128||forestOptions!=TerrainVideoOptions.VegetationRevision||flightForestCoverage!=(motion.Flying&&HeightAboveGround>80)))
@@ -218,9 +222,10 @@ public sealed partial class LocalTerrainExplorer
             if(job.Task.IsFaulted){Debug.LogWarning("Forest page retained fallback: "+job.Task.Exception.GetBaseException().Message);forestNextRequest=flightForestNext=0;forestRetryAt=Time.realtimeSinceStartupAsDouble+2;continue;}
             if(!job.Task.IsCompletedSuccessfully||!forestWanted.Contains(job.Key)&&!flightForestWanted.Contains(job.Key))continue;
             if(forestFreeIds.Count==0&&forestNextId>=forestFlags.Length)break;
-            long installed=System.Diagnostics.Stopwatch.GetTimestamp();
+            long installTrace=WorldGenPerformance.TraceBegin();long installed=installTrace!=0?installTrace:System.Diagnostics.Stopwatch.GetTimestamp();
             if(!metadataOnly)installationsThisFrame++;
             var field=new ForestField{Source=job.Task.Result,Id=forestFreeIds.Count>0?forestFreeIds.Pop():forestNextId++};forestFields.Add(job.Key,field);ProjectForest(field);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;forestMaintenanceDirty=true;
+            WorldGenPerformance.TraceEnd(56,installTrace);
             frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             // Empty pages only certify a tree-free part of the census. They
             // create no tree models, transforms or GPU roots; do not charge
@@ -229,12 +234,14 @@ public sealed partial class LocalTerrainExplorer
         }
         if(forestPlan==null&&forestMaintenanceDirty&&!GroundPublicationPending)
         {
+        long phase=WorldGenPerformance.TraceBegin();
         forestMaintenanceDirty=false;
         foreach(var key in forestFields.Keys.Where(k=>!forestWanted.Contains(k)).ToArray())
         {
             var f=forestFields[key];scatter.ForestBounds(key,out V center,out double radius);
             if((center-Position).Length*frame.RadiusM-radius>viewDistance+512||(center-Position).Length*frame.RadiusM+radius<VegetationQuality.ForestStart(ForestHandoffReach)-128||ForestReplacementReady(key))RemoveForestField(key);
         }
+        WorldGenPerformance.TraceEnd(57,phase);
         }
         UpdateResidentForestReadiness();
     }
