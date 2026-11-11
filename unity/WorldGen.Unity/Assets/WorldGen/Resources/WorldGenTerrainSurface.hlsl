@@ -6,6 +6,7 @@
 float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
 float4 _TerrainBeddingOrigin;
+float4 _WorldGenForestDistanceRange;
 
 float SurfacePatchHash(float2 p)
 {float3 h=frac(float3(p.x,p.y,p.x)*.1031);h+=dot(h,h.yzx+33.33);return frac((h.x+h.y)*h.z);}
@@ -207,11 +208,11 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     float extra=1-smoothstep(range.x*.7,max(.01,range.w),distance);
     float3 albedo=farColor;
     float4 forestSurface=0;float3 floorMix=0;
-    if(_ForestSurfaceEnabled>.5&&textures&&!TerrainTest(TD_FOREST))
+    if(_ForestSurfaceEnabled>.5&&!TerrainTest(TD_FOREST))
     {
         float2 uv=i.coverageUV*(1-_ForestSurface_TexelSize.xy)+.5*_ForestSurface_TexelSize.xy;
         forestSurface=SAMPLE_TEXTURE2D(_ForestSurface,sampler_ForestSurface,uv);
-        if(_ForestFloorEnabled>.5&&detail>.001)
+        if(textures&&_ForestFloorEnabled>.5&&detail>.001)
         {
             float4 floorSurface=SAMPLE_TEXTURE2D(_ForestFloor,sampler_ForestFloor,uv);
             floorMix=floorSurface.rgb*smoothstep(.05,.65,floorSurface.a);
@@ -371,14 +372,18 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         }
     }
     color=color*(1-dot(mix,1))+vegetation;
-    if(_ForestSurfaceEnabled>.5&&TerrainForestEnabled()>.5&&textures&&!TerrainTest(TD_FOREST))
+    if(_ForestSurfaceEnabled>.5&&TerrainForestEnabled()>.5&&!TerrainTest(TD_FOREST))
     {
         float4 forest=forestSurface;
         float3 leaves=forest.rgb;
         #ifndef UNITY_COLORSPACE_GAMMA
         leaves=SRGBToLinear(leaves);
         #endif
-        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(forest.a)*smoothstep(700,1800,distance)*.8);
+        // Past the billboard band the existing crown-interception map becomes
+        // the whole forest representation, preserving actual forested areas.
+        float farCanopy=_WorldGenForestDistanceRange.y>0?smoothstep(_WorldGenForestDistanceRange.x,max(_WorldGenForestDistanceRange.y,_WorldGenForestDistanceRange.x+.001),distance):0;
+        float canopyWeight=max(smoothstep(700,1800,distance)*.8,farCanopy);
+        color=lerp(color,SurfaceLeafLight(leaves,n,sun,transmission,canopyShade),saturate(forest.a)*canopyWeight);
     }
     if(_MidSurfaceEnabled>.5&&textures&&!TerrainTest(TD_MID))
     {

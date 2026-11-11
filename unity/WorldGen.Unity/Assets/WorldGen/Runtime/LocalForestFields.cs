@@ -94,11 +94,21 @@ public sealed partial class LocalTerrainExplorer
     struct ForestRevealBounds {public V Center;public double Radius;}
     bool TreesNeededForReveal=>ScatterEnabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDensity>0;
     bool ForestNeededForReveal=>TreesNeededForReveal&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&SystemInfo.supportsComputeShaders&&!forestUnavailable;
+    // Distant terrain already carries continuous crown colour/coverage. Beyond
+    // this band it represents the forest without per-tree GPU roots.
+    double ForestBillboardEnd=>Math.Min(viewDistance,6000);
+    double ForestBillboardStart=>Math.Min(5000,ForestBillboardEnd*5/6);
+    double ForestPlanningRange=>Math.Min(viewDistance,ForestBillboardEnd+512);
     double ForestGapDistance(ForestPageKey key)
     {
         if(!forestRevealBounds.TryGetValue(key,out var bounds))
         {scatter.ForestBounds(key,out bounds.Center,out bounds.Radius);forestRevealBounds.Add(key,bounds);}
         return Math.Max(0,(bounds.Center-Position).Length*frame.RadiusM-bounds.Radius);
+    }
+    double ForestRequiredGap(ForestPageKey key)
+    {
+        double distance=ForestGapDistance(key);
+        return distance<ForestBillboardEnd?distance:double.PositiveInfinity;
     }
     double TreeRevealDistance(double limit)
     {
@@ -118,10 +128,12 @@ public sealed partial class LocalTerrainExplorer
                 forestFootprint=new ForestCoverageFootprint(forestFields.Where(p=>p.Value.RenderReady).Select(p=>p.Key),scatter.TreeLatticeCount);
                 forestFootprintEpoch=forestOwnershipEpoch;
             }
-            gap=forestFootprint.NearestGap(forestPriority,ForestGapDistance,gap);
+            gap=forestFootprint.NearestGap(forestPriority,ForestRequiredGap,gap);
             // The old plan remains useful while a moved-camera plan is in flight,
-            // but cannot certify newly exposed space beyond its original range.
-            readyLimit=Math.Min(readyLimit,Math.Max(0,forestCoverageRange-(Position-forestCoverageAt).Length*frame.RadiusM));
+            // but only the billboard annulus needs tree packets. Its completion
+            // must not shorten a much farther terrain/fog view to six kilometres.
+            double covered=Math.Max(0,forestCoverageRange-(Position-forestCoverageAt).Length*frame.RadiusM);
+            if(covered<Math.Min(limit,ForestBillboardEnd))readyLimit=Math.Min(readyLimit,covered);
         }
         return Math.Min(readyLimit,gap*.94);
     }
@@ -196,13 +208,13 @@ public sealed partial class LocalTerrainExplorer
             WorldGenPerformance.TraceEnd(55,phase);
         }
         double moved=(Position-forestPlanAt).Length*frame.RadiusM;
-        if(forestPlan==null&&(forestPlanRange!=viewDistance||moved>128||Math.Abs(HeightAboveGround-forestPlanAltitude)>128||forestOptions!=TerrainVideoOptions.VegetationRevision||flightForestCoverage!=(motion.Flying&&HeightAboveGround>80)))
+        if(forestPlan==null&&(forestPlanRange!=ForestPlanningRange||moved>128||Math.Abs(HeightAboveGround-forestPlanAltitude)>128||forestOptions!=TerrainVideoOptions.VegetationRevision||flightForestCoverage!=(motion.Flying&&HeightAboveGround>80)))
         {
             if(forestOptions!=TerrainVideoOptions.VegetationRevision)nextForestVisibility=0;
-            forestPlanAt=Position;forestPlanRange=viewDistance;forestPlanAltitude=HeightAboveGround;forestOptions=TerrainVideoOptions.VegetationRevision;
+            forestPlanAt=Position;forestPlanRange=ForestPlanningRange;forestPlanAltitude=HeightAboveGround;forestOptions=TerrainVideoOptions.VegetationRevision;
             // Preserve the old exact-census radius. Only submission changes;
             // moving the GPU handoff must not coarsen the forest population.
-            var at=Position;double range=viewDistance,exact=Math.Max(384,TerrainVideoOptions.TreeFarLod*2+128),inner=0,altitude=Math.Max(0,HeightAboveGround);var source=scatter;
+            var at=Position;double range=ForestPlanningRange,exact=Math.Max(384,TerrainVideoOptions.TreeFarLod*2+128),inner=0,altitude=Math.Max(0,HeightAboveGround);var source=scatter;
             forestPlan=Task.Run(()=>source.PlanForest(at,range,exact,4096,inner,altitude),cancellation.Token);
         }
         if(forestHashDirty)foreach(var field in forestFields.Values)
@@ -251,7 +263,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var key in forestFields.Keys.Where(k=>!forestWanted.Contains(k)).ToArray())
         {
             var f=forestFields[key];scatter.ForestBounds(key,out V center,out double radius);
-            if((center-Position).Length*frame.RadiusM-radius>viewDistance+512||(center-Position).Length*frame.RadiusM+radius<VegetationQuality.ForestStart(ForestHandoffReach)-128||ForestReplacementReady(key))RemoveForestField(key);
+            if((center-Position).Length*frame.RadiusM-radius>ForestPlanningRange+512||(center-Position).Length*frame.RadiusM+radius<VegetationQuality.ForestStart(ForestHandoffReach)-128||ForestReplacementReady(key))RemoveForestField(key);
         }
         WorldGenPerformance.TraceEnd(57,phase);
         }
@@ -533,6 +545,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void DrawForestFields()
     {
+        Shader.SetGlobalVector("_WorldGenForestDistanceRange",new Vector4((float)ForestBillboardStart,(float)ForestBillboardEnd,0,0));
         ForestDrawCalls=0;if(TerrainDiagnostics.HidePlants||TerrainDiagnostics.HideTrees||WorldGenPerformance.SuppressFarForest||!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||forestCull==null||forestFlagBuffer==null||view==null||forestFields.Count==0)return;
         PrepareForestHash();var eye=view.transform.localPosition;
         if(Time.realtimeSinceStartupAsDouble>=nextForestVisibility&&(!eye.Equals(forestVisibilityEye)||float.IsNaN(forestVisibilityEye.x)||nextForestVisibility==0||forestGroundRevision!=residentRevision||forestCoverageRevision!=coverVisibilityRevision))
@@ -548,7 +561,7 @@ public sealed partial class LocalTerrainExplorer
             forestFlagBuffer.SetData(forestFlags);forestRevision++;
         }
         GeometryUtility.CalculateFrustumPlanes(view,forestPlaneWork);for(int i=0;i<6;i++)forestPlanes[i]=new Vector4(forestPlaneWork[i].normal.x,forestPlaneWork[i].normal.y,forestPlaneWork[i].normal.z,forestPlaneWork[i].distance);
-        float reach=(float)ForestHandoffReach,start=(float)VegetationQuality.ForestStart(reach);var chart=new Vector4((float)originX,0,(float)originZ,TerrainVideoOptions.TreeDensity);var ranges=new Vector4(start,reach,(float)viewDistance,forestHashMask);var matrix=view.projectionMatrix*view.worldToCameraMatrix;
+        float reach=(float)ForestHandoffReach,start=(float)VegetationQuality.ForestStart(reach);var chart=new Vector4((float)originX,0,(float)originZ,TerrainVideoOptions.TreeDensity);var ranges=new Vector4(start,reach,(float)ForestBillboardEnd,forestHashMask);var matrix=view.projectionMatrix*view.worldToCameraMatrix;
         forestCull.SetVectorArray("_Planes",forestPlanes);forestCull.SetVector("_Eye",eye);forestCull.SetVector("_Chart",chart);forestCull.SetVector("_Ranges",ranges);forestCull.SetBuffer(0,"_Fields",forestFlagBuffer);forestCull.SetBuffer(0,"_Tiles",forestHashBuffer);
         forestCull.SetBuffer(0,"_ForestBirth",forestBirthBuffer);forestCull.SetFloat("_ForestClock",Time.realtimeSinceStartup);
         foreach(var batch in forestBatches.Values)
@@ -570,7 +583,7 @@ public sealed partial class LocalTerrainExplorer
             }
             var props=batch.Properties;props.SetFloat("_ForestMacro",batch.Macro?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
             props.SetBuffer("_ForestBirth",forestBirthBuffer);props.SetBuffer("_Tiles",forestHashBuffer);props.SetFloat("_ForestClock",Time.realtimeSinceStartup);props.SetInt("_ForestHashMask",forestHashMask);
-            var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)viewDistance*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
+            var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)ForestPlanningRange*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
             Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,batch.Args,1);batch.SubmittedFrame=Time.frameCount;ForestDrawCalls++;
         }
         bool published=false;
