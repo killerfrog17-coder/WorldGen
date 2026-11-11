@@ -351,9 +351,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
-        // Current ground gets the lanes first. A covered flight is not a
-        // licence to queue the distant horizon and trees ahead of nearby land.
+        // With resident ground beneath a flying player, keep one lane serving
+        // missing outward coverage. The remaining lanes finish nearby detail.
         long priorTerrainRequests=TerrainBuildRequests;
+        if(coveredFlight)ScheduleBackdrop(missingOnly:true);
         ScheduleCurrentTerrain(nearOnly:true);
         if(!NearTerrainPending())
         {

@@ -169,11 +169,11 @@ public sealed partial class LocalTerrainExplorer
         }
         return false;
     }
-    void ScheduleBackdrop()
+    void ScheduleBackdrop(bool missingOnly=false)
     {
         if(detailBaseline)return;
         bool coveredFlight=motion.Flying&&HeightAboveGround>80&&CenterReady;
-        if(NearTerrainPending()||!CanRequest)return;
+        if(((!missingOnly||!coveredFlight)&&NearTerrainPending())||!CanRequest)return;
         // Coarse background charts do not satisfy the requested-quality reveal
         // gate. Fill the first visible neighbourhood before spending the same
         // limited lanes on distant fallback charts.
@@ -190,7 +190,7 @@ public sealed partial class LocalTerrainExplorer
         // Reserve at most half the lanes for cheap outward coverage. A single
         // request after forest scheduling could be starved by long forest/fine
         // jobs; filling every lane would delay the nearby forest in large views.
-        int requested=0,allowance=Math.Max(1,WorkerLimit/2);
+        int requested=0,allowance=missingOnly?1:Math.Max(1,WorkerLimit/2);
         // The limit is concurrent work, not a fresh allowance every frame.
         // Otherwise repeated calls can occupy every lane with far backdrops.
         foreach(var job in jobs)if(job.Prepared==null&&job.Backdrop&&!job.Task.IsCompleted)allowance--;
@@ -198,6 +198,14 @@ public sealed partial class LocalTerrainExplorer
         foreach(var p in backdropOrder)
         {
             if(ActiveWorkerCount>=WorkerLimit)return;
+            // During flight, reserve one lane for genuinely absent ground.
+            // Finer foreground work must not starve the surface ahead of us.
+            if(missingOnly)
+            {
+                bool missing=false;
+                foreach(var key in wanted.Keys)if(Overlaps(key,p.Key)&&!HasResidentCoverage(key)){missing=true;break;}
+                if(!missing)continue;
+            }
             if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
             RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
             if(++requested>=allowance)return;
