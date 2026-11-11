@@ -26,7 +26,7 @@ static class RiverLodSeamTests
         }
         return result;
     }
-    public static void Run(string path,int source,bool far=false)
+    public static void Run(string path,int source,bool far=false,bool coverage=false)
     {
         foreach(var c in new[]{(Size:3276.8,Segments:16,Minimum:4d),(Size:4096d,Segments:64,Minimum:4d),(Size:4096d,Segments:128,Minimum:0d),(Size:8192d,Segments:16,Minimum:51.2)})
             if(RiverscapeMesh.MinimumHalfWidth(new LocalTerrainMesh{SizeM=c.Size,Segments=c.Segments})!=c.Minimum)
@@ -38,8 +38,10 @@ static class RiverLodSeamTests
         int coarseLevel=far?7:3;
         var keys=new[]{new TerrainTileKey(-1,-1,coarseLevel,.1),new TerrainTileKey(-1,0,coarseLevel,.1),new TerrainTileKey(0,-1,coarseLevel-1,.1),new TerrainTileKey(0,0,coarseLevel-1,.1)};
         var plan=keys.ToDictionary(k=>k,k=>k.Level==coarseLevel?16:32);var steps=TerrainEdges.Build(plan);
-        var meshes=keys.Select(k=>LocalTerrainMesh.Build(terrain,frame,k.X*k.SizeM,k.Z*k.SizeM,k.SizeM,plan[k],edgeSteps:steps[k])).ToArray();
+        var meshes=keys.Select(k=>LocalTerrainMesh.Build(terrain,frame,k.X*k.SizeM,k.Z*k.SizeM,k.SizeM,plan[k],edgeSteps:steps[k],coverageOnly:coverage&&k.Level==coarseLevel)).ToArray();
         if(meshes.All(m=>m.WaterClipTriangles.Length==0))throw new Exception("Mixed-LOD bank fixture did not exercise actual river constraints");
+        if(coverage&&!far&&meshes.Take(2).All(m=>m.WaterClipTriangles.Length==0||m.WaterTriangles.Length==0))
+            throw new Exception("Near fallback did not retain both a refined river bed and its water surface");
         int probes=0,hidden=0;double worst=0,worstAt=0;
         for(int half=0;half<2;half++)
         {

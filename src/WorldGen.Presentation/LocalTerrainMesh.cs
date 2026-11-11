@@ -84,7 +84,8 @@ namespace WorldGen.Presentation
             bool distant=terrain.Amplification!=null&&step>=128;
             bool coarseGeometry=terrain.Amplification!=null&&step>256;
             double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
-            var patch = !coverageOnly&&extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
+            bool nearCoverage=coverageOnly&&sizeM<=4096&&extent<=250000;
+            var patch = (!coverageOnly||nearCoverage)&&extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
             // The same index was previously prepared only by channel refinement,
             // after the regular grid had already scanned every river station.
             token.ThrowIfCancellationRequested();
@@ -92,13 +93,27 @@ namespace WorldGen.Presentation
             // kilometres. Eagerly constructing EVERY small river in that whole
             // region costs more than the grid. Keep exact point admission there;
             // dense near grids still amortize the shared finite-span index.
-            if(!coverageOnly&&!coarseGeometry&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
+            if((!coverageOnly&&!coarseGeometry||nearCoverage)&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             var horizon=coverageOnly||distant?terrain.CreateMapHeightCursor():null;
             var horizonMaterials=coverageOnly||distant?new System.Collections.Generic.List<int>():null;
             LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)
             {
+                // Near fallback is still coarse in materials, but its actual
+                // land must contain the same bed as its explicit water ribbon.
+                // The far horizon remains the fast approximate height product.
+                if(nearCoverage)
+                {
+                    LocalTerrainSample geometry;
+                    if(knownGeometry.HasValue)geometry=knownGeometry.Value;
+                    else if(sampleCache!=null&&sampleCache.TryGetGeometry(p,out var cached))geometry=cached;
+                    else{geometry=patch!.Geometry(p);sampleCache?.StoreGeometry(p,geometry);if(timing!=null&&geometryOnly)timing.GeometryQueries++;}
+                    if(geometryOnly)return geometry;
+                    if(timing!=null)timing.FullSurfaceQueries++;
+                    var ecology=horizon!.Sample(p,Math.Max(256,step));terrain.FillMapMaterials(p,ref ecology,horizonMaterials!);
+                    return LocalTerrain.LocalTerrainPatch.BlendEcology(ecology,ecology,ecology,ecology,0,0,geometry);
+                }
                 // Coverage is an explicitly approximate distant product, never
                 // a requested-quality mesh or a source for exact sample caches.
                 // Its footprint must stop the hierarchy before metre-scale
@@ -241,10 +256,10 @@ namespace WorldGen.Presentation
             // The old >=80m perimeter skirts also appeared on INTERIOR fallback
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
-            var waterSamples=coverageOnly?samples:LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing,edgeSteps);
+            var waterSamples=coverageOnly&&!nearCoverage?samples:LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing,edgeSteps);
             timing?.Mark(4);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
-            if(!coverageOnly&&terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
+            if((!coverageOnly||nearCoverage)&&terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             timing?.Mark(5);
             GroundCoverGrid.ExcludeWater(mesh);
             timing?.Mark(6);

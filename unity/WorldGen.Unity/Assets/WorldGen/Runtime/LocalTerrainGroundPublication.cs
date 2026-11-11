@@ -80,7 +80,7 @@ public sealed partial class LocalTerrainExplorer
         if(!ReferenceEquals(plan.Frame,frame)){CancelGroundPublication();return;}
         if(plan.Retiring)
         {
-            if(wanted.ContainsKey(plan.Key)&&!SupersededCoverageTerrain(plan.Key)||!tiles.TryGetValue(plan.Key,out var retiring)||!ReferenceEquals(retiring,plan.Product)||!CanRetireTransition(plan.Key))
+            if(wanted.ContainsKey(plan.Key)||!tiles.TryGetValue(plan.Key,out var retiring)||!ReferenceEquals(retiring,plan.Product)||!CanRetireTransition(plan.Key))
             {plan.Product=null;plan.ClearEdits();return;}
         }
         else if(plan.Fallback? !backdrops.ContainsKey(plan.Key)||!BackdropNeeded(plan.Key):

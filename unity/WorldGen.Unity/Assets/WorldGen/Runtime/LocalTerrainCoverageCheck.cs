@@ -286,49 +286,6 @@ public sealed partial class LocalTerrainExplorer
         foreach(var resident in overlapOwner.tiles.Values)resident.Root.SetActive(false);
         Destroy(overlapHost);
         File.WriteAllText(Path.Combine(output,"opaque-parent-morphs.txt"),"PASS: prepared leaf stamps survive single-mesh publication without outgoing draws; an arriving child finishes its ancestor before exposing an interior cut, child stamps remain independent, and ancestor replacements with existing children snap.");
-        var reuseHost=new GameObject("Canonical ancestor fallback check");var reuseOwner=reuseHost.AddComponent<LocalTerrainExplorer>();reuseOwner.enabled=false;reuseOwner.terrainRoot=reuseHost;
-        Tile ReuseSurface(TerrainTileKey key,bool fallback)
-        {
-            var root=Quad("Ancestor reuse surface",(float)key.SizeM,10,Color.green);
-            root.transform.position=new Vector3((float)(key.X*key.SizeM),0,(float)(key.Z*key.SizeM));
-            return new Tile{Root=root,Segments=1,Heights=new[]{10f,10f,10f,10f},Edges=new double[4],CoverageOnly=fallback,
-                ResidentEdges=new ResidentEdgeData{Mesh=root.GetComponent<MeshFilter>().sharedMesh}};
-        }
-        var reusedFallback=ReuseSurface(child,true);reuseOwner.tiles[child]=reusedFallback;reuseOwner.wanted[child]=1;
-        reuseOwner.backdrops[child]=new[]{.01,.01,.01,.01};reuseOwner.backdrops[parent]=new[]{1d,1d,1d,1d};
-        if(reuseOwner.HasCanonicalTerrainAncestor(child)||!reuseOwner.BackdropNeeded(child))throw new Exception("Fallback was suppressed without a real canonical ancestor");
-        var canonicalParent=ReuseSurface(parent,false);reuseOwner.tiles[parent]=canonicalParent;
-        if(reuseOwner.HasCanonicalTerrainAncestor(child)||!reuseOwner.BackdropNeeded(child))throw new Exception("Dry detailed terrain suppressed useful fallback detail");
-        canonicalParent.HasWater=true;canonicalParent.WaterBoundsKnown=true;canonicalParent.WaterBounds=new Bounds(new Vector3(3,10,3),Vector3.one);
-        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("Unrelated ancestor water suppressed a dry child fallback");
-        canonicalParent.WaterBounds=new Bounds(new Vector3(.5f,10,.5f),Vector3.one);
-        if(!reuseOwner.HasCanonicalTerrainAncestor(child)||reuseOwner.BackdropNeeded(child)||!reuseOwner.CanRetireTransition(child))
-            throw new Exception("Canonical ancestor did not supersede a wanted coverage fallback");
-        bool reuseKeep=WorldGenPerformance.KeepBackdrops,reusePaced=WorldGenPerformance.PacedTerrainRetirement;
-        try
-        {
-            WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=true;
-            reuseOwner.installationsThisFrame=1;reuseOwner.RetireObsoleteTerrain();
-            if(!reuseOwner.tiles.ContainsKey(child))throw new Exception("Fallback retirement ignored the shared installation allowance");
-            reuseOwner.installationsThisFrame=0;reuseOwner.RetireObsoleteTerrain();
-            if(reuseOwner.tiles.ContainsKey(child)||!reuseOwner.tiles.ContainsKey(parent)||!canonicalParent.Root.activeInHierarchy)
-                throw new Exception("Wanted fallback did not retire through the paced path while retaining canonical land");
-        }
-        finally{WorldGenPerformance.KeepBackdrops=reuseKeep;WorldGenPerformance.PacedTerrainRetirement=reusePaced;}
-        reuseOwner.tiles.Remove(parent);reuseOwner.DestroyTile(canonicalParent);
-        var giant=new TerrainTileKey(0,0,12,child.Scale);var coarseParent=ReuseSurface(giant,false);reuseOwner.tiles[giant]=coarseParent;
-        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A giant bare hierarchy grid suppressed finer fallback land");
-        coarseParent.HasWater=true;
-        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("Unknown water bounds suppressed fallback land");
-        coarseParent.WaterBoundsKnown=true;coarseParent.WaterBounds=new Bounds(new Vector3(.5f,10,.5f),Vector3.one);
-        if(!reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A coarse water-bearing ancestor lost its real feature surface");
-        coarseParent.HasWater=false;coarseParent.CoverageOnly=true;
-        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A coverage-only ancestor was mistaken for canonical terrain");
-        var translatedParent=new TerrainTileKey(1,1,1,child.Scale);var translatedChild=new TerrainTileKey(2,2,0,child.Scale);var translated=ReuseSurface(translatedParent,false);
-        translated.HasWater=translated.WaterBoundsKnown=true;translated.WaterBounds=new Bounds(new Vector3(.5f,10,.5f),Vector3.one);reuseOwner.tiles[translatedParent]=translated;
-        if(!reuseOwner.HasCanonicalTerrainAncestor(translatedChild))throw new Exception("Ancestor-local water bounds were not translated into the child's footprint");
-        Destroy(reuseHost);
-        File.WriteAllText(Path.Combine(output,"canonical-ancestor-reuse.txt"),"PASS: absent, dry, coverage-only and unknown/unrelated-water ancestors retain fallback detail; only an actual water-bounds overlap, including translated ancestor-local bounds, suppresses fallback. A wanted fallback retires within its shared paced allowance while matching canonical land/water stays active.");
         CheckPartialForestEdgeGround(output);CheckHiddenResidentRetirement(output);
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention, paced retirement and owner-inert covered-parent removal.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
