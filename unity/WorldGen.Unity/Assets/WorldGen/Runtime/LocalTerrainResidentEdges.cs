@@ -65,18 +65,30 @@ public sealed partial class LocalTerrainExplorer
 
     readonly Dictionary<TerrainTileKey,Tile> edgeObservedTiles=new Dictionary<TerrainTileKey,Tile>();
     readonly Dictionary<Vector2Int,KeyValuePair<TerrainTileKey,Tile>> edgeOwners=new Dictionary<Vector2Int,KeyValuePair<TerrainTileKey,Tile>>();
-    readonly List<TerrainTileKey> edgeChanged=new List<TerrainTileKey>();
+    readonly HashSet<TerrainTileKey> edgeChanged=new HashSet<TerrainTileKey>();
     readonly List<KeyValuePair<TerrainTileKey,Tile>> edgeAffected=new List<KeyValuePair<TerrainTileKey,Tile>>();
     LocalTerrainFrame edgeFrame;long edgeRevision=-1;
     readonly List<double> residentProfileCuts=new List<double>();
-    long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices;int residentEdgeResidualIntervals;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs;
-    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
+    long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices,residentEdgeOutgoingPublications;int residentEdgeResidualIntervals,residentEdgeOutgoingDraws;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs,residentEdgeFrameMs;
+    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" outgoing draws/publications="+residentEdgeOutgoingDraws+"/"+residentEdgeOutgoingPublications+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
 
     static bool ResidentTouches(TerrainTileKey a,TerrainTileKey b)
     {
         double epsilon=Math.Max(a.SizeM,b.SizeM)*1e-9;
         return Math.Max(a.X*a.SizeM,b.X*b.SizeM)<=Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)+epsilon&&
             Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<=Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM)+epsilon;
+    }
+    static bool ResidentPerimeterTouches(TerrainTileKey tile,TerrainTileKey changed)
+    {
+        if(!ResidentTouches(tile,changed))return false;
+        // Only the perimeter and its incident-owner probes are queried by a
+        // fit. A strictly interior change cannot alter any of those samples.
+        // Keep containing changes and every boundary/corner contact.
+        double epsilon=Math.Max(.002,tile.SizeM*1e-8);
+        return !(changed.X*changed.SizeM>tile.X*tile.SizeM+epsilon&&
+            (changed.X+1)*changed.SizeM<(tile.X+1)*tile.SizeM-epsilon&&
+            changed.Z*changed.SizeM>tile.Z*tile.SizeM+epsilon&&
+            (changed.Z+1)*changed.SizeM<(tile.Z+1)*tile.SizeM-epsilon);
     }
     static int ResidentOrder(TerrainTileKey a,TerrainTileKey b)=>a.Level!=b.Level?b.Level.CompareTo(a.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);
     static double ResidentStep(TerrainTileKey key,Tile tile,double x,double z)
@@ -148,16 +160,17 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateResidentEdges()
     {
+        residentEdgeFrameMs=0;
         if(closed||frame==null)return;
         if(!ReferenceEquals(edgeFrame,frame)){ClearResidentEdges();edgeFrame=frame;}
         if(edgeRevision==residentRevision)return;
-        var watch=System.Diagnostics.Stopwatch.StartNew();edgeChanged.Clear();edgeAffected.Clear();edgeOwners.Clear();
+        long started=System.Diagnostics.Stopwatch.GetTimestamp();edgeChanged.Clear();edgeAffected.Clear();edgeOwners.Clear();
         foreach(var pair in edgeObservedTiles)if(!tiles.TryGetValue(pair.Key,out var next)||!ReferenceEquals(next,pair.Value))edgeChanged.Add(pair.Key);
         foreach(var pair in tiles)if(!edgeObservedTiles.TryGetValue(pair.Key,out var old)||!ReferenceEquals(old,pair.Value))edgeChanged.Add(pair.Key);
         foreach(var pair in tiles)
         {
             if(pair.Value.ResidentEdges==null)continue;
-            foreach(var changed in edgeChanged)if(ResidentTouches(pair.Key,changed)){edgeAffected.Add(pair);break;}
+            foreach(var changed in edgeChanged)if(ResidentPerimeterTouches(pair.Key,changed)){edgeAffected.Add(pair);break;}
         }
         // Coarser resident profiles are established first. A fine edge can
         // then sample an ancestor's actual current triangles at an interior
@@ -179,8 +192,48 @@ public sealed partial class LocalTerrainExplorer
             foreach(var pair in edgeAffected)MissingResidentEdgeKnots(pair.Key,pair.Value,false);
         }
         foreach(var pair in edgeAffected)PublishResidentEdge(pair.Key,pair.Value);
+        FitPreviousResidentEdges();
         edgeObservedTiles.Clear();foreach(var pair in tiles)edgeObservedTiles.Add(pair.Key,pair.Value);
-        edgeRevision=residentRevision;residentEdgeLastMs=watch.Elapsed.TotalMilliseconds;residentEdgeMaxMs=Math.Max(residentEdgeMaxMs,residentEdgeLastMs);
+        edgeRevision=residentRevision;residentEdgeFrameMs=residentEdgeLastMs=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;residentEdgeMaxMs=Math.Max(residentEdgeMaxMs,residentEdgeLastMs);
+    }
+    void FitPreviousResidentEdges()
+    {
+        residentEdgeOutgoingDraws=0;
+        foreach(var pair in previousTerrain)
+        {
+            var tile=pair.Value;
+            if(tile.ResidentEdges==null||!tiles.TryGetValue(pair.Key,out var current)||current.ResidentEdges==null)continue;
+            residentEdgeOutgoingDraws++;
+            // Both draws use the replacement's coverage mask. Give the old
+            // perimeter exactly its final fitted profile, including bends a
+            // finer replacement added, while retaining the old interior.
+            var source=current.ResidentEdges;var previous=tile.ResidentEdges;List<double>[] missing=null;
+            for(int side=0;side<4;side++)
+            {
+                bool vertical=side<2;var line=previous.Sides[side];int at=0;
+                foreach(int index in source.Sides[side])
+                {
+                    var point=source.Points[index].Position;float along=vertical?point.z:point.x;
+                    while(at<line.Length&&(vertical?previous.Points[line[at]].Position.z:previous.Points[line[at]].Position.x)<along)at++;
+                    if(at<line.Length&&(vertical?previous.Points[line[at]].Position.z:previous.Points[line[at]].Position.x)==along)continue;
+                    if(missing==null)missing=new List<double>[4];if(missing[side]==null)missing[side]=new List<double>();
+                    var cuts=missing[side];if(cuts.Count==0||(float)cuts[cuts.Count-1]!=along)cuts.Add(along);
+                }
+            }
+            if(missing!=null)SplitResidentLandBoundary(pair.Key,tile,missing);
+            var data=tile.ResidentEdges;long before=tile.Contact?.Bytes??0;
+            for(int i=0;i<data.Points.Length;i++)
+            {
+                var point=data.Points[i];
+                if(!source.TryBoundary(point.Position.x,point.Position.z,pair.Key.SizeM,out double target))continue;
+                float height=(float)target;if(data.Heights[i]==height)continue;data.Heights[i]=height;
+                if(point.Vertex<tile.Heights.Length)tile.Heights[point.Vertex]=height;
+                if(tile.Cover.IsCreated&&point.Vertex<tile.Heights.Length&&point.Vertex*16+15<tile.Cover.Length)tile.Cover[point.Vertex*16+15]=height;
+                tile.Contact?.SetHeight(point.Vertex,height);
+            }
+            tile.BufferBytes+=(tile.Contact?.Bytes??0)-before;
+            PublishResidentEdge(pair.Key,tile,true);
+        }
     }
     void FitResidentEdge(TerrainTileKey key,Tile tile)
     {
@@ -238,7 +291,7 @@ public sealed partial class LocalTerrainExplorer
         }
         return missing;
     }
-    void PublishResidentEdge(TerrainTileKey key,Tile tile)
+    void PublishResidentEdge(TerrainTileKey key,Tile tile,bool outgoing=false)
     {
         var data=tile.ResidentEdges;bool changed=data.TopologyChanged,conformed=false;int changedVertices=0;
         for(int i=0;i<data.Points.Length;i++)
@@ -268,8 +321,12 @@ public sealed partial class LocalTerrainExplorer
         // Shader displacement changes the same contact/grid surface used by
         // movement and object roots. Surface/plant attributes are untouched.
         tile.OcclusionMin=null;tile.DiagnosticRevision=-1;
-        ReleaseGroundCover(tile);
-        scatterGroundChanges.Add(key);scatterGroundRevision++;residentRevision++;
+        if(!outgoing)
+        {
+            ReleaseGroundCover(tile);
+            scatterGroundChanges.Add(key);scatterGroundRevision++;residentRevision++;
+        }
+        else residentEdgeOutgoingPublications++;
         residentEdgePublications++;residentEdgeVertices+=changedVertices;
     }
     void ReleaseResidentEdges(Tile tile){tile.ResidentEdges?.Dispose();tile.ResidentEdges=null;}

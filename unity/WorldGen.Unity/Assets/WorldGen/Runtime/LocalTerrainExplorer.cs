@@ -313,7 +313,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         WorldGenPerformance.TraceEnd(35,installTrace);
         long retirementTrace=WorldGenPerformance.TraceBegin();
-        UpdateTerrainTransitions();RetireObsoleteTerrain();UpdateResidentEdges();
+        long transitionTrace=WorldGenPerformance.TraceBegin();UpdateTerrainTransitions();WorldGenPerformance.TraceEnd(52,transitionTrace);
+        transitionTrace=WorldGenPerformance.TraceBegin();RetireObsoleteTerrain();WorldGenPerformance.TraceEnd(53,transitionTrace);
+        transitionTrace=WorldGenPerformance.TraceBegin();UpdateResidentEdges();WorldGenPerformance.TraceEnd(54,transitionTrace);
         WorldGenPerformance.TraceEnd(36,retirementTrace);
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);

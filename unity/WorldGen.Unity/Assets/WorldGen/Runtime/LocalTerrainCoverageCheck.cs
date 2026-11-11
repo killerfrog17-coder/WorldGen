@@ -83,13 +83,41 @@ public sealed partial class LocalTerrainExplorer
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         while(Time.time<1.6f)yield return null;
         tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var half=Capture("half-transition");int reds=0,greens=0,holes=0;
-        for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=half[y*128+x];if(p.r>p.g+.05)reds++;else if(p.g>p.r+.05)greens++;else holes++;}
-        if(reds<500||greens<500||holes>10)throw new Exception("Complementary half fade loses coverage or draws only one LOD: "+reds+"/"+greens+"/"+holes);
+        (int Red,int Green,int Holes) SurfaceCounts(Color[] image)
+        {
+            int red=0,green=0,holes=0;
+            for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=image[y*128+x];if(p.r>p.g+.05)red++;else if(p.g>p.r+.05)green++;else holes++;}
+            return(red,green,holes);
+        }
+        void ChildHeight(float y)
+        {
+            var mesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;var vertices=mesh.vertices;
+            for(int i=0;i<vertices.Length;i++)vertices[i].y=y;mesh.vertices=vertices;mesh.RecalculateBounds();
+        }
+        // The production policy deliberately keeps outgoing/fallback terrain
+        // opaque until the incoming surface is opaque. A higher fallback can
+        // therefore occlude a lower incoming surface midway through the fade;
+        // requiring a 50/50 colour mix here was the obsolete complementary-
+        // clipping contract. It must stay solid and reveal the lower endpoint.
+        var lowerHalf=SurfaceCounts(Capture("half-transition"));
+        if(lowerHalf.Red<2200||lowerHalf.Green>10||lowerHalf.Holes>10)throw new Exception("Higher fallback did not remain solid over a lower incoming surface: "+lowerHalf);
+        ChildHeight(4);tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var upperHalf=SurfaceCounts(Capture("half-transition-upper"));
+        if(upperHalf.Red<500||upperHalf.Green<500||upperHalf.Holes>10)throw new Exception("Upper incoming surface did not fade over solid fallback: "+upperHalf);
+        ChildHeight(0);tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var incomingEnd=SurfaceCounts(Capture("completed-transition-lower"));
+        if(incomingEnd.Green<2200||incomingEnd.Red>10||incomingEnd.Holes>10)throw new Exception("Completed incoming fade did not reveal the lower fine surface: "+incomingEnd);
         tile.FadeIn=0;tile.FadeOut=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var outgoing=Capture("half-coarsening");reds=greens=holes=0;
-        for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=outgoing[y*128+x];if(p.r>p.g+.05)reds++;else if(p.g>p.r+.05)greens++;else holes++;}
-        if(reds<500||greens<500||holes>10)throw new Exception("Outgoing fine/coarse complement loses coverage");
+        var outgoingLower=SurfaceCounts(Capture("half-coarsening"));
+        if(outgoingLower.Red<2200||outgoingLower.Green>10||outgoingLower.Holes>10)throw new Exception("Higher coarse fallback was not solid during lower-child coarsening: "+outgoingLower);
+        ChildHeight(4);tile.FadeOut=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var outgoingUpper=SurfaceCounts(Capture("half-coarsening-upper"));
+        if(outgoingUpper.Red<500||outgoingUpper.Green<500||outgoingUpper.Holes>10)throw new Exception("Upper outgoing surface did not fade over solid coarse fallback: "+outgoingUpper);
+        while(Time.time<3.1f)yield return null;
+        tile.FadeOut=Math.Max(.001f,Time.time-4);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        var outgoingEnd=SurfaceCounts(Capture("completed-coarsening"));
+        if(outgoingEnd.Red<2200||outgoingEnd.Green>10||outgoingEnd.Holes>10)throw new Exception("Completed outgoing fade did not expose the coarse endpoint: "+outgoingEnd);
+        ChildHeight(0);
         tile.FadeOut=0;
         var oldParent=explorer.tiles[parent];var newParent=new Tile{Root=Quad("same-key replacement",4,2,Color.red),Edges=new double[4]};
         explorer.BeginTerrainReplacement(parent,newParent,oldParent);explorer.tiles[parent]=newParent;
@@ -105,6 +133,20 @@ public sealed partial class LocalTerrainExplorer
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
         var reversed=Capture("coarsening-reversed");
         if(reversed[32*128+32].g<=reversed[32*128+32].r)throw new Exception("Reversed coarsening did not restore the wanted fine surface");
+        // Exercise uploaded values, not just TerrainTiming's return value:
+        // ancestor previous-presence changes must invalidate both descendant
+        // draw bindings and the grandparent's coverage timing texture.
+        var ancestorPrevious=new Tile{Root=Quad("Ancestor previous binding fixture",4,2,Color.red),Edges=new double[4]};
+        newParent.FadeIn=Math.Max(.001f,Time.time-1.5f);explorer.previousTerrain[parent]=ancestorPrevious;
+        explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
+        var grandTile=explorer.tiles[grand];
+        if(tile.Materials[0].GetVector("_LodFade").x!=0||grandTile.CoverageTimingNodes.Length<4||grandTile.CoverageTimingNodes[0]!=0)
+            throw new Exception("A previous ancestor did not suppress uploaded descendant/grandparent incoming stamps");
+        explorer.previousTerrain.Remove(parent);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
+        if(tile.Materials[0].GetVector("_LodFade").x!=newParent.FadeIn||grandTile.CoverageTimingNodes[0]!=newParent.FadeIn)
+            throw new Exception("Removing a previous ancestor did not refresh uploaded descendant/grandparent incoming stamps");
+        explorer.DestroyTile(ancestorPrevious);newParent.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
+        File.WriteAllText(Path.Combine(output,"coverage-inherited-stamps.txt"),"PASS: changing an ancestor's previous-surface presence refreshes actual descendant material and grandparent coverage timing uploads; no geometry change required.");
         if(!explorer.CanRetireTransition(parent))throw new Exception("A fully ready fine replacement did not release its parent");
         bool oldKeep=WorldGenPerformance.KeepBackdrops;WorldGenPerformance.KeepBackdrops=true;explorer.backdrops[parent]=new double[4];
         if(explorer.CanRetireTransition(parent))throw new Exception("A still-planned coarse backdrop was unnecessarily retired");
@@ -164,7 +206,7 @@ public sealed partial class LocalTerrainExplorer
         if(Array.Exists(nextHard.Materials,m=>m.GetFloat("_TransitionEnabled")!=1))throw new Exception("Turning hard chunk updates off did not restore smooth rendering");
         TerrainVideoOptions.HardChunkUpdates=oldHard;
         File.WriteAllText(Path.Combine(output,"hard-chunk-updates.txt"),"PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, complementary incoming/outgoing frames without holes, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, opaque fallback for lower incoming/outgoing surfaces, visible midpoint fades for upper surfaces, correct final fine/coarse endpoints without holes, uploaded ancestor/previous-surface timing propagation, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
     }
 }
