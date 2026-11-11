@@ -15,6 +15,7 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("APPEARANCE GAMEPLAY "+text);report.Add("PASS "+text);}
         npcModel??=new NpcModelClient();npcModel.Config.Enabled=false;
         PlayerRules.Mode=GameMode.Creative;Vitals.Restore();ApplyPlayerMode();TestHumanView(0);paused=false;
+        TerrainMapViewport.Degrees(Position,out _,out double longitude);PlayerRules.SetLocalSolarHour(12,longitude);WeatherControl.Set("clear");nextDaylightAt=0;SetDaylight(LocalSolarHour,skyYear);
         Check(humanPlayer?.Resident?.Phenotype!=null,"Embodied player uses the actual generated resident's inherited appearance");
         double until=Time.realtimeSinceStartupAsDouble+90;
         while(!livingPeople.Values.Any(a=>a.GroupId==PlayerRules.Identity.Group&&a.Resident?.AgeYears>=18)&&Time.realtimeSinceStartupAsDouble<until)yield return null;
@@ -36,7 +37,8 @@ public sealed partial class LocalTerrainExplorer
         Check(Math.Abs(view.transform.position.y-center.y)<.18,"First-person camera height follows the inherited body and real eyes");
         Check(playerSolid!=null&&Math.Abs(playerSolid.height-(HumanActualEye(humanPlayer)+.1f*humanPlayer.Root.transform.localScale.y))<.02,"Player solid capsule follows actual inherited stature");
         Capture(Path.Combine(output,"inherited-first-person.png"));
-        SetInventoryOpen(true);inventoryPreviewYaw=20;RenderInventoryPreview();yield return null;
+        var peerFocus=NpcEye(peer)-transform.up*.1f;view.transform.position=peerFocus+peer.Root.transform.forward*1.8f;view.transform.LookAt(peerFocus);Capture(Path.Combine(output,"inherited-camp-peer.png"));UpdateCamera();
+        SetInventoryOpen(true);inventoryPreviewYaw=160;RenderInventoryPreview();yield return null;
         Check(inventoryPreviewActor?.Phenotype!=null&&inventoryPreviewActor.Phenotype.Traits.SequenceEqual(humanPlayer.Phenotype.Traits),"Inventory portrait retains all inherited traits");
         Check(inventoryPreviewActor.Root.transform.localScale==humanPlayer.Root.transform.localScale,"Inventory portrait retains actual body size");
         SkinnedMeshRenderer Body(HumanActor actor)=>actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>().First(r=>r.name.ToLowerInvariant().EndsWith(".body")||r.name.EndsWith("_Body"));
