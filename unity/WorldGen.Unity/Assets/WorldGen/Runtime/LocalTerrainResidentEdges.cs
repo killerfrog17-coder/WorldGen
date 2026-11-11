@@ -69,8 +69,8 @@ public sealed partial class LocalTerrainExplorer
     readonly List<KeyValuePair<TerrainTileKey,Tile>> edgeAffected=new List<KeyValuePair<TerrainTileKey,Tile>>();
     LocalTerrainFrame edgeFrame;long edgeRevision=-1;
     readonly List<double> residentProfileCuts=new List<double>();
-    long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices,residentEdgeOutgoingPublications;int residentEdgeResidualIntervals,residentEdgeOutgoingDraws;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs,residentEdgeFrameMs;
-    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" outgoing draws/publications="+residentEdgeOutgoingDraws+"/"+residentEdgeOutgoingPublications+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
+    long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices,residentEdgeOutgoingPublications,residentEdgeHiddenRetirements;int residentEdgeResidualIntervals,residentEdgeOutgoingDraws;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs,residentEdgeFrameMs;
+    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" hidden retirements="+residentEdgeHiddenRetirements+" outgoing draws/publications="+residentEdgeOutgoingDraws+"/"+residentEdgeOutgoingPublications+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
 
     static bool ResidentTouches(TerrainTileKey a,TerrainTileKey b)
     {
@@ -91,6 +91,24 @@ public sealed partial class LocalTerrainExplorer
             (changed.Z+1)*changed.SizeM<(tile.Z+1)*tile.SizeM-epsilon);
     }
     static int ResidentOrder(TerrainTileKey a,TerrainTileKey b)=>a.Level!=b.Level?b.Level.CompareTo(a.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);
+    bool ResidentDescendantsCover(TerrainTileKey key)
+    {
+        if(key.Level<=0||key.Scale!=HorizontalScale||!coverageDescendants.ContainsKey(key))return false;
+        for(int z=0;z<2;z++)for(int x=0;x<2;x++)
+            if(!ResidentCurrentCover(new TerrainTileKey(key.X*2+x,key.Z*2+z,key.Level-1,key.Scale)))return false;
+        return true;
+    }
+    bool ResidentCurrentCover(TerrainTileKey key)
+    {
+        // The reverse index only prunes branches. Every positive proof uses
+        // current height-bearing owners, including all boundary subregions.
+        // A stale/missing index can miss a skip; it cannot invent coverage.
+        if(key.Level<=16&&tiles.TryGetValue(key,out var tile)&&tile.Heights!=null)return true;
+        if(key.Level<=0||!coverageDescendants.ContainsKey(key))return false;
+        for(int z=0;z<2;z++)for(int x=0;x<2;x++)
+            if(!ResidentCurrentCover(new TerrainTileKey(key.X*2+x,key.Z*2+z,key.Level-1,key.Scale)))return false;
+        return true;
+    }
     static double ResidentStep(TerrainTileKey key,Tile tile,double x,double z)
     {
         double step=key.SizeM/tile.Segments,epsilon=Math.Max(.00001,key.SizeM*1e-8);
@@ -191,7 +209,18 @@ public sealed partial class LocalTerrainExplorer
         if(!ReferenceEquals(edgeFrame,frame)){ClearResidentEdges();edgeFrame=frame;}
         if(edgeRevision==residentRevision)return;
         long started=System.Diagnostics.Stopwatch.GetTimestamp();edgeChanged.Clear();edgeAffected.Clear();edgeOwners.Clear();
-        foreach(var pair in edgeObservedTiles)if(!tiles.TryGetValue(pair.Key,out var next)||!ReferenceEquals(next,pair.Value))edgeChanged.Add(pair.Key);
+        foreach(var pair in edgeObservedTiles)
+        {
+            if(!tiles.TryGetValue(pair.Key,out var next))
+            {
+                // A completely covered ancestor never supplied an incident
+                // owner, even at its outer edge/corners. Its removal cannot
+                // alter any profile; avoid refitting its entire descendant set.
+                if(ResidentDescendantsCover(pair.Key))residentEdgeHiddenRetirements++;
+                else edgeChanged.Add(pair.Key);
+            }
+            else if(!ReferenceEquals(next,pair.Value))edgeChanged.Add(pair.Key);
+        }
         foreach(var pair in tiles)if(!edgeObservedTiles.TryGetValue(pair.Key,out var old)||!ReferenceEquals(old,pair.Value))edgeChanged.Add(pair.Key);
         foreach(var pair in tiles)
         {

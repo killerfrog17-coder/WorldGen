@@ -14,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     Dictionary<TerrainTileKey,double[]> prefetchEdges=new Dictionary<TerrainTileKey,double[]>();
     readonly List<TerrainTileKey> prefetchPriority=new List<TerrainTileKey>();
     double streamingVX,streamingVZ,predictedX=double.NaN,predictedZ,predictionDue;
+    double streamingPriorityX=double.NaN,streamingPriorityZ;
     int installationsThisFrame;
     public long TerrainCacheHits {get;private set;}public long TerrainBuildRequests {get;private set;}public long TerrainPrefetchRequests {get;private set;}
     public int CachedTerrainTiles=>terrainProducts?.Count??0;
@@ -64,7 +65,7 @@ public sealed partial class LocalTerrainExplorer
         ClearResidentEdges();
         CancelGroundPublication();
         ClearTerrainTransitions();
-        terrainProducts?.Clear();streamingVX=streamingVZ=0;predictedX=double.NaN;
+        terrainProducts?.Clear();streamingVX=streamingVZ=0;predictedX=streamingPriorityX=double.NaN;
         prefetchWanted.Clear();prefetchEdges.Clear();prefetchPriority.Clear();
         if(cancelJobs)foreach(var job in jobs)job.Cancellation?.Cancel();
     }
@@ -77,7 +78,8 @@ public sealed partial class LocalTerrainExplorer
     {
         if(ImmediateTerrain(key))return TerrainLod.DistanceSquared(key,motion.X,motion.Z);
         double baseSize=TerrainLod.BaseSizeM*HorizontalScale;
-        double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z),future=double.IsNaN(predictedX)?d:TerrainLod.DistanceSquared(key,predictedX,predictedZ);
+        double x=double.IsNaN(streamingPriorityX)?predictedX:streamingPriorityX,z=double.IsNaN(streamingPriorityX)?predictedZ:streamingPriorityZ;
+        double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z),future=double.IsNaN(x)?d:TerrainLod.DistanceSquared(key,x,z);
         return baseSize*baseSize*100+Math.Min(d,future*1.2);
     }
     void RefreshStreamingPrediction()
@@ -86,6 +88,7 @@ public sealed partial class LocalTerrainExplorer
         double speed=Math.Sqrt(streamingVX*streamingVX+streamingVZ*streamingVZ),size=TerrainLod.BaseSizeM*HorizontalScale;
         if(speed<.5)
         {
+            streamingPriorityX=double.NaN;
             if(prefetchWanted.Count>0||!double.IsNaN(predictedX))
             {
                 predictedX=double.NaN;prefetchWanted.Clear();prefetchPriority.Clear();foreach(var j in jobs)if(j.Prefetch)j.Cancellation?.Cancel();
@@ -94,6 +97,15 @@ public sealed partial class LocalTerrainExplorer
             return;
         }
         double lead=Math.Min(size*6,Math.Max(size*.6,speed*.75));double x=motion.X+streamingVX/speed*lead,z=motion.Z+streamingVZ/speed*lead;
+        // Prioritize existing wanted flight terrain far enough ahead to cover
+        // ordinary build latency. Prefetch retains its original short centre
+        // and spare-lane/request bounds; near/foreground scheduling runs first.
+        streamingPriorityX=double.NaN;
+        if(motion.Flying&&HeightAboveGround>80&&speed>20)
+        {
+            double forward=Math.Max(lead,Math.Min(speed*4,Math.Min(viewDistance*.35,4096)));
+            streamingPriorityX=motion.X+streamingVX/speed*forward;streamingPriorityZ=motion.Z+streamingVZ/speed*forward;
+        }
         if(double.IsNaN(predictedX)||Math.Abs(x-predictedX)>size*.25||Math.Abs(z-predictedZ)>size*.25)
             PlanStreamingPrediction(x,z,size);
         priority.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});

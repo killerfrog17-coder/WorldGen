@@ -286,7 +286,52 @@ public sealed partial class LocalTerrainExplorer
         foreach(var resident in overlapOwner.tiles.Values)resident.Root.SetActive(false);
         Destroy(overlapHost);
         File.WriteAllText(Path.Combine(output,"opaque-parent-morphs.txt"),"PASS: prepared leaf stamps survive single-mesh publication without outgoing draws; an arriving child finishes its ancestor before exposing an interior cut, child stamps remain independent, and ancestor replacements with existing children snap.");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention and paced retirement.");
+        CheckHiddenResidentRetirement(output);
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention, paced retirement and owner-inert covered-parent removal.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
+    }
+    static void CheckHiddenResidentRetirement(string output)
+    {
+        var host=new GameObject("Covered parent edge-retirement check");var owner=host.AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        double scale=owner.HorizontalScale,unit=TerrainLod.BaseSizeM*scale;var parent=new TerrainTileKey(-1,-1,1,scale);var grand=new TerrainTileKey(-1,-1,2,scale);
+        Tile Surface(TerrainTileKey key,float height)
+        {
+            float size=(float)key.SizeM;var positions=new[]{0f,height,0f,size,height,0f,0f,height,size,size,height,size};
+            var vertices=new TerrainVertex[4];for(int i=0;i<4;i++)vertices[i]=new TerrainVertex{Position=new Vector3(positions[i*3],height,positions[i*3+2])};
+            using(var native=new Unity.Collections.NativeArray<TerrainVertex>(vertices,Unity.Collections.Allocator.Temp))
+                return new Tile{Segments=1,Edges=new double[4],Heights=new[]{height,height,height,height},ResidentEdges=ResidentEdgeData.Build(new LocalTerrainMesh{SizeM=key.SizeM,Segments=1,GroundVertices=4,Positions=positions,Triangles=new[]{0,2,1,1,2,3}},native)};
+        }
+        var surfaces=new System.Collections.Generic.List<Tile>();
+        void Add(TerrainTileKey key,float height){var tile=Surface(key,height);surfaces.Add(tile);owner.tiles.Add(key,tile);owner.CoverageIndex(key,true);}
+        Add(grand,2000);Add(parent,1000);
+        for(int z=0;z<2;z++)for(int x=0;x<2;x++)Add(new TerrainTileKey(-2+x,-2+z,0,scale),20);
+        var parentTile=owner.tiles[parent];
+        if(!owner.ResidentDescendantsCover(parent))throw new Exception("Four current height-bearing descendants did not prove complete parent coverage");
+        double epsilon=.002;var offsets=new[]{-epsilon,0,epsilon,unit-epsilon,unit,unit+epsilon,unit*2-epsilon,unit*2,unit*2+epsilon};
+        var beforeOwners=new Tile[offsets.Length*offsets.Length];var beforeKeys=new TerrainTileKey[beforeOwners.Length];var beforeHeights=new double[beforeOwners.Length];
+        int at=0;foreach(double z in offsets)foreach(double x in offsets)
+        {
+            double xx=-unit*2+x,zz=-unit*2+z;var tile=owner.VisibleGroundOwner(xx,zz,out var key);beforeOwners[at]=tile;beforeKeys[at]=key;
+            if(tile!=null&&!ResidentHeight(key,tile,xx,zz,out beforeHeights[at]))throw new Exception("Retirement owner probe had no height");at++;
+        }
+        owner.tiles.Remove(parent);at=0;
+        foreach(double z in offsets)foreach(double x in offsets)
+        {
+            double xx=-unit*2+x,zz=-unit*2+z;var tile=owner.VisibleGroundOwner(xx,zz,out var key);
+            if(!ReferenceEquals(tile,beforeOwners[at])||!key.Equals(beforeKeys[at]))throw new Exception("Covered-parent removal changed an edge/corner incident owner");
+            if(tile!=null&&(!ResidentHeight(key,tile,xx,zz,out double height)||height!=beforeHeights[at]))throw new Exception("Covered-parent removal changed an incident height profile");at++;
+        }
+        // Leave the reverse index stale deliberately: it is never sufficient
+        // positive evidence when a quadrant is actually missing or nonphysical.
+        owner.tiles[parent]=parentTile;var hole=new TerrainTileKey(-1,-2,0,scale);var holeTile=owner.tiles[hole];owner.tiles.Remove(hole);
+        if(owner.ResidentDescendantsCover(parent))throw new Exception("A stale descendant index hid a remaining visible parent patch");
+        var leftKey=new TerrainTileKey(-2,-2,0,scale);var left=owner.tiles[leftKey];owner.edgeOwners.Clear();float beforeTarget=owner.ResidentTarget(leftKey,left,3);
+        owner.tiles.Remove(parent);owner.edgeOwners.Clear();float afterTarget=owner.ResidentTarget(leftKey,left,3);
+        if(beforeTarget!=1000||afterTarget!=2000)throw new Exception("Removing a visible parent patch did not require the neighbouring edge to refit to its new coarse profile");
+        owner.tiles[hole]=new Tile{Segments=1};
+        if(owner.ResidentDescendantsCover(parent))throw new Exception("A non-height-bearing placeholder was counted as physical descendant coverage");
+        owner.tiles[hole]=holeTile;
+        foreach(var tile in surfaces)owner.ReleaseResidentEdges(tile);owner.tiles.Clear();Destroy(host);
+        File.WriteAllText(Path.Combine(output,"covered-parent-retirement.txt"),"PASS: 81 negative-coordinate owner/height probes, including outer edge/corner incident positions, remain identical after a fully covered parent is removed. With a missing quadrant the proof fails and the real neighbouring ResidentTarget changes from 1000 to 2000; heightless placeholders cannot satisfy coverage.");
     }
 }
