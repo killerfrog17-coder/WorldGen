@@ -8,7 +8,7 @@ namespace WorldGen.Core
     public static class RiverPlanform
     {
         public static V[] Build(Func<double,V> spine,int stations,double lengthM,double halfWidthM,
-            double grade,double sediment,double hardness,double physicalRadius,ulong key,V? startTangent=null,V? endTangent=null)
+            double grade,double sediment,double hardness,double physicalRadius,ulong key,V? startTangent=null,V? endTangent=null,double corridorHalfWidthM=0)
         {
             int knots=Math.Max(4,Math.Min(48,(int)Math.Ceiling(lengthM/Math.Max(180,halfWidthM*12))));
             var anchors=new V[knots+1];
@@ -28,7 +28,11 @@ namespace WorldGen.Core
             // A short graph link only a few channel widths long is part of
             // a broad bend/confluence, not room for an extra complete meander.
             double reachFreedom=Smooth(6,12,lengthM/Math.Max(.6,halfWidthM));
-            double amplitude=Math.Min(Math.Min(halfWidthM*5.5,lengthM*(.035+.045*reachFreedom)),wavelength*.205)*freedom;
+            // Tributaries approaching a wide receiving corridor align with
+            // its broad junction; small independent channels have more room
+            // for lateral bends without looping underneath that main stem.
+            double waveLimit=.18+.025*(1-Smooth(180,360,Math.Max(halfWidthM,corridorHalfWidthM)));
+            double amplitude=Math.Min(Math.Min(halfWidthM*5.5,lengthM*(.035+.045*reachFreedom)),wavelength*waveLimit)*freedom;
             double phase=((key>>12)&65535)/65535d*Math.PI*2;
             var result=new V[stations+1];
             V Base(double t)

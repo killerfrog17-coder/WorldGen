@@ -278,7 +278,7 @@ namespace WorldGen.Core
             // Planform is geomorphic. Subsequent stage fitting must not move
             // its banks after the shared junction footprint was measured.
             var points=RiverPlanform.Build(t=>RiverPoint(source,t),n,length,width,Math.Max(0,(a.Water-b.Water)/Math.Max(1,length)),
-                a.Sediment,a.Hardness,radius*scale,a.Key,ThroughRiverNode(source)?RiverNodeTangent(source):(V?)null,ThroughRiverNode(target)?RiverNodeTangent(target):(V?)null);
+                a.Sediment,a.Hardness,radius*scale,a.Key,ThroughRiverNode(source)?RiverNodeTangent(source):(V?)null,ThroughRiverNode(target)?RiverNodeTangent(target):(V?)null,Math.Max(riverNodeWidths[source],riverNodeWidths[target]));
             points[0]=a.Position;points[n]=b.Position;riverPlans.Add(source,points);riverPlanOrder.Enqueue(source);
             while(riverPlanOrder.Count>128)riverPlans.Remove(riverPlanOrder.Dequeue());
             return points;
