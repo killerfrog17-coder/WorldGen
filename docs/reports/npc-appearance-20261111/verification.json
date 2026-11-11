@@ -1,0 +1,88 @@
+{
+  "native_gallery": {
+    "passed": true,
+    "build": "36fdb231",
+    "profiles": 30,
+    "actual_generated": 24,
+    "controlled": 6,
+    "poses": 120,
+    "checks": 716,
+    "max_skin_matrix_error_m": 8.68144525156822e-07,
+    "cosmetic_hair_positive_controls": 3
+  },
+  "source_profiles": {
+    "peoples": 8,
+    "species": 5,
+    "year": 120000,
+    "world_hash": "daad578266ab9bfbac10b863647603183019dd0025b6a1f4357a29c60976dadd"
+  },
+  "actual_gameplay": {
+    "passed": 19,
+    "images_inspected": true,
+    "source": "2fd7dc50",
+    "night_v1": "Functional pass, rejected report framing; daylight v2 retained"
+  },
+  "regressions": {
+    "combat_and_items": 184,
+    "clothing": 35,
+    "kimodo_first_person": 86,
+    "combat_and_items_source": "36fdb231",
+    "combat_and_items_final_output": "artifacts/paleolithic-night-20261110/ancestry-final-v1-items"
+  },
+  "crowd": [
+    {
+      "mode": "normal",
+      "wall_fps": 118.58039312726437,
+      "p99_ms": 11.6339,
+      "max_ms": 22.3073,
+      "residents": 100,
+      "min_residents": 100,
+      "unfocused": 0,
+      "unexpected_cameras": 0,
+      "scene_renders": 3557,
+      "frames": 3558,
+      "mean_npc_ms": 3.122708150646425
+    },
+    {
+      "mode": "render-only",
+      "wall_fps": 161.99751352312654,
+      "p99_ms": 11.325,
+      "max_ms": 23.3288,
+      "residents": 100,
+      "min_residents": 100,
+      "unfocused": 0,
+      "unexpected_cameras": 0,
+      "scene_renders": 4861,
+      "frames": 4861,
+      "mean_npc_ms": 0.09536996502777215
+    },
+    {
+      "mode": "no-residents",
+      "wall_fps": 236.18425896800485,
+      "p99_ms": 9.8808,
+      "max_ms": 14.5548,
+      "residents": 100,
+      "min_residents": 100,
+      "unfocused": 0,
+      "unexpected_cameras": 0,
+      "scene_renders": 7087,
+      "frames": 7087,
+      "mean_npc_ms": 0.0855881332016368
+    },
+    {
+      "mode": "normal-repeat",
+      "wall_fps": 117.82424908372903,
+      "p99_ms": 11.5903,
+      "max_ms": 29.0553,
+      "residents": 100,
+      "min_residents": 100,
+      "unfocused": 0,
+      "unexpected_cameras": 0,
+      "scene_renders": 3535,
+      "frames": 3535,
+      "mean_npc_ms": 3.1086100990098986
+    }
+  ],
+  "crowd_scope": "100 distinct residents /7 bands; medium 1920x1080 /6km; 4x30s close orbit. Chrome/video was in use. Not an isolated GPU benchmark; no comparison gain or universal FPS floor claimed.",
+  "floor_100_fps_met": false
+}

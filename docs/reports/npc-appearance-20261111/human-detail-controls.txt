@@ -1,0 +1,1 @@
+PASS original/middle/far/original restoration, unchanged source identity, and finite metre-scale baked native poses. Full native bones/weights/UVs checked during offline generation.

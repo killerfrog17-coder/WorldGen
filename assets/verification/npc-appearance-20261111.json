@@ -1,5 +1,5 @@
 {
-  "status": "source_implemented_native_build_and_gameplay_pending_GPU_hold",
+  "status": "candidate_b_built_and_verified_ready_for_owner_review",
   "scope": "Inherited NPC appearance and persistent peoples; cultural grooming; character-creation backend only",
   "design": {
     "inherited": [
@@ -11,7 +11,7 @@
     ],
     "cultural": [
       "hair cutting, tying, braiding and shaving",
-      "beard grooming"
+      "beard presence and grooming metadata"
     ],
     "identity": "People identity, culture, ancestry and political ownership remain separate. Appearance is not an ability or personality statistic.",
     "cost": "Individual shapes baked once at spawn into native-weight full/middle/far meshes; no active per-frame blendshapes."
@@ -77,7 +77,7 @@
       },
       {
         "name": "editor_gallery_v1",
-        "reason": "Unity serializes null inline classes as empty objects; runtime attempted missing non-body LOD mesh. Mesh-presence guard corrected; retest pending"
+        "reason": "Unity serializes null inline classes as empty objects; runtime attempted missing non-body LOD mesh. Mesh-presence guard corrected; corrected and covered by accepted native gallery v2"
       },
       {
         "name": "editor_gallery_v4",
@@ -95,7 +95,7 @@
       "skin_probes_per_pose": 512,
       "production_bake_scale_max_error_m": 1e-06,
       "images_reviewed": 48,
-      "visual_limits": "Short styles have scalp penetration in v8; rejected visually and corrected with BVH scalp fit. Pending reimport v4/gallery v9."
+      "visual_limits": "Short styles in v8 rejected visually; BVH scalp fitting and later import/card fixes accepted in Editor v13 and native v2."
     },
     "editor_gallery_v13": {
       "passed": true,
@@ -114,7 +114,87 @@
       ],
       "images": 60,
       "visuals": "Close cropped scalp intersections fixed; curly flyaway cards removed after grid artifacts. Existing source skin/eye/hair art retained."
-    }
+    },
+    "native_gallery_v2": {
+      "passed": true,
+      "build": "36fdb231",
+      "profiles": 30,
+      "actual_generated": 24,
+      "controlled": 6,
+      "poses": 120,
+      "checks": 716,
+      "max_skin_matrix_error_m": 8.68144525156822e-07,
+      "cosmetic_hair_positive_controls": 3
+    },
+    "actual_gameplay_v2": {
+      "passed": 19,
+      "images_inspected": true,
+      "source": "2fd7dc50",
+      "night_v1": "Functional pass, rejected report framing; daylight v2 retained"
+    },
+    "regressions": {
+      "combat_and_items": 184,
+      "clothing": 35,
+      "kimodo_first_person": 86,
+      "combat_and_items_source": "36fdb231",
+      "combat_and_items_final_output": "artifacts/paleolithic-night-20261110/ancestry-final-v1-items"
+    },
+    "crowd": [
+      {
+        "mode": "normal",
+        "wall_fps": 118.58039312726437,
+        "p99_ms": 11.6339,
+        "max_ms": 22.3073,
+        "residents": 100,
+        "min_residents": 100,
+        "unfocused": 0,
+        "unexpected_cameras": 0,
+        "scene_renders": 3557,
+        "frames": 3558,
+        "mean_npc_ms": 3.122708150646425
+      },
+      {
+        "mode": "render-only",
+        "wall_fps": 161.99751352312654,
+        "p99_ms": 11.325,
+        "max_ms": 23.3288,
+        "residents": 100,
+        "min_residents": 100,
+        "unfocused": 0,
+        "unexpected_cameras": 0,
+        "scene_renders": 4861,
+        "frames": 4861,
+        "mean_npc_ms": 0.09536996502777215
+      },
+      {
+        "mode": "no-residents",
+        "wall_fps": 236.18425896800485,
+        "p99_ms": 9.8808,
+        "max_ms": 14.5548,
+        "residents": 100,
+        "min_residents": 100,
+        "unfocused": 0,
+        "unexpected_cameras": 0,
+        "scene_renders": 7087,
+        "frames": 7087,
+        "mean_npc_ms": 0.0855881332016368
+      },
+      {
+        "mode": "normal-repeat",
+        "wall_fps": 117.82424908372903,
+        "p99_ms": 11.5903,
+        "max_ms": 29.0553,
+        "residents": 100,
+        "min_residents": 100,
+        "unfocused": 0,
+        "unexpected_cameras": 0,
+        "scene_renders": 3535,
+        "frames": 3535,
+        "mean_npc_ms": 3.1086100990098986
+      }
+    ],
+    "crowd_scope": "100 distinct residents /7 bands; medium 1920x1080 /6km; 4x30s close orbit. Chrome/video was in use. Not an isolated GPU benchmark; no comparison gain or universal FPS floor claimed.",
+    "floor_100_fps_met": false
   },
   "local_cache_move": {
     "from": "unity/WorldGen.Unity/Library/DataStore",
@@ -124,12 +204,22 @@
     "bytes": 3927002009,
     "permanent_inputs_changed": false
   },
-  "build": "Slot A and root shortcut protected; slot B still previous river117. No appearance player build yet.",
+  "build": {
+    "candidate": "B",
+    "source": "36fdb231",
+    "full_base": "e6d439ff",
+    "backend": "Mono",
+    "development": false,
+    "selected_A_8388fa77_and_root_shortcut": "protected and unchanged",
+    "own_running_players_or_editors": 0
+  },
   "limits": [
+    "Underlying six licensed source body/rig templates retained; inherited shapes and pigmentation are individual. Existing source art remains a prototype.",
     "Not an exact reconstruction of named modern ethnic groups",
     "Limb-proportion channel stored but not yet rendered",
+    "Short/full beard metadata currently share available beard meshes",
     "No character creation UI",
-    "Native/gameplay/performance acceptance pending"
+    "100-NPC functional performance tested, strict 100-FPS frame floor unmet; not a universal world benchmark"
   ],
   "gpu_incident": {
     "event_utc": "2026-11-11T04:56:17.2892266Z",
@@ -138,6 +228,13 @@
     "event_data": "Error occurred on GPUID: 2b00",
     "user_symptom": "YouTube green/black flashing persists after video refresh",
     "causation": "Driver error coincides with Unity review; event does not identify responsible process. No assertion of proven causal attribution.",
-    "response": "Confirmed no Unity, player, Blender, or local-model process remains. GPU checks held while owner watches. Future portrait checks capped at 30 FPS / Editor advances; redundant renders removed, untested since change."
-  }
+    "response": "Stopped rendering jobs during owner report; subsequent portrait checks capped at 30 FPS, functional checks capped, no new observed driver event. Chrome settings unchanged."
+  },
+  "asset_publication": {
+    "release": "https://github.com/killerfrog17-coder/WorldGen/releases/tag/game-assets-20261111-v1",
+    "external_files_verified": 6576,
+    "lock_sha256": "848de514d64d9439e8a3a36ff0a412f66e86c9fdfcc819166ee91d073c76022d",
+    "remote_packs_downloaded_and_hashed": true
+  },
+  "report": "docs/reports/WorldGen - Inherited NPC Appearance.pdf"
 }

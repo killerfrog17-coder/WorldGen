@@ -1,0 +1,716 @@
+PASS 24 age/body templates retain all nine fitted grooming forms
+PASS resident0 saved local appearance survives serialization
+PASS resident0 player embodiment retains inherited body and identity
+PASS resident0 retains native animation bank
+PASS resident0 has personally morphed full/middle/far bodies
+PASS resident0 has no active runtime blendshape processing
+PASS resident0 inherited skin uses per-material palette
+PASS resident0 cultural hairstyle is visibly selected
+PASS resident0/idle finite native skin samples
+PASS resident0/idle production combat scale agrees with actual bone matrices
+PASS resident0/idle actual combat surface matches posed anatomy
+PASS resident0/walk finite native skin samples
+PASS resident0/walk production combat scale agrees with actual bone matrices
+PASS resident0/walk actual combat surface matches posed anatomy
+PASS resident0/run finite native skin samples
+PASS resident0/run production combat scale agrees with actual bone matrices
+PASS resident0/run actual combat surface matches posed anatomy
+PASS resident0/crouch finite native skin samples
+PASS resident0/crouch production combat scale agrees with actual bone matrices
+PASS resident0/crouch actual combat surface matches posed anatomy
+PASS resident0 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-0-face
+PASS portrait contains no error-shader surface: resident-0-body
+PASS resident0 scaled eye height bounded
+PASS resident0 retained reduced body detail
+PASS resident1 saved local appearance survives serialization
+PASS resident1 player embodiment retains inherited body and identity
+PASS resident1 retains native animation bank
+PASS resident1 has personally morphed full/middle/far bodies
+PASS resident1 has no active runtime blendshape processing
+PASS resident1 inherited skin uses per-material palette
+PASS resident1 cultural hairstyle is visibly selected
+PASS resident1/idle finite native skin samples
+PASS resident1/idle production combat scale agrees with actual bone matrices
+PASS resident1/idle actual combat surface matches posed anatomy
+PASS resident1/walk finite native skin samples
+PASS resident1/walk production combat scale agrees with actual bone matrices
+PASS resident1/walk actual combat surface matches posed anatomy
+PASS resident1/run finite native skin samples
+PASS resident1/run production combat scale agrees with actual bone matrices
+PASS resident1/run actual combat surface matches posed anatomy
+PASS resident1/crouch finite native skin samples
+PASS resident1/crouch production combat scale agrees with actual bone matrices
+PASS resident1/crouch actual combat surface matches posed anatomy
+PASS resident1 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-1-face
+PASS portrait contains no error-shader surface: resident-1-body
+PASS resident1 scaled eye height bounded
+PASS resident1 retained reduced body detail
+PASS resident2 saved local appearance survives serialization
+PASS resident2 retains native animation bank
+PASS resident2 has personally morphed full/middle/far bodies
+PASS resident2 has no active runtime blendshape processing
+PASS resident2 inherited skin uses per-material palette
+PASS resident2 cultural hairstyle is visibly selected
+PASS resident2/idle finite native skin samples
+PASS resident2/idle production combat scale agrees with actual bone matrices
+PASS resident2/idle actual combat surface matches posed anatomy
+PASS resident2/walk finite native skin samples
+PASS resident2/walk production combat scale agrees with actual bone matrices
+PASS resident2/walk actual combat surface matches posed anatomy
+PASS resident2/run finite native skin samples
+PASS resident2/run production combat scale agrees with actual bone matrices
+PASS resident2/run actual combat surface matches posed anatomy
+PASS resident2/crouch finite native skin samples
+PASS resident2/crouch production combat scale agrees with actual bone matrices
+PASS resident2/crouch actual combat surface matches posed anatomy
+PASS resident2 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-2-face
+PASS portrait contains no error-shader surface: resident-2-body
+PASS resident2 scaled eye height bounded
+PASS resident2 retained reduced body detail
+PASS resident3 saved local appearance survives serialization
+PASS resident3 player embodiment retains inherited body and identity
+PASS resident3 retains native animation bank
+PASS resident3 has personally morphed full/middle/far bodies
+PASS resident3 has no active runtime blendshape processing
+PASS resident3 inherited skin uses per-material palette
+PASS resident3 cultural hairstyle is visibly selected
+PASS resident3/idle finite native skin samples
+PASS resident3/idle production combat scale agrees with actual bone matrices
+PASS resident3/idle actual combat surface matches posed anatomy
+PASS resident3/walk finite native skin samples
+PASS resident3/walk production combat scale agrees with actual bone matrices
+PASS resident3/walk actual combat surface matches posed anatomy
+PASS resident3/run finite native skin samples
+PASS resident3/run production combat scale agrees with actual bone matrices
+PASS resident3/run actual combat surface matches posed anatomy
+PASS resident3/crouch finite native skin samples
+PASS resident3/crouch production combat scale agrees with actual bone matrices
+PASS resident3/crouch actual combat surface matches posed anatomy
+PASS resident3 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-3-face
+PASS portrait contains no error-shader surface: resident-3-body
+PASS resident3 scaled eye height bounded
+PASS resident3 retained reduced body detail
+PASS resident4 saved local appearance survives serialization
+PASS resident4 player embodiment retains inherited body and identity
+PASS resident4 retains native animation bank
+PASS resident4 has personally morphed full/middle/far bodies
+PASS resident4 has no active runtime blendshape processing
+PASS resident4 inherited skin uses per-material palette
+PASS resident4 cultural hairstyle is visibly selected
+PASS resident4/idle finite native skin samples
+PASS resident4/idle production combat scale agrees with actual bone matrices
+PASS resident4/idle actual combat surface matches posed anatomy
+PASS resident4/walk finite native skin samples
+PASS resident4/walk production combat scale agrees with actual bone matrices
+PASS resident4/walk actual combat surface matches posed anatomy
+PASS resident4/run finite native skin samples
+PASS resident4/run production combat scale agrees with actual bone matrices
+PASS resident4/run actual combat surface matches posed anatomy
+PASS resident4/crouch finite native skin samples
+PASS resident4/crouch production combat scale agrees with actual bone matrices
+PASS resident4/crouch actual combat surface matches posed anatomy
+PASS resident4 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-4-face
+PASS portrait contains no error-shader surface: resident-4-body
+PASS resident4 scaled eye height bounded
+PASS resident4 retained reduced body detail
+PASS resident5 saved local appearance survives serialization
+PASS resident5 retains native animation bank
+PASS resident5 has personally morphed full/middle/far bodies
+PASS resident5 has no active runtime blendshape processing
+PASS resident5 inherited skin uses per-material palette
+PASS resident5 cultural hairstyle is visibly selected
+PASS resident5/idle finite native skin samples
+PASS resident5/idle production combat scale agrees with actual bone matrices
+PASS resident5/idle actual combat surface matches posed anatomy
+PASS resident5/walk finite native skin samples
+PASS resident5/walk production combat scale agrees with actual bone matrices
+PASS resident5/walk actual combat surface matches posed anatomy
+PASS resident5/run finite native skin samples
+PASS resident5/run production combat scale agrees with actual bone matrices
+PASS resident5/run actual combat surface matches posed anatomy
+PASS resident5/crouch finite native skin samples
+PASS resident5/crouch production combat scale agrees with actual bone matrices
+PASS resident5/crouch actual combat surface matches posed anatomy
+PASS resident5 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-5-face
+PASS portrait contains no error-shader surface: resident-5-body
+PASS resident5 scaled eye height bounded
+PASS resident5 retained reduced body detail
+PASS resident6 saved local appearance survives serialization
+PASS resident6 player embodiment retains inherited body and identity
+PASS resident6 retains native animation bank
+PASS resident6 has personally morphed full/middle/far bodies
+PASS resident6 has no active runtime blendshape processing
+PASS resident6 inherited skin uses per-material palette
+PASS resident6 cultural hairstyle is visibly selected
+PASS resident6/idle finite native skin samples
+PASS resident6/idle production combat scale agrees with actual bone matrices
+PASS resident6/idle actual combat surface matches posed anatomy
+PASS resident6/walk finite native skin samples
+PASS resident6/walk production combat scale agrees with actual bone matrices
+PASS resident6/walk actual combat surface matches posed anatomy
+PASS resident6/run finite native skin samples
+PASS resident6/run production combat scale agrees with actual bone matrices
+PASS resident6/run actual combat surface matches posed anatomy
+PASS resident6/crouch finite native skin samples
+PASS resident6/crouch production combat scale agrees with actual bone matrices
+PASS resident6/crouch actual combat surface matches posed anatomy
+PASS resident6 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-6-face
+PASS portrait contains no error-shader surface: resident-6-body
+PASS resident6 scaled eye height bounded
+PASS resident6 retained reduced body detail
+PASS resident7 saved local appearance survives serialization
+PASS resident7 player embodiment retains inherited body and identity
+PASS resident7 retains native animation bank
+PASS resident7 has personally morphed full/middle/far bodies
+PASS resident7 has no active runtime blendshape processing
+PASS resident7 inherited skin uses per-material palette
+PASS resident7 cultural hairstyle is visibly selected
+PASS resident7/idle finite native skin samples
+PASS resident7/idle production combat scale agrees with actual bone matrices
+PASS resident7/idle actual combat surface matches posed anatomy
+PASS resident7/walk finite native skin samples
+PASS resident7/walk production combat scale agrees with actual bone matrices
+PASS resident7/walk actual combat surface matches posed anatomy
+PASS resident7/run finite native skin samples
+PASS resident7/run production combat scale agrees with actual bone matrices
+PASS resident7/run actual combat surface matches posed anatomy
+PASS resident7/crouch finite native skin samples
+PASS resident7/crouch production combat scale agrees with actual bone matrices
+PASS resident7/crouch actual combat surface matches posed anatomy
+PASS resident7 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-7-face
+PASS portrait contains no error-shader surface: resident-7-body
+PASS resident7 scaled eye height bounded
+PASS resident7 retained reduced body detail
+PASS resident8 saved local appearance survives serialization
+PASS resident8 retains native animation bank
+PASS resident8 has personally morphed full/middle/far bodies
+PASS resident8 has no active runtime blendshape processing
+PASS resident8 inherited skin uses per-material palette
+PASS resident8 cultural hairstyle is visibly selected
+PASS resident8/idle finite native skin samples
+PASS resident8/idle production combat scale agrees with actual bone matrices
+PASS resident8/idle actual combat surface matches posed anatomy
+PASS resident8/walk finite native skin samples
+PASS resident8/walk production combat scale agrees with actual bone matrices
+PASS resident8/walk actual combat surface matches posed anatomy
+PASS resident8/run finite native skin samples
+PASS resident8/run production combat scale agrees with actual bone matrices
+PASS resident8/run actual combat surface matches posed anatomy
+PASS resident8/crouch finite native skin samples
+PASS resident8/crouch production combat scale agrees with actual bone matrices
+PASS resident8/crouch actual combat surface matches posed anatomy
+PASS resident8 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-8-face
+PASS portrait contains no error-shader surface: resident-8-body
+PASS resident8 scaled eye height bounded
+PASS resident8 retained reduced body detail
+PASS resident9 saved local appearance survives serialization
+PASS resident9 player embodiment retains inherited body and identity
+PASS resident9 retains native animation bank
+PASS resident9 has personally morphed full/middle/far bodies
+PASS resident9 has no active runtime blendshape processing
+PASS resident9 inherited skin uses per-material palette
+PASS resident9 cultural hairstyle is visibly selected
+PASS resident9/idle finite native skin samples
+PASS resident9/idle production combat scale agrees with actual bone matrices
+PASS resident9/idle actual combat surface matches posed anatomy
+PASS resident9/walk finite native skin samples
+PASS resident9/walk production combat scale agrees with actual bone matrices
+PASS resident9/walk actual combat surface matches posed anatomy
+PASS resident9/run finite native skin samples
+PASS resident9/run production combat scale agrees with actual bone matrices
+PASS resident9/run actual combat surface matches posed anatomy
+PASS resident9/crouch finite native skin samples
+PASS resident9/crouch production combat scale agrees with actual bone matrices
+PASS resident9/crouch actual combat surface matches posed anatomy
+PASS resident9 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-9-face
+PASS portrait contains no error-shader surface: resident-9-body
+PASS resident9 scaled eye height bounded
+PASS resident9 retained reduced body detail
+PASS resident10 saved local appearance survives serialization
+PASS resident10 player embodiment retains inherited body and identity
+PASS resident10 retains native animation bank
+PASS resident10 has personally morphed full/middle/far bodies
+PASS resident10 has no active runtime blendshape processing
+PASS resident10 inherited skin uses per-material palette
+PASS resident10 cultural hairstyle is visibly selected
+PASS resident10/idle finite native skin samples
+PASS resident10/idle production combat scale agrees with actual bone matrices
+PASS resident10/idle actual combat surface matches posed anatomy
+PASS resident10/walk finite native skin samples
+PASS resident10/walk production combat scale agrees with actual bone matrices
+PASS resident10/walk actual combat surface matches posed anatomy
+PASS resident10/run finite native skin samples
+PASS resident10/run production combat scale agrees with actual bone matrices
+PASS resident10/run actual combat surface matches posed anatomy
+PASS resident10/crouch finite native skin samples
+PASS resident10/crouch production combat scale agrees with actual bone matrices
+PASS resident10/crouch actual combat surface matches posed anatomy
+PASS resident10 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-10-face
+PASS portrait contains no error-shader surface: resident-10-body
+PASS resident10 scaled eye height bounded
+PASS resident10 retained reduced body detail
+PASS resident11 saved local appearance survives serialization
+PASS resident11 retains native animation bank
+PASS resident11 has personally morphed full/middle/far bodies
+PASS resident11 has no active runtime blendshape processing
+PASS resident11 inherited skin uses per-material palette
+PASS resident11 cultural hairstyle is visibly selected
+PASS resident11/idle finite native skin samples
+PASS resident11/idle production combat scale agrees with actual bone matrices
+PASS resident11/idle actual combat surface matches posed anatomy
+PASS resident11/walk finite native skin samples
+PASS resident11/walk production combat scale agrees with actual bone matrices
+PASS resident11/walk actual combat surface matches posed anatomy
+PASS resident11/run finite native skin samples
+PASS resident11/run production combat scale agrees with actual bone matrices
+PASS resident11/run actual combat surface matches posed anatomy
+PASS resident11/crouch finite native skin samples
+PASS resident11/crouch production combat scale agrees with actual bone matrices
+PASS resident11/crouch actual combat surface matches posed anatomy
+PASS resident11 actual loose hair geometry outside the body cannot take health damage
+PASS resident11 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-11-face
+PASS portrait contains no error-shader surface: resident-11-body
+PASS resident11 scaled eye height bounded
+PASS resident11 retained reduced body detail
+PASS resident12 saved local appearance survives serialization
+PASS resident12 player embodiment retains inherited body and identity
+PASS resident12 retains native animation bank
+PASS resident12 has personally morphed full/middle/far bodies
+PASS resident12 has no active runtime blendshape processing
+PASS resident12 inherited skin uses per-material palette
+PASS resident12 cultural hairstyle is visibly selected
+PASS resident12/idle finite native skin samples
+PASS resident12/idle production combat scale agrees with actual bone matrices
+PASS resident12/idle actual combat surface matches posed anatomy
+PASS resident12/walk finite native skin samples
+PASS resident12/walk production combat scale agrees with actual bone matrices
+PASS resident12/walk actual combat surface matches posed anatomy
+PASS resident12/run finite native skin samples
+PASS resident12/run production combat scale agrees with actual bone matrices
+PASS resident12/run actual combat surface matches posed anatomy
+PASS resident12/crouch finite native skin samples
+PASS resident12/crouch production combat scale agrees with actual bone matrices
+PASS resident12/crouch actual combat surface matches posed anatomy
+PASS resident12 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-12-face
+PASS portrait contains no error-shader surface: resident-12-body
+PASS resident12 scaled eye height bounded
+PASS resident12 retained reduced body detail
+PASS resident13 saved local appearance survives serialization
+PASS resident13 player embodiment retains inherited body and identity
+PASS resident13 retains native animation bank
+PASS resident13 has personally morphed full/middle/far bodies
+PASS resident13 has no active runtime blendshape processing
+PASS resident13 inherited skin uses per-material palette
+PASS resident13 cultural hairstyle is visibly selected
+PASS resident13/idle finite native skin samples
+PASS resident13/idle production combat scale agrees with actual bone matrices
+PASS resident13/idle actual combat surface matches posed anatomy
+PASS resident13/walk finite native skin samples
+PASS resident13/walk production combat scale agrees with actual bone matrices
+PASS resident13/walk actual combat surface matches posed anatomy
+PASS resident13/run finite native skin samples
+PASS resident13/run production combat scale agrees with actual bone matrices
+PASS resident13/run actual combat surface matches posed anatomy
+PASS resident13/crouch finite native skin samples
+PASS resident13/crouch production combat scale agrees with actual bone matrices
+PASS resident13/crouch actual combat surface matches posed anatomy
+PASS resident13 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-13-face
+PASS portrait contains no error-shader surface: resident-13-body
+PASS resident13 scaled eye height bounded
+PASS resident13 retained reduced body detail
+PASS resident14 saved local appearance survives serialization
+PASS resident14 retains native animation bank
+PASS resident14 has personally morphed full/middle/far bodies
+PASS resident14 has no active runtime blendshape processing
+PASS resident14 inherited skin uses per-material palette
+PASS resident14 cultural hairstyle is visibly selected
+PASS resident14/idle finite native skin samples
+PASS resident14/idle production combat scale agrees with actual bone matrices
+PASS resident14/idle actual combat surface matches posed anatomy
+PASS resident14/walk finite native skin samples
+PASS resident14/walk production combat scale agrees with actual bone matrices
+PASS resident14/walk actual combat surface matches posed anatomy
+PASS resident14/run finite native skin samples
+PASS resident14/run production combat scale agrees with actual bone matrices
+PASS resident14/run actual combat surface matches posed anatomy
+PASS resident14/crouch finite native skin samples
+PASS resident14/crouch production combat scale agrees with actual bone matrices
+PASS resident14/crouch actual combat surface matches posed anatomy
+PASS resident14 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-14-face
+PASS portrait contains no error-shader surface: resident-14-body
+PASS resident14 scaled eye height bounded
+PASS resident14 retained reduced body detail
+PASS resident15 saved local appearance survives serialization
+PASS resident15 player embodiment retains inherited body and identity
+PASS resident15 retains native animation bank
+PASS resident15 has personally morphed full/middle/far bodies
+PASS resident15 has no active runtime blendshape processing
+PASS resident15 inherited skin uses per-material palette
+PASS resident15 cultural hairstyle is visibly selected
+PASS resident15/idle finite native skin samples
+PASS resident15/idle production combat scale agrees with actual bone matrices
+PASS resident15/idle actual combat surface matches posed anatomy
+PASS resident15/walk finite native skin samples
+PASS resident15/walk production combat scale agrees with actual bone matrices
+PASS resident15/walk actual combat surface matches posed anatomy
+PASS resident15/run finite native skin samples
+PASS resident15/run production combat scale agrees with actual bone matrices
+PASS resident15/run actual combat surface matches posed anatomy
+PASS resident15/crouch finite native skin samples
+PASS resident15/crouch production combat scale agrees with actual bone matrices
+PASS resident15/crouch actual combat surface matches posed anatomy
+PASS resident15 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-15-face
+PASS portrait contains no error-shader surface: resident-15-body
+PASS resident15 scaled eye height bounded
+PASS resident15 retained reduced body detail
+PASS resident16 saved local appearance survives serialization
+PASS resident16 player embodiment retains inherited body and identity
+PASS resident16 retains native animation bank
+PASS resident16 has personally morphed full/middle/far bodies
+PASS resident16 has no active runtime blendshape processing
+PASS resident16 inherited skin uses per-material palette
+PASS resident16 cultural hairstyle is visibly selected
+PASS resident16/idle finite native skin samples
+PASS resident16/idle production combat scale agrees with actual bone matrices
+PASS resident16/idle actual combat surface matches posed anatomy
+PASS resident16/walk finite native skin samples
+PASS resident16/walk production combat scale agrees with actual bone matrices
+PASS resident16/walk actual combat surface matches posed anatomy
+PASS resident16/run finite native skin samples
+PASS resident16/run production combat scale agrees with actual bone matrices
+PASS resident16/run actual combat surface matches posed anatomy
+PASS resident16/crouch finite native skin samples
+PASS resident16/crouch production combat scale agrees with actual bone matrices
+PASS resident16/crouch actual combat surface matches posed anatomy
+PASS resident16 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-16-face
+PASS portrait contains no error-shader surface: resident-16-body
+PASS resident16 scaled eye height bounded
+PASS resident16 retained reduced body detail
+PASS resident17 saved local appearance survives serialization
+PASS resident17 retains native animation bank
+PASS resident17 has personally morphed full/middle/far bodies
+PASS resident17 has no active runtime blendshape processing
+PASS resident17 inherited skin uses per-material palette
+PASS resident17 cultural hairstyle is visibly selected
+PASS resident17/idle finite native skin samples
+PASS resident17/idle production combat scale agrees with actual bone matrices
+PASS resident17/idle actual combat surface matches posed anatomy
+PASS resident17/walk finite native skin samples
+PASS resident17/walk production combat scale agrees with actual bone matrices
+PASS resident17/walk actual combat surface matches posed anatomy
+PASS resident17/run finite native skin samples
+PASS resident17/run production combat scale agrees with actual bone matrices
+PASS resident17/run actual combat surface matches posed anatomy
+PASS resident17/crouch finite native skin samples
+PASS resident17/crouch production combat scale agrees with actual bone matrices
+PASS resident17/crouch actual combat surface matches posed anatomy
+PASS resident17 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-17-face
+PASS portrait contains no error-shader surface: resident-17-body
+PASS resident17 scaled eye height bounded
+PASS resident17 retained reduced body detail
+PASS resident18 saved local appearance survives serialization
+PASS resident18 player embodiment retains inherited body and identity
+PASS resident18 retains native animation bank
+PASS resident18 has personally morphed full/middle/far bodies
+PASS resident18 has no active runtime blendshape processing
+PASS resident18 inherited skin uses per-material palette
+PASS resident18 cultural hairstyle is visibly selected
+PASS resident18/idle finite native skin samples
+PASS resident18/idle production combat scale agrees with actual bone matrices
+PASS resident18/idle actual combat surface matches posed anatomy
+PASS resident18/walk finite native skin samples
+PASS resident18/walk production combat scale agrees with actual bone matrices
+PASS resident18/walk actual combat surface matches posed anatomy
+PASS resident18/run finite native skin samples
+PASS resident18/run production combat scale agrees with actual bone matrices
+PASS resident18/run actual combat surface matches posed anatomy
+PASS resident18/crouch finite native skin samples
+PASS resident18/crouch production combat scale agrees with actual bone matrices
+PASS resident18/crouch actual combat surface matches posed anatomy
+PASS resident18 actual loose hair geometry outside the body cannot take health damage
+PASS resident18 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-18-face
+PASS portrait contains no error-shader surface: resident-18-body
+PASS resident18 scaled eye height bounded
+PASS resident18 retained reduced body detail
+PASS resident19 saved local appearance survives serialization
+PASS resident19 player embodiment retains inherited body and identity
+PASS resident19 retains native animation bank
+PASS resident19 has personally morphed full/middle/far bodies
+PASS resident19 has no active runtime blendshape processing
+PASS resident19 inherited skin uses per-material palette
+PASS resident19 cultural hairstyle is visibly selected
+PASS resident19/idle finite native skin samples
+PASS resident19/idle production combat scale agrees with actual bone matrices
+PASS resident19/idle actual combat surface matches posed anatomy
+PASS resident19/walk finite native skin samples
+PASS resident19/walk production combat scale agrees with actual bone matrices
+PASS resident19/walk actual combat surface matches posed anatomy
+PASS resident19/run finite native skin samples
+PASS resident19/run production combat scale agrees with actual bone matrices
+PASS resident19/run actual combat surface matches posed anatomy
+PASS resident19/crouch finite native skin samples
+PASS resident19/crouch production combat scale agrees with actual bone matrices
+PASS resident19/crouch actual combat surface matches posed anatomy
+PASS resident19 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-19-face
+PASS portrait contains no error-shader surface: resident-19-body
+PASS resident19 scaled eye height bounded
+PASS resident19 retained reduced body detail
+PASS resident20 saved local appearance survives serialization
+PASS resident20 retains native animation bank
+PASS resident20 has personally morphed full/middle/far bodies
+PASS resident20 has no active runtime blendshape processing
+PASS resident20 inherited skin uses per-material palette
+PASS resident20 cultural hairstyle is visibly selected
+PASS resident20/idle finite native skin samples
+PASS resident20/idle production combat scale agrees with actual bone matrices
+PASS resident20/idle actual combat surface matches posed anatomy
+PASS resident20/walk finite native skin samples
+PASS resident20/walk production combat scale agrees with actual bone matrices
+PASS resident20/walk actual combat surface matches posed anatomy
+PASS resident20/run finite native skin samples
+PASS resident20/run production combat scale agrees with actual bone matrices
+PASS resident20/run actual combat surface matches posed anatomy
+PASS resident20/crouch finite native skin samples
+PASS resident20/crouch production combat scale agrees with actual bone matrices
+PASS resident20/crouch actual combat surface matches posed anatomy
+PASS resident20 actual loose hair geometry outside the body cannot take health damage
+PASS resident20 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-20-face
+PASS portrait contains no error-shader surface: resident-20-body
+PASS resident20 scaled eye height bounded
+PASS resident20 retained reduced body detail
+PASS resident21 saved local appearance survives serialization
+PASS resident21 player embodiment retains inherited body and identity
+PASS resident21 retains native animation bank
+PASS resident21 has personally morphed full/middle/far bodies
+PASS resident21 has no active runtime blendshape processing
+PASS resident21 inherited skin uses per-material palette
+PASS resident21 cultural hairstyle is visibly selected
+PASS resident21/idle finite native skin samples
+PASS resident21/idle production combat scale agrees with actual bone matrices
+PASS resident21/idle actual combat surface matches posed anatomy
+PASS resident21/walk finite native skin samples
+PASS resident21/walk production combat scale agrees with actual bone matrices
+PASS resident21/walk actual combat surface matches posed anatomy
+PASS resident21/run finite native skin samples
+PASS resident21/run production combat scale agrees with actual bone matrices
+PASS resident21/run actual combat surface matches posed anatomy
+PASS resident21/crouch finite native skin samples
+PASS resident21/crouch production combat scale agrees with actual bone matrices
+PASS resident21/crouch actual combat surface matches posed anatomy
+PASS resident21 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-21-face
+PASS portrait contains no error-shader surface: resident-21-body
+PASS resident21 scaled eye height bounded
+PASS resident21 retained reduced body detail
+PASS resident22 saved local appearance survives serialization
+PASS resident22 player embodiment retains inherited body and identity
+PASS resident22 retains native animation bank
+PASS resident22 has personally morphed full/middle/far bodies
+PASS resident22 has no active runtime blendshape processing
+PASS resident22 inherited skin uses per-material palette
+PASS resident22 cultural hairstyle is visibly selected
+PASS resident22/idle finite native skin samples
+PASS resident22/idle production combat scale agrees with actual bone matrices
+PASS resident22/idle actual combat surface matches posed anatomy
+PASS resident22/walk finite native skin samples
+PASS resident22/walk production combat scale agrees with actual bone matrices
+PASS resident22/walk actual combat surface matches posed anatomy
+PASS resident22/run finite native skin samples
+PASS resident22/run production combat scale agrees with actual bone matrices
+PASS resident22/run actual combat surface matches posed anatomy
+PASS resident22/crouch finite native skin samples
+PASS resident22/crouch production combat scale agrees with actual bone matrices
+PASS resident22/crouch actual combat surface matches posed anatomy
+PASS resident22 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-22-face
+PASS portrait contains no error-shader surface: resident-22-body
+PASS resident22 scaled eye height bounded
+PASS resident22 retained reduced body detail
+PASS resident23 saved local appearance survives serialization
+PASS resident23 retains native animation bank
+PASS resident23 has personally morphed full/middle/far bodies
+PASS resident23 has no active runtime blendshape processing
+PASS resident23 inherited skin uses per-material palette
+PASS resident23 cultural hairstyle is visibly selected
+PASS resident23/idle finite native skin samples
+PASS resident23/idle production combat scale agrees with actual bone matrices
+PASS resident23/idle actual combat surface matches posed anatomy
+PASS resident23/walk finite native skin samples
+PASS resident23/walk production combat scale agrees with actual bone matrices
+PASS resident23/walk actual combat surface matches posed anatomy
+PASS resident23/run finite native skin samples
+PASS resident23/run production combat scale agrees with actual bone matrices
+PASS resident23/run actual combat surface matches posed anatomy
+PASS resident23/crouch finite native skin samples
+PASS resident23/crouch production combat scale agrees with actual bone matrices
+PASS resident23/crouch actual combat surface matches posed anatomy
+PASS resident23 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-23-face
+PASS portrait contains no error-shader surface: resident-23-body
+PASS resident23 scaled eye height bounded
+PASS resident23 retained reduced body detail
+PASS resident24 saved local appearance survives serialization
+PASS resident24 player embodiment retains inherited body and identity
+PASS resident24 retains native animation bank
+PASS resident24 has personally morphed full/middle/far bodies
+PASS resident24 has no active runtime blendshape processing
+PASS resident24 inherited skin uses per-material palette
+PASS resident24 cultural hairstyle is visibly selected
+PASS resident24/idle finite native skin samples
+PASS resident24/idle production combat scale agrees with actual bone matrices
+PASS resident24/idle actual combat surface matches posed anatomy
+PASS resident24/walk finite native skin samples
+PASS resident24/walk production combat scale agrees with actual bone matrices
+PASS resident24/walk actual combat surface matches posed anatomy
+PASS resident24/run finite native skin samples
+PASS resident24/run production combat scale agrees with actual bone matrices
+PASS resident24/run actual combat surface matches posed anatomy
+PASS resident24/crouch finite native skin samples
+PASS resident24/crouch production combat scale agrees with actual bone matrices
+PASS resident24/crouch actual combat surface matches posed anatomy
+PASS resident24 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-24-face
+PASS portrait contains no error-shader surface: resident-24-body
+PASS resident24 scaled eye height bounded
+PASS resident24 retained reduced body detail
+PASS resident25 saved local appearance survives serialization
+PASS resident25 player embodiment retains inherited body and identity
+PASS resident25 retains native animation bank
+PASS resident25 has personally morphed full/middle/far bodies
+PASS resident25 has no active runtime blendshape processing
+PASS resident25 inherited skin uses per-material palette
+PASS resident25 cultural hairstyle is visibly selected
+PASS resident25/idle finite native skin samples
+PASS resident25/idle production combat scale agrees with actual bone matrices
+PASS resident25/idle actual combat surface matches posed anatomy
+PASS resident25/walk finite native skin samples
+PASS resident25/walk production combat scale agrees with actual bone matrices
+PASS resident25/walk actual combat surface matches posed anatomy
+PASS resident25/run finite native skin samples
+PASS resident25/run production combat scale agrees with actual bone matrices
+PASS resident25/run actual combat surface matches posed anatomy
+PASS resident25/crouch finite native skin samples
+PASS resident25/crouch production combat scale agrees with actual bone matrices
+PASS resident25/crouch actual combat surface matches posed anatomy
+PASS resident25 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-25-face
+PASS portrait contains no error-shader surface: resident-25-body
+PASS resident25 scaled eye height bounded
+PASS resident25 retained reduced body detail
+PASS resident26 saved local appearance survives serialization
+PASS resident26 player embodiment retains inherited body and identity
+PASS resident26 retains native animation bank
+PASS resident26 has personally morphed full/middle/far bodies
+PASS resident26 has no active runtime blendshape processing
+PASS resident26 inherited skin uses per-material palette
+PASS resident26 cultural hairstyle is visibly selected
+PASS resident26/idle finite native skin samples
+PASS resident26/idle production combat scale agrees with actual bone matrices
+PASS resident26/idle actual combat surface matches posed anatomy
+PASS resident26/walk finite native skin samples
+PASS resident26/walk production combat scale agrees with actual bone matrices
+PASS resident26/walk actual combat surface matches posed anatomy
+PASS resident26/run finite native skin samples
+PASS resident26/run production combat scale agrees with actual bone matrices
+PASS resident26/run actual combat surface matches posed anatomy
+PASS resident26/crouch finite native skin samples
+PASS resident26/crouch production combat scale agrees with actual bone matrices
+PASS resident26/crouch actual combat surface matches posed anatomy
+PASS resident26 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-26-face
+PASS portrait contains no error-shader surface: resident-26-body
+PASS resident26 scaled eye height bounded
+PASS resident26 retained reduced body detail
+PASS resident27 saved local appearance survives serialization
+PASS resident27 player embodiment retains inherited body and identity
+PASS resident27 retains native animation bank
+PASS resident27 has personally morphed full/middle/far bodies
+PASS resident27 has no active runtime blendshape processing
+PASS resident27 inherited skin uses per-material palette
+PASS resident27 cultural hairstyle is visibly selected
+PASS resident27/idle finite native skin samples
+PASS resident27/idle production combat scale agrees with actual bone matrices
+PASS resident27/idle actual combat surface matches posed anatomy
+PASS resident27/walk finite native skin samples
+PASS resident27/walk production combat scale agrees with actual bone matrices
+PASS resident27/walk actual combat surface matches posed anatomy
+PASS resident27/run finite native skin samples
+PASS resident27/run production combat scale agrees with actual bone matrices
+PASS resident27/run actual combat surface matches posed anatomy
+PASS resident27/crouch finite native skin samples
+PASS resident27/crouch production combat scale agrees with actual bone matrices
+PASS resident27/crouch actual combat surface matches posed anatomy
+PASS resident27 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-27-face
+PASS portrait contains no error-shader surface: resident-27-body
+PASS resident27 scaled eye height bounded
+PASS resident27 retained reduced body detail
+PASS resident28 saved local appearance survives serialization
+PASS resident28 player embodiment retains inherited body and identity
+PASS resident28 retains native animation bank
+PASS resident28 has personally morphed full/middle/far bodies
+PASS resident28 has no active runtime blendshape processing
+PASS resident28 inherited skin uses per-material palette
+PASS resident28 cultural hairstyle is visibly selected
+PASS resident28/idle finite native skin samples
+PASS resident28/idle production combat scale agrees with actual bone matrices
+PASS resident28/idle actual combat surface matches posed anatomy
+PASS resident28/walk finite native skin samples
+PASS resident28/walk production combat scale agrees with actual bone matrices
+PASS resident28/walk actual combat surface matches posed anatomy
+PASS resident28/run finite native skin samples
+PASS resident28/run production combat scale agrees with actual bone matrices
+PASS resident28/run actual combat surface matches posed anatomy
+PASS resident28/crouch finite native skin samples
+PASS resident28/crouch production combat scale agrees with actual bone matrices
+PASS resident28/crouch actual combat surface matches posed anatomy
+PASS resident28 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-28-face
+PASS portrait contains no error-shader surface: resident-28-body
+PASS resident28 scaled eye height bounded
+PASS resident28 retained reduced body detail
+PASS resident29 saved local appearance survives serialization
+PASS resident29 player embodiment retains inherited body and identity
+PASS resident29 retains native animation bank
+PASS resident29 has personally morphed full/middle/far bodies
+PASS resident29 has no active runtime blendshape processing
+PASS resident29 inherited skin uses per-material palette
+PASS resident29 cultural hairstyle is visibly selected
+PASS resident29/idle finite native skin samples
+PASS resident29/idle production combat scale agrees with actual bone matrices
+PASS resident29/idle actual combat surface matches posed anatomy
+PASS resident29/walk finite native skin samples
+PASS resident29/walk production combat scale agrees with actual bone matrices
+PASS resident29/walk actual combat surface matches posed anatomy
+PASS resident29/run finite native skin samples
+PASS resident29/run production combat scale agrees with actual bone matrices
+PASS resident29/run actual combat surface matches posed anatomy
+PASS resident29/crouch finite native skin samples
+PASS resident29/crouch production combat scale agrees with actual bone matrices
+PASS resident29/crouch actual combat surface matches posed anatomy
+PASS resident29 eyes retain normal offscreen culling
+PASS portrait contains no error-shader surface: resident-29-face
+PASS portrait contains no error-shader surface: resident-29-body
+PASS resident29 scaled eye height bounded
+PASS resident29 retained reduced body detail

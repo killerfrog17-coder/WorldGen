@@ -1,0 +1,231 @@
+{
+  "title": "WorldGen - Inherited NPC Appearance",
+  "section": "NPC APPEARANCE",
+  "date": "11 NOV 2026",
+  "footer": "Native player captures | Generated residents and labelled parameter controls",
+  "pages": [
+    {
+      "title": "Inherited appearance",
+      "subtitle": "Individually shaped people, regional ancestry and cultural grooming. Native portraits in controlled lighting.",
+      "blocks": [
+        {
+          "text": "Generated NPCs now carry persistent skin, hair and iris pigmentation, facial proportions, stature and build. Relatives resemble each other; regional populations retain shared traits alongside individual variation."
+        },
+        {
+          "images": [
+            {
+              "file": "face-0.jpg",
+              "caption": "Ngesa | 70 years<br/>Ty bra"
+            },
+            {
+              "file": "face-1.jpg",
+              "caption": "Tsekyti | 64 years<br/>Ty bra"
+            },
+            {
+              "file": "face-4.jpg",
+              "caption": "Wanu | 61 years<br/>Te yelkre"
+            }
+          ],
+          "max_height": 155
+        },
+        {
+          "images": [
+            {
+              "file": "face-12.jpg",
+              "caption": "Lazla | 50 years<br/>Mys tulu"
+            },
+            {
+              "file": "face-16.jpg",
+              "caption": "Melud | 60 years<br/>Ry shitsa"
+            },
+            {
+              "file": "face-20.jpg",
+              "caption": "Yihak | 10 years<br/>\u0160ak wopli"
+            }
+          ],
+          "max_height": 155
+        },
+        {
+          "table": {
+            "headers": [
+              "Layer",
+              "What it controls"
+            ],
+            "rows": [
+              [
+                "Inherited traits",
+                "Pigmentation, hair texture, facial proportions and potential adult stature."
+              ],
+              [
+                "Cultural grooming",
+                "Six overlapping categories: cropped, short, long, tied, braided and shaved."
+              ],
+              [
+                "People identity",
+                "A persistent identity separate from culture and political ownership."
+              ]
+            ],
+            "widths": [
+              0.26,
+              0.74
+            ]
+          }
+        },
+        {
+          "text": "These six portraits are real generated residents sampled from the saved world, using their own names and inherited profiles."
+        }
+      ],
+      "sources": [
+        [
+          "Pigmentation / UV",
+          "https://www.pnas.org/doi/10.1073/pnas.0914628107"
+        ],
+        [
+          "Population history",
+          "https://www.nature.com/articles/nature17993"
+        ]
+      ]
+    },
+    {
+      "title": "Independent, adjustable traits",
+      "subtitle": "Synthetic parameter controls on one shared base rig. These examples are not named ethnic presets.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "face-24.jpg",
+              "caption": "Fair hair / blue irises"
+            },
+            {
+              "file": "face-25.jpg",
+              "caption": "Curly hair / green irises"
+            },
+            {
+              "file": "face-26.jpg",
+              "caption": "Narrower facial proportions"
+            }
+          ],
+          "max_height": 155
+        },
+        {
+          "images": [
+            {
+              "file": "face-27.jpg",
+              "caption": "Tied hair / eyelid-fold variation"
+            },
+            {
+              "file": "face-28.jpg",
+              "caption": "Broader brow and jaw / braid"
+            },
+            {
+              "file": "face-29.jpg",
+              "caption": "Shaved scalp / darker pigmentation"
+            }
+          ],
+          "max_height": 155
+        },
+        {
+          "text": "Twelve anatomical morph axes shape the face and build. Hair is fitted separately to the same head. The simulation supplies inherited ranges; cultural preferences supply the grooming distribution."
+        },
+        {
+          "table": {
+            "headers": [
+              "In game",
+              "Implementation"
+            ],
+            "rows": [
+              [
+                "Families and regions",
+                "Deterministic individual variation around regional means, with biological-parent resemblance."
+              ],
+              [
+                "Human species",
+                "Species stature provides the broad baseline; within-sapiens variation stays much narrower."
+              ],
+              [
+                "Cost",
+                "Personally shaped full, middle and far meshes are baked once when a character loads. No active runtime blendshapes."
+              ]
+            ],
+            "widths": [
+              0.28,
+              0.72
+            ]
+          }
+        },
+        {
+          "text": "The existing rigs, motion banks and source texture art are retained. No character-creation menu is added in this pass."
+        }
+      ],
+      "sources": [
+        [
+          "Height",
+          "https://medlineplus.gov/genetics/understanding/traits/height/"
+        ],
+        [
+          "Eye colour",
+          "https://medlineplus.gov/genetics/understanding/traits/eyecolor/"
+        ]
+      ]
+    },
+    {
+      "title": "One identity across gameplay",
+      "subtitle": "Actual-world embodiment, clothing, inventory and saved NPC context.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "inherited-inventory.jpg",
+              "caption": "The embodied resident, inherited portrait, fitted coat and retained tools."
+            },
+            {
+              "file": "crowd-100.jpg",
+              "caption": "Controlled gathering: 100 sampled people from seven bands."
+            }
+          ],
+          "max_height": 180
+        },
+        {
+          "text": "The inherited person is used in the world, first person, the inventory portrait, local NPC memory and save files. Dialogue context receives the actual hair and eye description."
+        },
+        {
+          "table": {
+            "headers": [
+              "Verification",
+              "Result"
+            ],
+            "rows": [
+              [
+                "Inheritance and identity",
+                "5,810 core checks; family variation, cultural independence, copying and bounded species size."
+              ],
+              [
+                "Native portraits",
+                "716 checks /30 profiles /120 poses; actual combat skins agree with bone matrices within one micrometre."
+              ],
+              [
+                "Played-world integration",
+                "19 checks: embodiment, camera/capsule height, portrait anatomy and pigmentation, clothing, full session serialization."
+              ],
+              [
+                "Existing gameplay",
+                "184 combat/item, 35 clothing and 86 animation checks passed."
+              ],
+              [
+                "100-NPC close crowd",
+                "118.6 /117.8 FPS; p99 ~11.6 ms; longest frames 22-29 ms. Strict 100-FPS floor remains unmet."
+              ]
+            ],
+            "widths": [
+              0.3,
+              0.7
+            ]
+          }
+        },
+        {
+          "text": "Crowd: medium 1080p, 6 km view and four 30-second windows, with Chrome/video in use. Original source art is retained. Fuller beard variants and individual limb proportions remain future work."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+PASS Embodied player uses the actual generated resident's inherited appearance
+PASS Another actual member of the same band has an individually shaped body
+PASS Actual dialogue context describes saved hair and eyes rather than a preset-model label
+PASS Existing possession is retained while preparing the QA outfit
+PASS Real test possession equipped: StoneTippedSpear
+PASS Real test possession equipped: StoneBlade
+PASS Real test possession equipped: FurCoat
+PASS First-person camera height follows the inherited body and real eyes
+PASS Player solid capsule follows actual inherited stature
+PASS Inventory portrait retains all inherited traits
+PASS Inventory portrait retains actual body size
+PASS Inventory portrait uses the same personally shaped anatomy
+PASS Inventory portrait uses the same inherited pigmentation
+PASS Actual worn clothing fits the inherited source skin
+PASS Inventory clothing fits the inherited portrait body
+PASS Complete played session preserves controlled-person appearance
+PASS Complete played session preserves encountered NPC appearance
+PASS Held tools remain real possessions through portrait and save operations
+PASS captured session validates with conversation memories
