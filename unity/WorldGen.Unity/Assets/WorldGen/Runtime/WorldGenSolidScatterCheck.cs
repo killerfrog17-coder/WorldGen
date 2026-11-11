@@ -20,7 +20,10 @@ public sealed partial class LocalTerrainExplorer
             if(grade>steepest){steepest=grade;bx=x;bz=z;gx=dx;gz=dz;}
         }
         if(steepest<=1)throw new InvalidOperationException("Player collision proof needs actual resident steep terrain");
-        double length=Math.Sqrt(gx*gx+gz*gz);gx/=length;gz/=length;double sx=bx-gx*.8,sz=bz-gz*.8,tx=-gz,tz=gx;
+        double length=Math.Sqrt(gx*gx+gz*gz);gx/=length;gz/=length;double sx=bx-gx*.8,sz=bz-gz*.8;
+        double sh=VisibleGround(sx,sz,double.NaN),localX=(VisibleGround(sx+.1,sz,sh)-VisibleGround(sx-.1,sz,sh))/.2,localZ=(VisibleGround(sx,sz+.1,sh)-VisibleGround(sx,sz-.1,sh))/.2;
+        double localGrade=Math.Sqrt(localX*localX+localZ*localZ);if(localGrade>.1){gx=localX/localGrade;gz=localZ/localGrade;}
+        double tx=-gz,tz=gx,vx=tx-gx*.15,vz=tz-gz*.15,velocityLength=Math.Sqrt(vx*vx+vz*vz);vx/=velocityLength;vz/=velocityLength;
         var savedMode=Mode;bool savedPause=paused,savedTerrain=TerrainDiagnostics.HoldTerrain,savedPlants=TerrainDiagnostics.HoldPlants;
         double savedX=motion.X,savedY=motion.Y,savedZ=motion.Z,savedVertical=motion.VerticalSpeed;
         bool savedFlying=motion.Flying,savedGrounded=motion.Grounded,savedNoClip=motion.NoClip;var savedWater=motion.Water;
@@ -30,12 +33,18 @@ public sealed partial class LocalTerrainExplorer
         {
             paused=true;TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
             motion.Water=null;motion.Place(sx,sz,SurfaceGround(sx,sz));PreparePlayerSolids();
-            obstacle.transform.localPosition=new Vector3((float)(bx-gx*.2+tx*.45-originX),(float)SurfaceGround(sx,sz)+1,(float)(bz-gz*.2+tz*.45-originZ));
-            obstacle.transform.localRotation=Quaternion.LookRotation(new Vector3((float)gx,0,(float)gz),Vector3.up);
+            // Approach slightly downhill along the local contour, so the
+            // terrain motor permits reaching the solid. Its oblique face then
+            // tries to slide the controller uphill toward the actual wall.
+            obstacle.transform.localPosition=new Vector3((float)(sx+vx*.45-originX),(float)SurfaceGround(sx,sz)+1,(float)(sz+vz*.45-originZ));
+            obstacle.transform.localRotation=Quaternion.LookRotation(new Vector3((float)(gx*.866025403784+tx*.5),0,(float)(gz*.866025403784+tz*.5)),Vector3.up);
             var box=obstacle.AddComponent<BoxCollider>();box.size=new Vector3(.3f,3,1.4f);Physics.SyncTransforms();
-            double yaw=Math.Atan2(gx+tx*.65,gz+tz*.65)*180/Math.PI;
+            double yaw=Math.Atan2(vx,vz)*180/Math.PI;
             for(int i=0;i<180;i++)
             {
+                var beforeFeet=PlayerFeet();float beforeRadius=playerSolid.radius;
+                bool boxInStep=Physics.CapsuleCast(transform.TransformPoint(beforeFeet+Vector3.up*beforeRadius),transform.TransformPoint(beforeFeet+Vector3.up*(playerSolid.height-beforeRadius)),beforeRadius,transform.TransformDirection(new Vector3((float)vx,0,(float)vz)),out var upcoming,.06f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore)&&upcoming.collider==box;
+                int beforeContacts=playerSolidSideContacts;
                 PreparePlayerSolids();motion.Move(1d/60,1,0,0,yaw,0,false,false,PlayerSolidGround,walk:true);
                 double surface=VisibleGround(motion.X,motion.Z,double.NaN);if(!double.IsFinite(surface))throw new InvalidOperationException("Actual player left resident terrain during steep collision proof");
                 double clearance=motion.Y-TerrainMotion.EyeHeightM-surface;minimumClearance=Math.Min(minimumClearance,clearance);
@@ -43,12 +52,12 @@ public sealed partial class LocalTerrainExplorer
                 var feet=PlayerFeet();float radius=playerSolid.radius;
                 Vector3 low=transform.TransformPoint(feet+Vector3.up*radius),high=transform.TransformPoint(feet+Vector3.up*(playerSolid.height-radius));
                 if(Physics.CheckCapsule(low,high,Math.Max(.01f,radius-.03f),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))throw new InvalidOperationException("Steep terrain correction moved the player body inside an adjacent solid");
-                var middle=transform.TransformPoint(feet+Vector3.up*playerSolid.height*.5f);
-                if((box.ClosestPoint(middle)-middle).sqrMagnitude<=(radius+.04f)*(radius+.04f))contacts++;
+                if(boxInStep&&playerSolidSideContacts>beforeContacts)contacts++;
                 steps++;if(i%30==29)yield return null;
             }
-            if(contacts==0)throw new InvalidOperationException("Actual player proof did not reach the adjacent solid");
-            File.WriteAllText(Path.Combine(output,"player-solid-steep-contact.txt"),"PASS actual Creative player motor +CharacterController on resident steep terrain; steps="+steps+"; adjacent-solid contact steps="+contacts+"; start grade="+Math.Sqrt(steepest)+"; minimum final foot/rendered-triangle clearance="+minimumClearance+"m; body remains outside solids.\n");
+            string geometry="start="+sx.ToString("R")+","+sz.ToString("R")+"; end="+motion.X.ToString("R")+","+motion.Z.ToString("R")+"; wall="+bx.ToString("R")+","+bz.ToString("R")+"; wall grade="+Math.Sqrt(steepest)+"; start grade="+localGrade+"; radius="+playerSolid.radius+"; box="+obstacle.transform.localPosition.ToString("R")+"; heading="+yaw;
+            File.WriteAllText(Path.Combine(output,"player-solid-steep-contact.txt"),(contacts>0?"PASS":"FAIL")+" actual Creative player motor +CharacterController; steps="+steps+"; capsule-cast-confirmed adjacent-box Sides collision steps="+contacts+"; minimum final foot/rendered-triangle clearance="+minimumClearance+"m; "+geometry+"\n");
+            if(contacts==0)throw new InvalidOperationException("Actual player proof did not collide with adjacent solid; "+geometry);
         }
         finally
         {

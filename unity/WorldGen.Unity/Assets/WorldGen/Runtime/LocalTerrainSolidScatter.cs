@@ -14,6 +14,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<Mesh,Mesh> scatterSolidMeshes=new Dictionary<Mesh,Mesh>();
     readonly List<ulong> retiredScatterSolids=new List<ulong>();
     CharacterController playerSolid;
+    int playerSolidSideContacts;
     bool playerForcedCrouch;
     Vector3 solidCacheCenter;
     int solidStamp,solidRevision=-1,solidCollected=-1;
@@ -131,6 +132,7 @@ public sealed partial class LocalTerrainExplorer
         playerSolid.transform.localPosition=from;playerSolid.enabled=true;
         float falling=(float)Math.Max(0,-motor.VerticalSpeed);
         var flags=playerSolid.Move(transform.TransformVector(target-from));
+        if((flags&CollisionFlags.Sides)!=0)playerSolidSideContacts++;
         var result=playerSolid.transform.localPosition;
         if((result-target).sqrMagnitude>1e-10f)
         {
