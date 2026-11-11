@@ -9,6 +9,8 @@ namespace WorldGen.Presentation
         public readonly double[] Milliseconds=new double[7];
         readonly Stopwatch clock=Stopwatch.StartNew();double last;
         public long GeometrySamples,MaterialSamples,FullSurfaceQueries,GeometryQueries,SurfaceFallbacks;
+        public double ChannelConstraintsMs,ChannelIndexMs,ChannelClippingMs,ChannelVerticesMs,ChannelStitchingMs;
+        public int ChannelNewVertices;
         public void Mark(int stage){double now=clock.Elapsed.TotalMilliseconds;Milliseconds[stage]+=now-last;last=now;}
     }
 }

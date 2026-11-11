@@ -192,7 +192,7 @@ namespace WorldGen.Presentation
             // The old >=80m perimeter skirts also appeared on INTERIOR fallback
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
-            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token);
+            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing);
             timing?.Mark(4);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
             if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);

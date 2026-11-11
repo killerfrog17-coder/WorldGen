@@ -13,7 +13,7 @@ static class RiverMeshDiagnostic
         foreach(var shape in new[]{(size:3276.8,n:16),(size:13107.2,n:8)})
         {
             var timing=new TerrainBuildTiming();var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.size/2,-shape.size/2,shape.size,shape.n,timing:timing);
-            rows.Add(new{shape.size,shape.n,mesh.BuildMilliseconds,GroundVertices=mesh.Positions.Length/3,WaterTriangles=mesh.WaterTriangles.Length/3,timing.FullSurfaceQueries,timing.GeometryQueries,Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i]}).ToArray()});
+            rows.Add(new{shape.size,shape.n,mesh.BuildMilliseconds,GroundVertices=mesh.Positions.Length/3,WaterTriangles=mesh.WaterTriangles.Length/3,timing.FullSurfaceQueries,timing.GeometryQueries,Channel=new{timing.ChannelConstraintsMs,timing.ChannelIndexMs,timing.ChannelClippingMs,timing.ChannelVerticesMs,timing.ChannelStitchingMs,timing.ChannelNewVertices},Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i]}).ToArray()});
             Console.WriteLine($"River tile {shape.size}/{shape.n}: {mesh.BuildMilliseconds:F1}ms, {mesh.Positions.Length/3} ground vertices; "+string.Join("; ",timing.Milliseconds.Select((ms,i)=>TerrainBuildTiming.Names[i]+" "+ms.ToString("F1"))));
         }
         File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,Source=source,Scope="Isolated CoreCLR mesh component; not game FPS or complete loading time",Rows=rows},new JsonSerializerOptions{WriteIndented=true}));

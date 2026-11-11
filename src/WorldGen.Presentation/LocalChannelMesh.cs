@@ -12,8 +12,9 @@ namespace WorldGen.Presentation
     {
         struct Point {public double X,Z;public Point(double x,double z){X=x;Z=z;}}
         struct Cut {public double X,Z,DX,DZ,Length,Half;public bool Bank;}
-        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default)
+        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default,TerrainBuildTiming? timing=null)
         {
+            var timer=timing!=null?System.Diagnostics.Stopwatch.StartNew():null;
             double step=mesh.SizeM/mesh.Segments;if(patch==null)return original;
             if(step>32&&terrain.Amplification==null)return original;
             var bankEdges=new HashSet<(V,V)>();
@@ -36,11 +37,15 @@ namespace WorldGen.Presentation
                     void Pool(int id,V at,double width)
                     {
                         if(id<0||width<=0||!pools.Add(id))return;
-                        foreach(double r in new[]{width,RiverscapeKernel.JunctionRadius(width)})
+                        foreach(double r in step>256?new[]{RiverscapeKernel.JunctionRadius(width)}:new[]{width,RiverscapeKernel.JunctionRadius(width)})
                         for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),r>width);
                     }
                     if(s.PoolA)Pool(s.From,s.A,s.WidthA);if(s.PoolB)Pool(s.To,s.B,s.WidthB);
-                    Edge(s.A,s.B);Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);
+                    Edge(s.A,s.B);
+                    // Distant bathymetry needs the thalweg and the exact outer
+                    // shoreline, not a second almost-coincident bank ring2m
+                    // inside it. Close meshes retain both complete sections.
+                    if(step<=256){Edge(al,bl);Edge(ar,br);Edge(al,ar);Edge(bl,br);}
                     // Match the water ribbon's two-metre hidden bank overlap.
                     // Without these cuts, its outer strip crossed coarse faces
                     // and appeared as isolated floating triangles on steep banks.
@@ -107,10 +112,12 @@ namespace WorldGen.Presentation
                 }
             }
             if(cuts.Count==0)return original;
+            if(timing!=null)timing.ChannelConstraintsMs=timer!.Elapsed.TotalMilliseconds;
             // A sparse base grid can become a dense mesh at a river. Prime the
             // shared exact-query index only once we KNOW refinement is needed.
             // Otherwise every added bank vertex rescans the broad river region.
             if(terrain.Amplification!=null)patch.RiverSpans();
+            if(timing!=null)timing.ChannelIndexMs=timer!.Elapsed.TotalMilliseconds-timing.ChannelConstraintsMs;
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
             var samples=new List<LocalTerrainSample>(original);while(samples.Count<mesh.Positions.Length/3)samples.Add(new LocalTerrainSample{WaterSurfaceM=double.NaN,WaterMaskM=-1});
@@ -156,6 +163,7 @@ namespace WorldGen.Presentation
                         if(Perimeter(p)&&Bank(p)){V bankPoint=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);positions[found*3+1]=(float)frame.SurfaceY(bankPoint,patch.Elevation(bankPoint));}
                         return found;
                     }
+                double vertexStart=timer?.Elapsed.TotalMilliseconds??0;
                 V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);LocalTerrainSample s;double nx,nz;
                 if(step>256)
                 {
@@ -201,7 +209,8 @@ namespace WorldGen.Presentation
                 V groundColor=surface.Color*(1-visibleCover)+cover.Color*(.90*visibleCover);
                 colors.Add((float)groundColor.X);colors.Add((float)groundColor.Y);colors.Add((float)groundColor.Z);colors.Add((float)coverAmount);
                 for(int k=0;k<4;k++){weights.Add((float)surface.Weight(k));groundB.Add((float)surface.Weight(k+4));}
-                for(int k=0;k<6;k++)rocks.Add((float)s.Ground.RockWeight(k));return id;
+                for(int k=0;k<6;k++)rocks.Add((float)s.Ground.RockWeight(k));
+                if(timing!=null){timing.ChannelVerticesMs+=timer!.Elapsed.TotalMilliseconds-vertexStart;timing.ChannelNewVertices++;}return id;
             }
             void Triangle(int a,int b,int c,List<int> relevant)
             {
@@ -282,6 +291,8 @@ namespace WorldGen.Presentation
                 buckets.TryGetValue(z*mesh.Segments+x,out var relevant);int a=z*side+x;
                 Triangle(a,a+side,a+1,relevant);Triangle(a+1,a+side,a+side+1,relevant);
             }
+            double clippingEnd=timer?.Elapsed.TotalMilliseconds??0;
+            if(timing!=null)timing.ChannelClippingMs=clippingEnd-timing.ChannelConstraintsMs-timing.ChannelIndexMs;
             // Finite cuts can leave T-junctions on grid edges OR prior cut
             // lines. Join every coincident edge using the points in its local
             // grid cells, rather than recognizing just three grid directions.
@@ -343,7 +354,8 @@ namespace WorldGen.Presentation
             indices=stitched;
             mesh.WaterClipTriangles=indices.ToArray();indices.AddRange(mesh.Triangles.Skip(mesh.Segments*mesh.Segments*6));
             mesh.Triangles=indices.ToArray();mesh.Positions=positions.ToArray();mesh.Normals=normals.ToArray();mesh.Colors=colors.ToArray();
-            mesh.SurfaceWeights=weights.ToArray();mesh.GroundWeightsB=groundB.ToArray();mesh.Lithology=rocks.ToArray();return samples.ToArray();
+            mesh.SurfaceWeights=weights.ToArray();mesh.GroundWeightsB=groundB.ToArray();mesh.Lithology=rocks.ToArray();
+            if(timing!=null)timing.ChannelStitchingMs=timer!.Elapsed.TotalMilliseconds-clippingEnd;return samples.ToArray();
         }
     }
 }
