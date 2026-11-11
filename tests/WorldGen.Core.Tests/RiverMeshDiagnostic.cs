@@ -13,8 +13,41 @@ static class RiverMeshDiagnostic
         foreach(var shape in new[]{(size:3276.8,n:16),(size:13107.2,n:8)})
         {
             var timing=new TerrainBuildTiming();var mesh=LocalTerrainMesh.Build(terrain,frame,-shape.size/2,-shape.size/2,shape.size,shape.n,timing:timing);
-            rows.Add(new{shape.size,shape.n,mesh.BuildMilliseconds,GroundVertices=mesh.Positions.Length/3,WaterTriangles=mesh.WaterTriangles.Length/3,timing.FullSurfaceQueries,timing.GeometryQueries,Channel=new{timing.ChannelConstraintsMs,timing.ChannelIndexMs,timing.ChannelClippingMs,timing.ChannelVerticesMs,timing.ChannelStitchingMs,timing.ChannelNewVertices},Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i]}).ToArray()});
+            // Outside the timed build: shared edges alone cannot detect a
+            // coarse base-grid island covering the middle of a broad river.
+            var probe=terrain.CreateMapHeightCursor();int wetChecks=0;double maximumStageError=0,minimumClearance=double.PositiveInfinity;
+            double spread=Math.Min(shape.size*.3,Math.Min(span.WidthA,span.WidthB)*.8),step=shape.size/shape.n;
+            for(int z=0;z<13;z++)for(int x=0;x<13;x++)
+            {
+                double px=(x-6)*spread/6,pz=(z-6)*spread/6;var point=frame.Position(px,pz);var actual=probe.Sample(point,0);
+                if(!actual.Underwater||actual.WaterKind!=LocalWaterKind.River)continue;
+                double ground=RiverRepairTests.Height(mesh.Positions,mesh.Triangles,px-mesh.EastM,pz-mesh.NorthM);
+                double water=RiverRepairTests.Height(mesh.WaterPositions,mesh.WaterTriangles,px-mesh.EastM,pz-mesh.NorthM),expected=frame.SurfaceY(point,actual.WaterSurfaceM);
+                double error=Math.Abs(water-expected),clearance=water-ground;
+                if(!double.IsFinite(ground)||!double.IsFinite(water)||clearance<-.005||error>Math.Max(.03,step*step/frame.RadiusM*.5))
+                {
+                    var p=mesh.Positions;double xx=px-mesh.EastM,zz=pz-mesh.NorthM;
+                    for(int triangle=0;triangle<mesh.Triangles.Length;triangle+=3)
+                    {
+                        int ia=mesh.Triangles[triangle],ib=mesh.Triangles[triangle+1],ic=mesh.Triangles[triangle+2],a=ia*3,b=ib*3,c=ic*3;
+                        double bx=p[b]-p[a],bz=p[b+2]-p[a+2],cx=p[c]-p[a],cz=p[c+2]-p[a+2],det=bx*cz-bz*cx;if(Math.Abs(det)<1e-10)continue;
+                        double u=((xx-p[a])*cz-(zz-p[a+2])*cx)/det,v=(bx*(zz-p[a+2])-bz*(xx-p[a]))/det;
+                        if(u< -1e-6||v< -1e-6||u+v>1.000001||Math.Abs(p[a+1]+u*(p[b+1]-p[a+1])+v*(p[c+1]-p[a+1])-ground)>.001)continue;
+                        foreach(int id in new[]{ia,ib,ic})
+                        {
+                            var atVertex=frame.Position(mesh.EastM+p[id*3],mesh.NorthM+p[id*3+2]);var exact=probe.Sample(atVertex,0);
+                            Console.WriteLine($"Containing vertex {id} at {mesh.EastM+p[id*3]:R},{mesh.NorthM+p[id*3+2]:R}: drawn={p[id*3+1]:R}, canonical={frame.SurfaceY(atVertex,exact.ElevationM):R}, water={frame.SurfaceY(atVertex,exact.WaterSurfaceM):R}, kind={exact.WaterKind}");
+                        }
+                        break;
+                    }
+                    throw new Exception($"Far major river interior {shape.size}/{shape.n} at {px:R},{pz:R}: ground={ground:R}, water={water:R}, expected={expected:R}");
+                }
+                wetChecks++;maximumStageError=Math.Max(maximumStageError,error);minimumClearance=Math.Min(minimumClearance,clearance);
+            }
+            if(wetChecks==0)throw new Exception("Major-river cost fixture contained no actual wet interior probes");
+            rows.Add(new{shape.size,shape.n,mesh.BuildMilliseconds,GroundVertices=mesh.Positions.Length/3,WaterTriangles=mesh.WaterTriangles.Length/3,WetInteriorChecks=wetChecks,MaximumWaterStageErrorM=maximumStageError,MinimumWaterOverGroundM=minimumClearance,timing.FullSurfaceQueries,timing.GeometryQueries,Channel=new{timing.ChannelConstraintsMs,timing.ChannelIndexMs,timing.ChannelClippingMs,timing.ChannelVerticesMs,timing.ChannelStitchingMs,timing.ChannelNewVertices},Stages=TerrainBuildTiming.Names.Select((name,i)=>new{Name=name,Ms=timing.Milliseconds[i]}).ToArray()});
             Console.WriteLine($"River tile {shape.size}/{shape.n}: {mesh.BuildMilliseconds:F1}ms, {mesh.Positions.Length/3} ground vertices; "+string.Join("; ",timing.Milliseconds.Select((ms,i)=>TerrainBuildTiming.Names[i]+" "+ms.ToString("F1"))));
+            Console.WriteLine($"PASS {wetChecks} actual wet interior probes; stage error {maximumStageError:F6}m, minimum water/ground clearance {minimumClearance:F3}m");
         }
         File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,Source=source,Scope="Isolated CoreCLR mesh component; not game FPS or complete loading time",Rows=rows},new JsonSerializerOptions{WriteIndented=true}));
     }

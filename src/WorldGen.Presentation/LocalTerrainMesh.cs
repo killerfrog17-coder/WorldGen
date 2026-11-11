@@ -82,6 +82,7 @@ namespace WorldGen.Presentation
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
             bool distant=terrain.Amplification!=null&&step>=128;
+            bool coarseGeometry=terrain.Amplification!=null&&step>256;
             double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
             var patch = !coverageOnly&&extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
             // The same index was previously prepared only by channel refinement,
@@ -91,7 +92,7 @@ namespace WorldGen.Presentation
             // kilometres. Eagerly constructing EVERY small river in that whole
             // region costs more than the grid. Keep exact point admission there;
             // dense near grids still amortize the shared finite-span index.
-            if(!coverageOnly&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
+            if(!coverageOnly&&!coarseGeometry&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             var horizon=coverageOnly||distant?terrain.CreateMapHeightCursor():null;
@@ -102,9 +103,13 @@ namespace WorldGen.Presentation
                 // a requested-quality mesh or a source for exact sample caches.
                 // Its footprint must stop the hierarchy before metre-scale
                 // river fitting over an entire hundred-kilometre horizon.
-                if(coverageOnly)
+                if(coverageOnly||coarseGeometry)
                 {
-                    var coarse=horizon!.Sample(p,Math.Max(256,step));
+                    // A distant render product samples the existing hierarchy
+                    // at half its grid spacing. It never reads or writes the
+                    // canonical cache; visible major-river beds are restored
+                    // explicitly by the same bank refiner used below.
+                    var coarse=horizon!.Sample(p,coverageOnly?Math.Max(256,step):Math.Max(256,step*.5));
                     if(!geometryOnly)terrain.FillMapMaterials(p,ref coarse,horizonMaterials!);
                     if(timing!=null){if(geometryOnly)timing.GeometryQueries++;else timing.FullSurfaceQueries++;}
                     return coarse;
@@ -120,9 +125,9 @@ namespace WorldGen.Presentation
                     if(!geometryOnly)terrain.FillMapMaterials(p,ref value,horizonMaterials!);
                     return value;
                 }
-                // LOD changes tessellation, never the value of a shared point.
-                // Stopping the height hierarchy at a tile-dependent depth made
-                // adjacent detail levels disagree and exposed their skirts.
+                // Near/intermediate products retain canonical geometry.
+                // Distant shared edges use their common sampling footprint
+                // below, and resident transitions conform the actual edges.
                 if(patch!=null){var value=geometryOnly?patch.Geometry(p):knownGeometry.HasValue?patch.Ecology(p,knownGeometry.Value):patch.Sample(p);if(geometryOnly)sampleCache?.StoreGeometry(p,value);else sampleCache?.Store(p,value);return value;}
                 // A far tile on a shrunken planet spans a large geographical area.
                 // Query bounded subpatches instead of constructing a planet-sized candidate bag.
@@ -138,14 +143,16 @@ namespace WorldGen.Presentation
             // anchored grid is shared by adjacent tiles, not restarted per tile.
             double materialStep=coverageOnly?Math.Max(128,sizeM/8):distant?step*2:32;
             bool sparseMaterials=terrain.Amplification!=null&&(coverageOnly||distant||step<16);
-            var materials=new System.Collections.Generic.Dictionary<(int,int),LocalTerrainSample>();
-            LocalTerrainSample MaterialNode(int x,int z)
+            var materials=new System.Collections.Generic.Dictionary<(int,int,double),LocalTerrainSample>();
+            LocalTerrainSample MaterialNode(int x,int z,double nodeStep=0)
             {
-                if(materials.TryGetValue((x,z),out var found))return found;
-                double xx=x*materialStep,zz=z*materialStep;var point=frame.Position(xx,zz);
-                var value=distant?horizon!.Sample(point,Math.Max(256,materialStep)):Sample(xx,zz,point);
-                if(distant)terrain.FillMapMaterials(point,ref value,horizonMaterials!);
-                materials.Add((x,z),value);return value;
+                if(nodeStep==0)nodeStep=materialStep;
+                if(materials.TryGetValue((x,z,nodeStep),out var found))return found;
+                double xx=x*nodeStep,zz=z*nodeStep;var point=frame.Position(xx,zz);
+                bool coarseMaterial=distant||nodeStep>=256;
+                var value=coarseMaterial?horizon!.Sample(point,Math.Max(256,nodeStep)):Sample(xx,zz,point);
+                if(coarseMaterial)terrain.FillMapMaterials(point,ref value,horizonMaterials!);
+                materials.Add((x,z,nodeStep),value);return value;
             }
             LocalTerrainSample SurfaceSample(double x,double z,LocalTerrainSample geometry)
             {
@@ -205,12 +212,24 @@ namespace WorldGen.Presentation
                 double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
                 if(ix>=-1&&ix<=side&&iz>=-1&&iz<=side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+1)*halo+ix+1];
                 var p=frame.Position(x,z);
-                return frame.SurfaceY(p,patch!=null?patch.Elevation(p):Sample(x,z,p).ElevationM);
+                return frame.SurfaceY(p,coarseGeometry?Sample(x,z,p,true).ElevationM:patch!=null?patch.Elevation(p):Sample(x,z,p).ElevationM);
             }
             TerrainSurfaceVertex Boundary(double x,double z,double h)
             {
                 double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
                 var p=frame.Position(x,z);
+                if(terrain.Amplification!=null&&h>256)
+                {
+                    // Both planned neighbours use the coarser edge's footprint,
+                    // independent of their own interior sampling resolution.
+                    var cursor=horizon??(horizon=terrain.CreateMapHeightCursor());
+                    var coarse=cursor.Sample(p,Math.Max(256,h*.5));
+                    horizonMaterials??=new System.Collections.Generic.List<int>();
+                    double material=h*2;int mx=(int)Math.Floor(x/material),mz=(int)Math.Floor(z/material);
+                    coarse=LocalTerrain.LocalTerrainPatch.BlendEcology(MaterialNode(mx,mz,material),MaterialNode(mx+1,mz,material),MaterialNode(mx,mz+1,material),MaterialNode(mx+1,mz+1,material),x/material-mx,z/material-mz,coarse);
+                    double At(double xx,double zz){var at=frame.Position(xx,zz);return frame.SurfaceY(at,cursor.Sample(at,Math.Max(256,h*.5)).ElevationM);}
+                    return TerrainSurfaceVertex.Evaluate(terrain,frame,p,coarse,(At(x-h,z)-At(x+h,z))/(2*h),(At(x,z-h)-At(x,z+h))/(2*h));
+                }
                 var sample=h<16&&sparseMaterials?SurfaceSample(x,z,Sample(x,z,p,true)):Sample(x,z,p);
                 return TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
             }

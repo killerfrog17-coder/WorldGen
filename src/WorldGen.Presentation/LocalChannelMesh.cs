@@ -17,6 +17,21 @@ namespace WorldGen.Presentation
             var timer=timing!=null?System.Diagnostics.Stopwatch.StartNew():null;
             double step=mesh.SizeM/mesh.Segments;if(patch==null)return original;
             if(step>32&&terrain.Amplification==null)return original;
+            var canonicalGrid=terrain.Amplification!=null&&step>256?new bool[original.Length]:Array.Empty<bool>();
+            void MarkGridTriangle(V a,V b,V c)
+            {
+                if(canonicalGrid.Length==0)return;
+                TerrainHandoff.Coordinates(frame,a,out double ax,out double az);TerrainHandoff.Coordinates(frame,b,out double bx,out double bz);TerrainHandoff.Coordinates(frame,c,out double cx,out double cz);
+                ax-=mesh.EastM;bx-=mesh.EastM;cx-=mesh.EastM;az-=mesh.NorthM;bz-=mesh.NorthM;cz-=mesh.NorthM;
+                double dx=bx-ax,dz=bz-az,ex=cx-ax,ez=cz-az,det=dx*ez-dz*ex;if(Math.Abs(det)<1e-12)return;
+                int lowX=Math.Max(0,(int)Math.Ceiling(Math.Min(ax,Math.Min(bx,cx))/step-1e-7)),highX=Math.Min(mesh.Segments,(int)Math.Floor(Math.Max(ax,Math.Max(bx,cx))/step+1e-7));
+                int lowZ=Math.Max(0,(int)Math.Ceiling(Math.Min(az,Math.Min(bz,cz))/step-1e-7)),highZ=Math.Min(mesh.Segments,(int)Math.Floor(Math.Max(az,Math.Max(bz,cz))/step+1e-7));
+                for(int z=lowZ;z<=highZ;z++)for(int x=lowX;x<=highX;x++)
+                {
+                    double px=x*step-ax,pz=z*step-az,u=(px*ez-pz*ex)/det,v=(dx*pz-dz*px)/det;
+                    if(u>=-1e-7&&v>=-1e-7&&u+v<=1+1e-7)canonicalGrid[z*(mesh.Segments+1)+x]=true;
+                }
+            }
             var bankEdges=new HashSet<(V,V)>();
             var source=terrain.Amplification==null?patch.ChannelPieces(Math.Max(16,step*2)):Array.Empty<LocalHydrology.Piece>();
             if(terrain.Amplification!=null)
@@ -38,9 +53,21 @@ namespace WorldGen.Presentation
                     {
                         if(id<0||width<=0||!pools.Add(id))return;
                         foreach(double r in step>256?new[]{RiverscapeKernel.JunctionRadius(width)}:new[]{width,RiverscapeKernel.JunctionRadius(width)})
-                        for(int i=0;i<RiverscapeKernel.JunctionSides;i++)Edge(RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),r>width);
+                        for(int i=0;i<RiverscapeKernel.JunctionSides;i++)
+                        {
+                            V a=RiverscapeKernel.JunctionPoint(at,r,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),b=RiverscapeKernel.JunctionPoint(at,r,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM);
+                            Edge(a,b,r>width);if(r>width)MarkGridTriangle(at,a,b);
+                        }
                     }
                     if(s.PoolA)Pool(s.From,s.A,s.WidthA);if(s.PoolB)Pool(s.To,s.B,s.WidthB);
+                    // Distant relief may use a coarse hierarchy, but the
+                    // existing base-grid vertices beneath a drawn ribbon must
+                    // use its real bed too. Adding exact bank vertices alone
+                    // can leave a coarse island in the middle of the water.
+                    double outerA=s.WidthA+(s.WidthA>0?2:0),outerB=s.WidthB+(s.WidthB>0?2:0);
+                    V qa=(s.A+s.SideA*(outerA/frame.RadiusM)).Unit,qb=(s.B+s.SideB*(outerB/frame.RadiusM)).Unit;
+                    V qc=(s.A-s.SideA*(outerA/frame.RadiusM)).Unit,qd=(s.B-s.SideB*(outerB/frame.RadiusM)).Unit;
+                    MarkGridTriangle(qa,qb,qc);MarkGridTriangle(qc,qb,qd);
                     Edge(s.A,s.B);
                     // Distant bathymetry needs the thalweg and the exact outer
                     // shoreline, not a second almost-coincident bank ring2m
@@ -54,14 +81,10 @@ namespace WorldGen.Presentation
                         V ol=(s.A+s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit,orr=(s.A-s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit;
                         V pl=(s.B+s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit,pr=(s.B-s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit;
                         Edge(ol,pl,true);Edge(orr,pr,true);
-                        // At a distant LOD retain the two continuous banks,
-                        // thalweg and closed junction rings. A cross-cut at
-                        // every fitted station creates a dense arrangement of
-                        // lines inside one coarse cell without adding a shore.
-                        // Actual reach ends still close the finite channel;
-                        // shared tile edges retain their explicit bank curve.
-                        if(step<=256||s.From>=0)Edge(ol,orr);
-                        if(step<=256||s.To>=0)Edge(pl,pr);
+                        // These finite cross-sections also terminate the bank
+                        // segments at bends. Omitting them let far triangles
+                        // bridge a wet interior between dry station supports.
+                        Edge(ol,orr);Edge(pl,pr);
                     }
                 }
                 // A known pond also needs its basin in the drawn land. A coarse
@@ -128,6 +151,17 @@ namespace WorldGen.Presentation
             if(terrain.Amplification!=null&&step<=256)patch.RiverSpans();
             var exactGeometry=step>256?terrain.CreateMapHeightCursor():null;
             if(timing!=null)timing.ChannelIndexMs=timer!.Elapsed.TotalMilliseconds-timing.ChannelConstraintsMs;
+            for(int i=0;i<canonicalGrid.Length;i++)if(canonicalGrid[i])
+            {
+                V at=frame.Position(mesh.EastM+mesh.Positions[i*3],mesh.NorthM+mesh.Positions[i*3+2]);
+                var coarse=original[i];var exact=LocalTerrain.LocalTerrainPatch.BlendEcology(coarse,coarse,coarse,coarse,0,0,exactGeometry!.Sample(at,0));
+                original[i]=exact;
+                double height=frame.SurfaceY(at,exact.ElevationM);mesh.Positions[i*3+1]=(float)height;
+                mesh.MinHeightM=Math.Min(mesh.MinHeightM,height);mesh.MaxHeightM=Math.Max(mesh.MaxHeightM,height);
+                double up=Math.Max(.02,mesh.Normals[i*3+1]);
+                var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,at,exact,mesh.Normals[i*3]/up,mesh.Normals[i*3+2]/up);
+                TerrainSurfaceVertex.Write(mesh,i,vertex,vertex,0);
+            }
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
             var samples=new List<LocalTerrainSample>(original);while(samples.Count<mesh.Positions.Length/3)samples.Add(new LocalTerrainSample{WaterSurfaceM=double.NaN,WaterMaskM=-1});

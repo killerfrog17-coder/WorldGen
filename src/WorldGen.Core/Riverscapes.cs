@@ -570,11 +570,12 @@ namespace WorldGen.Core
                     double distance=(p-d*u).Length*physical,width=span.WidthA+(span.WidthB-span.WidthA)*u;
                     double support=width*5+4;if(distance>=support)return;
                     V ta=basis.TangentA,tb=basis.TangentB;
-                    // Match the renderer's finite2m underlap in physical units.
-                    // Angular round-off at an exact endpoint bank corner must
-                    // not retire its dry-bank protection a fraction of a
-                    // millimetre before the water polygon actually ends.
-                    bool before=RiverDot(p,ta)<-2.25/physical,after=RiverDot(point-span.B,tb)>2.25/physical;
+                    // Bank overlap expands sideways, not along the channel.
+                    // Only centimetre round-off tolerance belongs at a shared
+                    // section plane: metre-scale slack let lower landing cuts
+                    // cross upstream of waterfalls, then high-bank guards left
+                    // artificial narrow towers on both sides of the sheet.
+                    bool before=RiverDot(p,ta)<-.01/physical,after=RiverDot(point-span.B,tb)>.01/physical;
                     // Adjacent paired cross-sections partition longitudinal
                     // space. Round caps at EVERY station used to let a lower
                     // cascade carve underneath the preceding higher ribbon.

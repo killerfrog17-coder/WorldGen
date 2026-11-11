@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace WorldGen.Presentation
 {
@@ -65,6 +66,34 @@ namespace WorldGen.Presentation
 
         public bool TryHeight(double x,double z,out double height)=>TryHeight(x,z,false,out height);
         public bool TryOriginalHeight(double x,double z,out double height)=>TryHeight(x,z,true,out height);
+        /// <summary>Triangle-profile knots on a local straight cut. Resident
+        /// LOD boundaries use these to retain real refined river-bank bends;
+        /// the existing cell index limits the scan to the requested interval.
+        /// Duplicates are intentional and sorted/deduplicated by the caller.</summary>
+        public void AddProfileCuts(bool vertical,double fixedAt,double alongStart,double alongEnd,List<double> cuts)
+        {
+            double epsilon=Math.Max(.00001,size*1e-8);
+            if(fixedAt< -epsilon||fixedAt>size+epsilon||alongEnd<0||alongStart>size)return;
+            fixedAt=Math.Max(0,Math.Min(size,fixedAt));alongStart=Math.Max(0,alongStart);alongEnd=Math.Min(size,alongEnd);
+            int first=Cell(alongStart-epsilon),last=Cell(alongEnd+epsilon),across0=Cell(fixedAt-epsilon),across1=Cell(fixedAt+epsilon);
+            void Edge(int a,int b)
+            {
+                double da=positions[a+(vertical?0:2)]-fixedAt,db=positions[b+(vertical?0:2)]-fixedAt;
+                double aa=positions[a+(vertical?2:0)],ab=positions[b+(vertical?2:0)];
+                if(Math.Abs(da)<=epsilon&&aa>=alongStart-epsilon&&aa<=alongEnd+epsilon)cuts.Add(Math.Max(alongStart,Math.Min(alongEnd,aa)));
+                if(da*db<0)
+                {double along=aa+(ab-aa)*da/(da-db);if(along>=alongStart-epsilon&&along<=alongEnd+epsilon)cuts.Add(Math.Max(alongStart,Math.Min(alongEnd,along)));}
+            }
+            for(int along=first;along<=last;along++)for(int across=across0;across<=across1;across++)
+            {
+                int cell=vertical?along*segments+across:across*segments+along;
+                for(int at=offsets[cell];at<offsets[cell+1];at++)
+                {
+                    int triangle=entries[at],a=triangles[triangle]*3,b=triangles[triangle+1]*3,c=triangles[triangle+2]*3;
+                    Edge(a,b);Edge(b,c);Edge(c,a);
+                }
+            }
+        }
         bool TryHeight(double x,double z,bool original,out double height)
         {
             height=double.NegativeInfinity;

@@ -24,7 +24,7 @@ public sealed partial class LocalTerrainExplorer
         public Mesh Mesh;
         public Texture2D Texture;
         public long Bytes;
-        public bool Conformed;
+        public bool Conformed,TopologyChanged;
         public static ResidentEdgeData Build(LocalTerrainMesh source,NativeArray<TerrainVertex> vertices)
         {
             double size=source.SizeM;
@@ -68,9 +68,9 @@ public sealed partial class LocalTerrainExplorer
     readonly List<TerrainTileKey> edgeChanged=new List<TerrainTileKey>();
     readonly List<KeyValuePair<TerrainTileKey,Tile>> edgeAffected=new List<KeyValuePair<TerrainTileKey,Tile>>();
     LocalTerrainFrame edgeFrame;long edgeRevision=-1;
-    readonly bool checkResidentEdgeIntervals=Array.IndexOf(Environment.GetCommandLineArgs(),"--worldgen-chunk-loading-check")>=0;
-    long residentEdgePublications,residentEdgeVertices;int residentEdgeResidualIntervals;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs;
-    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
+    readonly List<double> residentProfileCuts=new List<double>();
+    long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices;int residentEdgeResidualIntervals;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs;
+    string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
 
     static bool ResidentTouches(TerrainTileKey a,TerrainTileKey b)
     {
@@ -164,27 +164,40 @@ public sealed partial class LocalTerrainExplorer
         // coverage cut, instead of assuming that cut is its outer grid edge.
         edgeAffected.Sort((a,b)=>{int order=ResidentMaximumStep(b.Key,b.Value).CompareTo(ResidentMaximumStep(a.Key,a.Value));return order!=0?order:ResidentOrder(a.Key,b.Key);});
         foreach(var pair in edgeAffected)RestoreResidentEdge(pair.Value);
+        foreach(var pair in edgeAffected)FitResidentEdge(pair.Key,pair.Value);
+        residentEdgeResidualIntervals=0;residentEdgeResidualM=0;
+        bool split=false;
         foreach(var pair in edgeAffected)
         {
-            var tile=pair.Value;var data=tile.ResidentEdges;long before=tile.Contact?.Bytes??0;
-            for(int i=0;i<data.Points.Length;i++)
-            {
-                float height=ResidentTarget(pair.Key,tile,i);if(height==data.Heights[i])continue;
-                var point=data.Points[i];data.Heights[i]=height;
-                if(point.Vertex<tile.Heights.Length)tile.Heights[point.Vertex]=height;
-                if(tile.Cover.IsCreated&&point.Vertex<tile.Heights.Length&&point.Vertex*16+15<tile.Cover.Length)tile.Cover[point.Vertex*16+15]=height;
-                tile.Contact?.SetHeight(point.Vertex,height);
-            }
-            tile.BufferBytes+=(tile.Contact?.Bytes??0)-before;
+            var cuts=MissingResidentEdgeKnots(pair.Key,pair.Value,true);
+            if(cuts!=null&&SplitResidentLandBoundary(pair.Key,pair.Value,cuts))split=true;
+        }
+        if(split)
+        {
+            foreach(var pair in edgeAffected)FitResidentEdge(pair.Key,pair.Value);
+            residentEdgeResidualIntervals=0;residentEdgeResidualM=0;
+            foreach(var pair in edgeAffected)MissingResidentEdgeKnots(pair.Key,pair.Value,false);
         }
         foreach(var pair in edgeAffected)PublishResidentEdge(pair.Key,pair.Value);
-        residentEdgeResidualIntervals=0;residentEdgeResidualM=0;
-        if(checkResidentEdgeIntervals)foreach(var pair in edgeAffected)CheckResidentEdgeIntervals(pair.Key,pair.Value);
         edgeObservedTiles.Clear();foreach(var pair in tiles)edgeObservedTiles.Add(pair.Key,pair.Value);
         edgeRevision=residentRevision;residentEdgeLastMs=watch.Elapsed.TotalMilliseconds;residentEdgeMaxMs=Math.Max(residentEdgeMaxMs,residentEdgeLastMs);
     }
-    void CheckResidentEdgeIntervals(TerrainTileKey key,Tile tile)
+    void FitResidentEdge(TerrainTileKey key,Tile tile)
     {
+        var data=tile.ResidentEdges;long before=tile.Contact?.Bytes??0;
+        for(int i=0;i<data.Points.Length;i++)
+        {
+            float height=ResidentTarget(key,tile,i);if(height==data.Heights[i])continue;
+            var point=data.Points[i];data.Heights[i]=height;
+            if(point.Vertex<tile.Heights.Length)tile.Heights[point.Vertex]=height;
+            if(tile.Cover.IsCreated&&point.Vertex<tile.Heights.Length&&point.Vertex*16+15<tile.Cover.Length)tile.Cover[point.Vertex*16+15]=height;
+            tile.Contact?.SetHeight(point.Vertex,height);
+        }
+        tile.BufferBytes+=(tile.Contact?.Bytes??0)-before;
+    }
+    List<double>[] MissingResidentEdgeKnots(TerrainTileKey key,Tile tile,bool collect)
+    {
+        List<double>[] missing=null;
         var data=tile.ResidentEdges;double size=key.SizeM,ox=key.X*size,oz=key.Z*size,epsilon=Math.Max(.002,size*1e-8);
         for(int side=0;side<4;side++)
         {
@@ -203,13 +216,31 @@ public sealed partial class LocalTerrainExplorer
                 if(other==null||ReferenceEquals(other,tile)||other.Contact==null||ResidentStep(key,tile,x,z)>ResidentStep(otherKey,other,x,z)*1.000001)continue;
                 if(!ResidentHeight(otherKey,other,x,z,out double drawn))continue;
                 double error=Math.Abs((data.Heights[a]+data.Heights[b])*.5-drawn);
-                if(error>.02){residentEdgeResidualIntervals++;residentEdgeResidualM=Math.Max(residentEdgeResidualM,error);}
+                if(error<=.02)continue;
+                residentEdgeResidualIntervals++;residentEdgeResidualM=Math.Max(residentEdgeResidualM,error);
+                if(!collect)continue;
+                residentProfileCuts.Clear();double otherAcross=(vertical?otherKey.X:otherKey.Z)*otherKey.SizeM,otherAlong=(vertical?otherKey.Z:otherKey.X)*otherKey.SizeM;
+                double ownAlong=vertical?oz:ox;
+                other.Contact.AddProfileCuts(vertical,fixedAt-otherAcross,ownAlong+first-otherAlong,ownAlong+last-otherAlong,residentProfileCuts);
+                foreach(double cut in residentProfileCuts)
+                {
+                    double local=cut+otherAlong-ownAlong;
+                    if(local<=first+.000001||local>=last-.000001||(float)local==(float)first||(float)local==(float)last)continue;
+                    if(missing==null)missing=new List<double>[4];if(missing[side]==null)missing[side]=new List<double>();missing[side].Add(local);
+                }
             }
         }
+        if(missing!=null)foreach(var cuts in missing)
+        {
+            if(cuts==null)continue;cuts.Sort();int count=0;
+            for(int i=0;i<cuts.Count;i++){double cut=cuts[i];if(count==0||(float)cut!=(float)cuts[count-1])cuts[count++]=cut;}
+            if(count<cuts.Count)cuts.RemoveRange(count,cuts.Count-count);
+        }
+        return missing;
     }
     void PublishResidentEdge(TerrainTileKey key,Tile tile)
     {
-        var data=tile.ResidentEdges;bool changed=false,conformed=false;int changedVertices=0;
+        var data=tile.ResidentEdges;bool changed=data.TopologyChanged,conformed=false;int changedVertices=0;
         for(int i=0;i<data.Points.Length;i++)
         {
             if(data.Heights[i]!=data.Published[i]){changed=true;changedVertices++;}
@@ -233,7 +264,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(float height in data.Heights){low.y=Math.Min(low.y,height);high.y=Math.Max(high.y,height);}
             data.Mesh.bounds=new Bounds((low+high)*.5f,high-low);
         }
-        Array.Copy(data.Heights,data.Published,data.Heights.Length);data.Conformed=conformed;
+        Array.Copy(data.Heights,data.Published,data.Heights.Length);data.Conformed=conformed;data.TopologyChanged=false;
         // Shader displacement changes the same contact/grid surface used by
         // movement and object roots. Surface/plant attributes are untouched.
         tile.OcclusionMin=null;tile.DiagnosticRevision=-1;

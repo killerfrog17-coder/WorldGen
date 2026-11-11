@@ -790,7 +790,7 @@ public sealed partial class LocalTerrainExplorer
         double water=SampleMotionWater(x,z).Surface;
         return double.IsFinite(water)?Math.Max(floor,water):floor;
     }
-    public void PerformanceTravel(double east){motion.X=east;motion.Y=PerformanceFloor(motion.X,motion.Z)+1.65;UpdateCamera();}
+    public void PerformanceTravel(double east,double flightAltitude=0){motion.X=east;if(flightAltitude>0){motion.Flying=true;motion.Y=SurfaceGround(motion.X,motion.Z)+flightAltitude;}else motion.Y=PerformanceFloor(motion.X,motion.Z)+1.65;UpdateCamera();}
     public void PerformanceRender(int width,int height)
     {
         if(WorldGenPerformance.Presented)
@@ -1390,6 +1390,7 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-current-cap120",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=120;}),
             new PerfCase("travel-whip-reused-meshes-cap120",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true;Application.targetFrameRate=120;}),
             new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
+            new PerfCase("travel-flight-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
             new PerfCase("travel-whip-separated-streaming",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.SeparateStreamingAndScatter=true;}),
             new PerfCase("travel-whip-manual-gc",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;}),
@@ -1443,7 +1444,7 @@ public sealed partial class WorldGenRuntime
         };
         if(cases.Select(c=>c.Name).Distinct(StringComparer.Ordinal).Count()!=cases.Count)
             throw new InvalidOperationException("Performance case names must be unique; duplicate names overwrite evidence.");
-        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface"||c.Name=="travel-whip-tidal-surface");
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-flight-current-cap240"||c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface"||c.Name=="travel-whip-tidal-surface");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
@@ -1455,13 +1456,13 @@ public sealed partial class WorldGenRuntime
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
-            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
+            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=caseFilter=="travel-flight-current-cap240"?3:1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
             // Read saved preferences only on explicit request; never write them.
             // Record the distinction from all-Medium instead of presenting a
             // different configuration as the owner's actual gameplay baseline.
             Defaults();
             File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" canopy="+TerrainVideoOptions.CanopyShade+" proxies="+TerrainVideoOptions.SimplifiedForestShadows+" coarseCrown="+TerrainVideoOptions.DistantTreeShadowCards+" treeShadows="+TerrainVideoOptions.TreeShadows+" frontToBack="+TerrainVideoOptions.FrontToBackTrees+" grassNear="+TerrainVideoOptions.GrassBladeDistance+" grassFar="+TerrainVideoOptions.GrassDistance+"\n");
-            File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" saved="+savedSettings+" geometry="+TerrainVideoOptions.Current.Quality+" surface="+TerrainVideoOptions.SurfaceQuality+" grass="+TerrainVideoOptions.GrassQuality+" specialists="+TerrainVideoOptions.SpecialistQuality+" mid="+TerrainVideoOptions.MidQuality+" trees="+TerrainVideoOptions.TreeQuality+" view="+TerrainVideoOptions.Current.ViewDistanceM+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
+            File.AppendAllText(Path.Combine(output,"settings.txt"),site.Item1+" saved="+savedSettings+" geometry="+TerrainVideoOptions.Current.Quality+" loading="+TerrainVideoOptions.Current.Effort+" surface="+TerrainVideoOptions.SurfaceQuality+" grass="+TerrainVideoOptions.GrassQuality+" specialists="+TerrainVideoOptions.SpecialistQuality+" mid="+TerrainVideoOptions.MidQuality+" trees="+TerrainVideoOptions.TreeQuality+" view="+TerrainVideoOptions.Current.ViewDistanceM+" depthPrepass="+TerrainVideoOptions.FoliageDepthPrepass+"\n");
             Defaults();TerrainVideoOptions.Revision++;selectedCell=site.Item2;ExploreTerrain(exactSites.TryGetValue(site.Item1,out var exactSite)?exactSite:world.Surface.Cells[site.Item2].Position);
             deadline=Time.realtimeSinceStartupAsDouble+240;while(terrainExplorer!=null&&!terrainExplorer.Ready&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
             if(terrainExplorer==null||!terrainExplorer.Ready){Debug.LogError("PERF terrain unavailable");Application.Quit(1);yield break;}
@@ -1668,12 +1669,13 @@ public sealed partial class WorldGenRuntime
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name.StartsWith("turning-whip",StringComparison.Ordinal)?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
                     {
-                        double travel=(now-start)*8;
+                        bool flight=item.Name=="travel-flight-current-cap240";
+                        double travel=(now-start)*(flight?200:8);
                         // Optional out-and-back route keeps a long diagnostic
                         // inside its selected biome, instead of climbing a cliff.
                         // Default remains the original eastward streaming path.
                         if(travelLoop>0){travel%=2*travelLoop;if(travel>travelLoop)travel=2*travelLoop-travel;}
-                        terrainExplorer.PerformanceTravel(travel);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));
+                        terrainExplorer.PerformanceTravel(travel,flight?500:0);if(item.Name.StartsWith("travel-whip",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(20+150*Mathf.Sin((float)(now-start)*4));
                     }
                     if(stutter!=null)
                     {
