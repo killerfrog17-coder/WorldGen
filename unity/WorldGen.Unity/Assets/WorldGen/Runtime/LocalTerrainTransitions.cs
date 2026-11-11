@@ -97,7 +97,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var replacement in wanted)
         {
             if(!Overlaps(key,replacement.Key))continue;any=true;
-            if(!tiles.TryGetValue(replacement.Key,out var ready)||ready.Segments!=replacement.Value)return false;
+            if(!tiles.TryGetValue(replacement.Key,out var ready)||ready.CoverageOnly||ready.Segments!=replacement.Value)return false;
             coarser|=replacement.Key.Level>key.Level;complete&=FadeComplete(ready);
         }
         if(!any)return true;

@@ -20,7 +20,8 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     uint at=tid.x;if(at>=_RootCount)return;Root root=_Roots[at];if(root.height<=0||root.padding<0||_Fields[root.field&65535u]==0)return;
     if(root.padding<1.5&&_Chart.w<1&&(root.face>>8)/16777216.0>=_Chart.w)return;
     float3 p=root.position-_Chart.xyz+float3(0,root.height*.5,0);
-    float radius=max(root.width,root.height)*1.8+root.width*length(float2(root.slopeX,root.slopeZ))*1.5;
+    float span=max(root.width,abs(root.padding));
+    float radius=max(span,root.height)*1.8+span*length(float2(root.slopeX,root.slopeZ))*1.5;
     float distance=length(p-_Eye);if(distance+radius<_Ranges.x||distance-radius>_Ranges.z)return;
     [unroll]for(int plane=0;plane<6;plane++)if(dot(_Planes[plane].xyz,p)+_Planes[plane].w< -radius)return;
     uint level=root.field>>16;

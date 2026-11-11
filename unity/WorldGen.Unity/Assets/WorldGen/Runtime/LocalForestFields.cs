@@ -318,8 +318,8 @@ public sealed partial class LocalTerrainExplorer
             var pigment=TreePigment(tree.Variant);var shared=batch.Pigment;
             uint densityHash=Rng.Mix((uint)tree.Id^Rng.Mix((uint)(tree.Id>>32))^0x9a65c4u)&0xffffffu;
             int candidateSide=LocalScatter.TreeCandidateSide,slotId=(int)(tree.Id&65535),cellX=(int)((tree.Id>>40)&0xfffff)*candidateSide+slotId%candidateSide,cellY=(int)((tree.Id>>20)&0xfffff)*candidateSide+slotId/candidateSide;
-            var root=new ForestRoot{Position=new Vector3((float)px,height-.045f,(float)pz),Width=(float)(tree.WidthM*source.CrownScale),Height=(float)tree.HeightM,Yaw=(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=cellX,CellY=cellY,Face=(uint)page.Key.Face|(densityHash<<8),
-                Tint=macro?new Vector3((float)(tree.Color.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z/Math.Max(.01,shared.Z))):new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
+            var root=new ForestRoot{Position=new Vector3((float)px,height-.045f,(float)pz),Width=(float)(tree.WidthM*(macro?1:source.CrownScale)),Height=(float)tree.HeightM,Yaw=(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=cellX,CellY=cellY,Face=(uint)page.Key.Face|(densityHash<<8),
+                Tint=macro?new Vector3((float)(tree.Color.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z/Math.Max(.01,shared.Z))):new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?(float)Math.Max(2,source.CrownScale):source.CrownScale>1.001?1:0};
             ProjectForestRootGround(ref root,out int groundLevel);
             int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}DirtyForestRoot(batch,slot);forestRootCount++;
             if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
@@ -342,7 +342,7 @@ public sealed partial class LocalTerrainExplorer
                 var root=pair.Key.Data[slot];
                 // A stand samples neighbouring heights for its broad slope;
                 // individual roots only depend on the height beneath the root.
-                double margin=root.Padding==0?.01:Math.Max(2,root.Width*.5)+.01;
+                double margin=root.Padding==0?.01:Math.Max(2,Math.Max(root.Width,Math.Abs(root.Padding))*.5)+.01;
                 if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,pair.Key.GroundLevels[slot]))continue;
                 var before=root;ProjectForestRootGround(ref root,out int groundLevel);pair.Key.GroundLevels[slot]=groundLevel;
                 if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ&&root.Padding==before.Padding)continue;pair.Key.Data[slot]=root;DirtyForestRoot(pair.Key,slot);
@@ -357,7 +357,8 @@ public sealed partial class LocalTerrainExplorer
         double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
         root.Position.y=(float)y-.045f;
         bool macro=Math.Abs(root.Padding)>1.5f;
-        root.Padding=groundLevel>=17?(macro?-2:-1):(macro?2:0);
+        float footprint=macro?Math.Max(2,Math.Abs(root.Padding)):0;
+        root.Padding=groundLevel>=17?(macro?-footprint:-1):(macro?footprint:0);
         if(macro&&groundLevel<17)
         {
             // Terrain already carries ecological admission, including water,
@@ -370,19 +371,23 @@ public sealed partial class LocalTerrainExplorer
             if(tile!=null&&tile.ForestCover.IsCreated)
             {
                 int side=tile.Segments+1,gx=Mathf.Clamp((int)Math.Round((x/key.SizeM-key.X)*tile.Segments),0,tile.Segments),gz=Mathf.Clamp((int)Math.Round((z/key.SizeM-key.Z)*tile.Segments),0,tile.Segments);
-                if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=-2;
+                if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=-footprint;
             }
         }
         // Only aggregated stands follow the broad terrain slope. Individual
         // tree silhouettes stay upright; no per-frame terrain queries are added.
         if(!macro){root.SlopeX=root.SlopeZ=0;return;}
-        double step=Math.Max(2,root.Width*.5);
+        double step=Math.Max(2,footprint*.5);
         root.SlopeX=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x+step,z,y,out int a)-VisibleGround(x-step,z,y,out int b))/(2*step)));
         root.SlopeZ=(float)Math.Max(-2,Math.Min(2,(VisibleGround(x,z+step,y,out int c)-VisibleGround(x,z-step,y,out int d))/(2*step)));
         groundLevel=Math.Max(groundLevel,Math.Max(Math.Max(a,b),Math.Max(c,d)));
     }
-    static Bounds ForestRootBounds(ForestRoot root)=>new Bounds(root.Position+Vector3.up*root.Height*.5f,
-        new Vector3(root.Width*3,root.Height*3+root.Width*3*(Math.Abs(root.SlopeX)+Math.Abs(root.SlopeZ)),root.Width*3));
+    static Bounds ForestRootBounds(ForestRoot root)
+    {
+        float span=Math.Max(root.Width,Math.Abs(root.Padding));
+        return new Bounds(root.Position+Vector3.up*root.Height*.5f,
+            new Vector3(span*3,root.Height*3+span*3*(Math.Abs(root.SlopeX)+Math.Abs(root.SlopeZ)),span*3));
+    }
     void RemoveForestField(ForestPageKey key)
     {
         forestRootTopologyRevision++;
@@ -438,7 +443,7 @@ public sealed partial class LocalTerrainExplorer
             if(batch.Capacity<batch.Data.Count)
             {
                 batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity,4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);
-                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=batch.Macro?24u:6u}});DirtyAllForestRoots(batch);
+                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=batch.Macro?96u:6u}});DirtyAllForestRoots(batch);
             }
             UploadForestRoots(batch);
             if(!batch.CullValid||!batch.CullMatrix.Equals(matrix)||!batch.CullEye.Equals(eye)||!batch.CullChart.Equals(chart)||!batch.CullRange.Equals(ranges)||batch.CullRevision!=forestRevision)

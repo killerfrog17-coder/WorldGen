@@ -13,7 +13,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public bool WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public TerrainContactSurface Contact; public bool CoverageOnly,WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     readonly TerrainEdges.Workspace terrainEdgeWorkspace=new TerrainEdges.Workspace();
     Task<LocalTerrain> building;
@@ -68,7 +68,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     public bool CenterReady
     {get{foreach(var k in tiles.Keys)if(motion.X>=k.X*k.SizeM&&motion.X<(k.X+1)*k.SizeM&&motion.Z>=k.Z*k.SizeM&&motion.Z<(k.Z+1)*k.SizeM)return true;return false;}}
     public bool NearReady=>wanted.Count>0&&!NearTerrainPending();
-    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&t.Segments==p.Value&&TerrainEdges.Equal(t.Edges,wantedEdges[p.Key]));
+    public bool AllReady=>wanted.All(p=>tiles.TryGetValue(p.Key,out var t)&&!t.CoverageOnly&&t.Segments==p.Value&&TerrainEdges.Equal(t.Edges,wantedEdges[p.Key]));
     public V Position=>frame.Position(motion.X,motion.Z);
     public double HeightAboveGround=>motion.Y-Ground(motion.X,motion.Z);
     public string Diagnostics=>tiles.Count+" / "+wanted.Count+" tiles · last "+lastBuildMs.ToString("F1")+" ms · max "+largestBuildMs.ToString("F1")+" ms/tile";
@@ -337,31 +337,41 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
-        if(coveredFlight)ScheduleFlightBackground();
-        // Share the outward loading front instead of finishing a bare horizon
-        // before the forest gets any worker time. Alternate with terrain on a
-        // single-worker machine; never reserve this turn ahead of near ground
-        // or an overdue chart handoff.
+        // Current ground gets the lanes first. A covered flight is not a
+        // licence to queue the distant horizon and trees ahead of nearby land.
         long priorTerrainRequests=TerrainBuildRequests;
-        if(!nearPending&&!handoffDue&&forestRevealRadius<terrainRevealRadius&&(!forestScheduledFirst||WorkerLimit>1))
-            if(ScheduleForestWork())forestScheduledFirst=true;
-        if(!handoffDue||coveredFlight){ScheduleBackdrop();SchedulePredictiveTerrain();}
-        foreach(var key in priority)
+        ScheduleCurrentTerrain(nearOnly:true);
+        if(!NearTerrainPending())
         {
-            int detail=wanted[key];
-            if(handoffDue&&!coveredFlight&&!ImmediateTerrain(key))continue;
-            if(tiles.TryGetValue(key,out var tile)&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
-            if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false))){RestoreTerrain(key,detail,wantedEdges[key]);continue;}
-            if(!CanRequest||ActiveWorkerCount>=WorkerLimit||HasMatchingTerrainJob(key))continue;
-            RequestTerrain(key,detail,wantedEdges[key]);
+            // Fill missing outward coverage before upgrading already visible
+            // land. Only after that do forest/prediction use spare workers.
+            ScheduleBackdrop();
+            ScheduleCurrentTerrain(missingOnly:true);
+            ScheduleCurrentTerrain();
+            SchedulePreparedWork(false);
+            if(coveredFlight)ScheduleFlightBackground();
+            ScheduleForestWork();
+            SchedulePredictiveTerrain();
         }
-        SchedulePreparedWork(false);
         if(TerrainBuildRequests>priorTerrainRequests)forestScheduledFirst=false;
-        ScheduleForestWork();
         WorldGenPerformance.TraceEnd(37,schedulingTrace);
         UpdateTerrainCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();
+    }
+    void ScheduleCurrentTerrain(bool nearOnly=false,bool missingOnly=false)
+    {
+        foreach(var key in priority)
+        {
+            if(nearOnly&&!ImmediateTerrain(key)||missingOnly&&HasResidentCoverage(key))continue;
+            int detail=wanted[key];
+            if(tiles.TryGetValue(key,out var tile)&&!tile.CoverageOnly&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
+            if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false)))
+            {RestoreTerrain(key,detail,wantedEdges[key]);continue;}
+            if(!CanRequest||ActiveWorkerCount>=WorkerLimit)break;
+            if(HasMatchingTerrainJob(key))continue;
+            RequestTerrain(key,detail,wantedEdges[key]);
+        }
     }
     bool HasMatchingTerrainJob(TerrainTileKey key)
     {if(GroundPublicationPending&&groundPublication.Key.Equals(key))return true;foreach(var job in jobs)if(WorkMatchesCurrent(job)&&job.Key.Equals(key))return true;return false;}
@@ -371,7 +381,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     bool NearTerrainPendingFresh()
     {
         foreach(var pair in wanted)if(ImmediateTerrain(pair.Key)&&
-            (!tiles.TryGetValue(pair.Key,out var tile)||tile.Segments!=pair.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[pair.Key])))return true;
+            (!tiles.TryGetValue(pair.Key,out var tile)||tile.CoverageOnly||tile.Segments!=pair.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[pair.Key])))return true;
         return false;
     }
     bool NearTerrainPending()
@@ -412,7 +422,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
-        var product=new Tile{Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
+        var product=new Tile{Contact=data.Contact,CoverageOnly=fallback,Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
         foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.GetSubMesh(0).vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;

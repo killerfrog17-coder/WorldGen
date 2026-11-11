@@ -116,7 +116,7 @@ public sealed partial class LocalTerrainExplorer
 
     double PlayerSolidGround(double x,double z)
     {
-        double ground=Ground(x,z);if(motion.NoClip)return ground;
+        double ground=SurfaceGround(x,z);if(motion.NoClip)return ground;
         float feet=(float)(motion.Y-TerrainMotion.EyeHeightM);
         var origin=transform.TransformPoint(new Vector3((float)(x-originX),feet+.23f,(float)(z-originZ)));
         if(Physics.Raycast(origin,transform.up*-1,out var hit,Mathf.Max(.24f,feet-(float)ground+.24f),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore)&&hit.normal.y>.6f)

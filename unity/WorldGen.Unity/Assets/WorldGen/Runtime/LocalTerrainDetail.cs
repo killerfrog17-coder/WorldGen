@@ -151,7 +151,7 @@ public sealed partial class LocalTerrainExplorer
         double spacing=backdrops.TryGetValue(key,out var edges)?edges[0]:double.PositiveInfinity;
         foreach(var p in wanted)if(Overlaps(key,p.Key))
         {
-            if(tiles.TryGetValue(p.Key,out var exact)&&exact.Segments==p.Value)continue;
+            if(tiles.TryGetValue(p.Key,out var exact)&&!exact.CoverageOnly&&exact.Segments==p.Value)continue;
             if(!HasResidentCoverage(p.Key,spacing))return true;
         }
         return false;
@@ -169,7 +169,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(detailBaseline)return;
         bool coveredFlight=motion.Flying&&HeightAboveGround>80&&CenterReady;
-        if(!coveredFlight&&NearTerrainPending()||!CanRequest)return;
+        if(NearTerrainPending()||!CanRequest)return;
         // Coarse background charts do not satisfy the requested-quality reveal
         // gate. Fill the first visible neighbourhood before spending the same
         // limited lanes on distant fallback charts.
@@ -187,7 +187,7 @@ public sealed partial class LocalTerrainExplorer
         {
             if(ActiveWorkerCount>=WorkerLimit)return;
             if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
-            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);if(!CanRequest)return;
+            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);return;
         }
     }
     int CompareBackdrop(BackdropEntry a,BackdropEntry b)
@@ -205,7 +205,7 @@ public sealed partial class LocalTerrainExplorer
         if(now>=fogCheckAt)
         {
             fogCheckAt=now+.15;double limit=viewDistance*.98;
-            if(fogFootprint==null)fogFootprint=new TerrainQualityFootprint(tiles.Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
+            if(fogFootprint==null)fogFootprint=new TerrainQualityFootprint(tiles.Where(p=>!p.Value.CoverageOnly).Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
             double gap=fogFootprint.NearestGap(wanted,motion.X,motion.Z,limit/.94);
             terrainRevealRadius=Math.Min(limit,gap*.94);
             forestRevealRadius=TreeRevealDistance(limit);

@@ -29,7 +29,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in tiles)
         {
             maximum=System.Math.Max(maximum,pair.Key.Level);pair.Value.CoverageChildren?.Clear();
-            coverageSurfaces.Add(new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(pair.Key,pair.Value.Segments));
+            if(!pair.Value.CoverageOnly)coverageSurfaces.Add(new System.Collections.Generic.KeyValuePair<TerrainTileKey,int>(pair.Key,pair.Value.Segments));
         }
         // Coverage masks can use a coarse fallback, but the reveal frontier must
         // wait for the requested sampling detail. Include resolution changes.

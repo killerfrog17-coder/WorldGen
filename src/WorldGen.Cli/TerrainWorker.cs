@@ -45,11 +45,11 @@ static class TerrainWorker
                     using var stream=client.GetStream();using var r=new BinaryReader(stream);
                     using var response=new BufferedStream(stream,65536);using var w=new BinaryWriter(response,System.Text.Encoding.UTF8,true);
                     if(r.ReadString()!=token)throw new InvalidDataException("Invalid terrain session token.");
-                    byte command=r.ReadByte();if(command>4)throw new InvalidDataException("Unknown terrain worker command.");
+                    byte command=r.ReadByte();if(command>5)throw new InvalidDataException("Unknown terrain worker command.");
                     double east=0,north=0,size=0;int segments=0;double[] edges=null;LocalTerrainFrame frame=null;ScatterKey key=default;
                     int revision=0,mapWidth=0;Layer mapLayer=default;TerrainMapViewport mapView=null;
                     ForestPageKey forest=default;
-                    if(command==0)frame=TerrainMeshWire.ReadRequest(r,out east,out north,out size,out segments,out edges);
+                    if(command==0||command==5)frame=TerrainMeshWire.ReadRequest(r,out east,out north,out size,out segments,out edges);
                     else if(command==1||command==4)key=TerrainMeshWire.ReadScatterKey(r);
                     else if(command==2)mapView=TerrainMapWire.ReadRequest(r,out revision,out mapLayer,out mapWidth);
                     else forest=TerrainMeshWire.ReadForestKey(r);
@@ -82,10 +82,10 @@ static class TerrainWorker
                     await slots.WaitAsync(cancellation.Token);
                     try
                     {
-                        if(command==0)
+                        if(command==0||command==5)
                         {
                             var timing=string.IsNullOrEmpty(profilePath)?null:new TerrainBuildTiming();
-                            var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples,timing);cancellation.Token.ThrowIfCancellationRequested();
+                            var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments,cancellation.Token,edges,samples,timing,coverageOnly:command==5);cancellation.Token.ThrowIfCancellationRequested();
                             if(timing!=null)
                             {
                                 var entry=new{East=east,North=north,Size=size,Segments=segments,mesh.BuildMilliseconds,timing.GeometrySamples,timing.FullSurfaceQueries,timing.GeometryQueries,timing.SurfaceFallbacks,Stages=timing.Milliseconds};

@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CacheTerrain(TerrainTileKey key,Tile tile)
     {
+        if(tile.CoverageOnly){DestroyTile(tile);coverageDirty=true;return;}
         ReleaseGroundCover(tile);
         tile.Root.SetActive(false);tile.CoverageNodes=null;
         if(tile.Coverage!=null){Destroy(tile.Coverage);tile.Coverage=null;}
@@ -74,7 +75,6 @@ public sealed partial class LocalTerrainExplorer
     double StreamingPriority(TerrainTileKey key)
     {
         if(ImmediateTerrain(key))return TerrainLod.DistanceSquared(key,motion.X,motion.Z);
-        if(backdrops.ContainsKey(key)&&!tiles.ContainsKey(key))return 1e10+TerrainLod.DistanceSquared(key,motion.X,motion.Z)*.001;
         double baseSize=TerrainLod.BaseSizeM*HorizontalScale;
         double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z),future=double.IsNaN(predictedX)?d:TerrainLod.DistanceSquared(key,predictedX,predictedZ);
         return baseSize*baseSize*100+Math.Min(d,future*1.2);
@@ -114,7 +114,7 @@ public sealed partial class LocalTerrainExplorer
         var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
         TerrainBuildRequests++;if(prefetch)TerrainPrefetchRequests++;nextRequestAt=Time.realtimeSinceStartupAsDouble+detailOptions.RequestInterval;
         jobs.Add(new Work{Key=key,Edges=edges,Segments=detail,Generation=generation,Prefetch=prefetch,Backdrop=backdrop,Cancellation=stop,
-            Task=TerrainUpload.Schedule(()=>producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,localSampleCache):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges),token)});
+            Task=TerrainUpload.Schedule(()=>producer==null?LocalTerrainMesh.Build(buildTerrain,buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,localSampleCache,coverageOnly:backdrop):producer.Build(buildFrame,key.X*key.SizeM,key.Z*key.SizeM,key.SizeM,detail,token,edges,backdrop),token)});
     }
     void SchedulePredictiveTerrain()
     {

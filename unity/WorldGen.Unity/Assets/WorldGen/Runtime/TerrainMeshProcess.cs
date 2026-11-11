@@ -95,7 +95,7 @@ public sealed class TerrainMeshProcess : IDisposable
         using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
         {while(!ready.Wait(50,linked.Token)){}ready.GetAwaiter().GetResult();}
     }
-    public LocalTerrainMesh Build(LocalTerrainFrame frame,double east,double north,double size,int segments,CancellationToken token,double[] edges)
+    public LocalTerrainMesh Build(LocalTerrainFrame frame,double east,double north,double size,int segments,CancellationToken token,double[] edges,bool coverageOnly=false)
     {
         try{
         using(var linked=CancellationTokenSource.CreateLinkedTokenSource(token,lifetime.Token))
@@ -107,7 +107,7 @@ public sealed class TerrainMeshProcess : IDisposable
                 client.Connect(IPAddress.Loopback,connection.Port);
                 using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
-                    w.Write(connection.Token);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,east,north,size,segments,edges);
+                    w.Write(connection.Token);w.Write((byte)(coverageOnly?5:0));TerrainMeshWire.WriteRequest(w,frame,east,north,size,segments,edges);
                     LocalTerrainMesh mesh=null;try
                     {
                         if(!r.ReadBoolean())throw new InvalidOperationException("Terrain worker: "+r.ReadString());

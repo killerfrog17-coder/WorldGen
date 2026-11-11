@@ -48,21 +48,21 @@ Shader "WorldGen/ForestPackets"
                 float width=root.width,height=root.height;
                 if(_ForestMacro>.5)
                 {
-                    // Four textured regional crown previews, generated on GPU.
-                    // No CPU tree census, new model, or per-root terrain query.
-                    uint cap=vertexID/6u;float span=width*sqrt(saturate(_ForestChart.w));
-                    float2 centre=float2((cap&1u)?1:-1,(cap&2u)?1:-1)*span*.24;
-                    centre+=float2(sin(root.yaw*3.7+cap*4.13),cos(root.yaw*2.3+cap*7.37))*span*.16;
+                    // Regional coverage places physical-size trees; it must
+                    // never stretch one tree image over the packet footprint.
+                    uint cap=vertexID/6u;float span=abs(root.padding)*sqrt(saturate(_ForestChart.w));
+                    float2 centre=(float2(cap%4u,cap/4u)-1.5)*span*.25;
+                    centre+=float2(sin(root.yaw*3.7+cap*4.13),cos(root.yaw*2.3+cap*7.37))*span*.075;
                     origin+=float3(centre.x,centre.x*root.slopeX+centre.y*root.slopeZ,centre.y);
-                    width=span*.68;height*=.84+.24*sin(root.yaw+cap*2.71);
+                    float cohort=.78+.22*sin(root.yaw+cap*2.71);width*=cohort;height*=cohort;
                 }
                 float3 scale=float3(width,height,width);o.renderScale=float2(width,height);
-                float3 eye=_WorldSpaceCameraPos-origin;eye.y-=eye.x*root.slopeX+eye.z*root.slopeZ;eye=Rotate(eye,-root.yaw)/scale;
+                float3 eye=Rotate(_WorldSpaceCameraPos-origin,-root.yaw)/scale;
                 float3 direction=normalize(eye-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(direction,r,u);
                 const float2 corners[6]={float2(-1,-1),float2(-1,1),float2(1,-1),float2(1,-1),float2(-1,1),float2(1,1)};
                 float2 uv=corners[vertexID%6u],halfSize=WorldGenTreeQuadHalfSize(r,u,_ImpostorExtents,_ImpostorBounds.w,_TreeTightQuad);
                 float3 p=_ImpostorBounds.xyz+r*uv.x*halfSize.x+u*uv.y*halfSize.y;
-                float3 relative=Rotate(p*scale,root.yaw);relative.y+=relative.x*root.slopeX+relative.z*root.slopeZ;
+                float3 relative=Rotate(p*scale,root.yaw);
                 o.world=origin+relative;o.positionCS=TransformWorldToHClip(o.world);o.local=p-_ImpostorBounds.xyz;o.direction=direction;o.root=index;o.viewLod=WorldGenTreeViewLod(length(origin-_WorldSpaceCameraPos),_ImpostorBounds.w*max(width,height));
                 #if defined(WORLDGEN_TREE_EFFICIENT)
                 WorldGenPreparedTreeViews prepared=WorldGenPrepareTreeViews(o.local,o.direction,_ImpostorBounds.w,o.viewLod);
@@ -88,7 +88,7 @@ Shader "WorldGen/ForestPackets"
                 float fade=ForestFade(root),dither=WorldGenDither(i.positionCS.xy+float2(17,31));clip(root.padding>1.5?dither-(1-fade):fade-dither);
                 half4 color;half3 objectNormal;ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-_TreeViewCutoff);
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
-                float3 normal=Rotate(objectNormal/float3(i.renderScale.x,i.renderScale.y,i.renderScale.x),root.yaw);normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;normal=normalize(normal);
+                float3 normal=normalize(Rotate(objectNormal/float3(i.renderScale.x,i.renderScale.y,i.renderScale.x),root.yaw));
                 half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
                 return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);

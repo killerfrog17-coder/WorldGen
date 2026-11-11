@@ -135,7 +135,7 @@ public sealed partial class LocalTerrainExplorer
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
         public long BufferBytes;
-        public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;
+        public float[] Heights;public TerrainContactSurface Contact;public NativeArray<float> Cover,MidCover,ForestCover;
         ResidentCoverBuffers coverBuffers;
         public ResidentCoverBuffers TakeCoverBuffers()=>Interlocked.Exchange(ref coverBuffers,null);
         bool hasWater;
@@ -164,7 +164,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var watch=System.Diagnostics.Stopwatch.StartNew();
             result.EastM=source.EastM;result.NorthM=source.NorthM;result.Segments=source.Segments;result.BuildMilliseconds=source.BuildMilliseconds;
-            result.Heights=new float[source.GroundVertices];result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
+            result.Heights=new float[source.GroundVertices];result.Contact=TerrainContactSurface.Build(source);result.hasWater=source.WaterTriangles.Length>0;result.bounds=new Bounds[2];
             result.formats=new IndexFormat[2];
             try
             {
@@ -211,7 +211,7 @@ public sealed partial class LocalTerrainExplorer
                     data.SetSubMesh(0,new SubMeshDescriptor(0,indices.Length,MeshTopology.Triangles){bounds=result.bounds[part],vertexCount=count},
                         MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);
                 }
-                result.BufferBytes+=(long)(result.Heights.Length+result.Cover.Length+result.MidCover.Length+result.ForestCover.Length)*4;result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
+                result.BufferBytes+=(long)(result.Heights.Length+result.Cover.Length+result.MidCover.Length+result.ForestCover.Length)*4+(result.Contact?.Bytes??0);result.BufferMilliseconds=watch.Elapsed.TotalMilliseconds;return result;
             }
             catch{result.Dispose();throw;}
         }

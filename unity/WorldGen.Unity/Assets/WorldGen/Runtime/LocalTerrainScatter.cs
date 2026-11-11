@@ -302,7 +302,9 @@ public sealed partial class LocalTerrainExplorer
             key=owner.Key;tile=owner.Value;
         }
         if(tile==null){groundLevel=17;return fallback;}
-        groundLevel=key.Level;int n=tile.Segments,side=n+1;double size=key.SizeM;
+        groundLevel=key.Level;double size=key.SizeM;
+        if(tile.Contact!=null&&tile.Contact.TryHeight(x-key.X*size,z-key.Z*size,out double drawn))return drawn;
+        int n=tile.Segments,side=n+1;
         double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
         double h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
         return u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);

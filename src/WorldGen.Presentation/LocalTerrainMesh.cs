@@ -75,7 +75,7 @@ namespace WorldGen.Presentation
             return indices;
         }
         public static LocalTerrainMesh Build(LocalTerrain terrain, LocalTerrainFrame frame, double eastM, double northM,
-            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null,TerrainBuildTiming? timing=null)
+            double sizeM = 2048, int segments = 64, CancellationToken token = default,double[]? edgeSteps=null,TerrainSampleCache? sampleCache=null,TerrainBuildTiming? timing=null,bool coverageOnly=false)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
@@ -90,7 +90,7 @@ namespace WorldGen.Presentation
             // kilometres. Eagerly constructing EVERY small river in that whole
             // region costs more than the grid. Keep exact point admission there;
             // dense near grids still amortize the shared finite-span index.
-            if(segments>=32||sizeM<=4096)patch?.RiverSpans();
+            if(!coverageOnly&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
             LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)
@@ -113,8 +113,8 @@ namespace WorldGen.Presentation
             }
             // Material resolution is independent of tessellation. This chart-
             // anchored grid is shared by adjacent tiles, not restarted per tile.
-            const double materialStep=32;
-            bool sparseMaterials=terrain.Amplification!=null&&step<16;
+            double materialStep=coverageOnly?Math.Max(128,sizeM/8):32;
+            bool sparseMaterials=terrain.Amplification!=null&&(coverageOnly||step<16);
             var materials=new System.Collections.Generic.Dictionary<(int,int),LocalTerrainSample>();
             LocalTerrainSample MaterialNode(int x,int z)
             {
@@ -192,10 +192,10 @@ namespace WorldGen.Presentation
             // The old >=80m perimeter skirts also appeared on INTERIOR fallback
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
-            var waterSamples=LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing,edgeSteps);
+            var waterSamples=coverageOnly?samples:LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing,edgeSteps);
             timing?.Mark(4);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
-            if(terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
+            if(!coverageOnly&&terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
             timing?.Mark(5);
             GroundCoverGrid.ExcludeWater(mesh);
             timing?.Mark(6);

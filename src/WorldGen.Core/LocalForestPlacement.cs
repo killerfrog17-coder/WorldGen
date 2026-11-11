@@ -161,9 +161,13 @@ namespace WorldGen.Core
                 double spacing=TreeLatticeStep*Math.Min(nx,ny)/Math.Pow(1+a*a+b*b,.75);
                 var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);ulong id=address.Id(0,gy%TreeCandidateSide*TreeCandidateSide+gx%TreeCandidateSide);
                 var tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=forest.MorphologyCode,Position=p,Normal=p,
-                    GroundM=region.ElevationM,HeightM=Math.Max(1,forest.HeightM),WidthM=spacing*Math.Sqrt(cover)*1.12,
+                    GroundM=region.ElevationM,HeightM=Math.Max(1,forest.HeightM),WidthM=Math.Max(.5,forest.WidthM),
                     Color=forest.Color*(.90+.20*Rng.Value(seed,"regional-canopy-colour",unchecked((int)id))),YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360};
-                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=1,Population=0});
+                // Coverage is an area, not the width of one tree. Keep the
+                // physical crown dimensions and transport the packet footprint
+                // separately; stretching a single tree across this span made
+                // kilometre-scale leaves and flattened horizon cutouts.
+                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=Math.Max(2,spacing*Math.Sqrt(cover)*1.12),Population=0});
             }
             return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=0};
         }

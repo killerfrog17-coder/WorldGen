@@ -585,6 +585,7 @@ if(args.Contains("--calendar-resume")){int at=Array.IndexOf(args,"--calendar-res
 
 if(args.Contains("--calendar-only")){int count=0;SimulationCalendarTests.Run((ok,message)=>{count++;if(!ok)throw new Exception(message);});Console.WriteLine("PASS "+count+" calendar assertions");return;}
 
+if (args.Contains("--terrain-contact-surface")) { TerrainContactSurfaceTests.Run(); return; }
 if (args.Contains("--plate-shape-report"))
 {
     int option = Array.IndexOf(args, "--plate-shape-report"), labelOption = Array.IndexOf(args, "--label");
