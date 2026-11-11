@@ -2,111 +2,199 @@
   "title": "WorldGen - Terrain Repair",
   "section": "TERRAIN AND STREAMING",
   "date": "11 NOVEMBER 2026",
-  "footer": "Draft / actual native captures / performance provisional / strict 100 FPS floor unmet",
+  "footer": "DRAFT / final build checks pending / strict 100 FPS minimum still unmet",
   "draft": true,
   "pending_final": [
-    "Replace provisional performance rows with accepted final GC comparison and disclose benchmark workload/settings.",
-    "Record final 191 km horizon loading, continuity and upload-tail results after grouped fallbacks.",
-    "Confirm accepted final screenshot/build association; replace any capture superseded by later fixes.",
-    "Confirm normal shortcut target and Git delivery before publishing this report."
+    "Replace interim performance rows with the final build's accepted measurements; retain workload and frame-time limits.",
+    "Record extended high-speed travel across terrain charts and the final waterfall/player-contact review.",
+    "Replace waterfall preview if superseded; confirm final screenshot/build associations.",
+    "Verify normal playable shortcut target and Git delivery before publishing."
   ],
   "pages": [
     {
       "title": "Terrain that stays joined",
-      "subtitle": "Cliff profiles, resident terrain boundaries and opaque chunk replacement.",
+      "subtitle": "Repairing broken cliffs, missing ground and visible chunk boundaries.",
       "blocks": [
         {
           "images": [
-            { "file": "cliff-comb-before.png", "caption": "Before: repeated comb-like cliff projections in the matched canyon fixture." },
-            { "file": "cliff-comb-after.png", "caption": "After: the same cliff-field fixture with the artificial projections repaired." }
+            {
+              "file": "cliff-comb-before.png",
+              "caption": "Matched cliff test, before: repeated artificial comb-like ridges."
+            },
+            {
+              "file": "cliff-comb-after.png",
+              "caption": "Matched cliff test, after: the artificial projections removed."
+            }
           ],
           "max_height": 145
         },
         {
-          "heading": "Actual neighbouring surfaces now meet",
-          "text": "Terrain boundaries fit the profiles that are currently drawn. Missing river-bank profile knots are inserted into the affected boundary triangles, keeping movement/contact heights aligned. This closes the slits caused by mixing ready meshes with older or coarser neighbours.",
+          "heading": "Solid ground while detail arrives",
+          "text": "Nearby terrain takes priority. Ground stays solid as chunks are replaced, and neighbouring surfaces meet instead of exposing blue slits. Smooth updates gradually change eligible distant slopes; interactive ground and riverbanks change immediately to preserve contact.",
           "size": 9.5
         },
         {
           "images": [
-            { "file": "opaque-ground-flight.png", "caption": "Current native opaque-terrain flight review." }
+            {
+              "file": "coupled-fallback-river-final.png",
+              "caption": "Latest 191 km flight review, at a separate river location: continuous land and water into the distance; the flat surrounding ring is gone."
+            }
           ],
           "max_height": 215
         },
         {
-          "text": "Smooth mode moves one opaque mesh between heights on eligible distant, dry, unrooted leaf tiles. Shared boundaries remain fixed. Nearby interactive ground, refined rivers, ancestors with children and coarsening use immediate replacement. Native checks inspect actual height movement and perspective coverage.",
+          "text": "The reviewed high-speed flight found no missing ground in eight perspective checks. Distant terrain retains its broad relief while closer detail arrives. The approach that left a flat surrounding ring was removed. This is a coverage result, not proof of smooth frame times everywhere.",
           "size": 9.5
         }
       ]
     },
     {
-      "title": "Water and woodland",
-      "subtitle": "Current native examples from generated reproduction worlds.",
+      "title": "Water, woodland and contact",
+      "subtitle": "Separate generated locations; the original reported world was unsaved.",
       "blocks": [
         {
           "images": [
-            { "file": "waterfall-after.png", "caption": "Waterfall after the terrain/water repair. Final wide-world validation remains pending." }
+            {
+              "file": "waterfall-after.png",
+              "caption": "Earlier waterfall repair review: paired bank spikes removed. Final waterfall capture and player check pending."
+            }
           ],
-          "max_height": 195
+          "max_height": 185
         },
         {
-          "text": "Water and terrain are reviewed together at steep reaches, including the ground beneath and beside the falls. The pictured case shows the current result; it is not evidence that every possible river has been inspected.",
+          "text": "Ground support follows the terrain triangles actually on screen. The actual player also stays above steep ground when an adjacent obstacle redirects them; this has passed in the canyon review. Riverbeds remain below the water in the checked channel interiors and boundaries.",
           "size": 9.5
         },
         {
           "images": [
-            { "file": "physical-tree-fjord.png", "caption": "Current fjord review with physical tree silhouettes at world scale." }
+            {
+              "file": "physical-tree-fjord.png",
+              "caption": "Fjord forest review, separate from the canyon and river flight: distant trees retain physical scale and upright silhouettes."
+            }
           ],
-          "max_height": 195
+          "max_height": 185
         },
         {
-          "text": "Distant canopy colour uses crown coverage rather than stem occupancy, helping woodland read as woodland without adding trees or draw calls. The oversized distant-card representation has been replaced in the reviewed view.",
+          "text": "Trees anchor to the displayed ground as terrain changes. Distant forest colour reflects crown coverage; oversized tree cards were replaced. Tree placement is spread across frames without exposing incomplete groups, and completed placement matches the original trees exactly.",
           "size": 9.5
         },
         {
-          "text": "The original world was unsaved, so testing uses generated reproductions. The cliff pair is matched; the other screenshots depict different locations and should not be read as a single continuous route.",
+          "text": "Still visible: some aerial forests look too sparse, leaf edges can look thin, and ground plants repeat. Canyon ledges also remain too evenly spaced. These are remaining appearance limits; the repair does not claim finished landscape art.",
           "size": 9
         }
       ]
     },
     {
       "title": "Performance and limits",
-      "subtitle": "Provisional comparison; the strict 100 FPS floor is still unmet.",
+      "subtitle": "Latest completed measurements; final build results still pending.",
       "blocks": [
         {
-          "heading": "Moving canyon comparison",
+          "heading": "Travel and turning",
           "table": {
-            "headers": ["Candidate", "Average FPS", "p99 frame", "Worst frame"],
-            "rows": [
-              ["Original", "54.913", "35.851 ms", "53.039 ms"],
-              ["Opaque terrain", "126.816", "24.559 ms", "49.066 ms"]
+            "headers": [
+              "Route / checked build",
+              "Average FPS",
+              "p99 frame",
+              "Worst frame"
             ],
-            "widths": [0.37, 0.21, 0.21, 0.21]
+            "rows": [
+              [
+                "Dry flight / original",
+                "54.9",
+                "35.9 ms",
+                "53.0 ms"
+              ],
+              [
+                "Dry flight / repaired",
+                "126.8",
+                "24.6 ms",
+                "49.1 ms"
+              ],
+              [
+                "Jungle / latest checked",
+                "170.1",
+                "13.6 ms",
+                "40.8 ms"
+              ],
+              [
+                "Temperate forest",
+                "172.5",
+                "13.9 ms",
+                "23.5 ms"
+              ],
+              [
+                "Boreal forest",
+                "192.7",
+                "12.2 ms",
+                "20.3 ms"
+              ],
+              [
+                "Savanna",
+                "223.1",
+                "9.1 ms",
+                "27.8 ms"
+              ]
+            ],
+            "widths": [
+              0.4,
+              0.2,
+              0.2,
+              0.2
+            ]
           }
         },
         {
-          "text": "Average speed improved substantially in this measured route, but long frames remain. These figures precede the final garbage-collection comparison and final horizon review. They do not establish a universal improvement or a 100 FPS minimum. Final accepted settings, workload and build association must accompany the published results.",
-          "size": 9.5
+          "text": "1080p, Medium vegetation, 6 km view; Chrome video shared the PC. Dry grassland flight: 200 m/s at 500 m altitude. Forest/savanna: 8 m/s travel with rapid turns. These are representative routes, not the worst place on the planet. p99 means 99% of frames were faster than that time. A strict 100 FPS minimum requires every frame below 10 ms: this remains unmet.",
+          "size": 9
         },
         {
-          "heading": "Preparation and streaming use separate clocks",
+          "text": "Latest jungle comparison: peak tree-ground correction fell from 7.262 to 3.696 ms, and scatter-ground correction from 6.051 to 2.700 ms. The 40.8 ms frame occurred outside the instrumented terrain work; its cause remains unidentified. These gains do not establish smoother worst frames overall.",
+          "size": 9
+        },
+        {
+          "heading": "Maximum-distance loading: 191 km view",
           "table": {
-            "headers": ["Clock", "Milestone", "Observed"],
-            "rows": [
-              ["Before streaming", "World/scene preparation", "14.2 s"],
-              ["After preparation", "600 m terrain + forest ready", "8.8 s"],
-              ["After preparation", "Entire tested view ready", "24.7 s"]
+            "headers": [
+              "Clock",
+              "Milestone",
+              "Observed"
             ],
-            "widths": [0.33, 0.47, 0.20]
+            "rows": [
+              [
+                "Before streaming",
+                "Scene preparation",
+                "14.1 s"
+              ],
+              [
+                "After preparation",
+                "Nearby terrain ready",
+                "1.4 s"
+              ],
+              [
+                "After preparation",
+                "600 m terrain + forest ready",
+                "11.9 s"
+              ],
+              [
+                "After preparation",
+                "Entire tested view ready",
+                "34.0 s"
+              ]
+            ],
+            "widths": [
+              0.32,
+              0.48,
+              0.2
+            ]
           }
         },
         {
-          "text": "The 8.8 s and 24.7 s milestones begin after preparation; they are not total time from entering the world. The final 191 km result is still pending. Grouped horizon fallbacks retain height/material sample spacing while reducing object counts, but their larger individual uploads also need checking.",
-          "size": 9.5
+          "text": "Full-view total was about 48.1 seconds including preparation. This run used 60 FPS pacing and screenshot checks, so it measures loading and continuity rather than gameplay FPS. Startup still contains a noticeable first-time asset stall.",
+          "size": 9
         },
         {
-          "heading": "Before final handoff",
-          "text": "Still pending: the final GC/frame-tail comparison, 191 km horizon flight, final visual review and playable shortcut verification. The frame-time spikes and strict 100 FPS floor remain open acceptance targets.",
+          "heading": "Final handoff pending",
+          "text": "Final-build frame-time comparison, extended high-speed travel across world sections, final waterfall review, and the normal playable shortcut are still pending. Further work targets the remaining CPU spikes; average FPS alone is not the acceptance standard.",
           "size": 9.5
         }
       ]

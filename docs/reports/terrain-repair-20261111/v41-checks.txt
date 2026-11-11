@@ -1,0 +1,29 @@
+PASS Actual generated world supplies the requested context
+PASS Actual worker terrain neighbourhood is uploaded without errors
+PASS Terrain movement support remains above actual steep rendered terrain
+PASS Actual surrounding vegetation/scatter is resident
+PASS Wide capture has an actually loaded surrounding terrain footprint
+PASS Normal terrain and vegetation reveal expose the reviewed landscape extent
+PASS Actual player has all seventeen registered surface layers
+PASS Actual water review uses the production water surface shader
+PASS Actual uploaded ground materials bind forest-floor weights
+PASS Canonical local terrain remains finite
+PASS Art capture uses actual summer daylight: wide
+PASS Detached capture has resident coverage beyond the reviewed feature: wide
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Reviewed channel has actual uploaded water geometry
+PASS Art capture uses actual summer daylight: fall-side
+PASS Detached capture has resident coverage beyond the reviewed feature: fall-side
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Art capture uses actual summer daylight: fall-base
+PASS Detached capture has resident coverage beyond the reviewed feature: fall-base
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Art capture uses actual summer daylight: fall-base-later
+PASS Detached capture has resident coverage beyond the reviewed feature: fall-base-later
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Falling water visibly changes in a fixed central sheet sample across actual frames
+PASS Local landscape queries do not mutate regional history
+PASS Landmark command accepts waterfall
+PASS Landmark command finds and visits an actual generated example
+PASS Landmark destination is dry with finite camera placement
+PASS Scene and post-teleport updates contain no runtime errors

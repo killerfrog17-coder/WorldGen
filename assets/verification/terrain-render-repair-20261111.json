@@ -1,7 +1,7 @@
 {
   "status": "active_unaccepted",
   "branch": "work/terrain-render-repair-20261111",
-  "runtime": "FULL8fabdfe2+ScriptsOnly7ddf0527 BUILDING normalMonoNONDEV",
+  "runtime": "FULL8fabdfe2+ScriptsOnly2c1f9153 normalMonoNONDEV",
   "selected_build": "B36fdb231 unchanged until replacement reviewed",
   "baseline": "User images unsaved world; actual reproduction Canyon38841 in terrain-surfaces-20261107/playable.world, scale .1",
   "fixes": [
@@ -365,6 +365,145 @@
       "path": "artifacts/chunk-loading-20261109/terrain-repair-canonical-horizon-v29",
       "passed": false,
       "failure": "Collectionmodified dictionary.Values enumerator inPrepareGroundPublication whileyielding. Rootsuspectszero-rootmetadatafieldchangesnotincrementingphysicaltopologyrevision. Reusablecollectionsnapshotfixinprogress; candidateUNSELECTED."
+    },
+    "staged_empty_census_v30": {
+      "source": "6a7dab31",
+      "path": "artifacts/terrain-repair-20261111/staged-empty-census-v30",
+      "passed": true,
+      "proof": "Actualemptydictionarymutationduringforestrootyield,6202affectedroots/7slices/8452458comparisonsexact",
+      "image_inspected": "Intactforeground+uprightroots"
+    },
+    "canonical_horizon_v31": {
+      "source": "6a7dab31",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-canonical-horizon-v31",
+      "no_runtime_exception": true,
+      "ground_audits": "8x0/3072",
+      "passed_visual": false,
+      "preparation_s": 13.929781,
+      "near_s": 1.467,
+      "combined600m_s": 13.029,
+      "complete_s": 25.215,
+      "reason": "Rootinspectedview3coarseflatbandsaroundfineislandANDstillrivercap. BlanketcanonicalreuseREJECTED; narrowedtoactualwetbounds6bf. No0gap=visualPASSclaim."
+    },
+    "jungle_phase_gc_v32": {
+      "source": "6a7dab31",
+      "path": "artifacts/terrain-repair-20261111/jungle-phase-gc-v32",
+      "fps": 166.07414,
+      "p99_ms": 14.8817,
+      "max_ms": 34.2833,
+      "exact_hottest_frame": "17.38362s forestpageinstall17.271mswithnativeGCoverlap3.019ms;CPUfieldprojection~14ms dominates",
+      "decision": "6bf privateslicedprojectionpendingnativeproof, no behaviorreduction. OtheroutsideExplorerstallsnotattributedtoGCwithoutproof."
+    },
+    "small_river_admission_6bf": {
+      "focused_far_seam_pass": true,
+      "source": 126812,
+      "actual_boundary_probes": 452,
+      "wet": 205,
+      "visible_gap_m": 3.1471556733997375e-05,
+      "native_visual_pending": true
+    },
+    "forest_sliced_v34": {
+      "source": "6bf04ec0",
+      "path": "artifacts/terrain-repair-20261111/forest-sliced-proof-v34",
+      "passed": true,
+      "proof": "1024byte-exactrootrecords/levels/bounds/order/tint,2incompletehiddenunreadyslices; originalforestidentity/alpha/admissionrelatedchecksPASS"
+    },
+    "narrow_horizon_v35": {
+      "source": "6bf04ec0",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-narrow-river-horizon-v35",
+      "runtime_pass": true,
+      "ground_audits": "all8x0/3072",
+      "visual_pass": false,
+      "preparation_s": 13.924752,
+      "near_s": 1.459,
+      "combined600m_s": 12.778,
+      "complete_s": 28.323,
+      "reason": "Riverextendsfurther(4mhalfwidthruleworks)butwetancestorstillcausesgiantflatlandring. ENTIREancestor-suppressionfeatureRETIREDineeb75052,includingitsnewfixture; originalchecksretained. Nearfallbacknowcanonicalheight/hydrology+coarsematerials, nativepending."
+    },
+    "coupled_fallback_lod_control": {
+      "source": "eeb75052",
+      "passed": true,
+      "source_cell": 126812,
+      "coverageOnly_coarse_halves": true,
+      "actual_probes": 162,
+      "submerged": 88,
+      "visible_gap_m": 4.571418765308977e-06,
+      "scope": "ExistingmixedLODnearbankcontrolin--coveragemode; notnativevisualclaim"
+    },
+    "jungle_sliced_present_v36": {
+      "source": "6bf04ec0",
+      "path": "artifacts/terrain-repair-20261111/jungle-sliced-present-v36",
+      "fps": 167.8739,
+      "p99_ms": 13.903,
+      "max_ms": 30.022,
+      "presentmon": "5036measurementrows/native5038frames;1truncatedfiletailoutsidewindow,notused. CPUbusymean5.914/max30.094ms;GPUbusymean4.505/max6.144ms;PresentAPImean.046/max.303ms",
+      "worst_frame": "17.05356s:CPU30.094/GPU4.649/noGCoverlap; forestground7.262+scatterprojection6.051+batch6.772+edges3.13ms. Pageinstall0 onthisframe.",
+      "decision": "RemainingCPUcorrectionwork; exactrefinedContactmaskbeingimplemented. NoCPU/GPUwaitstoryorbigaveragegainclaimed."
+    },
+    "coupled_fallback_v38": {
+      "source": "eeb75052",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-coupled-fallback-v38",
+      "passed": true,
+      "preparation_s": 14.124401,
+      "near_s": 1.445,
+      "combined600m_s": 11.89,
+      "complete_s": 33.972,
+      "ground_audits": "all8x0/3072",
+      "image3_inspected": "Flat ring removed; continuous detailed land with river continuing into distance; no old short cutoff at10.65km. Actualfarhorizonstillapproximate, notartperfectclaim.",
+      "timing_scope": "Paced60/readbacks notFPS; projectionmax307msincludesFIRSTatomicartcreation duringloading, notstrict.7ms."
+    },
+    "refined_contact_mask_198b": {
+      "passed": true,
+      "contact_controls": 130512,
+      "height_cell_controls": 698428,
+      "scope": "Changedactualrefinedtriangles incl perimeterknots/largeincidenttriangles/borders/margins; conservativewholekeyfallback for topology or invaliddata; nativeperformancepending"
+    },
+    "jungle_refined_cells_v39": {
+      "source": "198b63f0",
+      "path": "artifacts/terrain-repair-20261111/jungle-refined-cells-v39",
+      "fps": 170.10475,
+      "p99_ms": 13.5673,
+      "max_ms": 40.7937,
+      "ground_max_ms": 3.696,
+      "scatter_projection_max_ms": 2.7,
+      "ground_means_ms": [
+        0.0155,
+        0.0147
+      ],
+      "specific_result": "GroundCPUpeaksdecreasedfromv36; averageFPSnotmaterialgain. Strict100floorUNMET.",
+      "unattributed_outlier": "24.73693/40.7937ms:Explorer1.006/Late.791/Fauna.459, GCstopoverlap0. Outsideinstrumentedterrainwork, notfixedorassignedcause.",
+      "presentmon": "INVALIDnoCSV, donotinferpresentation/GPU. Nativeframe/FPSsamplesvalidunfiltered."
+    },
+    "endurance_v40": {
+      "runtime": "198b63f0",
+      "status": "FAILED_FORWARD_COVERAGE",
+      "duration_seconds": 260,
+      "speed_mps": 600,
+      "player_ground_missing_frames": 0,
+      "handoffs": 1,
+      "max_handoff_ms": 27.6954,
+      "scope": "Paced60/screenshot readbacks, NOT FPS; view17 has real forward land cutoff and view21 coarse flat band. Ocean-only perspective audit counts are separately invalid as land criteria. Do not treat as visual pass.",
+      "diagnosis": "Full-detail 600m foreground gate starves all outward backdrops despite resident immediate ground. View17 had6of38 exactforegroundrequests unfinished, no resident at forward1/3/5/6km. NextL7boundary52428.8m; actual handoff107.75s/east64649.95m, so failure precedes chart boundary."
+    },
+    "waterfall_v41": {
+      "runtime": "198b63f0",
+      "native_exit": 0,
+      "source_cell": 157736,
+      "photos_inspected": [
+        "wide",
+        "fall-side",
+        "fall-base"
+      ],
+      "player_solid_contacts": 180,
+      "minimum_ground_clearance_m": 0,
+      "limits": "Artificial broad channel/regular fall edge remain art limitations; no claim photorealism."
+    },
+    "endurance_v42": {
+      "status": "RUNNING",
+      "runtime": "2c1f9153",
+      "session": 86438,
+      "player_pid": 23508,
+      "scope": "Same260sec600mps6km route, added actual-heading forward ownership probes independent of land-only image audit"
     }
   },
   "native": {
@@ -556,5 +695,10 @@
     "newopaque191km+realchartlongflight",
     "representative forest/plains travelperformance",
     "final screenshotPDF,push,testednormalshortcut"
-  ]
+  ],
+  "history_reference": {
+    "coherent_coverage": "63d595d1 (19 Oct): missing coarse coverage before detail; retained prior coverage until replacements resident",
+    "less_expensive_baseline": "a7c9f419 (18 Oct): regular sampled terrain/simple water before refined rivers, bathymetry, features",
+    "application": "a57d restores one bounded missing-coverage lane during covered flight, no blanket rollback or skirts"
+  }
 }
