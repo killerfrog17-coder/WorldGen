@@ -114,9 +114,25 @@ public sealed partial class LocalTerrainExplorer
             {var p=image[y*128+x];if(p.g>p.r+.05f&&p.g>p.b+.05f){count++;sum+=y;}}
             if(count<50)throw new Exception("Geometry morph fixture is not visible from its oblique camera");return(float)(sum/count);
         }
-        ChildMorph(2,2,3.1f);yield return null;float referenceMid=GreenMeanY(Capture("geometry-reference-midpoint"));
-        ChildMorph(0,4,1.5f);yield return null;float lowerMid=GreenMeanY(Capture("geometry-lower-midpoint"));
-        ChildMorph(4,0,1.5f);yield return null;float upperMid=GreenMeanY(Capture("geometry-upper-midpoint"));
+        string morphStatePath=Path.Combine(output,"geometry-morph-state.txt");File.WriteAllText(morphStatePath,"Actual shader morph fixture state before/after each manual camera render.\n");
+        void RecordMorphState(string label)
+        {
+            var renderer=tile.Root.GetComponent<MeshRenderer>();var mesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;var activeMaterial=renderer.sharedMaterial;
+            var text=new System.Text.StringBuilder();var culture=System.Globalization.CultureInfo.InvariantCulture;
+            text.AppendLine(label+" frame="+Time.frameCount+" time="+Time.time.ToString("R",culture)+" levelTime="+Time.timeSinceLevelLoad.ToString("R",culture)+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("R",culture)+" delta="+Time.deltaTime.ToString("R",culture));
+            text.AppendLine("tileIn="+tile.FadeIn.ToString("R",culture)+" material="+activeMaterial.GetInstanceID()+" expectedMaterial="+tile.Materials[0].GetInstanceID()+" shader="+activeMaterial.shader.name+" active="+tile.Root.activeInHierarchy+" propertyBlock="+renderer.HasPropertyBlock());
+            text.AppendLine("LodFade="+activeMaterial.GetVector("_LodFade").ToString("R")+" transition="+activeMaterial.GetFloat("_TransitionEnabled").ToString("R",culture)+" safety="+activeMaterial.GetFloat("_LodSafetyRadius").ToString("R",culture)+" residentCount="+activeMaterial.GetFloat("_ResidentEdgeCount").ToString("R",culture));
+            text.AppendLine("global_Time="+Shader.GetGlobalVector("_Time").ToString("R")+" global_TimeParameters="+Shader.GetGlobalVector("_TimeParameters").ToString("R")+" camera="+camera.transform.position.ToString("R"));
+            var vertices=mesh.vertices;var uv=mesh.uv;text.AppendLine("mesh="+mesh.GetInstanceID()+" vertices="+vertices.Length+" uv="+uv.Length);
+            for(int i=0;i<Math.Min(4,vertices.Length);i++)text.AppendLine("v"+i+"="+vertices[i].ToString("R")+" uv0="+(i<uv.Length?uv[i].ToString("R"):"missing"));
+            File.AppendAllText(morphStatePath,text.ToString());
+        }
+        Color[] CaptureMorphState(string name)
+        {RecordMorphState(name+" before");var image=Capture(name);RecordMorphState(name+" after");return image;}
+        ChildMorph(2,2,3.1f);yield return null;float referenceMid=GreenMeanY(CaptureMorphState("geometry-reference-midpoint"));
+        ChildMorph(0,4,1.5f);yield return null;float lowerMid=GreenMeanY(CaptureMorphState("geometry-lower-midpoint"));
+        ChildMorph(4,0,1.5f);yield return null;float upperMid=GreenMeanY(CaptureMorphState("geometry-upper-midpoint"));
+        File.AppendAllText(morphStatePath,"pixel mean Y reference/lower/upper="+referenceMid+"/"+lowerMid+"/"+upperMid+"\n");
         if(Math.Abs(lowerMid-referenceMid)>2||Math.Abs(upperMid-referenceMid)>2)throw new Exception("Shader did not move opaque vertices through the expected halfway height: "+referenceMid+"/"+lowerMid+"/"+upperMid);
         ChildMorph(4,4,3.1f);yield return null;float referenceEnd=GreenMeanY(Capture("geometry-reference-final"));
         ChildMorph(4,0,0);tile.Materials[0].SetFloat("_LodSafetyRadius",100);yield return null;
