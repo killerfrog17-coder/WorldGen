@@ -566,9 +566,11 @@ public sealed partial class LocalTerrainExplorer
             for(int yaw=0;yaw<360;yaw+=45)
             {
                 view.transform.localPosition=eye+offset;view.transform.localRotation=Quaternion.Euler(3,yaw,0);
+                // Exercise bins from the preceding camera position BEFORE a
+                // fresh reference build can silently refresh their range eye.
+                WorldGenPerformance.ScatterRangeCache=true;BuildScatterBatches();var actual=PerformanceInstances();
                 WorldGenPerformance.ScatterRangeCache=false;BuildScatterBatches();var expected=PerformanceInstances();
-                WorldGenPerformance.ScatterRangeCache=true;BuildScatterBatches();
-                if(!expected.SequenceEqual(PerformanceInstances()))throw new InvalidOperationException("Cached range changed exact instances at "+offset+" / "+yaw);
+                if(!expected.SequenceEqual(actual))throw new InvalidOperationException("Cached range changed exact instances at "+offset+" / "+yaw);
                 comparisons++;
             }
             int retained=0,total=0;foreach(var chunk in scatterChunks.Values)if(chunk.RangeValid){retained+=chunk.RangeGroups.Count;total+=chunk.Groups.Length;}

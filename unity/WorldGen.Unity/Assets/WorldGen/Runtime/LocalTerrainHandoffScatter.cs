@@ -75,6 +75,7 @@ public sealed partial class LocalTerrainExplorer
                 pair.Value.Matrices=prepared.Matrices;pair.Value.Roots=prepared.Roots;pair.Value.Bounds=prepared.Bounds;pair.Value.AllBounds=prepared.AllBounds;
                 pair.Value.GroundLevels=prepared.GroundLevels;
                 pair.Value.Groups=prepared.Groups;pair.Value.GroupsFrame=prepared.GroupsFrame;
+                pair.Value.RangeValid=false; // Cached bins reference the previous chart's group objects.
             }
             else ProjectScatter(pair.Value);
         }
