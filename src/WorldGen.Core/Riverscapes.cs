@@ -576,7 +576,7 @@ namespace WorldGen.Core
                     // space. Round caps at EVERY station used to let a lower
                     // cascade carve underneath the preceding higher ribbon.
                     double level=span.LevelA+(span.LevelB-span.LevelA)*u,bankDistance=width-distance;
-                    bool inside=bankDistance>=0;
+                    bool inside=bankDistance>=0;double pairedLateral=0;
                     if(span.WidthA+span.WidthB>.0001)
                     {
                         double x=RiverDot(p,basis.Axis)*physical,z=RiverDot(p,basis.Side)*physical;
@@ -589,7 +589,7 @@ namespace WorldGen.Core
                             bs=s;bt=t;
                             value=ah+(qh-ah)*s+(rh-ah)*t;return Math.Min(1-s-t,Math.Min(s,t));
                         }
-                        double first=Plane(lax,laz,lbx,lbz,rax,raz,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out _);
+                        double first=Plane(lax,laz,lbx,lbz,rax,raz,span.LevelA,span.LevelB,span.LevelA,out double h1,out double s1,out double t1);
                         double second=Plane(rax,raz,lbx,lbz,rbx,rbz,span.LevelA,span.LevelB,span.LevelB,out double h2,out double s2,out double t2);
                         inside=Math.Max(first,second)>=-1e-7;
                         level=Math.Max(span.LevelB,Math.Min(span.LevelA,first>=second?h1:h2));
@@ -597,6 +597,7 @@ namespace WorldGen.Core
                         // cross-section coordinates as the water elevation.
                         // Centre-line projection disagrees at an angled station.
                         u=D.Clamp(first>=second?s1:s2+t2);
+                        pairedLateral=D.Clamp(first>=second?1-2*t1:-1+2*s2,-1,1);
                         width=span.WidthA+(span.WidthB-span.WidthA)*u;
                         double EdgeDistance(double ax,double az,double qx,double qz)
                         {double ex=qx-ax,ez=qz-az,t=D.Clamp(((x-ax)*ex+(z-az)*ez)/Math.Max(1e-20,ex*ex+ez*ez));return Math.Sqrt(Math.Pow(x-ax-ex*t,2)+Math.Pow(z-az-ez*t,2));}
@@ -610,9 +611,13 @@ namespace WorldGen.Core
                     if(applying)return;
                     // Paired unit cross-section: low bed, rising submerged
                     // banks, then compact cut-only retirement into the valley.
-                    double relative=1-bankDistance/Math.Max(.01,width);
+                    // Bed shape uses the same continuous paired-section
+                    // coordinate as depth and water. Euclidean distance to a
+                    // different adjoining bank segment jumps at a bend even
+                    // when those sections meet exactly.
+                    double relative=inside?Math.Abs(pairedLateral):1-bankDistance/Math.Max(.01,width);
                     V across=(span.SideA*(1-u)+span.SideB*u).Unit;
-                    double signed=RiverDot(p-d*u,across)*physical/Math.Max(.01,width);
+                    double signed=inside?pairedLateral:RiverDot(p-d*u,across)*physical/Math.Max(.01,width);
                     // C-type bend cross-section: deeper outer bank and a
                     // shallower point bar, without tilting the water surface.
                     double depth=span.DepthA+(span.DepthB-span.DepthA)*u;
