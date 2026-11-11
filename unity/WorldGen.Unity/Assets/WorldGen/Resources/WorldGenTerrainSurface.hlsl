@@ -7,6 +7,9 @@ float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
 float4 _TerrainBeddingOrigin;
 
+float SurfacePatchHash(float2 p)
+{float3 h=frac(float3(p.x,p.y,p.x)*.1031);h+=dot(h,h.yzx+33.33);return frac((h.x+h.y)*h.z);}
+
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
     float3 w=pow(abs(normal),4);
