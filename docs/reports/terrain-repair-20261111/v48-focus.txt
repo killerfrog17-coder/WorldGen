@@ -1,0 +1,1 @@
+dense-tropicalrainforest travel-whip-current-cap240 focused_frames=4960 unfocused_frames=0

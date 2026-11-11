@@ -1,8 +1,8 @@
 {
-  "status": "active_unaccepted",
+  "status": "renderer_repairs_ready_for_owner_review_performance_target_unmet",
   "branch": "work/terrain-render-repair-20261111",
-  "runtime": "FULL8fabdfe2+ScriptsOnly6c40d9dc normalMonoNONDEV",
-  "selected_build": "A6c40d9dc rootshortcut verified",
+  "runtime": "FULLd610f0f4+ScriptsOnlya365d78f normalMonoNONDEV",
+  "selected_build": "slot-b a365d78f, root shortcut verified",
   "baseline": "User images unsaved world; actual reproduction Canyon38841 in terrain-surfaces-20261107/playable.world, scale .1",
   "fixes": [
     "near terrain before optional work",
@@ -580,11 +580,75 @@
       "notes": "Source-timestamped engine maximaobserved17.47385 delayedreadout; CPUrecorderpositive5315/5320. Target100floorUNMET. NoaggregateFPSgainclaim."
     },
     "balanced_lead_v47": {
-      "status": "RUNNING",
+      "status": "CONTINUITY_PASS_COARSE_APRON_SUPERSEDED",
       "runtime": "3d068425",
       "session": 39088,
       "player_pid": 8456,
-      "scope": "Exactv45Balancedboundary with2sboundedcoarselead; fineandforestrangesunchanged"
+      "scope": "Exactv45Balancedboundary with2sboundedcoarselead; fineandforestrangesunchanged",
+      "missing_player_frames": 0,
+      "missing_forward_frames": 0
+    },
+    "entry_prewarm_v51": {
+      "runtime": "fa5a749b",
+      "status": "NUMERIC_PASS_VISUAL_FAILURE",
+      "assertions": 7,
+      "photo": "entry-before.png",
+      "reason": "Centre-only readiness exposed isolated tile; superseded by a365 coverage gate."
+    },
+    "entry_coverage_v52": {
+      "runtime": "a365d78f",
+      "status": "PASS",
+      "assertions": 10,
+      "photo": "entry-after.png",
+      "loading_hidden_and_paused": true,
+      "actual_coarse_view_coverage_verified": true,
+      "camera_and_pause_restored": true,
+      "tree_bank_and_eight_hulls_prepared": true,
+      "repeat_preparation_no_wait": true,
+      "first_playable_image_inspected": true
+    },
+    "balanced_quality_v49": {
+      "runtime": "0c61b26b",
+      "status": "PASS",
+      "missing_player_frames": 0,
+      "missing_forward_frames": 0,
+      "seconds": 40,
+      "speed_mps": 600,
+      "photos_inspected": [
+        3,
+        7
+      ],
+      "scope": "Balanced6km,8landaudits0; same current flight code. Paced60/readbacksNOTFPS."
+    },
+    "final_hard_v50": {
+      "runtime": "0c61b26b",
+      "status": "PASS",
+      "missing_player_frames": 0,
+      "missing_forward_frames": 0,
+      "seconds": 260,
+      "speed_mps": 600,
+      "view_m": 6000,
+      "handoffs": 1,
+      "max_handoff_ms": 24.7036,
+      "hard_updates": true,
+      "photos_inspected": [
+        17
+      ],
+      "scope": "Actual chart crossing; paced60/readbacksNOTFPS. Current entry-only changes do not alter geometry/flight."
+    },
+    "jungle_atomic_v48": {
+      "runtime": "3d068425",
+      "status": "VALID_MEASUREMENT_TARGET_UNMET",
+      "fps": 165.29502,
+      "p99_ms": 14.6728,
+      "max_ms": 23.5569,
+      "settled": true,
+      "focused_frames": 4960,
+      "unfocused_frames": 0,
+      "slow_atomic_events_in_measured_window": 0,
+      "warmup_growth_ms": 14.5114,
+      "earlier_80_6_ms_forest_install_not_proven_fixed": true,
+      "scope": "1080pMedium6km8mps180mlooprapidturns/cap240,sharedChromevideo; notglobalworstcase/noisolatedgainclaim."
     }
   },
   "native": {
@@ -782,8 +846,17 @@
     "less_expensive_baseline": "a7c9f419 (18 Oct): regular sampled terrain/simple water before refined rivers, bathymetry, features",
     "application": "a57d restores one bounded missing-coverage lane during covered flight, no blanket rollback or skirts"
   },
-  "pending_flight_fallback": "6eeff5a7 earlyoneconcurrentlane now uses original resolution-awareBackdropNeeded, allowing <=4096canonicalfallbacks beforeforegrounddetailsettles; UNBUILT. Existingretentionrulesprotectunfinishedchildren.",
-  "next_trial": "2b1afd22 independentmax1coarse+1canonicalflightbackdrop allowances,missingcoarsefirst;Balanced2reservesotherlanefornear, noearlyquality. BUILD31893RUNNING sourcefreeze.",
   "shortcut": "docs/reports/terrain-repair-20261111/shortcut.json",
-  "candidate_runtime": "FULLd610f0f4+ScriptsOnly3d068425 normalMonoNONDEV B"
+  "report": {
+    "file": "docs/reports/terrain-repair-20261111/WorldGen - Terrain Repair.pdf",
+    "pages": 4,
+    "all_pages_rendered_and_inspected": true,
+    "opened_leftmost_chrome": true
+  },
+  "remaining_limits": [
+    "Strict100FPSfloorandtypical200+worldwideNOTachieved.",
+    "Earlier80.6msCPUforest-installstallnotprovenfixed.",
+    "Coarseouterhorizon/sparseaerialvegetation/repeatedcanyonterraces/simplewaterfallartremain.",
+    "Originalreportedworldunsaved; representativegeneratedworldsused, notallworld/biomecertification."
+  ]
 }

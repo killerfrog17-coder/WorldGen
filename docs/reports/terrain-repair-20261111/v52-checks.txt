@@ -1,0 +1,10 @@
+PASS existing saved world is ready
+PASS entry choices open
+PASS creative selection starts its background task
+PASS loading hides incomplete terrain and pauses gameplay
+PASS random-land entry loads actual ground
+PASS first playable view has actual surrounding coverage and releases loading pause
+PASS first playable view restores the actual camera
+PASS random-land entry uses Creative flight and no NPC identity
+PASS shared tree bank and all leaf hulls are prepared before gameplay
+PASS repeated tree preparation completes without waiting

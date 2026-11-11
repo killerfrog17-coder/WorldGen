@@ -2,14 +2,8 @@
   "title": "WorldGen - Terrain Repair",
   "section": "TERRAIN AND STREAMING",
   "date": "11 NOVEMBER 2026",
-  "footer": "DRAFT / final build checks pending / strict 100 FPS minimum still unmet",
-  "draft": true,
-  "pending_final": [
-    "Replace interim performance rows with the final build's accepted measurements; retain workload and frame-time limits.",
-    "Record extended high-speed travel across terrain charts and the final waterfall/player-contact review.",
-    "Replace waterfall preview if superseded; confirm final screenshot/build associations.",
-    "Verify normal playable shortcut target and Git delivery before publishing."
-  ],
+  "footer": "Checked playable build a365 / remaining CPU spikes / strict 100 FPS minimum unmet",
+  "draft": false,
   "pages": [
     {
       "title": "Terrain that stays joined",
@@ -30,7 +24,7 @@
         },
         {
           "heading": "Solid ground while detail arrives",
-          "text": "Loading prioritizes coverage before fine detail, then refines nearby ground. The current trial gives fallback terrain more accurate nearby heights. Smooth updates gradually change eligible distant slopes; interactive ground and riverbanks change immediately to preserve contact. Final fast-flight validation remains pending.",
+          "text": "Loading prioritizes coverage before fine detail, then refines nearby ground. More accurate fallback heights retain hills instead of a plain surrounding apron. Smooth updates gradually change eligible distant slopes; interactive ground and riverbanks change immediately to preserve contact.",
           "size": 9.5
         },
         {
@@ -41,14 +35,59 @@
             },
             {
               "file": "flight-after-reviewed.png",
-              "caption": "Matched forward flight, after: awaiting an accepted replay and screenshot review."
+              "caption": "After: continuous ground and nearby relief on the same flight route, with hard chunk updates enabled."
             }
           ],
           "max_height": 185
         },
         {
-          "text": "Shorter coverage checks passed, but the extended flight exposed this forward cutoff. Improved hills in the later trial still left a gap, so that result is not accepted. The after image will be supplied only once the matched flight passes review; final continuity and frame-time results remain pending.",
+          "text": "The 260-second flight at 600 m/s crossed a terrain chart without missing resident ground below or ahead of the player. A separate Balanced run also kept coverage while finer ground arrived. Coarse distant terrain remains approximate.",
           "size": 9.5
+        }
+      ]
+    },
+    {
+      "title": "A complete first view",
+      "subtitle": "Actual menu-to-world entry; random starting points differ.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "entry-before.png",
+              "caption": "Before: gameplay opened with one ground tile beside a blue void."
+            },
+            {
+              "file": "entry-after.png",
+              "caption": "After: the first playable view has continuous surrounding ground."
+            }
+          ],
+          "max_height": 185
+        },
+        {
+          "heading": "Load the surroundings before taking control",
+          "text": "The loading screen now stays up until usable ground and coarse coverage of the visible area are ready. Controls, survival and world time stay paused, then resume together. Fine terrain and vegetation continue streaming.",
+          "size": 9.5
+        },
+        {
+          "text": "The shared tree texture bank and all eight leaf shapes are prepared during loading. This moves shared cold setup away from the first visible tree; model creation and storage growth remain performance risks.",
+          "size": 9
+        },
+        {
+          "images": [
+            {
+              "file": "balanced-before.png",
+              "caption": "Balanced loading: the old background stayed mostly plain."
+            },
+            {
+              "file": "balanced-after.png",
+              "caption": "Balanced loading: nearby fallback relief now arrives during flight."
+            }
+          ],
+          "max_height": 175
+        },
+        {
+          "text": "The same short flight now has zero missing forward-ground probes. This is a loading and coverage result, not an FPS benchmark.",
+          "size": 9
         }
       ]
     },
@@ -90,7 +129,7 @@
     },
     {
       "title": "Performance and limits",
-      "subtitle": "Latest completed measurements; final build results still pending.",
+      "subtitle": "Representative checked routes; performance remains unfinished.",
       "blocks": [
         {
           "heading": "Travel and turning",
@@ -115,10 +154,10 @@
                 "42.0 ms"
               ],
               [
-                "Jungle / latest checked",
-                "170.1",
-                "13.6 ms",
-                "40.8 ms"
+                "Jungle / checked build 3d",
+                "165.3",
+                "14.7 ms",
+                "23.6 ms"
               ],
               [
                 "Temperate forest",
@@ -152,53 +191,53 @@
           "size": 9
         },
         {
-          "text": "Latest jungle comparison: peak tree-ground correction fell from 7.262 to 3.696 ms, and scatter-ground correction from 6.051 to 2.700 ms. The 40.8 ms frame occurred outside the instrumented terrain work; its cause remains unidentified. These gains do not establish smoother worst frames overall.",
+          "text": "An earlier jungle run reached an 80.6 ms frame, including 69.3 ms placing forest data. It did not recur in the latest sample but has not been proven fixed. A 14.5 ms buffer growth occurred during warm-up only; no slow growth was logged in the measured interval. The latest maximum is not a guarantee, and no average-speed gain is claimed.",
           "size": 9
         },
         {
-          "heading": "Maximum-distance loading: 191 km view",
+          "heading": "Loading settings: 6 km view",
           "table": {
             "headers": [
-              "Clock",
-              "Milestone",
-              "Observed"
+              "Empty spectator load",
+              "Maximum (hard)",
+              "Balanced"
             ],
             "rows": [
               [
-                "Before streaming",
-                "Scene preparation",
-                "14.1 s"
+                "Preparation before streaming",
+                "14.1 s",
+                "14.7 s"
               ],
               [
-                "After preparation",
-                "Nearby terrain ready",
-                "1.4 s"
+                "Nearby terrain, after preparation",
+                "1.2 s",
+                "1.6 s"
               ],
               [
-                "After preparation",
-                "600 m terrain + forest ready",
-                "11.9 s"
+                "600 m terrain + forest, after prep",
+                "11.1 s",
+                "15.7 s"
               ],
               [
-                "After preparation",
-                "Entire tested view ready",
-                "34.0 s"
+                "Entire view, after preparation",
+                "32.8 s",
+                "39.4 s"
               ]
             ],
             "widths": [
-              0.32,
-              0.48,
-              0.2
+              0.56,
+              0.22,
+              0.22
             ]
           }
         },
         {
-          "text": "Full-view total was about 48.1 seconds including preparation. This run used 60 FPS pacing and screenshot checks, so it measures loading and continuity rather than gameplay FPS. Startup still contains a noticeable first-time asset stall.",
+          "text": "Preparation is additional to the streaming milestones. These empty-spectator checks exclude NPCs and camps; they are not full-game startup timings. Screenshot checks and 60 FPS pacing measure loading and continuity, not gameplay FPS. Startup still has a noticeable first-time asset stall.",
           "size": 9
         },
         {
-          "heading": "Final handoff pending",
-          "text": "Final-build frame-time comparison, extended high-speed travel across world sections, final waterfall review, and the normal playable shortcut are still pending. Further work targets the remaining CPU spikes; average FPS alone is not the acceptance standard.",
+          "heading": "Playtest checkpoint and remaining work",
+          "text": "The normal shortcut selects the checked Mono build a365. Actual entry, long hard-update travel, shorter Balanced travel, cliff contact and waterfall views were checked. Remaining work includes intermittent CPU stalls, coarse distant detail and repeated canyon ledges. The strict 100 FPS minimum remains unmet.",
           "size": 9.5
         }
       ]

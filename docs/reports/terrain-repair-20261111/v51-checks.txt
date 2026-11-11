@@ -1,0 +1,7 @@
+PASS existing saved world is ready
+PASS entry choices open
+PASS creative selection starts its background task
+PASS random-land entry loads actual ground
+PASS random-land entry uses Creative flight and no NPC identity
+PASS shared tree bank and all leaf hulls are prepared before gameplay
+PASS repeated tree preparation completes without waiting

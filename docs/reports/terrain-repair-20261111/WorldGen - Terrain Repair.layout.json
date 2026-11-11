@@ -1,0 +1,306 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 568.851003937008,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\cliff-comb-before.png",
+    "bottom": 584.731003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 568.851003937008,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\cliff-comb-after.png",
+    "bottom": 584.731003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 539.131003937008,
+    "height": 14.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 497.651003937008,
+    "height": 36.480000000000004
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 298.4923818897639,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\v40-flight-view-17.png",
+    "bottom": 325.2523818897639,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 298.4923818897639,
+    "height": 21.76
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\flight-after-reviewed.png",
+    "bottom": 325.2523818897639,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 259.1723818897639,
+    "height": 24.32
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\entry-before.png",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\entry-after.png",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 523.0911417322836,
+    "height": 14.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 493.77114173228364,
+    "height": 24.32
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 458.7311417322836,
+    "height": 23.04
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 270.45251968503953,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\balanced-before.png",
+    "bottom": 286.33251968503953,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 270.45251968503953,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\balanced-after.png",
+    "bottom": 286.33251968503953,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 243.93251968503952,
+    "height": 11.52
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 528.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\waterfall-after.png",
+    "bottom": 544.0897637795277,
+    "height": 185
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 476.72976377952773,
+    "height": 36.480000000000004
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 263.84976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\terrain-repair-20261111\\physical-tree-fjord.png",
+    "bottom": 279.72976377952773,
+    "height": 185
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 212.36976377952772,
+    "height": 36.480000000000004
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 177.32976377952772,
+    "height": 23.04
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 714.3697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 477.8097637795277,
+    "height": 34.56
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 431.2497637795277,
+    "height": 34.56
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 404.5297637795277,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 219.96976377952768,
+    "height": 34.56
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 193.24976377952768,
+    "height": 14.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 151.7697637795277,
+    "height": 36.480000000000004
+  }
+]

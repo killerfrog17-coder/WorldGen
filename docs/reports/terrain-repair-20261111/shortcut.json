@@ -1,8 +1,8 @@
 ﻿{
-    "Source":  "6c40d9dc",
-    "Before":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
-    "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
-    "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a",
+    "Source":  "a365d78f",
+    "Before":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+    "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b",
     "Arguments":  "",
-    "VerifiedUtc":  "2026-11-11T17:07:43.9557828Z"
+    "VerifiedUtc":  "2026-11-11T18:22:00.6460160Z"
 }
