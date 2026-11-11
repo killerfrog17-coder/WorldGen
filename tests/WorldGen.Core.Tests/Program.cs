@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--cliff-surface-diagnose")){CliffSurfaceDiagnostic.Run(args[1],int.Parse(args[2]),args[3]);return;}
 if(args.Contains("--human-phenotypes")){HumanPhenotypeTests.Run();return;}
 if(args.Contains("--human-phenotype-world")){HumanPhenotypeWorldAudit.Run(args[1],args[2]);return;}
 if(args.Contains("--river-tile-cost-reference")){RiverColdPreparationAudit.MeshCost(args[1],args[2],int.Parse(args[3]),args[4],args.Length>5?args[5]:null);return;}

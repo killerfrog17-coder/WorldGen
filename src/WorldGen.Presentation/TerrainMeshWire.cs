@@ -5,7 +5,7 @@ using WorldGen.Core;
 namespace WorldGen.Presentation
 {
     /// <summary>Local, bounded binary transport. Geometry is produced by the same
-    /// Core/Presentation assemblies, never an approximate second generator.</summary>
+    /// Core/Presentation assemblies; coverage requests explicitly use their coarse hierarchy.</summary>
     public static class TerrainMeshWire
     {
         public const int Version=11;

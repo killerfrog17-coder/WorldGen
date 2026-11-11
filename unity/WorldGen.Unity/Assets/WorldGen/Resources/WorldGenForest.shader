@@ -46,16 +46,6 @@ Shader "WorldGen/ForestPackets"
             {
                 O o=(O)0;uint index=_Visible[instanceID];Root root=_Roots[index];float3 origin=root.position-_ForestChart.xyz;
                 float width=root.width,height=root.height;
-                if(_ForestMacro>.5)
-                {
-                    // Regional coverage places physical-size trees; it must
-                    // never stretch one tree image over the packet footprint.
-                    uint cap=vertexID/6u;float span=abs(root.padding)*sqrt(saturate(_ForestChart.w));
-                    float2 centre=(float2(cap%4u,cap/4u)-1.5)*span*.25;
-                    centre+=float2(sin(root.yaw*3.7+cap*4.13),cos(root.yaw*2.3+cap*7.37))*span*.075;
-                    origin+=float3(centre.x,centre.x*root.slopeX+centre.y*root.slopeZ,centre.y);
-                    float cohort=.78+.22*sin(root.yaw+cap*2.71);width*=cohort;height*=cohort;
-                }
                 float3 scale=float3(width,height,width);o.renderScale=float2(width,height);
                 float3 eye=Rotate(_WorldSpaceCameraPos-origin,-root.yaw)/scale;
                 float3 direction=normalize(eye-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(direction,r,u);

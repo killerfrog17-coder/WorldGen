@@ -32,8 +32,16 @@ namespace WorldGen.Core
     public sealed partial class LocalScatter
     {
         public const int ForestPageSide=32;
+        public const int ForestCanopyTrees=16;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
+        public void ForestCoordinates(V position,out int face,out int x,out int y)
+        {
+            face=Address(position).Face;Basis(face,out V n,out V u,out V v);
+            double dot=V.Dot(position,n);int count=TreeLatticeCount;
+            x=Math.Max(0,Math.Min(count-1,(int)Math.Floor((V.Dot(position,u)/dot+1)*.5*count)));
+            y=Math.Max(0,Math.Min(count-1,(int)Math.Floor((V.Dot(position,v)/dot+1)*.5*count)));
+        }
         public V ForestPosition(int face,double x,double y)
         {Basis(face,out V n,out V u,out V v);double count=TreeLatticeCount;return (n+u*(x*2/count-1)+v*(y*2/count-1)).Unit;}
         public void ForestBounds(ForestPageKey key,out V center,out double radius)
@@ -70,7 +78,7 @@ namespace WorldGen.Core
                 double expected=0;
                 foreach(var key in result)
                 {
-                    if(key.Level>0){expected+=64;continue;}
+                    if(key.Level>0){expected+=64*ForestCanopyTrees;continue;}
                     ForestBounds(key,out V center,out double radius);var forest=terrain.Profile(terrain.NearestCell(center)).Forest;double support=forest.Coverage;
                     Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(center,normal),u=V.Dot(center,a)/dot,v=V.Dot(center,b)/dot;
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);

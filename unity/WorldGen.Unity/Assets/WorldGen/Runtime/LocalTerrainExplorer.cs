@@ -345,6 +345,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             // Fill missing outward coverage before upgrading already visible
             // land. Only after that do forest/prediction use spare workers.
+            if(forestRevealRadius<Math.Min(terrainRevealRadius,Math.Max(600,detailOptions.FullRadius(HorizontalScale))))
+                ScheduleForestWork();
             ScheduleBackdrop();
             ScheduleCurrentTerrain(missingOnly:true);
             ScheduleCurrentTerrain();

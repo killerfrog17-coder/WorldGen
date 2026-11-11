@@ -27,8 +27,10 @@ static class TerrainWorker
         var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();
         writer.Write(TerrainMeshWire.Version);writer.Write(typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"");writer.Write(LocalTerrain.Version);writer.Write(((IPEndPoint)listener.LocalEndpoint).Port);writer.Flush();
         // The player reserves capacity according to its loading-effort setting.
-        // Four is a hard ceiling, not an unbounded request-driven thread count.
-        using var slots=new SemaphoreSlim(4);
+        // Maximum scales to the host while retaining a bounded queue and
+        // leaving two logical processors for rendering and other applications.
+        int workerCapacity=TerrainDetailOptions.MaximumWorkers;
+        using var slots=new SemaphoreSlim(workerCapacity);
         using var mapGate=new SemaphoreSlim(1);
         using var maps=new ProgressiveTerrainMap(terrain,world,exit.Token);
         while(!exit.IsCancellationRequested)
@@ -63,8 +65,8 @@ static class TerrainWorker
                         try
                         {
                             // Map-open scheduling yields new terrain work. Reserve
-                            // the same four lanes, not four additional CPU workers.
-                            for(;acquired<4;acquired++)await slots.WaitAsync(cancellation.Token);
+                            // the same worker lanes, not additional CPU workers.
+                            for(;acquired<workerCapacity;acquired++)await slots.WaitAsync(cancellation.Token);
                             maps.Begin(revision,mapView,mapLayer,mapWidth);w.Write(true);w.Flush();
                             while(true)
                             {

@@ -82,7 +82,7 @@ namespace WorldGen.Presentation
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
             double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
-            var patch = extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
+            var patch = !coverageOnly&&extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
             // The same index was previously prepared only by channel refinement,
             // after the regular grid had already scanned every river station.
             token.ThrowIfCancellationRequested();
@@ -93,8 +93,21 @@ namespace WorldGen.Presentation
             if(!coverageOnly&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
+            var horizon=coverageOnly?terrain.CreateMapHeightCursor():null;
+            var horizonMaterials=coverageOnly?new System.Collections.Generic.List<int>():null;
             LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)
             {
+                // Coverage is an explicitly approximate distant product, never
+                // a requested-quality mesh or a source for exact sample caches.
+                // Its footprint must stop the hierarchy before metre-scale
+                // river fitting over an entire hundred-kilometre horizon.
+                if(coverageOnly)
+                {
+                    var coarse=horizon!.Sample(p,Math.Max(256,step));
+                    if(!geometryOnly)terrain.FillMapMaterials(p,ref coarse,horizonMaterials!);
+                    if(timing!=null){if(geometryOnly)timing.GeometryQueries++;else timing.FullSurfaceQueries++;}
+                    return coarse;
+                }
                 if(sampleCache!=null&&(geometryOnly?sampleCache.TryGetGeometry(p,out var cachedSample):sampleCache.TryGet(p,out cachedSample)))return cachedSample;
                 if(timing!=null){if(geometryOnly)timing.GeometryQueries++;else timing.FullSurfaceQueries++;}
                 // LOD changes tessellation, never the value of a shared point.

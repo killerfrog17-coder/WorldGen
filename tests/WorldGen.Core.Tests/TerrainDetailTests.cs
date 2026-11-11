@@ -10,7 +10,7 @@ static class TerrainDetailTests
         long Cost(Dictionary<TerrainTileKey,int> p)=>p.Sum(t=>(long)(t.Value+1)*(t.Value+1));
         var o=new TerrainDetailOptions{ViewDistanceM=60000};
         Check(o.Quality==2&&o.Effort==1&&o.Workers==2,"High/Balanced defaults");
-        for(int effort=0;effort<4;effort++){o.Effort=effort;Check(o.Workers==effort+1&&o.Installations<=4&&o.UploadBudgetMs<=8,"Bounded effort budgets");}o.Effort=1;
+        for(int effort=0;effort<4;effort++){o.Effort=effort;Check(o.Workers>=1&&o.Workers<=TerrainDetailOptions.MaximumWorkers&&o.Installations<=4&&o.UploadBudgetMs<=8,"Bounded host-aware effort budgets");}o.Effort=1;
         Check(TerrainAdaptiveLod.ProjectedError(10,1000,0,1080,68)>TerrainAdaptiveLod.ProjectedError(10,2000,0,1080,68),"Distance reduces projected error");
         Check(TerrainAdaptiveLod.ProjectedError(10,1000,0,1080,45)>TerrainAdaptiveLod.ProjectedError(10,1000,0,1080,90),"Zoom enlarges projected error");
         Check(TerrainAdaptiveLod.ProjectedError(10,1000,0,4320,68)==TerrainAdaptiveLod.ProjectedError(10,1000,0,2160,68),"Resolution quality ceiling");

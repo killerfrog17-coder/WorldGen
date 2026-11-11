@@ -18,7 +18,11 @@ namespace WorldGen.Presentation
                     for(int i=(int)Math.Floor((x-radius)/size);i<=(int)Math.Floor((x+radius)/size);i++)
                     {var key=new TerrainTileKey(i,j,level,scale);if(TerrainLod.DistanceSquared(key,x,z)<=radius*radius)result[key]=segments;}
             }
-            Add(TerrainAdaptiveLod.BackdropLevel(scale,range),range,8);
+            // Small enough horizon work units to complete progressively and
+            // retain broad mountain silhouettes instead of 16km-spaced slabs.
+            int horizon=Math.Min(TerrainAdaptiveLod.BackdropLevel(scale,range),
+                Math.Max(0,(int)Math.Floor(Math.Log(16384/(TerrainLod.BaseSizeM*scale),2))));
+            Add(horizon,range,32);
             // Bound the fine fallback disk independently of an enormous view
             // distance. At most a few hundred work units, including on small
             // planets, rather than a uniform 2km grid over a 250km horizon.

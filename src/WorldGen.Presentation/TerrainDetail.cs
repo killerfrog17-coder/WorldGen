@@ -14,9 +14,10 @@ namespace WorldGen.Presentation
         public bool EstimateRelief=true,ProximityRefinement=true;
         public int FinestSegments=64;
         static readonly double[] Errors={16,8,4,2,1},Budgets={1.5,3,5,8};
-        static readonly int[] Lanes={1,2,3,4},Uploads={1,1,2,4};
+        static readonly int[] Lanes={1,2,4,4},Uploads={1,1,2,4};
+        public static int MaximumWorkers=>Math.Max(1,Math.Min(12,Environment.ProcessorCount-2));
         public double PixelError=>Errors[Math.Max(0,Math.Min(4,Quality))];
-        public int Workers=>Lanes[Math.Max(0,Math.Min(3,Effort))];
+        public int Workers=>Effort>=3?MaximumWorkers:Math.Min(MaximumWorkers,Lanes[Math.Max(0,Effort)]);
         public int Installations=>Uploads[Math.Max(0,Math.Min(3,Effort))];
         public double UploadBudgetMs=>Budgets[Math.Max(0,Math.Min(3,Effort))];
         public double RequestInterval=>Effort==0?.025:0;

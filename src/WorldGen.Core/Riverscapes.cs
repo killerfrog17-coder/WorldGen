@@ -554,7 +554,10 @@ namespace WorldGen.Core
                     double bed=inside?level-owner.riverNodeDepths[node]*(1-relative*relative):level+(distance-width)*.35;
                     if(inside){hasInside=true;insideHeight=Math.Min(insideHeight,Math.Min(uncutHeight,bed));}
                     double weight=inside?1:RiverscapeKernel.Weight((distance-width)/(support-width));
-                    current.DetailProtection=Math.Min(current.DetailProtection,1-weight);current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
+                    // Adjacent station supports overlap. Each is a candidate
+                    // cut into the same original valley, not another erosion
+                    // pass on an already-cut height (which makes regular fins).
+                    current.DetailProtection=Math.Min(current.DetailProtection,1-weight);current.Height=Math.Min(current.Height,uncutHeight+(Math.Min(uncutHeight,bed)-uncutHeight)*weight);
                     if(!inside||relative>=best)return;best=relative;
                     current.Kind=LocalWaterKind.River;current.BodyKey=(ulong)(uint)(node+1);current.Water=level;current.Mask=level-current.Height;current.Footprint=width-distance;
                     current.Minimum=current.Maximum=level;current.Gradient=default;current.RiverInfluence=1;
@@ -630,7 +633,7 @@ namespace WorldGen.Core
                     else{hasInside=true;insideHeight=Math.Min(insideHeight,Math.Min(uncutHeight,bed));}
                     double weight=inside?1:RiverscapeKernel.Weight(-bankDistance/(support-width));
                     current.DetailProtection=Math.Min(current.DetailProtection,1-weight);
-                    current.Height=Math.Min(current.Height,current.Height+(Math.Min(current.Height,bed)-current.Height)*weight);
+                    current.Height=Math.Min(current.Height,uncutHeight+(Math.Min(uncutHeight,bed)-uncutHeight)*weight);
                     if(alluvium>0)
                     {
                         double deposit=RiverAlluvium.Deposit(level,current.Height,depth,relative,alluvium,signed,bankBend);
