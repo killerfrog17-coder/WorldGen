@@ -13,6 +13,7 @@ namespace WorldGen.Presentation
             text.Append("name=").Append(personallyKnown?person?.Name??"unknown":"unfamiliar visitor");
             text.Append("; age in years=").Append(personallyKnown&&person!=null?Math.Floor(person.AgeYears).ToString("0",System.Globalization.CultureInfo.InvariantCulture):"unknown");
             text.Append("; visible appearance=").Append(string.IsNullOrEmpty(appearance)?"not available":appearance);
+            if(personallyKnown&&person?.Phenotype!=null)text.Append("; people identity=").Append(person.Phenotype.PeopleName);
             if(!personallyKnown||person==null||band==null)return text.Append("; partner identity=unknown; children=unknown.").ToString();
             bool KnownDead(long id)=>knowledge?.KnownPeople.Any(p=>p.Person==id&&p.SeenDead)==true;
             var members=band.Members??Array.Empty<ForagerPersonSample>();var records=band.FamilyRecords??Array.Empty<ForagerPersonRecord>();

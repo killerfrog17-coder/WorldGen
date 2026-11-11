@@ -66,11 +66,14 @@ public sealed partial class LocalTerrainExplorer
         var phenotype=person.Phenotype;phenotype.Validate();actor.Phenotype=phenotype;
         string variant=actor.Definition.Variant+(actor.AgeModel==null?"":"-"+actor.AgeModel.Years);
         bool styled=humanPhenotypeLibrary?.Hair.Any(h=>h.Variant==variant)==true;
+        var bodySkin=actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>().First(r=>r.name.ToLowerInvariant().EndsWith(".body")||r.name.EndsWith("_Body"));
+        var cullBounds=bodySkin.localBounds;cullBounds.Expand(cullBounds.size);
         foreach(var renderer in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
         {
             string name=renderer.name.ToLowerInvariant();
+            bool eyes=name.Contains("high-poly")||name.EndsWith("_eyes");
             bool beard=name.Contains("beard")||name.Contains("moustache");
-            bool headHair=!beard&&!name.EndsWith(".body")&&!name.EndsWith("_body")&&!name.Contains("high-poly")&&!name.Contains("teeth")&&!name.Contains("eyebrow")&&!name.Contains("eyelash");
+            bool headHair=!beard&&!name.EndsWith(".body")&&!name.EndsWith("_body")&&!eyes&&!name.Contains("teeth")&&!name.Contains("eyebrow")&&!name.Contains("eyelash");
             if(headHair&&(styled||person.Grooming?.Hair==HumanHairStyle.Shaved)||beard&&(person.Female||person.Grooming?.Beard==HumanBeardStyle.None))
             {renderer.gameObject.SetActive(false);continue;}
             if(beard)renderer.name="hair "+renderer.name;
@@ -84,7 +87,7 @@ public sealed partial class LocalTerrainExplorer
                     humanDetailMeshes[details.Original]=humanDetailMeshes[details.Middle]=humanDetailMeshes[details.Far]=details;
                 }
             }
-            int mode=name.EndsWith(".body")||name.EndsWith("_body")?1:name.Contains("high-poly")?3:name.Contains("teeth")?0:2;
+            int mode=name.EndsWith(".body")||name.EndsWith("_body")?1:eyes?3:name.Contains("teeth")?0:2;
             if(mode>0)
             {
                 V color=mode==1?HumanPhenotypes.SkinColor(phenotype):mode==2?HumanPhenotypes.HairColor(phenotype,person.AgeYears):HumanPhenotypes.IrisColor(phenotype);
@@ -97,6 +100,12 @@ public sealed partial class LocalTerrainExplorer
                 }
                 renderer.sharedMaterials=materials;
             }
+            // Imported eye/brow bounds are tight rest-pose boxes. Child age
+            // correction and individual facial shapes can move beyond them.
+            // Reuse the body's conservative bounds in the same root-bone frame,
+            // keeping offscreen skin evaluation disabled.
+            if(renderer.rootBone==bodySkin.rootBone)renderer.localBounds=cullBounds;
+            if(actor.Id!=1)renderer.updateWhenOffscreen=false;
         }
         if(styled)CreateInheritedHair(actor,person);
         // Native animation data remains in its original metre scale; root scale
@@ -125,7 +134,13 @@ public sealed partial class LocalTerrainExplorer
     float HumanActualEye(HumanActor actor)=>(actor.AgeModel?.EyeHeight??actor.Definition.EyeHeight)*actor.Root.transform.localScale.y;
     void DisposeInheritedHuman(HumanActor actor)
     {
-        foreach(var mesh in actor.PhenotypeMeshes){humanDetailMeshes.Remove(mesh);if(mesh!=null)Destroy(mesh);}actor.PhenotypeMeshes.Clear();
+        foreach(var mesh in actor.PhenotypeMeshes)
+        {
+            humanDetailMeshes.Remove(mesh);
+            foreach(var key in garmentMeshes.Keys.Where(k=>k.Item1==mesh).ToArray()){if(garmentMeshes[key]!=null)Destroy(garmentMeshes[key]);garmentMeshes.Remove(key);}
+            if(mesh!=null)Destroy(mesh);
+        }
+        actor.PhenotypeMeshes.Clear();
     }
     void DisposeHumanPhenotypes()
     {

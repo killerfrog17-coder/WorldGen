@@ -68,16 +68,16 @@ public sealed partial class LocalTerrainExplorer
     void PrepareInventoryPreview()
     {
         if(humanPlayer==null)return;
-        if(inventoryPreviewActor!=null&&inventoryPreviewActor.Definition!=humanPlayer.Definition)DisposeInventoryPreview();
+        if(inventoryPreviewActor!=null&&(inventoryPreviewActor.Definition!=humanPlayer.Definition||inventoryPreviewActor.Phenotype!=humanPlayer.Phenotype))DisposeInventoryPreview();
         if(inventoryPreviewActor==null)
         {
             inventoryPreviewRoot=new GameObject("Inventory character preview");inventoryPreviewRoot.transform.SetParent(transform,false);
-            inventoryPreviewActor=CreateHuman(humanPlayer.Definition.Variant[0]-'A',0);inventoryPreviewActor.Root.transform.SetParent(inventoryPreviewRoot.transform,false);
+            inventoryPreviewActor=CreateHuman(humanPlayer.Definition.Variant[0]-'A',0,person:humanPlayer.Resident??playState?.Identity?.Person);inventoryPreviewActor.Root.transform.SetParent(inventoryPreviewRoot.transform,false);
             foreach(var t in inventoryPreviewActor.Root.GetComponentsInChildren<Transform>())t.gameObject.layer=29;
             var shader=Resources.Load<Shader>("WorldGenInventoryPreview");
             foreach(var renderer in inventoryPreviewActor.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
             {
-                var materials=renderer.sharedMaterials.Select(m=>{var n=new Material(shader);n.SetTexture("_BaseMap",m.GetTexture("_BaseMap"));n.SetFloat("_Cutoff",m.GetFloat("_Cutoff"));inventoryPreviewMaterials.Add(n);return n;}).ToArray();
+                var materials=renderer.sharedMaterials.Select(m=>{var n=new Material(shader);n.SetTexture("_BaseMap",m.GetTexture("_BaseMap"));n.SetFloat("_Cutoff",m.GetFloat("_Cutoff"));if(m.HasProperty("_PigmentMode")){n.SetFloat("_PigmentMode",m.GetFloat("_PigmentMode"));n.SetColor("_PigmentColor",m.GetColor("_PigmentColor"));n.SetFloat("_PigmentReference",m.GetFloat("_PigmentReference"));}inventoryPreviewMaterials.Add(n);return n;}).ToArray();
                 renderer.sharedMaterials=materials;renderer.forceMatrixRecalculationPerRender=true;renderer.updateWhenOffscreen=true;
             }
             var cameraRoot=new GameObject("Inventory portrait camera",typeof(Camera),typeof(UniversalAdditionalCameraData));cameraRoot.transform.SetParent(inventoryPreviewRoot.transform,false);
@@ -108,7 +108,7 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var r in gear.GetComponentsInChildren<Renderer>()){r.sharedMaterial=inventoryPreviewRockMaterial;var props=new MaterialPropertyBlock();props.SetFloat("_VertexColours",1);props.SetColor("_Color",new Color((float)item.Tint.X,(float)item.Tint.Y,(float)item.Tint.Z));r.SetPropertyBlock(props);}
             }
         }
-        float h=inventoryPreviewActor.Definition.EyeHeight+.13f;
+        float h=HumanActualEye(inventoryPreviewActor)+.13f*inventoryPreviewActor.Root.transform.localScale.y;
         inventoryPreviewCamera.transform.localPosition=new Vector3(0,h*.53f,-h*2.55f);inventoryPreviewCamera.transform.LookAt(inventoryPreviewRoot.transform.position+Vector3.up*h*.5f);
         inventoryPreviewCamera.Render();
     }

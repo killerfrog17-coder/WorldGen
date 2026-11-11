@@ -136,7 +136,7 @@ public sealed partial class LocalTerrainExplorer
         ModelCheck(lastSpeech.IndexOf("two",StringComparison.OrdinalIgnoreCase)>=0||lastSpeech.Contains("2"),"actual resident recalls the player's reported children separately from generated family records");
         yield return Talk("How old am I?");
         var context=string.Join("\n",npcModel.LastMessages.Select(m=>m.role+": "+m.content));
-        Check(context.Contains("SPEAKER: name="+PlayerRules.Identity.Person.Name)&&context.Contains("age in years="+Math.Floor(PlayerRules.Identity.Person.AgeYears).ToString("0"))&&context.Contains(NpcVisibleHair(humanPlayer.Definition.Variant)),"actual request includes the controlled person's identity, age and rendered hair");
+        Check(context.Contains("SPEAKER: name="+PlayerRules.Identity.Person.Name)&&context.Contains("age in years="+Math.Floor(PlayerRules.Identity.Person.AgeYears).ToString("0"))&&context.Contains(NpcVisibleHair(humanPlayer)),"actual request includes the controlled person's identity, age and rendered hair");
         File.WriteAllText(Path.Combine(output,"actual-request.txt"),context);
         if(Environment.GetCommandLineArgs().Contains("--worldgen-npc-life-check"))
         {

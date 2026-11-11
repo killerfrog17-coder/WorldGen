@@ -32,7 +32,7 @@ public sealed partial class LocalTerrainExplorer
             actor.DetailRenderers=actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>();actor.DetailKinds=new byte[actor.DetailRenderers.Length];
             for(int i=0;i<actor.DetailRenderers.Length;i++)
             {
-                string name=actor.DetailRenderers[i].name.ToLowerInvariant();actor.DetailKinds[i]=(byte)(name.Contains("high-poly")?2:name.Contains("teeth")?4:name.Contains("eyebrow")||name.Contains("eyelash")?1:name.Contains("hair")||name.Contains("ponytail")||name.Contains("short0")?3:0);
+                string name=actor.DetailRenderers[i].name.ToLowerInvariant();actor.DetailKinds[i]=(byte)(name.Contains("high-poly")||name.EndsWith("_eyes")?2:name.Contains("teeth")?4:name.Contains("eyebrow")||name.Contains("eyelash")?1:name.Contains("hair")||name.Contains("ponytail")||name.Contains("short0")?3:0);
             }
         }
         EnsureHumanDetail();double distance=NpcViewDistance(actor);

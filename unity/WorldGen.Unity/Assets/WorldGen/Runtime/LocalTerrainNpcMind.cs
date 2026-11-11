@@ -31,6 +31,7 @@ public sealed partial class LocalTerrainExplorer
         return speaker==0?PlayerRules.Identity?.Person:livingPeople.TryGetValue(speaker,out var actor)?actor.Resident:null;
     }
     static string NpcVisibleHair(string variant)=>variant=="A"?"black, tightly curled hair":variant=="B"?"short dark brown hair":variant=="C"?"brown braided hair":variant=="D"?"long black hair":variant=="E"?"black braided hair":variant=="F"?"short grey hair":"hair appearance unavailable";
+    static string NpcVisibleHair(HumanActor actor)=>actor?.Resident?.Phenotype is HumanPhenotype p?HumanPhenotypes.VisibleAppearance(p,actor.Resident.Grooming,actor.Resident.AgeYears):NpcVisibleHair(actor?.Definition?.Variant);
     NpcMemory NpcMemoryFor(long person)
     {
         LivingState.Minds??=new List<NpcMemory>();var list=LivingState.Minds;
@@ -137,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
             var speaker=NpcSpeaker(actor,item.Speaker,out bool known);string name=known?speaker?.Name??"Visitor":"Visitor";
             return "YOU (NPC): "+actor.Resident.Name+". SPEAKER: "+name+". Speaker target="+(item.Speaker==0?"player":"person:"+item.Speaker)+". Available targets: "+string.Join(", ",targets)+". VERIFIED CURRENT OBSERVATION: time of day is "+NpcLocalKnowledge.Daypart(LocalSolarHour,group.Situation.DaylightHours)+"; weather: "+NpcLocalKnowledge.Weather(CurrentWeather)+". The latest question is about "+focus.ToString().ToLowerInvariant()+". Answer that observation directly; do not discuss previous work, gifts or old questions.";
         }
-        var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor.Definition?.Variant),NpcMemoryFor(actor.ResidentId).Social));s.Append(" Band: ").Append(band.Name);
+        var s=new StringBuilder(NpcPersonContext.Describe("YOU (NPC)",actor.Resident,band,true,NpcVisibleHair(actor),NpcMemoryFor(actor.ResidentId).Social));s.Append(" Band: ").Append(band.Name);
         s.Append(". Culture: ").Append(f.Cultures[band.Culture].Name).Append(". Language: ").Append(f.Languages[band.Language].Name).Append(" (render speech in English translation).");
         s.Append(" Current activity: ").Append(NpcActivityText(actor.CurrentActivity)).Append(". Camp phase: ").Append(group.Situation.Phase).Append(". Health: ").Append(actor.Health.ToString("0")).Append("/100. Breath strain: ").Append(actor.Exertion.Breath.ToString("0.00"));
         if(actor.Routine!=null)s.Append(". Assigned routine before this conversation: ").Append(NpcActivityText(actor.Routine.Activity));
@@ -148,7 +149,7 @@ public sealed partial class LocalTerrainExplorer
         var speakerPerson=NpcSpeaker(actor,item.Speaker,out bool knownSpeaker);
         bool sameBand=item.Speaker==0?PlayerRules.Identity?.Group==actor.GroupId:livingPeople.TryGetValue(item.Speaker,out var speakingPeer)&&speakingPeer.GroupId==actor.GroupId;
         string relation=knownSpeaker?ForagerSocialLife.Relationship(actor.Resident,speakerPerson,band):"no confirmed relationship";
-        string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer?.Definition?.Variant):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible.Definition?.Variant):"not available";
+        string appearance=item.Speaker==0?NpcVisibleHair(humanPlayer):livingPeople.TryGetValue(item.Speaker,out var visible)?NpcVisibleHair(visible):"not available";
         s.Append(' ').Append(NpcPersonContext.Describe("SPEAKER",speakerPerson,band,knownSpeaker,appearance,NpcMemoryFor(actor.ResidentId).Social));
         s.Append(" SPEAKER relationship to YOU: ").Append(sameBand?"member of your band; ":"not a member of your band; ").Append(relation).Append("; speaker target ID=").Append(item.Speaker==0?"player":"person:"+item.Speaker).Append('.');
         var contact=NpcMemoryFor(actor.ResidentId).Contact(item.Speaker>0?item.Speaker:PlayerPropertyKey);

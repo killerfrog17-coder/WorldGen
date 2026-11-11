@@ -7,6 +7,8 @@ import argparse, importlib.util, json, sys, time
 from pathlib import Path
 import bpy
 import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 
 ROOT=Path(__file__).resolve().parents[1]
 spec=importlib.util.spec_from_file_location('human_setup',ROOT/'scripts/build-mpfb-human-demo.py')
@@ -39,17 +41,33 @@ def add_grooming(body):
     specifications=[('Cropped',0,'short02','crop'),('Cropped',1,'afro01','crop'),('LooseShort',0,'cortu_short_messy_hair',''),('LooseShort',1,'afro01',''),('LooseLong',0,'long01',''),('LooseLong',1,'long01','wave'),('TiedBack',-1,'ponytail01',''),('Braided',-1,'braid01',''),('Braided',-1,'elvs_unkempt_french_braid','')]
     old_modifiers=set(body.modifiers);result=[]
     for index,(style,curl,name,adjust) in enumerate(specifications):
+        # This already-short curly asset relies on spaced alpha cards. Crushing
+        # its volume produces visible card grids, so retain the authored cut.
+        if adjust=='crop' and curl==1:adjust=''
         path=sources[name]
         obj=HumanService.add_mhclo_asset(str(path),body,asset_type='Hair',subdiv_levels=0,material_type='NONE',import_subrig=False)
         obj.name='groom_'+style+'_'+str(index)
         obj['phenotype_proxy_path']=str(path)
+        for polygon in obj.data.polygons:polygon.use_smooth=True
         if adjust:
             xyz=coords(obj.data);top=coords(body.data)[:13380,2].max()
             if adjust=='crop':
-                # Trim the volume outside the approximate scalp without moving
-                # roots away from the head. This retains the asset's alpha cards.
-                upper=xyz[:,2]>top-.16
-                xyz[upper,2]=top-.16+(xyz[upper,2]-(top-.16))*.62
+                # Follow the actual head surface. Flattening Z pushed the cap
+                # inside the skull and created bald patches on the old trial.
+                bpy.context.view_layer.update()
+                evaluated=body.evaluated_get(bpy.context.evaluated_depsgraph_get())
+                surface=evaluated.to_mesh()
+                points=[v.co.copy() for v in surface.vertices]
+                faces=[tuple(p.vertices) for p in surface.polygons if max(p.vertices)<13380]
+                scalp=BVHTree.FromPolygons(points,faces,all_triangles=False)
+                to_body=body.matrix_world.inverted()@obj.matrix_world
+                from_body=to_body.inverted()
+                for i,point in enumerate(xyz):
+                    position=to_body@Vector(point);nearest,normal,_,distance=scalp.find_nearest(position)
+                    if nearest is not None:
+                        fitted=nearest+(position-nearest)*.42+normal*.004
+                        xyz[i]=from_body@fitted
+                evaluated.to_mesh_clear()
             else:
                 # Wavy loose hair, with smooth roots; actual source cards retain
                 # their UVs, alpha and skin weights. Not a skin-colour choice.
@@ -57,14 +75,10 @@ def add_grooming(body):
                 xyz[:,0]+=.010*strength*np.sin(length*48+xyz[:,0]*25)
                 xyz[:,1]+=.008*strength*np.sin(length*48+xyz[:,0]*25+1.5)
             obj.data.vertices.foreach_set('co',xyz.ravel());obj.data.update()
-        texture=None
-        for variant in 'ABCDEF':
-            candidate=ROOT/f'assets-source/humans/appearance-runtime/exports/human-{variant.lower()}/{name}.png'
-            if candidate.exists():texture=candidate;break
-        if texture is None:
-            candidates=list(path.parent.glob('*diffuse*.png'))
-            if not candidates:raise RuntimeError('No licensed hair diffuse '+name)
-            texture=candidates[0]
+        material=next(path.parent.glob('*.mhmat'))
+        diffuse=next(line.split(maxsplit=1)[1].strip() for line in material.read_text().splitlines() if line.startswith('diffuseTexture '))
+        texture=path.parent/diffuse
+        if not texture.exists():raise RuntimeError('No licensed hair diffuse '+str(texture))
         obj['phenotype_texture_path']=str(texture)
         obj['phenotype_style']=style;obj['phenotype_curl']=curl
         result.append(obj)
@@ -106,6 +120,7 @@ def main(variants,ages):
             collection=bpy.data.collections[recipe['id']+'_after'];collection.hide_viewport=False;collection.hide_render=False
             rig=next(o for o in collection.objects if o.type=='ARMATURE')
             objects=[o for o in collection.objects if o.type=='MESH'];body=next(o for o in objects if o.get('physique_body'))
+        rig.data.pose_position='REST';bpy.context.view_layer.update()
         identity=letter+('-'+str(years) if years else '')
         objects+=add_grooming(body)
         for obj in list(bpy.data.objects):

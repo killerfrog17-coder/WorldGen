@@ -87,7 +87,7 @@ public sealed partial class LocalTerrainExplorer
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(ageModel?.Prefab??definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
-        var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Natural=natural,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
+        var actor=new HumanActor{Id=id,Root=root,Animator=animator,Definition=definition,Natural=natural,Resident=person,Inputs=new AnimationClipPlayable[definition.Clips.Length],Weights=new float[definition.Clips.Length]};
         if(ageModel!=null)CaptureHumanAgeRest(actor,ageModel);
         actor.Graph=PlayableGraph.Create(root.name+" movement");actor.Graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         actor.Mixer=AnimationMixerPlayable.Create(actor.Graph,actor.Inputs.Length);
@@ -180,7 +180,7 @@ public sealed partial class LocalTerrainExplorer
         humanPlayer.Root.transform.localRotation=Quaternion.Euler(0,humanPlayer.Yaw,0);
         var localVelocity=Quaternion.Inverse(humanPlayer.Root.transform.localRotation)*new Vector3((float)dx,0,(float)dz);
         humanPlayer.LocalVelocity=new Vector2(localVelocity.x,localVelocity.z);
-        AnimateHuman(humanPlayer,speed,!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
+        AnimateHuman(humanPlayer,speed/Mathf.Max(.1f,humanPlayer.Root.transform.localScale.y),!motion.Flying&&!motion.Swimming&&!motion.Grounded,crouch,dt,motion.Swimming);
         AimSharedHead();
         if(campSleeping)
         {humanPlayer.Root.transform.localRotation=Quaternion.Euler(90,humanPlayer.Yaw,0);humanPlayer.Root.transform.localPosition=new Vector3((float)(motion.X-originX),(float)(motion.Y-TerrainMotion.EyeHeightM)+.18f+(float)(sleepingBed?.BeddingDepthM??0),(float)(motion.Z-originZ))-Quaternion.Euler(0,humanPlayer.Yaw,0)*Vector3.forward*.7f;}

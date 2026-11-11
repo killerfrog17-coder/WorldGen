@@ -19,7 +19,90 @@ public static class HumanPhenotypeBuilder
         ShaderUtil.allowAsyncCompilation=false;
         string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
         var routine=LocalTerrainExplorer.CheckHumanPhenotypes(Path.Combine(repo,"artifacts/npc-ancestry-20261111/world-samples.json"),Path.Combine(repo,"artifacts/npc-ancestry-20261111/editor-gallery"),false);
-        while(routine.MoveNext()){}
+        double nextFrame=0;
+        void Advance()
+        {
+            if(EditorApplication.timeSinceStartup<nextFrame)return;
+            nextFrame=EditorApplication.timeSinceStartup+1.0/30;
+            try
+            {
+                if(routine.MoveNext()){EditorApplication.QueuePlayerLoopUpdate();return;}
+                EditorApplication.update-=Advance;EditorApplication.Exit(0);
+            }
+            catch(Exception error){Debug.LogException(error);EditorApplication.update-=Advance;EditorApplication.Exit(1);}
+        }
+        EditorApplication.update+=Advance;
+    }
+    public static void RepairCurlyCrop()
+    {
+        var bank=Resources.Load<WorldGenHumanPhenotypeLibrary>("HumanPhenotypes/Library");
+        foreach(var crop in bank.Hair.Where(h=>h.Style==WorldGen.Core.HumanHairStyle.Cropped&&h.Curl==1))
+        {
+            var original=bank.Hair.Single(h=>h.Variant==crop.Variant&&h.Style==WorldGen.Core.HumanHairStyle.LooseShort&&h.Curl==1);
+            EditorUtility.CopySerialized(original.Surface.Mesh,crop.Surface.Mesh);EditorUtility.SetDirty(crop.Surface.Mesh);
+            crop.Surface.Frames=original.Surface.Frames;
+        }
+        EditorUtility.SetDirty(bank);AssetDatabase.SaveAssets();
+    }
+    public static void RepairHairTextures()
+    {
+        string repo=Path.GetFullPath(Path.Combine(Application.dataPath,"../../.."));
+        var manifest=JsonUtility.FromJson<Manifest>("{\"rows\":"+File.ReadAllText(Path.Combine(repo,"assets-source/humans/phenotypes/exports/manifest.json"))+"}");
+        var bank=Resources.Load<WorldGenHumanPhenotypeLibrary>("HumanPhenotypes/Library");
+        var imported=new Dictionary<string,Texture2D>();
+        foreach(var row in manifest.rows)foreach(var hair in row.hair)
+        {
+            if(!imported.TryGetValue(hair.texture,out var texture))
+            {
+                string path=Input+"/"+Path.GetFileName(Path.GetDirectoryName(hair.texture))+"-"+Path.GetFileName(hair.texture);
+                File.Copy(Path.Combine(repo,hair.texture),path,true);AssetDatabase.ImportAsset(path);
+                var ti=(TextureImporter)AssetImporter.GetAtPath(path);ti.alphaSource=TextureImporterAlphaSource.FromInput;ti.alphaIsTransparency=true;ti.mipmapEnabled=true;ti.maxTextureSize=2048;ti.textureCompression=TextureImporterCompression.CompressedHQ;ti.SaveAndReimport();
+                texture=AssetDatabase.LoadAssetAtPath<Texture2D>(path);imported[hair.texture]=texture;
+            }
+            var entry=bank.Hair.Single(h=>h.Variant==row.variant&&h.Part==hair.part);entry.Material.SetTexture("_BaseMap",texture);EditorUtility.SetDirty(entry.Material);
+        }
+        bank.Pigments=JsonUtility.FromJson<PigmentList>(File.ReadAllText(Path.Combine(repo,"assets-source/humans/phenotypes/pigments.json"))).rows.Select(p=>new HumanPigmentReference{Texture=AssetDatabase.LoadAssetAtPath<Texture2D>(p.path),Luminance=p.luminance}).Where(p=>p.Texture!=null).ToArray();
+        EditorUtility.SetDirty(bank);AssetDatabase.SaveAssets();
+    }
+    static void SmoothHair(Mesh mesh)
+    {
+        var vertices=mesh.vertices;var old=mesh.normals;var triangles=mesh.triangles;
+        (long,long,long) At(int i)=>((long)Math.Round(vertices[i].x*1e7),(long)Math.Round(vertices[i].y*1e7),(long)Math.Round(vertices[i].z*1e7));
+        var sums=new Dictionary<(long,long,long),Vector3>();
+        for(int t=0;t<triangles.Length;t+=3)
+        {
+            int a=triangles[t],b=triangles[t+1],c=triangles[t+2];var normal=Vector3.Cross(vertices[b]-vertices[a],vertices[c]-vertices[a]);
+            if(Vector3.Dot(normal,old[a]+old[b]+old[c])<0)normal=-normal;
+            foreach(int i in new[]{a,b,c}){var key=At(i);sums.TryGetValue(key,out var value);sums[key]=value+normal;}
+        }
+        mesh.normals=Enumerable.Range(0,vertices.Length).Select(i=>sums.TryGetValue(At(i),out var value)&&value.sqrMagnitude>1e-20f?value.normalized:old[i]).ToArray();
+    }
+    public static void RepairHairNormals()
+    {
+        var bank=Resources.Load<WorldGenHumanPhenotypeLibrary>("HumanPhenotypes/Library");
+        foreach(var mesh in bank.Hair.Select(h=>h.Surface.Mesh).Distinct()){SmoothHair(mesh);EditorUtility.SetDirty(mesh);}
+        AssetDatabase.SaveAssets();
+    }
+    static void TrimAfroCards(Mesh mesh)
+    {
+        var uv=mesh.uv;var source=mesh.triangles;var kept=new List<int>();
+        for(int t=0;t<source.Length;t+=3)
+        {
+            int a=source[t],b=source[t+1],c=source[t+2];
+            // The source atlas's lower strips are overlapping flyaway cards.
+            // Retain the continuous inner/outer caps; these strips made a grid
+            // of depth intersections across the close cropped scalp.
+            if((uv[a].y+uv[b].y+uv[c].y)/3<.4f)continue;
+            kept.Add(a);kept.Add(b);kept.Add(c);
+        }
+        Check(kept.Count>300,"curly scalp lost its continuous cap");mesh.triangles=kept.ToArray();SmoothHair(mesh);
+    }
+    public static void RepairAfroCards()
+    {
+        var bank=Resources.Load<WorldGenHumanPhenotypeLibrary>("HumanPhenotypes/Library");
+        foreach(var hair in bank.Hair.Where(h=>h.Curl==1&&(h.Style==WorldGen.Core.HumanHairStyle.Cropped||h.Style==WorldGen.Core.HumanHairStyle.LooseShort)))
+        {TrimAfroCards(hair.Surface.Mesh);EditorUtility.SetDirty(hair.Surface.Mesh);}
+        AssetDatabase.SaveAssets();
     }
     [Serializable] sealed class Manifest{public Export[] rows;}
     [Serializable] sealed class Export{public string variant;public HairInfo[] hair;}
@@ -115,7 +198,8 @@ public static class HumanPhenotypeBuilder
                 var boneIndices=body.bones.Select((b,i)=>(b.name,i)).ToDictionary(p=>p.name,p=>p.i);
                 foreach(var hair in manifest.rows.Single(r=>r.variant==human.Variant).hair??Array.Empty<HairInfo>())
                 {
-                    var source=sources[hair.part];var imported=source.sharedMesh;var matrix=body.worldToLocalMatrix*source.localToWorldMatrix;var normalMatrix=matrix.inverse.transpose;
+                    string sourcePart=hair.style=="Cropped"&&hair.curl==1?manifest.rows.Single(r=>r.variant==human.Variant).hair.Single(h=>h.style=="LooseShort"&&h.curl==1).part:hair.part;
+                    var source=sources[sourcePart];var imported=source.sharedMesh;var matrix=body.worldToLocalMatrix*source.localToWorldMatrix;var normalMatrix=matrix.inverse.transpose;
                     var mesh=UnityEngine.Object.Instantiate(imported);mesh.ClearBlendShapes();mesh.vertices=imported.vertices.Select(v=>matrix.MultiplyPoint3x4(v)).ToArray();mesh.normals=imported.normals.Select(n=>normalMatrix.MultiplyVector(n).normalized).ToArray();
                     int[] remap=source.bones.Select(b=>{Check(boneIndices.ContainsKey(b.name),"hair bone absent "+b.name);return boneIndices[b.name];}).ToArray();
                     var weights=mesh.boneWeights;for(int i=0;i<weights.Length;i++)
@@ -129,10 +213,11 @@ public static class HumanPhenotypeBuilder
                         for(int i=0;i<dp.Length;i++){dp[i]=matrix.MultiplyVector(dp[i]);dn[i]=normalMatrix.MultiplyVector(sourceNormals[i]+dn[i]).normalized-normalMatrix.MultiplyVector(sourceNormals[i]).normalized;}
                         string name=imported.GetBlendShapeName(shape);mesh.AddBlendShapeFrame(name.Substring(name.LastIndexOf('.')+1),100,dp,dn,null);
                     }
+                    if(hair.curl==1&&(hair.style=="Cropped"||hair.style=="LooseShort"))TrimAfroCards(mesh);else SmoothHair(mesh);
                     var surface=Sparse(mesh);mesh.RecalculateBounds();string target=Output+"/"+human.Variant+"-"+hair.part+".asset";var existing=AssetDatabase.LoadAssetAtPath<Mesh>(target);
                     if(existing==null)AssetDatabase.CreateAsset(mesh,target);else{EditorUtility.CopySerialized(mesh,existing);UnityEngine.Object.DestroyImmediate(mesh);surface.Mesh=existing;}
                     string texture=Input+"/"+Path.GetFileName(Path.GetDirectoryName(hair.texture))+"-"+Path.GetFileName(hair.texture);File.Copy(Path.Combine(repo,hair.texture),texture,true);AssetDatabase.ImportAsset(texture);
-                    var ti=(TextureImporter)AssetImporter.GetAtPath(texture);ti.alphaSource=TextureImporterAlphaSource.FromInput;ti.alphaIsTransparency=true;ti.mipmapEnabled=true;ti.maxTextureSize=1024;ti.textureCompression=TextureImporterCompression.CompressedHQ;ti.SaveAndReimport();
+                    var ti=(TextureImporter)AssetImporter.GetAtPath(texture);ti.alphaSource=TextureImporterAlphaSource.FromInput;ti.alphaIsTransparency=true;ti.mipmapEnabled=true;ti.maxTextureSize=2048;ti.textureCompression=TextureImporterCompression.CompressedHQ;ti.SaveAndReimport();
                     string materialPath=Output+"/hair-"+Path.GetFileNameWithoutExtension(texture)+".mat";var material=AssetDatabase.LoadAssetAtPath<Material>(materialPath);
                     if(material==null){material=new Material(Shader.Find("WorldGen/Human"));AssetDatabase.CreateAsset(material,materialPath);}material.SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(texture));material.SetFloat("_Cutoff",.3f);material.SetFloat("_Roughness",.8f);EditorUtility.SetDirty(material);
                     hairEntries.Add(new HumanGroomedMesh{Variant=human.Variant,Part=hair.part,Style=(WorldGen.Core.HumanHairStyle)Enum.Parse(typeof(WorldGen.Core.HumanHairStyle),hair.style),Curl=hair.curl,Surface=surface,Material=material});

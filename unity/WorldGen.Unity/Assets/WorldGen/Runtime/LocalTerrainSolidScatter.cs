@@ -34,8 +34,10 @@ public sealed partial class LocalTerrainExplorer
             motion.SolidContact=ResolvePlayerSolidContact;
         }
         bool requested=!motion.Flying&&!motion.Swimming&&ActiveKeyboard?.ctrlKey.isPressed==true;
-        playerForcedCrouch=!requested&&!motion.NoClip&&!motion.Flying&&!motion.Swimming&&Physics.CheckCapsule(transform.TransformPoint(PlayerFeet()+Vector3.up*1.36f),transform.TransformPoint(PlayerFeet()+Vector3.up*1.5f),.23f,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
-        float bodyHeight=requested||playerForcedCrouch?1.35f:1.75f;
+        float scale=humanPlayer?.Phenotype==null?1:(HumanActualEye(humanPlayer)+.1f*humanPlayer.Root.transform.localScale.y)/1.75f;
+        playerSolid.radius=.25f*scale;playerSolid.stepOffset=.22f*scale;
+        playerForcedCrouch=!requested&&!motion.NoClip&&!motion.Flying&&!motion.Swimming&&Physics.CheckCapsule(transform.TransformPoint(PlayerFeet()+Vector3.up*(1.36f*scale)),transform.TransformPoint(PlayerFeet()+Vector3.up*(1.5f*scale)),.23f*scale,1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore);
+        float bodyHeight=(requested||playerForcedCrouch?1.35f:1.75f)*scale;
         if(Mathf.Abs(playerSolid.height-bodyHeight)>.01f){playerSolid.height=bodyHeight;playerSolid.center=Vector3.up*(bodyHeight*.5f);}
         if(!motion.NoClip)RefreshPlayerSolids(PlayerFeet(),PlayerFeet());
     }

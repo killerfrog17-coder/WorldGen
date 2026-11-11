@@ -131,5 +131,16 @@ namespace WorldGen.Core
             V low=new V(.20,.39,.51)*(1-hue)+new V(.30,.40,.19)*hue,high=new V(.12,.062,.025);
             double dark=D.Clamp((pigment-.2)/.65);return low*(1-dark)+high*dark;
         }
+        public static string VisibleAppearance(HumanPhenotype p,HumanGrooming grooming,double age)
+        {
+            double pigment=p.Trait(HumanFormTrait.Hair),grey=D.Clamp((age-35)/55)*(.35+.65*p.Trait(HumanFormTrait.Undertone));
+            string color=grey>.65?"grey":grey>.28?"greying":p.Trait(HumanFormTrait.RedHair)>.6?"reddish-brown":pigment>.78?"black":pigment>.5?"dark brown":pigment>.28?"brown":"fair";
+            string texture=p.Trait(HumanFormTrait.Curl)>.75?"tightly curled":p.Trait(HumanFormTrait.Curl)>.58?"curly":p.Trait(HumanFormTrait.Curl)>.35?"wavy":"straight";
+            string style=grooming?.Hair==HumanHairStyle.Cropped?"cropped":grooming?.Hair==HumanHairStyle.LooseLong?"loose and long":grooming?.Hair==HumanHairStyle.TiedBack?"tied back":grooming?.Hair==HumanHairStyle.Braided?"braided":"loose and short";
+            string hair=grooming?.Hair==HumanHairStyle.Shaved?"shaved scalp":color+", "+texture+" hair, "+style;
+            double iris=p.Trait(HumanFormTrait.Iris);
+            string eyes=iris>.7?"brown":iris>.45?"hazel":p.Trait(HumanFormTrait.IrisHue)>.5?"green":"blue";
+            return hair+"; "+eyes+" eyes";
+        }
     }
 }

@@ -1,5 +1,5 @@
 {
-  "status": "in_progress_not_visually_accepted",
+  "status": "source_implemented_native_build_and_gameplay_pending_GPU_hold",
   "scope": "Inherited NPC appearance and persistent peoples; cultural grooming; character-creation backend only",
   "design": {
     "inherited": [
@@ -78,8 +78,43 @@
       {
         "name": "editor_gallery_v1",
         "reason": "Unity serializes null inline classes as empty objects; runtime attempted missing non-body LOD mesh. Mesh-presence guard corrected; retest pending"
+      },
+      {
+        "name": "editor_gallery_v4",
+        "reason": "Child eye renderer had been incorrectly hidden; corrected child eye-name classification and conservative bounds."
+      },
+      {
+        "name": "editor_gallery_v7",
+        "reason": "Check assumed baseline adult eyes already disabled offscreen evaluation; false assumption. New personally shaped NPC skins explicitly disable it with conservative culling bounds."
       }
-    ]
+    ],
+    "editor_gallery_v8": {
+      "passed": true,
+      "profiles": 24,
+      "poses_per_profile": 4,
+      "skin_probes_per_pose": 512,
+      "production_bake_scale_max_error_m": 1e-06,
+      "images_reviewed": 48,
+      "visual_limits": "Short styles have scalp penetration in v8; rejected visually and corrected with BVH scalp fit. Pending reimport v4/gallery v9."
+    },
+    "editor_gallery_v13": {
+      "passed": true,
+      "checks": 713,
+      "actual_generated_profiles": 24,
+      "synthetic_parameter_controls": 6,
+      "poses": 120,
+      "production_bake_scale_max_error_m": 8.68144525156822e-07,
+      "coverage": [
+        "saved NPC phenotype/groom serialization",
+        "controlled-player embodiment serialization",
+        "actual combat pose surface versus bone matrices",
+        "adult and child rendering",
+        "full/middle/far personally shaped bodies",
+        "error-shader pixel rejection"
+      ],
+      "images": 60,
+      "visuals": "Close cropped scalp intersections fixed; curly flyaway cards removed after grid artifacts. Existing source skin/eye/hair art retained."
+    }
   },
   "local_cache_move": {
     "from": "unity/WorldGen.Unity/Library/DataStore",
@@ -89,11 +124,20 @@
     "bytes": 3927002009,
     "permanent_inputs_changed": false
   },
-  "build": "Slot A and root shortcut protected; slot B unchanged pending full new asset build",
+  "build": "Slot A and root shortcut protected; slot B still previous river117. No appearance player build yet.",
   "limits": [
     "Not an exact reconstruction of named modern ethnic groups",
     "Limb-proportion channel stored but not yet rendered",
     "No character creation UI",
     "Native/gameplay/performance acceptance pending"
-  ]
+  ],
+  "gpu_incident": {
+    "event_utc": "2026-11-11T04:56:17.2892266Z",
+    "provider": "nvlddmkm",
+    "event_id": 153,
+    "event_data": "Error occurred on GPUID: 2b00",
+    "user_symptom": "YouTube green/black flashing persists after video refresh",
+    "causation": "Driver error coincides with Unity review; event does not identify responsible process. No assertion of proven causal attribution.",
+    "response": "Confirmed no Unity, player, Blender, or local-model process remains. GPU checks held while owner watches. Future portrait checks capped at 30 FPS / Editor advances; redundant renders removed, untested since change."
+  }
 }

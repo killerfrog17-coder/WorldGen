@@ -31,7 +31,7 @@ public sealed partial class LocalTerrainExplorer
         naturalBowHook=inventoryBones["hand_r"].InverseTransformPoint(tip/3);naturalBowHookValid=true;
     }
     Possession SharedMainHeld=>itemCharge?.Weapon??pendingRanged?.Charge.Weapon??Inventory.AtHand(PossessionPlace.RightHand)??Inventory.AtHand(PossessionPlace.LeftHand);
-    float NaturalScale=>humanPlayer.Definition.EyeHeight/1.65f;
+    float NaturalScale=>HumanActualEye(humanPlayer)/1.65f;
     float NaturalBowYaw=>NaturalBow!=null&&!motion.Swimming?55*sharedBowRaise:0;
     Possession NaturalBow
     {
@@ -177,7 +177,7 @@ public sealed partial class LocalTerrainExplorer
             var raw=SharedGripPosition(main);Vector3 local=body.InverseTransformPoint(raw);
             // A generated wind-up can sweep the hand behind the opposite shoulder.
             // Keep the rigid shaft on the throwing side, within a reachable cock.
-            local.x=side*Mathf.Max(local.x*side,.28f*s);local.z=Mathf.Max(local.z,-.25f*s);
+            local.x=side*Mathf.Max(local.x*side,.28f*s/Mathf.Max(.1f,body.lossyScale.x));local.z=Mathf.Max(local.z,-.25f*s/Mathf.Max(.1f,body.lossyScale.z));
             Vector3 safe=body.TransformPoint(local);
             for(int i=0;i<12&&NaturalPoleClearance(item,safe,axis)<.025f*s;i++)safe+=body.right*(side*.025f*s);
             NaturalGrip(main,safe,axis,weight:Mathf.Clamp01(state.Intent));return;

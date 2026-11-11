@@ -62,7 +62,7 @@ def inventory():
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
     tree('assets-source/humans/phenotypes','human-phenotype-source',{'.fbx','.json','.txt'})
-    for sourceRoot,names in [('research/builders/mpfb-assets',['short02','ponytail01']),('appearance-review/mpfb-assets',['afro01','long01','braid01','cortu_short_messy_hair','elvs_unkempt_french_braid'])]:
+    for sourceRoot,names in [('research/builders/mpfb-assets',['short02','ponytail01','afro01']),('appearance-review/mpfb-assets',['long01','braid01','cortu_short_messy_hair','elvs_unkempt_french_braid'])]:
         for name in names:
             tree('assets-source/humans/'+sourceRoot+'/hair/'+name,'human-phenotype-source',{'.obj','.mhclo','.mhmat','.png','.txt'})
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanPhenotypes','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanPhenotypes']:

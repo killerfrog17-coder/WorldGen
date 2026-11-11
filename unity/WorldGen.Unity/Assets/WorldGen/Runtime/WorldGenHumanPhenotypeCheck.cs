@@ -15,8 +15,26 @@ public sealed partial class LocalTerrainExplorer
     {public string Label,Culture,People,Species;public int Cohort,SourceCell;public ForagerPersonSample Person;}
     [Serializable] sealed class HumanReviewData
     {public string HistoryHash;public int Seed,Year;public HumanReviewRow[] Rows;public int DistinctPeople,DistinctSpecies;}
+    static IEnumerable<HumanReviewRow> HumanAppearanceReviewRows(HumanReviewData data)
+    {
+        foreach(var row in data.Rows)yield return row;
+        var original=data.Rows.First(r=>r.Person.AgeYears>=18&&!r.Person.Female).Person;
+        for(int i=0;i<6;i++)
+        {
+            var person=PlayerIdentity.CopyPerson(original);person.Id=900000+i;person.AgeYears=28;
+            person.Phenotype.Species="Homo sapiens";person.Phenotype.AdultStatureM=1.72;person.Phenotype.AdultMassKg=68;person.Phenotype.Traits=Enumerable.Repeat(.5,HumanPhenotypes.Count).ToArray();
+            var p=person.Phenotype.Traits;p[(int)HumanFormTrait.Skin]=new[]{.12,.3,.45,.65,.8,.92}[i];p[(int)HumanFormTrait.Hair]=new[]{.2,.55,.88,.8,.7,.95}[i];
+            p[(int)HumanFormTrait.Iris]=new[]{.1,.3,.8,.8,.55,.9}[i];p[(int)HumanFormTrait.IrisHue]=i%2;p[(int)HumanFormTrait.Curl]=i==1?.85:.3;
+            p[(int)HumanFormTrait.FaceWidth]=new[]{.5,.85,.2,.75,.55,.35}[i];p[(int)HumanFormTrait.JawWidth]=new[]{.5,.85,.25,.4,.75,.6}[i];
+            p[(int)HumanFormTrait.NoseWidth]=new[]{.5,.8,.2,.45,.6,.35}[i];p[(int)HumanFormTrait.NoseProjection]=new[]{.5,.4,.7,.25,.8,.65}[i];
+            p[(int)HumanFormTrait.LipVolume]=new[]{.5,.75,.3,.65,.4,.6}[i];p[(int)HumanFormTrait.EyelidFold]=new[]{.5,.3,.2,.85,.5,.65}[i];p[(int)HumanFormTrait.BrowRidge]=i==4?.85:.5;
+            person.Grooming=new HumanGrooming{Hair=i==0||i==1?HumanHairStyle.Cropped:i==2?HumanHairStyle.LooseLong:i==3?HumanHairStyle.TiedBack:i==4?HumanHairStyle.Braided:HumanHairStyle.Shaved,Beard=HumanBeardStyle.None};
+            yield return new HumanReviewRow{Label="Synthetic parameter control",People="Controlled anatomy; not a generated ethnicity",Species="Homo sapiens",Cohort=-1,SourceCell=-1,Person=person};
+        }
+    }
     public static IEnumerator CheckHumanPhenotypes(string samples,string output,bool quit=true)
     {
+        Application.targetFrameRate=30;
         Directory.CreateDirectory(output);var checks=new List<string>();
         void Check(bool ok,string label){if(!ok)throw new InvalidOperationException("PHENOTYPE "+label);checks.Add("PASS "+label);}
         if(quit)Application.logMessageReceived+=(m,t,k)=>{if(k==LogType.Error||k==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),m+"\n"+t);Application.Quit(1);}};
@@ -31,16 +49,26 @@ public sealed partial class LocalTerrainExplorer
         var target=new RenderTexture(900,1000,24);target.Create();cam.targetTexture=target;var previous=RenderTexture.active;
         void Capture(string name,Vector3 focus,float extent)
         {
-            cam.orthographic=true;cam.orthographicSize=extent;cam.transform.position=focus+new Vector3(.14f,0,3);cam.transform.LookAt(focus);cam.Render();cam.Render();RenderTexture.active=target;
-            var image=new Texture2D(900,1000,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,900,1000),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());DestroyImmediate(image);
+            cam.orthographic=true;cam.orthographicSize=extent;cam.transform.position=focus+new Vector3(.14f,0,3);cam.transform.LookAt(focus);cam.Render();RenderTexture.active=target;
+            var image=new Texture2D(900,1000,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,900,1000),0,0);image.Apply();
+            var pixels=image.GetPixels32();Check(pixels.Count(p=>p.r>200&&p.b>200&&p.g<40)<900,"portrait contains no error-shader surface: "+name);
+            File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());DestroyImmediate(image);
         }
         try
         {
             int index=0;var metrics=new List<string>();var hairMetrics=new List<string>();
-            foreach(var row in data.Rows)
+            foreach(var row in HumanAppearanceReviewRows(data))
             {
                 var person=row.Person;int variant=PlayerWorldEntry.Variant(person);var age=Resources.Load<WorldGenHumanAgeLibrary>("HumanAges/Library").Find(owner.humanLibrary.People[variant].Variant,person.AgeYears);
-                var actor=owner.CreateHuman(variant,1000+index,true,age,person);actor.Resident=person;
+                var memory=new HumanLocalState();memory.People.Add(new HumanPersonMemory{Person=person.Id,Group=1,Position=new V(1,0,0),Phenotype=person.Phenotype.Copy(),Grooming=person.Grooming.Copy()});
+                var restored=WorldJson.Read<HumanLocalState>(WorldJson.Write(memory));restored.Validate();
+                Check(restored.People[0].Phenotype.Traits.SequenceEqual(person.Phenotype.Traits)&&restored.People[0].Grooming.Hair==person.Grooming.Hair,"resident"+index+" saved local appearance survives serialization");
+                if(person.AgeYears>=18)
+                {
+                    var identity=new PlayerIdentity{Group=1,Person=PlayerIdentity.CopyPerson(person)};var identityReload=WorldJson.Read<PlayerIdentity>(WorldJson.Write(identity));identityReload.Validate();
+                    Check(identityReload.Person.Id==person.Id&&identityReload.Person.Phenotype.Traits.SequenceEqual(person.Phenotype.Traits)&&PlayerWorldEntry.Variant(identityReload.Person)==variant,"resident"+index+" player embodiment retains inherited body and identity");
+                }
+                var actor=owner.CreateHuman(variant,1000+index,true,age,person);actor.Resident=person;actor.Root.transform.localPosition=Vector3.zero;
                 if(age!=null){double factor=person.AgeYears<age.Years?1-(age.Years-person.AgeYears)*.035:1+(person.AgeYears-age.Years)*.018;actor.Root.transform.localScale=actor.PhenotypeScale*(float)Math.Max(.78,Math.Min(1.09,factor));}
                 void Pose(float speed,bool crouch){owner.AnimateHuman(actor,speed/(actor.Root.transform.localScale.y*actor.AgeMotionRatio),false,crouch,1f/30);actor.Shared.Routine(null,0,1f/30);actor.Shared.Carry(null,0,1f/30);actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);}
                 try
@@ -55,19 +83,24 @@ public sealed partial class LocalTerrainExplorer
                     foreach(var pose in new[]{("idle",0f), ("walk",1.5f), ("run",3.4f), ("crouch",.7f)})
                     {
                         for(int step=0;step<20;step++)Pose(pose.Item2,pose.Item1=="crouch");
+                        yield return null;
+                        var contact=owner.PosedHuman(body);
                         var vertices=body.sharedMesh.vertices;var weights=body.sharedMesh.boneWeights;var bind=body.sharedMesh.bindposes;
                         var baked=new Mesh();body.BakeMesh(baked,true);var bakedTrue=baked.vertices;body.BakeMesh(baked,false);var bakedFalse=baked.vertices;
-                        double errTrue=0,errFalse=0;int probes=0;var bounds=new Bounds();bool first=true;
+                        double errTrue=0,errFalse=0,contactError=0;int probes=0;var bounds=new Bounds();bool first=true,finite=true;
                         for(int v=0;v<vertices.Length;v+=Math.Max(1,vertices.Length/512))
                         {
                             var w=weights[v];Vector3 expected=Vector3.zero;
                             void Add(int b,float weight){if(weight>0)expected+=body.bones[b].localToWorldMatrix.MultiplyPoint3x4(bind[b].MultiplyPoint3x4(vertices[v]))*weight;}
                             Add(w.boneIndex0,w.weight0);Add(w.boneIndex1,w.weight1);Add(w.boneIndex2,w.weight2);Add(w.boneIndex3,w.weight3);
-                            Check(float.IsFinite(expected.x)&&float.IsFinite(expected.y)&&float.IsFinite(expected.z),"finite native skin sample");
+                            finite&=float.IsFinite(expected.x)&&float.IsFinite(expected.y)&&float.IsFinite(expected.z);
                             errTrue=Math.Max(errTrue,(body.transform.TransformPoint(bakedTrue[v])-expected).magnitude);errFalse=Math.Max(errFalse,(body.transform.TransformPoint(bakedFalse[v])-expected).magnitude);probes++;
+                            contactError=Math.Max(contactError,(contact.Vertices[v]-expected).magnitude);
                             if(first){bounds=new Bounds(expected,Vector3.zero);first=false;}else bounds.Encapsulate(expected);
                         }
+                        Check(finite&&probes>=512,"resident"+index+"/"+pose.Item1+" finite native skin samples");
                         Check(errTrue<.002,"resident"+index+"/"+pose.Item1+" production combat scale agrees with actual bone matrices");
+                        Check(contactError<.002,"resident"+index+"/"+pose.Item1+" actual combat surface matches posed anatomy");
                         metrics.Add(index+","+pose.Item1+","+person.AgeYears+","+actor.Root.transform.localScale.y+","+errTrue+","+errFalse+","+bounds.size.y);
                         DestroyImmediate(baked);
                     }
@@ -79,6 +112,10 @@ public sealed partial class LocalTerrainExplorer
                     }
                     var eyes=actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>().First(r=>r.name.Contains("high-poly")||r.name.EndsWith("_Eyes"));var eyeMesh=new Mesh();eyes.BakeMesh(eyeMesh,true);var eyeCenter=Vector3.zero;foreach(var p in eyeMesh.vertices)eyeCenter+=eyes.transform.TransformPoint(p);eyeCenter/=eyeMesh.vertexCount;DestroyImmediate(eyeMesh);
                     float eye=owner.HumanActualEye(actor);hairMetrics.Add(index+",eye_mesh,"+eyeCenter.x+","+eyeCenter.y+","+eyeCenter.z+",0,0,0,"+eye);
+                    var eb=eyes.bounds;hairMetrics.Add(index+",eye_cull,"+eb.center.x+","+eb.center.y+","+eb.center.z+","+eb.size.x+","+eb.size.y+","+eb.size.z+","+eye);
+                    File.AppendAllText(Path.Combine(output,"eye-diagnostic.txt"),index+" "+eyes.name+" root "+eyes.rootBone.name+" local "+eyes.localBounds+" material "+eyes.sharedMaterial.name+" texture "+eyes.sharedMaterial.GetTexture("_BaseMap")?.name+"\n");
+                    Check(!eyes.updateWhenOffscreen,"resident"+index+" eyes retain normal offscreen culling");
+                    cam.transform.position=eyeCenter+Vector3.forward*3;cam.transform.LookAt(eyeCenter);cam.Render();yield return null;
                     Capture("resident-"+index+"-face",eyeCenter-Vector3.up*.035f,.26f*actor.Root.transform.localScale.y);
                     var bm=new Mesh();body.BakeMesh(bm,true);var points=bm.vertices.Select(p=>body.transform.TransformPoint(p)).ToArray();var bb=new Bounds(points[0],Vector3.zero);foreach(var p in points)bb.Encapsulate(p);DestroyImmediate(bm);
                     Capture("resident-"+index+"-body",bb.center,bb.size.y*.6f);
@@ -96,6 +133,7 @@ public sealed partial class LocalTerrainExplorer
                         actor.Shared?.Dispose();if(actor.Graph.IsValid())actor.Graph.Destroy();
                         foreach(var mesh in actor.PhenotypeMeshes){owner.humanDetailMeshes.Remove(mesh);DestroyImmediate(mesh);}
                         foreach(var material in actor.OwnedMaterials)DestroyImmediate(material);
+                        foreach(var renderer in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>())if(owner.humanCombatSurfaces.TryGetValue(renderer,out var surface)){DestroyImmediate(surface.Mesh);owner.humanCombatSurfaces.Remove(renderer);}
                         DestroyImmediate(actor.Root);
                     }
                 }
