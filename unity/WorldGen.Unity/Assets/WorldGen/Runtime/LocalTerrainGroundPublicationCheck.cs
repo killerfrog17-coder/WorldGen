@@ -8,6 +8,30 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    void ReclaimGroundProofTile(TerrainTileKey key,Tile original)
+    {
+        // Real replacement transfers the old tile into the cache. A proof
+        // restoring it manually must take that lease back before making it
+        // live, or a later Put can queue its live mesh for destruction.
+        if(TerrainProducts.Take(new TerrainProductKey(key,original.Segments,original.Edges,false),out var cached)&&!ReferenceEquals(cached,original))
+            TerrainProducts.Put(new TerrainProductKey(key,cached.Segments,cached.Edges),cached,cached.BufferBytes);
+    }
+    void VerifyGroundProofScene(string context)
+    {
+        foreach(var pair in tiles)
+        {
+            var tile=pair.Value;string at=context+" tile="+pair.Key.X+","+pair.Key.Z+"/L"+pair.Key.Level;
+            if(tile.Root==null||!tile.Root.activeInHierarchy)throw new InvalidOperationException(at+": live terrain root is missing or inactive");
+            var land=tile.Root.transform.Find("Land and seabed");var filter=land==null?null:land.GetComponent<MeshFilter>();var renderer=land==null?null:land.GetComponent<MeshRenderer>();
+            if(filter==null||filter.sharedMesh==null||filter.sharedMesh.vertexCount==0||filter.sharedMesh.subMeshCount==0||filter.sharedMesh.GetIndexCount(0)==0||renderer==null||!renderer.enabled||!land.gameObject.activeInHierarchy)
+                throw new InvalidOperationException(at+": live land mesh or renderer is missing/inactive");
+            foreach(var retiring in retiringFrames)
+            {
+                foreach(var retired in retiring.Tiles)if(ReferenceEquals(retired,tile))throw new InvalidOperationException(at+": live terrain is also queued for destruction");
+                if(retiring.Root!=null&&tile.Root.transform.IsChildOf(retiring.Root.transform))throw new InvalidOperationException(at+": live terrain belongs to a retiring chart");
+            }
+        }
+    }
     sealed class GroundProofState
     {
         sealed class ChunkState
@@ -82,6 +106,7 @@ public sealed partial class LocalTerrainExplorer
     public IEnumerator PerformanceVerifyGroundPublication(string output)
     {
         while(GroundPublicationPending)yield return null;
+        VerifyGroundProofScene("before staged ground proof");
         bool holdTerrain=TerrainDiagnostics.HoldTerrain,holdPlants=TerrainDiagnostics.HoldPlants;
         TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
         int checks=0,slices=0,edits=0,queries=0;var baseline=new GroundProofState(this);
@@ -127,7 +152,7 @@ public sealed partial class LocalTerrainExplorer
             yield return PerformanceVerifyGroundRetirement(output);
             File.WriteAllText(Path.Combine(output,"staged-ground-proof.txt"),"PASS "+checks+" exact scatter/forest component and level comparisons, group/chunk/field bounds, "+queries+" bit-exact future owner/height queries, "+edits+" affected roots, "+slices+" yielded preparation slices; live roots unchanged throughout preparation, including removal to coarser/fallback owners.\n");
         }
-        finally{baseline.Restore();TerrainDiagnostics.HoldTerrain=holdTerrain;TerrainDiagnostics.HoldPlants=holdPlants;scatterDirty=true;}
+        finally{baseline.Restore();TerrainDiagnostics.HoldTerrain=holdTerrain;TerrainDiagnostics.HoldPlants=holdPlants;scatterDirty=true;VerifyGroundProofScene("after staged ground proof");}
     }
     IEnumerator PerformanceVerifyGroundRetirement(string output)
     {
@@ -165,10 +190,11 @@ public sealed partial class LocalTerrainExplorer
         finally
         {
             if(GroundPublicationPending)CancelGroundPublication();
-            TerrainProducts.Take(new TerrainProductKey(key,old.Segments,old.Edges,false),out _);
+            ReclaimGroundProofTile(key,old);
             tiles[key]=old;residentRevision++;old.Root.SetActive(true);
             if(wasWanted)wanted[key]=detail;else wanted.Remove(key);
             baseline.Restore();scatterGroundChanges.Clear();coverageDirty=true;WorldGenPerformance.StagedTerrainRetirement=oldRetirement;
+            VerifyGroundProofScene("after retirement proof cleanup");
         }
     }
     public IEnumerator PerformanceVerifyCachedGroundPublication(string output)
@@ -214,10 +240,12 @@ public sealed partial class LocalTerrainExplorer
         finally
         {
             bool cancelled=GroundPublicationPending;if(cancelled)CancelGroundPublication();
+            ReclaimGroundProofTile(key,old);
             tiles[key]=old;residentRevision++;previousTerrain.Remove(key);old.FadeIn=fadeIn;old.FadeOut=fadeOut;old.Root.SetActive(true);
             baseline.Restore();scatterGroundChanges.Clear();coverageDirty=true;
             if(!cancelled&&selected&&product.Root!=null)DestroyTile(product);
             else if(!selected&&product.Root!=null&&!TerrainProducts.Contains(new TerrainProductKey(key,product.Segments,product.Edges)))DestroyTile(product);
+            VerifyGroundProofScene("after cache proof cleanup");
         }
     }
 }

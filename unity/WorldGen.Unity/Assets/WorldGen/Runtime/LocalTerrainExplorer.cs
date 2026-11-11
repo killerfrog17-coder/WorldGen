@@ -258,7 +258,16 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(TerrainDiagnostics.HoldTerrain){UpdateScatter();UpdateAnimalFauna();UpdateWeatherPresentation();UpdateDebugReadout();return;}
         long planningTrace=WorldGenPerformance.TraceBegin();
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
-        if(double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3))RefreshWanted();
+        bool movedPlan=double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3);
+        // Poll immediately replaces the plan when settings changed or a valid
+        // async result is ready. Do not construct/edge/sort a synchronous plan
+        // that would be discarded again in this same planning pass.
+        if(movedPlan&&(mapOpen||detailRevision==TerrainVideoOptions.Revision))
+        {
+            if(!mapOpen&&!legacyPlanRefresh&&!double.IsNaN(plannedX)&&CanAdoptTerrainDetailPlan())
+            {plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=altitude;detailDirty=true;PlanBackdrop();}
+            else RefreshWanted();
+        }
         if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
         WorldGenPerformance.TraceEnd(34,planningTrace);
         AdvanceGroundPublication();

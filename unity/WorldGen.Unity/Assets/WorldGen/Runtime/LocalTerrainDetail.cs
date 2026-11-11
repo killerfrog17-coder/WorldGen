@@ -84,6 +84,12 @@ public sealed partial class LocalTerrainExplorer
         var options=detailOptions.Copy();options.ViewDistanceM=viewDistance;TerrainDiagnostics.Detail(options);
         return TerrainAdaptiveLod.Plan(x,z,altitude,HorizontalScale,options,(_,__)=>0,Screen.height,view.fieldOfView);
     }
+    bool CanAdoptTerrainDetailPlan()
+    {
+        if(detailBaseline||detailPlan==null||!detailPlan.IsCompleted||detailPlan.IsFaulted||detailPlan.IsCanceled||detailGeneration!=generation)return false;
+        double ageDistance=Math.Max(Math.Abs(detailX-motion.X),Math.Abs(detailZ-motion.Z));
+        return ageDistance<=Math.Max(detailOptions.FullRadius(HorizontalScale),Math.Abs(HeightAboveGround));
+    }
     void PollTerrainDetail()
     {
         if(detailRevision!=TerrainVideoOptions.Revision)
@@ -106,8 +112,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(!detailPlan.IsCanceled&&detailGeneration==generation)
             {
-                double ageDistance=Math.Max(Math.Abs(detailX-motion.X),Math.Abs(detailZ-motion.Z));
-                if(ageDistance<=Math.Max(detailOptions.FullRadius(HorizontalScale),Math.Abs(HeightAboveGround)))
+                if(CanAdoptTerrainDetailPlan())
                 {
                     detailAccepted++;
                     AdoptDetailPlan(TerrainStreamingPlan.ProtectNear(detailPlan.Result,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,HeightAboveGround),detailOptions.FinestSegments));
