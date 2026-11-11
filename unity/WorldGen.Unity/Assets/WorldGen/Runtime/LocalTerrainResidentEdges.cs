@@ -113,6 +113,7 @@ public sealed partial class LocalTerrainExplorer
     void RestoreResidentEdge(Tile tile)
     {
         var data=tile.ResidentEdges;
+        if(!data.Conformed)return;
         for(int i=0;i<data.Points.Length;i++)
         {
             var point=data.Points[i];float height=point.Position.y;data.Heights[i]=height;
@@ -168,7 +169,8 @@ public sealed partial class LocalTerrainExplorer
             var tile=pair.Value;var data=tile.ResidentEdges;long before=tile.Contact?.Bytes??0;
             for(int i=0;i<data.Points.Length;i++)
             {
-                float height=ResidentTarget(pair.Key,tile,i);var point=data.Points[i];data.Heights[i]=height;
+                float height=ResidentTarget(pair.Key,tile,i);if(height==data.Heights[i])continue;
+                var point=data.Points[i];data.Heights[i]=height;
                 if(point.Vertex<tile.Heights.Length)tile.Heights[point.Vertex]=height;
                 if(tile.Cover.IsCreated&&point.Vertex<tile.Heights.Length&&point.Vertex*16+15<tile.Cover.Length)tile.Cover[point.Vertex*16+15]=height;
                 tile.Contact?.SetHeight(point.Vertex,height);

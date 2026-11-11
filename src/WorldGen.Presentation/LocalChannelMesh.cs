@@ -121,10 +121,12 @@ namespace WorldGen.Presentation
             }
             if(cuts.Count==0)return original;
             if(timing!=null)timing.ChannelConstraintsMs=timer!.Elapsed.TotalMilliseconds;
-            // A sparse base grid can become a dense mesh at a river. Prime the
-            // shared exact-query index only once we KNOW refinement is needed.
-            // Otherwise every added bank vertex rescans the broad river region.
-            if(terrain.Amplification!=null)patch.RiverSpans();
+            // Close meshes amortize their complete river index. A distant
+            // work unit may cover hundreds of tiny channels that it does not
+            // draw; use canonical point-local queries instead of fitting all
+            // of them just to add the visible major river's bank vertices.
+            if(terrain.Amplification!=null&&step<=256)patch.RiverSpans();
+            var exactGeometry=step>256?terrain.CreateMapHeightCursor():null;
             if(timing!=null)timing.ChannelIndexMs=timer!.Elapsed.TotalMilliseconds-timing.ChannelConstraintsMs;
             var positions=new List<float>(mesh.Positions);var normals=new List<float>(mesh.Normals);var colors=new List<float>(mesh.Colors);
             var weights=new List<float>(mesh.SurfaceWeights);var groundB=new List<float>(mesh.GroundWeightsB);var rocks=new List<float>(mesh.Lithology);
@@ -168,7 +170,12 @@ namespace WorldGen.Presentation
                     if(shared.TryGetValue((key.Item1+dx,key.Item2+dz),out var nearby))foreach(int found in nearby)
                     {
                         double ex=positions[found*3]-p.X,ez=positions[found*3+2]-p.Z;if(ex*ex+ez*ez>=.000001)continue;
-                        if(Perimeter(p)&&Bank(p)){V bankPoint=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);positions[found*3+1]=(float)frame.SurfaceY(bankPoint,patch.Elevation(bankPoint));}
+                        if(Perimeter(p)&&Bank(p))
+                        {
+                            V bankPoint=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);
+                            double elevation=exactGeometry!=null?exactGeometry.Sample(bankPoint,0).ElevationM:patch.Elevation(bankPoint);
+                            positions[found*3+1]=(float)frame.SurfaceY(bankPoint,elevation);
+                        }
                         return found;
                     }
                 double vertexStart=timer?.Elapsed.TotalMilliseconds??0;
@@ -181,7 +188,7 @@ namespace WorldGen.Presentation
                     // a full ecological query plus two metre-scale normals.
                     int x=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.X/step))),z=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.Z/step)));
                     double tx=D.Clamp(p.X/step-x),tz=D.Clamp(p.Z/step-z);int a=z*side+x,b=a+1,c=a+side,d=c+1;
-                    s=LocalTerrain.LocalTerrainPatch.BlendEcology(original[a],original[b],original[c],original[d],tx,tz,patch.Geometry(at));
+                    s=LocalTerrain.LocalTerrainPatch.BlendEcology(original[a],original[b],original[c],original[d],tx,tz,exactGeometry!.Sample(at,0));
                     RiverAlluvium.Ground(s.RiverSand,s.RiverGravel,ref s.Ground,ref s.Cover,ref s.MidCover,ref s.Forest);
                     double Normal(int component)=>normals[a*3+component]*(1-tx)*(1-tz)+normals[b*3+component]*tx*(1-tz)+normals[c*3+component]*(1-tx)*tz+normals[d*3+component]*tx*tz;
                     double y=Math.Max(.02,Normal(1));nx=Normal(0)/y;nz=Normal(2)/y;
