@@ -190,11 +190,14 @@ public sealed partial class LocalTerrainExplorer
         // Reserve at most half the lanes for cheap outward coverage. A single
         // request after forest scheduling could be starved by long forest/fine
         // jobs; filling every lane would delay the nearby forest in large views.
+        double largestBackdrop=0;
+        foreach(var p in backdropOrder)largestBackdrop=Math.Max(largestBackdrop,p.Key.SizeM);
+        double coarseBoundary=Math.Min(4096,largestBackdrop*.5);
         int coarseRunning=0,fineRunning=0;
         // The limit is concurrent work, not a fresh allowance every frame.
         // Otherwise repeated calls can occupy every lane with far backdrops.
         foreach(var job in jobs)if(job.Prepared==null&&job.Backdrop&&!job.Task.IsCompleted)
-        {if(job.Key.SizeM>4096)coarseRunning++;else fineRunning++;}
+        {if(job.Key.SizeM>coarseBoundary)coarseRunning++;else fineRunning++;}
         for(int pass=0;pass<(flightPriority?2:1);pass++)
         {
             // A long canonical-neighbourhood build cannot monopolize the
@@ -207,7 +210,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(var p in backdropOrder)
             {
                 if(ActiveWorkerCount>=WorkerLimit)return;
-                if(flightPriority&&((p.Key.SizeM>4096)!=(pass==0)))continue;
+                if(flightPriority&&((p.Key.SizeM>coarseBoundary)!=(pass==0)))continue;
                 if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key,flightPriority&&pass==0))continue;
                 RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
                 if(++requested>=allowance)break;
