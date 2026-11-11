@@ -1,0 +1,160 @@
+{
+  "events": 30,
+  "unmatched_sequences": 0,
+  "windows": [
+    {
+      "site": "dense-tropicalrainforest",
+      "case": "travel-whip-current-cap240",
+      "clock_bridge_half_span_ms": 0.0832,
+      "stop_resume_intervals": 3,
+      "worst_frames": [
+        {
+          "t_s": 17.44465,
+          "frame_ms": 80.5777,
+          "native_stop_resume_overlap_ms": 5.824499999998807,
+          "explorer_ms": 70.8967
+        },
+        {
+          "t_s": 16.98052,
+          "frame_ms": 23.2168,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 19.6554
+        },
+        {
+          "t_s": 13.07912,
+          "frame_ms": 21.5371,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 16.9587
+        },
+        {
+          "t_s": 9.78617,
+          "frame_ms": 19.7239,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.9039
+        },
+        {
+          "t_s": 16.60998,
+          "frame_ms": 19.2718,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.2179
+        },
+        {
+          "t_s": 17.03537,
+          "frame_ms": 18.1698,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.989
+        },
+        {
+          "t_s": 16.03971,
+          "frame_ms": 17.6674,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.4744
+        },
+        {
+          "t_s": 3.22124,
+          "frame_ms": 17.6382,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.6722
+        },
+        {
+          "t_s": 17.29535,
+          "frame_ms": 17.2088,
+          "native_stop_resume_overlap_ms": 3.1570000000028813,
+          "explorer_ms": 14.0608
+        },
+        {
+          "t_s": 17.13386,
+          "frame_ms": 17.1632,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.5232
+        },
+        {
+          "t_s": 6.64519,
+          "frame_ms": 17.0803,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.8839
+        },
+        {
+          "t_s": 16.25632,
+          "frame_ms": 16.9901,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.1861
+        },
+        {
+          "t_s": 16.52654,
+          "frame_ms": 16.7906,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.3502
+        },
+        {
+          "t_s": 16.36191,
+          "frame_ms": 16.5335,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.5021
+        },
+        {
+          "t_s": 16.65435,
+          "frame_ms": 16.3352,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 9.8725
+        },
+        {
+          "t_s": 16.49872,
+          "frame_ms": 16.0276,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.5282
+        },
+        {
+          "t_s": 11.12806,
+          "frame_ms": 15.8679,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 5.0145
+        },
+        {
+          "t_s": 16.08722,
+          "frame_ms": 15.8168,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.8383
+        },
+        {
+          "t_s": 16.55889,
+          "frame_ms": 15.7425,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 10.276
+        },
+        {
+          "t_s": 17.07361,
+          "frame_ms": 15.7401,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.3595
+        }
+      ],
+      "longest_pauses": [
+        {
+          "start_s": 17.281299599999997,
+          "total_ms": 3.1570000000028813,
+          "suspend_ms": 0.3245,
+          "stopped_ms": 2.7945,
+          "resume_ms": 0.038,
+          "thread": 4676
+        },
+        {
+          "start_s": 17.4152229,
+          "total_ms": 3.0141999999977998,
+          "suspend_ms": 0.2809,
+          "stopped_ms": 2.6915,
+          "resume_ms": 0.0418,
+          "thread": 4676
+        },
+        {
+          "start_s": 17.425584,
+          "total_ms": 2.810300000001007,
+          "suspend_ms": 0.2565,
+          "stopped_ms": 2.516,
+          "resume_ms": 0.0378,
+          "thread": 4676
+        }
+      ]
+    }
+  ]
+}

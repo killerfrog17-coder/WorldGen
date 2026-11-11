@@ -1,8 +1,8 @@
 {
   "status": "active_unaccepted",
   "branch": "work/terrain-render-repair-20261111",
-  "runtime": "FULL8fabdfe2+ScriptsOnly2c1f9153 normalMonoNONDEV",
-  "selected_build": "B36fdb231 unchanged until replacement reviewed",
+  "runtime": "FULL8fabdfe2+ScriptsOnly6c40d9dc normalMonoNONDEV",
+  "selected_build": "A6c40d9dc rootshortcut verified",
   "baseline": "User images unsaved world; actual reproduction Canyon38841 in terrain-surfaces-20261107/playable.world, scale .1",
   "fixes": [
     "near terrain before optional work",
@@ -499,11 +499,92 @@
       "limits": "Artificial broad channel/regular fall edge remain art limitations; no claim photorealism."
     },
     "endurance_v42": {
-      "status": "RUNNING",
+      "status": "COVERAGE_PASS_ART_FAILED_COARSE_APRON",
       "runtime": "2c1f9153",
       "session": 86438,
       "player_pid": 23508,
-      "scope": "Same260sec600mps6km route, added actual-heading forward ownership probes independent of land-only image audit"
+      "scope": "Same260sec600mps6km route, added actual-heading forward ownership probes independent of land-only image audit",
+      "interim_visual": "At matchedview17/21 forwardvoidremoved, but broadL7/32step409.6m greenapron remains. Coverage repair ONLY, notvisualacceptance.",
+      "player_missing_frames": 0,
+      "forward_missing_frames": 0,
+      "max_missing_forward_probes": 0,
+      "handoffs": 1,
+      "max_handoff_ms": 22.539,
+      "notes": "Zero forward missing coverage across all actualframes,1249CSV samples; still409.6mstepcoarseforegroundunacceptable. NotFPS."
+    },
+    "endurance_v43": {
+      "status": "FAILED_FORWARD_COVERAGE_DESPITE_BETTER_HILLS",
+      "runtime": "6eeff5a7",
+      "session": 65261,
+      "player_pid": 6028,
+      "change": "Same earlyoneconcurrentlane, reuses resolution-awareBackdropNeeded to permit existing nearcanonicalfallback improvements before foreground full detail settles.",
+      "player_missing_frames": 0,
+      "forward_missing_frames": 911,
+      "max_missing_forward_probes": 2,
+      "handoffs": 1,
+      "max_handoff_ms": 7.7792,
+      "interpretation": "Nearview17/21 hillsimproved from409.6mstep to51.2mstep, but911actualframesmiss3/5.4kmowner; doNOTacceptoccludedgap asfixed. Onecanonicaljobcanblockcoarsecoverageallowance."
+    },
+    "endurance_v44": {
+      "status": "PASS_CONTINUITY_WITH_REMAINING_COARSE_HORIZON_LIMIT",
+      "runtime": "6c40d9dc",
+      "session": 11411,
+      "player_pid": 6036,
+      "scope": "Same260sec600mps6kmMaximum; independently bounded missingcoarse +canonicalnear lanes;Balancedreservesnearworker; smallviewclassificationusesactualhighesttier.",
+      "player_missing_frames": 0,
+      "forward_missing_frames": 0,
+      "max_missing_forward_probes": 0,
+      "handoffs": 1,
+      "max_handoff_ms": 7.1769,
+      "images_inspected": [
+        17,
+        21
+      ],
+      "matched_owners": {
+        "forward_1km_step_m": 51.2,
+        "forward_3km_step_m": 409.6,
+        "forward_5_4km_step_m": 409.6
+      },
+      "limits": "Coarseouterhorizon remains at600mps; noallworld/perf/artperfectclaim.52pixel_auditsincludeocean-onlyinvalidlandcriteria; actualforwardownershipzeroallframes. Paced60/readbacksNOTFPS."
+    },
+    "balanced_v45": {
+      "status": "FAILED_BRIEF_OUTER_FORWARD_COVERAGE",
+      "session": 31867,
+      "player_pid": 14272,
+      "scope": "Samebuild40sec600mps6km,Balanced2workers; noFPSclaim",
+      "player_missing_frames": 0,
+      "forward_missing_frames": 30,
+      "max_missing_forward_probes": 1,
+      "notes": "40sec600mps6kmBalanced2worker; paced60/readbacksNOTFPS. Rootdiagnosingprecisetiming, notacceptedfullcontinuity."
+    },
+    "jungle_final_v46": {
+      "status": "CPU_SPIKE_MEASURED_NOT_PERF_ACCEPTED",
+      "session": 84989,
+      "player_pid": 5112,
+      "runtime": "6c40d9dc",
+      "scope": "Sameactualdensejungle30sec1080Medium6km8mpswhipcap240; CpuTiming+nativeGcProbe diagnostics, keepChromevideosharedlimits",
+      "fps": 177.29022,
+      "p99_ms": 13.5082,
+      "max_ms": 80.5777,
+      "focused_frames": 5320,
+      "unfocused_frames": 0,
+      "worst": {
+        "time_s": 17.44465,
+        "forest_page_install_ms": 69.2797,
+        "explorer_ms": 70.8967,
+        "native_gc_overlap_ms": 5.8245,
+        "engine_main_ms": 79.6375,
+        "engine_render_ms": 2.9986,
+        "gpu_ms": 4.05197
+      },
+      "notes": "Source-timestamped engine maximaobserved17.47385 delayedreadout; CPUrecorderpositive5315/5320. Target100floorUNMET. NoaggregateFPSgainclaim."
+    },
+    "balanced_lead_v47": {
+      "status": "RUNNING",
+      "runtime": "3d068425",
+      "session": 39088,
+      "player_pid": 8456,
+      "scope": "Exactv45Balancedboundary with2sboundedcoarselead; fineandforestrangesunchanged"
     }
   },
   "native": {
@@ -700,5 +781,9 @@
     "coherent_coverage": "63d595d1 (19 Oct): missing coarse coverage before detail; retained prior coverage until replacements resident",
     "less_expensive_baseline": "a7c9f419 (18 Oct): regular sampled terrain/simple water before refined rivers, bathymetry, features",
     "application": "a57d restores one bounded missing-coverage lane during covered flight, no blanket rollback or skirts"
-  }
+  },
+  "pending_flight_fallback": "6eeff5a7 earlyoneconcurrentlane now uses original resolution-awareBackdropNeeded, allowing <=4096canonicalfallbacks beforeforegrounddetailsettles; UNBUILT. Existingretentionrulesprotectunfinishedchildren.",
+  "next_trial": "2b1afd22 independentmax1coarse+1canonicalflightbackdrop allowances,missingcoarsefirst;Balanced2reservesotherlanefornear, noearlyquality. BUILD31893RUNNING sourcefreeze.",
+  "shortcut": "docs/reports/terrain-repair-20261111/shortcut.json",
+  "candidate_runtime": "FULLd610f0f4+ScriptsOnly3d068425 normalMonoNONDEV B"
 }

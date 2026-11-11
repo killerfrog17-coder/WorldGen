@@ -30,20 +30,24 @@
         },
         {
           "heading": "Solid ground while detail arrives",
-          "text": "Nearby terrain takes priority. Ground stays solid as chunks are replaced, and neighbouring surfaces meet instead of exposing blue slits. Smooth updates gradually change eligible distant slopes; interactive ground and riverbanks change immediately to preserve contact.",
+          "text": "Loading prioritizes coverage before fine detail, then refines nearby ground. The current trial gives fallback terrain more accurate nearby heights. Smooth updates gradually change eligible distant slopes; interactive ground and riverbanks change immediately to preserve contact. Final fast-flight validation remains pending.",
           "size": 9.5
         },
         {
           "images": [
             {
-              "file": "coupled-fallback-river-final.png",
-              "caption": "Latest 191 km flight review, at a separate river location: continuous land and water into the distance; the flat surrounding ring is gone."
+              "file": "v40-flight-view-17.png",
+              "caption": "Matched forward flight, before: terrain cuts off ahead of the player. This is a separate location from the cliff test."
+            },
+            {
+              "file": "flight-after-reviewed.png",
+              "caption": "Matched forward flight, after: awaiting an accepted replay and screenshot review."
             }
           ],
-          "max_height": 215
+          "max_height": 185
         },
         {
-          "text": "The reviewed high-speed flight found no missing ground in eight perspective checks. Distant terrain retains its broad relief while closer detail arrives. The approach that left a flat surrounding ring was removed. This is a coverage result, not proof of smooth frame times everywhere.",
+          "text": "Shorter coverage checks passed, but the extended flight exposed this forward cutoff. Improved hills in the later trial still left a gap, so that result is not accepted. The after image will be supplied only once the matched flight passes review; final continuity and frame-time results remain pending.",
           "size": 9.5
         }
       ]
@@ -56,13 +60,13 @@
           "images": [
             {
               "file": "waterfall-after.png",
-              "caption": "Earlier waterfall repair review: paired bank spikes removed. Final waterfall capture and player check pending."
+              "caption": "Latest waterfall review: paired bank spikes removed; simple channel and fall shapes remain visible."
             }
           ],
           "max_height": 185
         },
         {
-          "text": "Ground support follows the terrain triangles actually on screen. The actual player also stays above steep ground when an adjacent obstacle redirects them; this has passed in the canyon review. Riverbeds remain below the water in the checked channel interiors and boundaries.",
+          "text": "Ground support follows the terrain triangles actually on screen. Actual player collision checks in both canyon and waterfall settings stayed above steep ground when an adjacent obstacle redirected movement. Riverbeds remain below the water in the checked channel interiors and boundaries.",
           "size": 9.5
         },
         {
@@ -106,9 +110,9 @@
               ],
               [
                 "Dry flight / repaired",
-                "126.8",
-                "24.6 ms",
-                "49.1 ms"
+                "127.1",
+                "23.7 ms",
+                "42.0 ms"
               ],
               [
                 "Jungle / latest checked",
