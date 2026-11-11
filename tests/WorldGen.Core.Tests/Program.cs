@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--terrain-cliff-mesh")){TerrainCliffMeshTests.Run();return;}
 if(args.Contains("--terrain-cursor-zero")){TerrainQueryCostTests.CursorZero(args[1],args[2]);return;}
 if(args.Contains("--cliff-surface-diagnose")){CliffSurfaceDiagnostic.Run(args[1],int.Parse(args[2]),args[3],args.Contains("--upper"),args.Contains("--waterfall"));return;}
 if(args.Contains("--human-phenotypes")){HumanPhenotypeTests.Run();return;}
