@@ -41,7 +41,7 @@ public sealed partial class LocalTerrainExplorer
                 double clearance=motion.Y-TerrainMotion.EyeHeightM-surface;minimumClearance=Math.Min(minimumClearance,clearance);
                 if(clearance<-.025)throw new InvalidOperationException("CharacterController pushed actual player below rendered terrain: "+clearance);
                 var feet=PlayerFeet();float radius=playerSolid.radius;
-                var low=transform.TransformPoint(feet+Vector3.up*radius),high=transform.TransformPoint(feet+Vector3.up*(playerSolid.height-radius));
+                Vector3 low=transform.TransformPoint(feet+Vector3.up*radius),high=transform.TransformPoint(feet+Vector3.up*(playerSolid.height-radius));
                 if(Physics.CheckCapsule(low,high,Math.Max(.01f,radius-.03f),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))throw new InvalidOperationException("Steep terrain correction moved the player body inside an adjacent solid");
                 var middle=transform.TransformPoint(feet+Vector3.up*playerSolid.height*.5f);
                 if((box.ClosestPoint(middle)-middle).sqrMagnitude<=(radius+.04f)*(radius+.04f))contacts++;
