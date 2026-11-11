@@ -1,4 +1,5 @@
 using WorldGen.Presentation;
+using WorldGen.Core;
 
 static class TreeRenderingLodTests
 {
@@ -21,6 +22,16 @@ static class TreeRenderingLodTests
             if(quality>0)Check(start>TreeRenderingLod.ViewStart(quality-1)&&pixels<TreeRenderingLod.PixelStart(quality-1),"Higher quality keeps detailed views farther and for smaller crowns");
         }
         Check(TreeRenderingLod.ViewStart(-2)==TreeRenderingLod.ViewStart(0)&&TreeRenderingLod.ViewStart(10)==TreeRenderingLod.ViewStart(4),"Quality input is clamped");
+        foreach(TreeGrowthForm form in Enum.GetValues<TreeGrowthForm>())foreach(int province in new[]{0,15})foreach(int local in new[]{0,31})foreach(int individual in new[]{0,7})
+        {
+            int code=((int)form<<28)|(province<<24)|(4321<<8)|(local<<3)|individual,near=TreeFlora.ModelCode(code,0);
+            foreach(int lod in new[]{1,2})
+            {
+                int simplified=TreeFlora.ModelCode(code,lod);
+                Check(simplified==near,"Mesh and individual impostor retain the same anatomical identity");
+                Check(new TreeMorphology(simplified).Equals(new TreeMorphology(near)),"LOD retains regional/province anatomy and crown dimensions");
+            }
+        }
         Console.WriteLine("PASS "+checks+" pure tree rendering LOD checks; no world or player launched.");
     }
 }

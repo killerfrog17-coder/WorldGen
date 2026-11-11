@@ -302,7 +302,7 @@ public sealed partial class LocalTerrainExplorer
         if(!burstCollected.IsCreated)burstCollected=new NativeParallelHashSet<ulong>(Math.Max(16,inventoryCollected.Count),Allocator.Persistent);
         if(burstCollectedCount!=inventoryCollected.Count){burstCollected.Clear();if(burstCollected.Capacity<inventoryCollected.Count)burstCollected.Capacity=inventoryCollected.Count;foreach(ulong id in inventoryCollected)burstCollected.Add(id);burstCollectedCount=inventoryCollected.Count;}
         if(!burstForest.IsCreated)burstForest=new NativeParallelHashSet<ForestPageKey>(Math.Max(16,forestFields.Count),Allocator.Persistent);
-        burstForest.Clear();if(burstForest.Capacity<forestFields.Count)burstForest.Capacity=forestFields.Count;foreach(var pair in forestFields)if(pair.Value.Ready)burstForest.Add(pair.Key);
+        burstForest.Clear();if(burstForest.Capacity<forestFields.Count)burstForest.Capacity=forestFields.Count;foreach(var pair in forestFields)if(pair.Value.RenderReady)burstForest.Add(pair.Key);
         bool camp=campMaskCount>0&&campMaskFrame==frame;
         BurstArray(ref burstCamp,camp?campClearingPixels.Length:1);if(camp&&burstCampRevision!=coverVisibilityRevision){NativeArray<byte>.Copy(campClearingPixels,0,burstCamp,0,campClearingPixels.Length);burstCampRevision=coverVisibilityRevision;}
         if(!burstSlabs.IsCreated)burstSlabs=new NativeParallelHashMap<long,int>(Math.Max(16,tiles.Count),Allocator.Persistent);

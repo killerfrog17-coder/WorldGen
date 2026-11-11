@@ -118,7 +118,12 @@ namespace WorldGen.Core
         public const double PlacementPerM2=.055;
         public static int RenderCode(int code)=>code&0x70ffff00;
         public static int ModelCode(int code,int lod)
-        {if(lod>=2)return RenderCode(code);var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;}
+        {
+            // Individual-tree simplification must retain the same anatomy.
+            // Dropping province/local traits only for a bake changes the
+            // skeleton and crown dimensions at the representation handoff.
+            var form=(TreeGrowthForm)((code>>28)&7);return form==TreeGrowthForm.BroadCrown||form==TreeGrowthForm.NeedleCrown?code&~7:code;
+        }
         public static bool TidalCode(int code)=>((code>>28)&7)==(int)TreeGrowthForm.BroadCrown&&((code>>22)&3)==(int)TreeCrownStrategy.Mangrove;
         public static TreeRootForm RootForm(int code)=>!TidalCode(code)?TreeRootForm.Ordinary:(TreeRootForm)(1+Rng.Mix((uint)((code>>8)&16383))%3);
         public static double TidalInundation(int code,double height,double depth)
