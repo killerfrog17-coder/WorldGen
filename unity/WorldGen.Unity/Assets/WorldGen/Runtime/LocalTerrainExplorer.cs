@@ -447,6 +447,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
     void Upload(TerrainTileKey key,TerrainUpload data,double[] edges,PreparedFrame prepared=null,bool cacheOnly=false,bool fallback=false)
     {
+        if(prepared==null&&fallback&&HasCanonicalTerrainAncestor(key))return;
         streamingInstalled++;streamingWorkerMs+=data.BuildMilliseconds;
         var timer=System.Diagnostics.Stopwatch.StartNew();var root=new GameObject("Terrain "+key.X+","+key.Z+" L"+key.Level);root.transform.SetParent(prepared==null?terrainRoot.transform:prepared.Root.transform,false);
         if(cacheOnly)root.SetActive(false);installationsThisFrame++;

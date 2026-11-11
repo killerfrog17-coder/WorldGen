@@ -368,7 +368,15 @@ public sealed partial class LocalTerrainExplorer
         {
             bool affected=scatterGroundChanges.Count==0;
             foreach(var key in scatterGroundChanges)
-            {var b=field.Bounds;double x=key.X*key.SizeM,z=key.Z*key.SizeM;if(b.max.x>=x&&b.min.x<=x+key.SizeM&&b.max.z>=z&&b.min.z<=z+key.SizeM){affected=true;break;}}
+            {
+                var b=field.Bounds;double x=key.X*key.SizeM,z=key.Z*key.SizeM;
+                if(b.max.x<x||b.min.x>x+key.SizeM||b.max.z<z||b.min.z>z+key.SizeM)continue;
+                // This square encloses every root and its query margin. A
+                // partial edge mask can reject the whole field before walking
+                // thousands of unchanged interior roots; full-key masks keep
+                // the existing conservative overlap behavior.
+                if(scatterGroundChanges.Affects(key,b.center.x,b.center.z,Math.Max(b.extents.x,b.extents.z)+.01)){affected=true;break;}
+            }
             if(!affected)continue;
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {

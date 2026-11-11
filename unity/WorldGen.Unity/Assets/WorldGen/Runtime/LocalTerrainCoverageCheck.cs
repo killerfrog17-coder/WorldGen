@@ -286,9 +286,76 @@ public sealed partial class LocalTerrainExplorer
         foreach(var resident in overlapOwner.tiles.Values)resident.Root.SetActive(false);
         Destroy(overlapHost);
         File.WriteAllText(Path.Combine(output,"opaque-parent-morphs.txt"),"PASS: prepared leaf stamps survive single-mesh publication without outgoing draws; an arriving child finishes its ancestor before exposing an interior cut, child stamps remain independent, and ancestor replacements with existing children snap.");
-        CheckHiddenResidentRetirement(output);
+        var reuseHost=new GameObject("Canonical ancestor fallback check");var reuseOwner=reuseHost.AddComponent<LocalTerrainExplorer>();reuseOwner.enabled=false;reuseOwner.terrainRoot=reuseHost;
+        Tile ReuseSurface(TerrainTileKey key,bool fallback)
+        {
+            var root=Quad("Ancestor reuse surface",(float)key.SizeM,10,Color.green);
+            return new Tile{Root=root,Segments=1,Heights=new[]{10f,10f,10f,10f},Edges=new double[4],CoverageOnly=fallback,
+                ResidentEdges=new ResidentEdgeData{Mesh=root.GetComponent<MeshFilter>().sharedMesh}};
+        }
+        var reusedFallback=ReuseSurface(child,true);reuseOwner.tiles[child]=reusedFallback;reuseOwner.wanted[child]=1;
+        reuseOwner.backdrops[child]=new[]{.01,.01,.01,.01};reuseOwner.backdrops[parent]=new[]{1d,1d,1d,1d};
+        if(reuseOwner.HasCanonicalTerrainAncestor(child)||!reuseOwner.BackdropNeeded(child))throw new Exception("Fallback was suppressed without a real canonical ancestor");
+        var canonicalParent=ReuseSurface(parent,false);reuseOwner.tiles[parent]=canonicalParent;
+        if(!reuseOwner.HasCanonicalTerrainAncestor(child)||reuseOwner.BackdropNeeded(child)||!reuseOwner.CanRetireTransition(child))
+            throw new Exception("Canonical ancestor did not supersede a wanted coverage fallback");
+        bool reuseKeep=WorldGenPerformance.KeepBackdrops,reusePaced=WorldGenPerformance.PacedTerrainRetirement;
+        try
+        {
+            WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=true;
+            reuseOwner.installationsThisFrame=1;reuseOwner.RetireObsoleteTerrain();
+            if(!reuseOwner.tiles.ContainsKey(child))throw new Exception("Fallback retirement ignored the shared installation allowance");
+            reuseOwner.installationsThisFrame=0;reuseOwner.RetireObsoleteTerrain();
+            if(reuseOwner.tiles.ContainsKey(child)||!reuseOwner.tiles.ContainsKey(parent)||!canonicalParent.Root.activeInHierarchy)
+                throw new Exception("Wanted fallback did not retire through the paced path while retaining canonical land");
+        }
+        finally{WorldGenPerformance.KeepBackdrops=reuseKeep;WorldGenPerformance.PacedTerrainRetirement=reusePaced;}
+        reuseOwner.tiles.Remove(parent);reuseOwner.DestroyTile(canonicalParent);
+        var giant=new TerrainTileKey(0,0,12,child.Scale);var coarseParent=ReuseSurface(giant,false);reuseOwner.tiles[giant]=coarseParent;
+        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A giant bare hierarchy grid suppressed finer fallback land");
+        coarseParent.HasWater=true;
+        if(!reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A coarse water-bearing ancestor lost its real feature surface");
+        coarseParent.HasWater=false;coarseParent.CoverageOnly=true;
+        if(reuseOwner.HasCanonicalTerrainAncestor(child))throw new Exception("A coverage-only ancestor was mistaken for canonical terrain");
+        Destroy(reuseHost);
+        File.WriteAllText(Path.Combine(output,"canonical-ancestor-reuse.txt"),"PASS: absent/coverage-only/giant bare ancestors retain fallback eligibility; real detailed or coarse water-bearing ancestors suppress fallback scheduling; a wanted fallback retires only within its shared paced allowance while canonical land stays active.");
+        CheckPartialForestEdgeGround(output);CheckHiddenResidentRetirement(output);
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention, paced retirement and owner-inert covered-parent removal.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
+    }
+    static void CheckPartialForestEdgeGround(string output)
+    {
+        var host=new GameObject("Partial forest edge grounding check");var owner=host.AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        int n=4;double size=TerrainLod.BaseSizeM*owner.HorizontalScale,step=size/n;var key=new TerrainTileKey(0,0,0,owner.HorizontalScale);
+        var heights=new float[(n+1)*(n+1)];for(int i=0;i<heights.Length;i++)heights[i]=100;
+        owner.tiles[key]=new Tile{Segments=n,Heights=heights};
+        var batch=new ForestBatch();var field=new ForestField{Source=new WorldGen.Core.ForestPage(),Bounds=new Bounds(new Vector3((float)size*.5f,100,(float)size*.5f),new Vector3((float)size,20,(float)size))};
+        var slots=new System.Collections.Generic.List<int>();
+        for(int z=0;z<n;z++)for(int x=0;x<n;x++)
+        {
+            var root=new ForestRoot{Position=new Vector3((float)((x+.5)*step),100,(float)((z+.5)*step)),Width=1,Height=4,Padding=2,Tint=Vector3.one};
+            owner.ProjectForestRootGround(ref root,out int level);slots.Add(batch.Data.Count);batch.Data.Add(root);batch.GroundLevels.Add(level);
+        }
+        field.Roots.Add(batch,slots);owner.forestFields.Add(new WorldGen.Core.ForestPageKey(0,0,0,0),field);
+        var baseline=batch.Data.ToArray();var baselineLevels=batch.GroundLevels.ToArray();var bounds=field.Bounds;
+        int changedVertex=(n/2)*(n+1);heights[changedVertex]+=20;
+        var partial=TerrainHeightChange.FromVertices(n,new[]{changedVertex});if(partial==null)throw new Exception("Changed edge vertex produced no affected cells");
+        owner.scatterGroundChanges.Add(key);owner.ProjectForestGround();var expected=batch.Data.ToArray();var expectedLevels=batch.GroundLevels.ToArray();var expectedBounds=field.Bounds;
+        for(int i=0;i<baseline.Length;i++){batch.Data[i]=baseline[i];batch.GroundLevels[i]=baselineLevels[i];}field.Bounds=bounds;
+        owner.scatterGroundChanges.Clear();owner.scatterGroundChanges.Add(key,partial);
+        if(owner.scatterGroundChanges.Affects(key,size*.8,size*.8,.01))throw new Exception("Edge-only notification invalidated the unchanged tile interior");
+        owner.ProjectForestGround();int moved=0,unchanged=0;
+        for(int i=0;i<baseline.Length;i++)
+        {
+            if(!batch.Data[i].Equals(expected[i])||batch.GroundLevels[i]!=expectedLevels[i])throw new Exception("Partial edge grounding differs from literal full forest reprojection");
+            if(batch.Data[i].SlopeX!=0||batch.Data[i].SlopeZ!=0)throw new Exception("Partial edge grounding tilted an upright tree");
+            if(batch.Data[i].Position.y!=baseline[i].Position.y)moved++;else unchanged++;
+        }
+        if(moved==0||unchanged==0||!field.Bounds.Equals(expectedBounds))throw new Exception("Partial forest fixture did not preserve both changed roots and unchanged interior/bounds");
+        owner.scatterGroundChanges.Clear();owner.scatterGroundChanges.Add(key);owner.scatterGroundChanges.Add(key,partial);
+        if(!owner.scatterGroundChanges.Affects(key,size*.8,size*.8,.01))throw new Exception("A partial edge change narrowed an existing whole-tile notification");
+        owner.scatterGroundChanges.Clear();owner.forestFields.Clear();owner.tiles.Clear();batch.Dispose();Destroy(host);
+        File.WriteAllText(Path.Combine(output,"partial-forest-edge-ground.txt"),"PASS: edge-cell notification produces the same forest positions, owner levels, upright poses and bounds as literal full reprojection; changed roots move, unchanged interior remains untouched, and whole-tile invalidation cannot be narrowed.");
     }
     static void CheckHiddenResidentRetirement(string output)
     {

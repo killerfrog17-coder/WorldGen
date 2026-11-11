@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace WorldGen.Presentation
 {
@@ -22,6 +23,17 @@ namespace WorldGen.Presentation
             var change=new TerrainHeightChange(segments);int side=segments+1;
             for(int z=0;z<=segments;z++)for(int x=0;x<=segments;x++)if(before[z*side+x]!=after[z*side+x])
             {change.Mark(x-1,z-1);change.Mark(x,z-1);change.Mark(x-1,z);change.Mark(x,z);}
+            return change.maxX<0?null:change;
+        }
+        public static TerrainHeightChange? FromVertices(int segments,IReadOnlyList<int> vertices)
+        {
+            if(segments<1||segments>128)throw new ArgumentOutOfRangeException(nameof(segments));
+            var change=new TerrainHeightChange(segments);int side=segments+1;
+            for(int i=0;i<vertices.Count;i++)
+            {
+                int vertex=vertices[i];if(vertex<0||vertex>=side*side)throw new ArgumentOutOfRangeException(nameof(vertices));
+                int x=vertex%side,z=vertex/side;change.Mark(x-1,z-1);change.Mark(x,z-1);change.Mark(x-1,z);change.Mark(x,z);
+            }
             return change.maxX<0?null:change;
         }
         public void Union(TerrainHeightChange other)

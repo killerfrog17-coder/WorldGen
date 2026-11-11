@@ -101,7 +101,7 @@ public sealed partial class LocalTerrainExplorer
         bool paced=WorldGenPerformance.PacedTerrainRetirement;
         if(paced&&!CanInstall)return;
         terrainRetirementScratch.Clear();
-        foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key))terrainRetirementScratch.Add(key);
+        foreach(var key in tiles.Keys)if(!wanted.ContainsKey(key)||SupersededCoverageTerrain(key))terrainRetirementScratch.Add(key);
         foreach(var key in terrainRetirementScratch)
         {
             if(!CanRetireTransition(key))continue;
@@ -113,6 +113,9 @@ public sealed partial class LocalTerrainExplorer
     }
     bool CanRetireTransition(TerrainTileKey key)
     {
+        // A genuine ancestor already supplies connected land and water. A
+        // statistically finer fallback must not cover its canonical channel.
+        if(SupersededCoverageTerrain(key))return true;
         // These few coarse tiles supply a stable fallback for the current
         // view. Retiring/rebuilding them on every fine-plan change caused
         // repeated whole-forest corrections. Normal coverage still selects

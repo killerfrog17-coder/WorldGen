@@ -69,6 +69,7 @@ public sealed partial class LocalTerrainExplorer
     readonly List<KeyValuePair<TerrainTileKey,Tile>> edgeAffected=new List<KeyValuePair<TerrainTileKey,Tile>>();
     LocalTerrainFrame edgeFrame;long edgeRevision=-1;
     readonly List<double> residentProfileCuts=new List<double>();
+    readonly List<int> residentChangedGridVertices=new List<int>();
     long residentEdgePublications,residentEdgeVertices,residentEdgeSplits,residentEdgeInsertedVertices,residentEdgeOutgoingPublications,residentEdgeHiddenRetirements;int residentEdgeResidualIntervals,residentEdgeOutgoingDraws;double residentEdgeResidualM,residentEdgeLastMs,residentEdgeMaxMs,residentEdgeFrameMs;
     string ResidentEdgeReceipt=>"resident edge conformances="+residentEdgePublications+" vertices="+residentEdgeVertices+" knot unions="+residentEdgeSplits+" inserted="+residentEdgeInsertedVertices+" unresolved refined intervals="+residentEdgeResidualIntervals+" residual m="+residentEdgeResidualM.ToString("F3")+" hidden retirements="+residentEdgeHiddenRetirements+" outgoing draws/publications="+residentEdgeOutgoingDraws+"/"+residentEdgeOutgoingPublications+" last/max ms="+residentEdgeLastMs.ToString("F2")+"/"+residentEdgeMaxMs.ToString("F2");
 
@@ -349,9 +350,11 @@ public sealed partial class LocalTerrainExplorer
     void PublishResidentEdge(TerrainTileKey key,Tile tile,bool outgoing=false)
     {
         var data=tile.ResidentEdges;bool changed=data.TopologyChanged,conformed=false;int changedVertices=0;
+        bool regular=tile.Contact==null&&!data.TopologyChanged&&tile.Heights!=null&&tile.Heights.Length==(tile.Segments+1)*(tile.Segments+1);
+        residentChangedGridVertices.Clear();
         for(int i=0;i<data.Points.Length;i++)
         {
-            if(data.Heights[i]!=data.Published[i]){changed=true;changedVertices++;}
+            if(data.Heights[i]!=data.Published[i]){changed=true;changedVertices++;if(regular)residentChangedGridVertices.Add(data.Points[i].Vertex);}
             if(data.Heights[i]!=data.Points[i].Position.y)conformed=true;
         }
         if(!changed)return;
@@ -379,7 +382,12 @@ public sealed partial class LocalTerrainExplorer
         if(!outgoing)
         {
             ReleaseGroundCover(tile);
-            scatterGroundChanges.Add(key);scatterGroundRevision++;residentRevision++;
+            // Only incident regular-grid triangles changed. Preserve any
+            // broader pending publication notification; refined geometry
+            // still conservatively invalidates its complete footprint.
+            var cells=regular?TerrainHeightChange.FromVertices(tile.Segments,residentChangedGridVertices):null;
+            if(cells!=null)scatterGroundChanges.Add(key,cells);else scatterGroundChanges.Add(key);
+            scatterGroundRevision++;residentRevision++;
         }
         else residentEdgeOutgoingPublications++;
         residentEdgePublications++;residentEdgeVertices+=changedVertices;

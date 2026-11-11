@@ -57,10 +57,13 @@ public sealed partial class LocalTerrainExplorer
         {
             if(before==null||before.Heights==null||after.Heights==null||before.Segments!=after.Segments){Add(key);return true;}
             var changed=TerrainHeightChange.Compare(before.Heights,after.Heights,after.Segments);if(changed==null)return false;
+            Add(key,changed);return true;
+        }
+        public void Add(TerrainTileKey key,TerrainHeightChange changed)
+        {
             if(Contains(key))
             {if(partial.TryGetValue(key,out var previous))previous.Union(changed);}
             else{base.Add(key);partial[key]=changed;}
-            return true;
         }
         public bool Affects(TerrainTileKey key,double x,double z,double margin)
         {

@@ -15,6 +15,8 @@ static class TerrainHeightChangeTests
                 for(int z=0;z<=n;z++)for(int x=0;x<=n;x++)
                     if(pattern==0?x==0:pattern==1?x==0||x==n||z==0||z==n:pattern==2?x==n/2&&z==n/2:(x*17+z*29)%47==0)after[z*(n+1)+x]+=.25f;
                 var mask=TerrainHeightChange.Compare(before,after,n)!;
+                var changedVertices=new List<int>();for(int i=0;i<after.Length;i++)if(before[i]!=after[i])changedVertices.Add(i);
+                var vertexMask=TerrainHeightChange.FromVertices(n,changedVertices)!;
                 double Height(float[] grid,int x,int z,double u,double v)
                 {
                     int side=n+1;double a=grid[z*side+x],b=grid[z*side+x+1],c=grid[(z+1)*side+x],d=grid[(z+1)*side+x+1];
@@ -25,6 +27,7 @@ static class TerrainHeightChangeTests
                 {
                     bool different=Height(before,x,z,uv.Item1,uv.Item2)!=Height(after,x,z,uv.Item1,uv.Item2);
                     bool changed=mask.Affects(x+uv.Item1,z+uv.Item2);
+                    Check(changed==vertexMask.Affects(x+uv.Item1,z+uv.Item2),"Explicit changed vertices must retain the exact comparison mask");
                     Check(!different||changed,"Height mask omitted an altered rendered triangle");
                     if(changed)affected++;
                 }

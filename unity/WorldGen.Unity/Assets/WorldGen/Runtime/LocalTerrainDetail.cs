@@ -152,6 +152,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool BackdropNeeded(TerrainTileKey key)
     {
+        if(HasCanonicalTerrainAncestor(key))return false;
         double spacing=backdrops.TryGetValue(key,out var edges)?edges[0]:double.PositiveInfinity;
         foreach(var p in wanted)if(Overlaps(key,p.Key))
         {
@@ -160,6 +161,20 @@ public sealed partial class LocalTerrainExplorer
         }
         return false;
     }
+    bool HasCanonicalTerrainAncestor(TerrainTileKey key)
+    {
+        for(int depth=1;depth<24-key.Level;depth++)
+        {
+            var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
+            if(!tiles.TryGetValue(ancestor,out var tile)||tile.CoverageOnly||tile.Segments<=0||tile.Heights==null||
+                tile.Heights.Length!=(tile.Segments+1)*(tile.Segments+1)||tile.Root==null||!tile.Root.activeInHierarchy||tile.ResidentEdges?.Mesh==null)continue;
+            // Match LocalTerrainMesh's >256 m coarseGeometry threshold. A
+            // giant bare hierarchy grid is not a canonical feature surface.
+            if(ancestor.SizeM/tile.Segments<=256||tile.Contact!=null||tile.HasWater)return true;
+        }
+        return false;
+    }
+    bool SupersededCoverageTerrain(TerrainTileKey key)=>tiles.TryGetValue(key,out var tile)&&tile.CoverageOnly&&HasCanonicalTerrainAncestor(key);
     bool HasResidentCoverage(TerrainTileKey key,double maximumSpacing=double.PositiveInfinity)
     {
         for(int depth=0;depth<24-key.Level;depth++)
