@@ -27,7 +27,11 @@ public sealed partial class LocalTerrainExplorer
             foreach(var batch in owner.forestBatches.Values)forests.Add((batch,batch.Data.ToArray(),batch.GroundLevels.ToArray(),batch.Dirty,batch.AllDirty,(bool[])batch.DirtyBlocks.Clone()));
             foreach(var field in owner.forestFields.Values)fields.Add((field,field.Bounds));
         }
-        public int Check()
+        static string DescribeRoot(ForestRoot root,int level)
+            =>"position="+root.Position.ToString("R")+", width="+root.Width.ToString("R")+", height="+root.Height.ToString("R")+", yaw="+root.Yaw.ToString("R")+", slopes="+root.SlopeX.ToString("R")+"/"+root.SlopeZ.ToString("R")+", padding="+root.Padding.ToString("R")+", field="+root.Field+", face="+root.Face+", cell="+root.CellX+"/"+root.CellY+", tint="+root.Tint.ToString("R")+", groundLevel="+level;
+        string BeforeRoot(ForestBatch batch,int index)
+        {foreach(var saved in forests)if(ReferenceEquals(saved.batch,batch)&&index<saved.roots.Length)return DescribeRoot(saved.roots[index],saved.levels[index]);return "unavailable";}
+        public int Check(string context="",GroundProofState before=null)
         {
             int count=0;
             foreach(var saved in chunks)
@@ -45,7 +49,15 @@ public sealed partial class LocalTerrainExplorer
             {
                 if(saved.batch.Data.Count!=saved.roots.Length)throw new InvalidOperationException("Forest topology changed during ground proof");
                 for(int i=0;i<saved.roots.Length;i++)
-                {if(!saved.batch.Data[i].Equals(saved.roots[i])||saved.batch.GroundLevels[i]!=saved.levels[i])throw new InvalidOperationException("Staged terrain differs at a forest root: "+i);count++;}
+                {
+                    if(!saved.batch.Data[i].Equals(saved.roots[i])||saved.batch.GroundLevels[i]!=saved.levels[i])
+                    {
+                        string key="unresolved";int id=(int)(saved.roots[i].Field&65535);
+                        foreach(var pair in explorer.forestFields)if(pair.Value.Id==id){key=pair.Key.ToString();break;}
+                        throw new InvalidOperationException("Staged terrain differs at a forest root: "+i+"; "+context+"; forestPage="+key+"\nBefore: "+(before==null?"unavailable":before.BeforeRoot(saved.batch,i))+"\nExpected: "+DescribeRoot(saved.roots[i],saved.levels[i])+"\nActual: "+DescribeRoot(saved.batch.Data[i],saved.batch.GroundLevels[i]));
+                    }
+                    count++;
+                }
             }
             foreach(var saved in fields)if(!saved.field.Bounds.Equals(saved.bounds))throw new InvalidOperationException("Staged terrain differs in forest bounds");
             return count;
@@ -90,7 +102,7 @@ public sealed partial class LocalTerrainExplorer
                     if(!ReferenceEquals(tiles[key],old))throw new InvalidOperationException("Terrain published before root preparation completed");
                     slices++;steps++;if(steps>1000)throw new InvalidOperationException("Staged root preparation did not terminate");yield return null;
                 }
-                checks+=baseline.Check(); // Preparation must not alter any live root.
+                checks+=baseline.Check("preparation key="+key.X+","+key.Z+"/L"+key.Level+" mode="+mode); // Preparation must not alter any live root.
                 var samples=new List<(double x,double z,double y,int level)>();
                 foreach(double x in new[]{0d,.13,.5,.999999,1})foreach(double z in new[]{0d,.37,.5,.999999,1})
                 {double px=(key.X+x)*key.SizeM,pz=(key.Z+z)*key.SizeM;double y=PublicationGround(plan,px,pz,-12345,out int level);samples.Add((px,pz,y,level));}
@@ -106,7 +118,7 @@ public sealed partial class LocalTerrainExplorer
                         if(b.max.x>=x0&&b.min.x<=x0+key.SizeM&&b.max.z>=z0&&b.min.z<=z0+key.SizeM)ProjectScatterGround(chunk);
                     }
                     ProjectForestGround();var expected=new GroundProofState(this);
-                    baseline.Restore();ApplyGroundPublicationEdits(plan);checks+=expected.Check();edits+=plan.Scatter.Count+plan.Roots.Count;
+                    baseline.Restore();ApplyGroundPublicationEdits(plan);checks+=expected.Check("applied key="+key.X+","+key.Z+"/L"+key.Level+" mode="+mode,baseline);edits+=plan.Scatter.Count+plan.Roots.Count;
                 }
                 finally{tiles[key]=old;residentRevision++;baseline.Restore();scatterGroundChanges.Clear();}
             }
@@ -146,7 +158,7 @@ public sealed partial class LocalTerrainExplorer
                 if(GroundPublicationPending)yield return null;
             }
             if(tiles.ContainsKey(key)||old.Root.activeSelf)throw new InvalidOperationException("Prepared retirement was not committed");
-            int checkedRoots=expected.Check();
+            int checkedRoots=expected.Check("actual retirement key="+key.X+","+key.Z+"/L"+key.Level,baseline);
             if(!TerrainProducts.Take(new TerrainProductKey(key,old.Segments,old.Edges,false),out var cached)||!ReferenceEquals(cached,old))throw new InvalidOperationException("Retired ground did not remain available in the bounded terrain cache");
             File.WriteAllText(Path.Combine(output,"staged-ground-retirement.txt"),"PASS actual cancellation/restart/preparation/removal/cache, "+slices+" bounded steps, "+checkedRoots+" exact final root/level/bounds comparisons; visible old terrain and roots retained until atomic removal.\n");
         }
@@ -196,7 +208,7 @@ public sealed partial class LocalTerrainExplorer
                 if(GroundPublicationPending)yield return null;
             }
             if(!ReferenceEquals(tiles[key],product)||!product.Root.activeSelf)throw new InvalidOperationException("Prepared cached terrain was not published");
-            int checkedRoots=expected.Check();
+            int checkedRoots=expected.Check("actual cache restore key="+key.X+","+key.Z+"/L"+key.Level,baseline);
             File.WriteAllText(Path.Combine(output,"cached-ground-publication.txt"),"PASS actual cache take/preparation/publication, "+slices+" bounded steps, "+checkedRoots+" exact final root/level/bounds comparisons; old ground and roots retained until commit, cloned land mesh raised with the height grid.\n");
         }
         finally

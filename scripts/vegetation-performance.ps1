@@ -4,7 +4,7 @@ param(
     [string]$Output='artifacts/performance-review',
     [string]$Sites='plains,forest-flat,forest-hills,mountains,desert,tundra',
     [string]$SitesFile='',
-    [string]$Cases='',
+    [ValidatePattern('^[a-z0-9,-]*$')][string]$Cases='',
     [string]$FaunaStreamDirectory='',
     [double]$ProfileWarmupSeconds=-1,
     [double]$Seconds=6,

@@ -1269,6 +1269,7 @@ public sealed partial class WorldGenRuntime
             sites=sites.Concat(set.Sites.Select(s=>(s.Name,locator.Nearest(s.Position)))).ToArray();
         }
         string caseFilter=Argument("--worldgen-perf-cases","");
+        bool flightCasesOnly=caseFilter.Length>0&&caseFilter.Split(',').All(name=>name.StartsWith("travel-flight-",StringComparison.Ordinal));
         double seconds=double.Parse(Argument("--worldgen-perf-seconds","6"),CultureInfo.InvariantCulture);
         double travelLoop=double.Parse(Argument("--worldgen-perf-travel-loop","0"),CultureInfo.InvariantCulture);
         if(!double.IsFinite(travelLoop)||travelLoop<0||travelLoop>2000)throw new ArgumentOutOfRangeException("travelLoop");
@@ -1394,6 +1395,9 @@ public sealed partial class WorldGenRuntime
             new PerfCase("travel-whip-reused-meshes-cap120",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=WorldGenPerformance.ReuseTerrainMeshes=true;Application.targetFrameRate=120;}),
             new PerfCase("travel-whip-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-flight-current-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
+            new PerfCase("travel-flight-range-cache-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.ScatterRangeCache=true;Application.targetFrameRate=240;}),
+            new PerfCase("travel-flight-manual-gc-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
+            new PerfCase("travel-flight-repeat-cap240",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;Application.targetFrameRate=240;}),
             new PerfCase("travel-whip-current-queue1",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;QualitySettings.maxQueuedFrames=1;}),
             new PerfCase("travel-whip-separated-streaming",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;WorldGenPerformance.SeparateStreamingAndScatter=true;}),
             new PerfCase("travel-whip-manual-gc",()=>{WorldGenPerformance.ParallelScatter=WorldGenPerformance.BurstScatter=WorldGenPerformance.PartialForestUploads=WorldGenPerformance.StagedGroundPublication=WorldGenPerformance.KeepBackdrops=WorldGenPerformance.PacedTerrainRetirement=WorldGenPerformance.StagedTerrainRetirement=true;}),
@@ -1447,7 +1451,9 @@ public sealed partial class WorldGenRuntime
         };
         if(cases.Select(c=>c.Name).Distinct(StringComparer.Ordinal).Count()!=cases.Count)
             throw new InvalidOperationException("Performance case names must be unique; duplicate names overwrite evidence.");
-        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name=="travel-flight-current-cap240"||c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface"||c.Name=="travel-whip-tidal-surface");
+        if(caseFilter.Length>0)foreach(string requestedCase in caseFilter.Split(','))
+            if(!cases.Any(c=>c.Name==requestedCase))throw new InvalidOperationException("Unknown performance case: "+requestedCase+". Supply a comma-separated list.");
+        if(caseFilter.Length==0)cases.RemoveAll(c=>c.Name.StartsWith("travel-flight-",StringComparison.Ordinal)||c.Name=="travel-whip-allocation-profile"||c.Name=="travel-whip-cpu-profile"||c.Name=="travel-whip-water-surface"||c.Name=="travel-whip-tidal-surface");
         if(!WorldGenPerformance.TraceEnabled)cases.RemoveAll(c=>c.Name.StartsWith("stutter-",StringComparison.Ordinal));
         if(WorldGenPerformance.Presented&&(caseFilter.Length==0||caseFilter.Split(',').Any(name=>!name.StartsWith("travel",StringComparison.Ordinal)&&!name.StartsWith("turning",StringComparison.Ordinal))))
             throw new InvalidOperationException("Presented throughput requires explicit travel/turning cases; image/pose verifiers use offscreen mode");
@@ -1459,7 +1465,7 @@ public sealed partial class WorldGenRuntime
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
-            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=caseFilter=="travel-flight-current-cap240"?3:1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
+            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=flightCasesOnly?3:1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
             // Read saved preferences only on explicit request; never write them.
             // Record the distinction from all-Medium instead of presenting a
             // different configuration as the owner's actual gameplay baseline.
@@ -1641,7 +1647,7 @@ public sealed partial class WorldGenRuntime
                 long uploadBytesBefore=terrainExplorer.ForestRootUploadBytes,uploadCallsBefore=terrainExplorer.ForestRootUploadCalls,uploadFullBefore=terrainExplorer.ForestRootFullUploads;
                 File.AppendAllText(Path.Combine(output,"case-settings.txt"),site.Item1+" "+item.Name+" presentation="+Screen.fullScreenMode+" resolution="+Screen.width+"x"+Screen.height+" vSync="+QualitySettings.vSyncCount+" targetFps="+Application.targetFrameRate+" queuedFrames="+QualitySettings.maxQueuedFrames+"\n");
                 var clockBridge=WorldGenPerformance.TraceEnabled?WorldGenPerformance.CaptureNativeClock():default;
-                using var manualGc=new ManualGcTrial(item.Name=="travel-whip-manual-gc");
+                using var manualGc=new ManualGcTrial(item.Name=="travel-whip-manual-gc"||item.Name=="travel-flight-manual-gc-cap240");
                 long qpcStart=System.Diagnostics.Stopwatch.GetTimestamp();double start=Time.realtimeSinceStartupAsDouble,previous=start;
                 WorldGenPerformance.ClearFaunaTrace();
                 Debug.Log("PERF BEGIN "+site.Item1+" "+item.Name+" qpc="+qpcStart);
@@ -1672,7 +1678,7 @@ public sealed partial class WorldGenRuntime
                     if(item.Name.StartsWith("turning",StringComparison.Ordinal))terrainExplorer.PerformanceTurn(item.Name.StartsWith("turning-whip",StringComparison.Ordinal)?20+150*Mathf.Sin((float)(now-start)*4):20+(float)((now-start)*60));
                     if(item.Name.StartsWith("travel",StringComparison.Ordinal))
                     {
-                        bool flight=item.Name=="travel-flight-current-cap240";
+                        bool flight=item.Name.StartsWith("travel-flight-",StringComparison.Ordinal);
                         double travel=(now-start)*(flight?200:8);
                         // Optional out-and-back route keeps a long diagnostic
                         // inside its selected biome, instead of climbing a cliff.
