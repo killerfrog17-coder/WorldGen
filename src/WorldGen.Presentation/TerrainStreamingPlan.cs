@@ -18,11 +18,15 @@ namespace WorldGen.Presentation
                     for(int i=(int)Math.Floor((x-radius)/size);i<=(int)Math.Floor((x+radius)/size);i++)
                     {var key=new TerrainTileKey(i,j,level,scale);if(TerrainLod.DistanceSquared(key,x,z)<=radius*radius)result[key]=segments;}
             }
-            // Small enough horizon work units to complete progressively and
-            // retain broad mountain silhouettes instead of 16km-spaced slabs.
-            int horizon=Math.Min(TerrainAdaptiveLod.BackdropLevel(scale,range),
-                Math.Max(0,(int)Math.Floor(Math.Log(16384/(TerrainLod.BaseSizeM*scale),2))));
-            Add(horizon,range,32);
+            int backdrop=TerrainAdaptiveLod.BackdropLevel(scale,range);
+            int oldHorizon=Math.Min(backdrop,Math.Max(0,(int)Math.Floor(Math.Log(16384/(TerrainLod.BaseSizeM*scale),2))));
+            // Group up to 4x4 old horizon products without changing their
+            // globally aligned height lattice or sampling footprint. This
+            // bounds renderer/material/coverage objects at enormous ranges,
+            // rather than trading the mountain silhouette for a coarser grid.
+            int horizon=Math.Min(oldHorizon+2,Math.Min(backdrop,Math.Max(0,(int)Math.Floor(Math.Log(65536/(TerrainLod.BaseSizeM*scale),2)))));
+            int horizonSegments=Math.Min(128,32<<(horizon-oldHorizon));
+            Add(horizon,range,horizonSegments);
             // Bound the fine fallback disk independently of an enormous view
             // distance. At most a few hundred work units, including on small
             // planets, rather than a uniform 2km grid over a 250km horizon.

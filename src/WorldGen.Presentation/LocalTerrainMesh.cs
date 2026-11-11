@@ -141,7 +141,9 @@ namespace WorldGen.Presentation
             }
             // Material resolution is independent of tessellation. This chart-
             // anchored grid is shared by adjacent tiles, not restarted per tile.
-            double materialStep=coverageOnly?Math.Max(128,sizeM/8):distant?step*2:32;
+            // Grouped horizon products keep the old 32-segment product's
+            // material lattice as well as its height spacing.
+            double materialStep=coverageOnly?Math.Max(128,step*4):distant?step*2:32;
             bool sparseMaterials=terrain.Amplification!=null&&(coverageOnly||distant||step<16);
             var materials=new System.Collections.Generic.Dictionary<(int,int,double),LocalTerrainSample>();
             LocalTerrainSample MaterialNode(int x,int z,double nodeStep=0)
