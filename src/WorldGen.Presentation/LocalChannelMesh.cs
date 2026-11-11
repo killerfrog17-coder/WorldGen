@@ -12,7 +12,7 @@ namespace WorldGen.Presentation
     {
         struct Point {public double X,Z;public Point(double x,double z){X=x;Z=z;}}
         struct Cut {public double X,Z,DX,DZ,Length,Half;public bool Bank;}
-        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default,TerrainBuildTiming? timing=null)
+        public static LocalTerrainSample[] Refine(LocalTerrainMesh mesh,LocalTerrain terrain,LocalTerrainFrame frame,LocalTerrain.LocalTerrainPatch? patch,LocalTerrainSample[] original,System.Threading.CancellationToken token=default,TerrainBuildTiming? timing=null,double[]? edgeSteps=null)
         {
             var timer=timing!=null?System.Diagnostics.Stopwatch.StartNew():null;
             double step=mesh.SizeM/mesh.Segments;if(patch==null)return original;
@@ -293,6 +293,7 @@ namespace WorldGen.Presentation
             }
             double clippingEnd=timer?.Elapsed.TotalMilliseconds??0;
             if(timing!=null)timing.ChannelClippingMs=clippingEnd-timing.ChannelConstraintsMs-timing.ChannelIndexMs;
+            if(terrain.Amplification!=null)RiverBoundaryCurves.Apply(mesh,terrain,frame,patch,edgeSteps,positions,(x,z)=>Vertex(new Point(x,z)),token);
             // Finite cuts can leave T-junctions on grid edges OR prior cut
             // lines. Join every coincident edge using the points in its local
             // grid cells, rather than recognizing just three grid directions.
