@@ -150,13 +150,13 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in TerrainStreamingPlan.Coverage(motion.X,motion.Z,HorizontalScale,viewDistance))
         {double step=pair.Key.SizeM/pair.Value;backdrops.Add(pair.Key,new[]{step,step,step,step});}
     }
-    bool BackdropNeeded(TerrainTileKey key)
+    bool BackdropNeeded(TerrainTileKey key,bool absentOnly=false)
     {
         double spacing=backdrops.TryGetValue(key,out var edges)?edges[0]:double.PositiveInfinity;
         foreach(var p in wanted)if(Overlaps(key,p.Key))
         {
             if(tiles.TryGetValue(p.Key,out var exact)&&!exact.CoverageOnly&&exact.Segments==p.Value)continue;
-            if(!HasResidentCoverage(p.Key,spacing))return true;
+            if(!HasResidentCoverage(p.Key,absentOnly?double.PositiveInfinity:spacing))return true;
         }
         return false;
     }
@@ -190,17 +190,28 @@ public sealed partial class LocalTerrainExplorer
         // Reserve at most half the lanes for cheap outward coverage. A single
         // request after forest scheduling could be starved by long forest/fine
         // jobs; filling every lane would delay the nearby forest in large views.
-        int requested=0,allowance=flightPriority?1:Math.Max(1,WorkerLimit/2);
+        int coarseRunning=0,fineRunning=0;
         // The limit is concurrent work, not a fresh allowance every frame.
         // Otherwise repeated calls can occupy every lane with far backdrops.
-        foreach(var job in jobs)if(job.Prepared==null&&job.Backdrop&&!job.Task.IsCompleted)allowance--;
-        if(allowance<=0)return;
-        foreach(var p in backdropOrder)
+        foreach(var job in jobs)if(job.Prepared==null&&job.Backdrop&&!job.Task.IsCompleted)
+        {if(job.Key.SizeM>4096)coarseRunning++;else fineRunning++;}
+        for(int pass=0;pass<(flightPriority?2:1);pass++)
         {
-            if(ActiveWorkerCount>=WorkerLimit)return;
-            if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
-            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
-            if(++requested>=allowance)return;
+            // A long canonical-neighbourhood build cannot monopolize the
+            // cheap missing-horizon lane. Balanced retains its other worker
+            // for nearby detail; larger pools can also improve near fallbacks.
+            if(flightPriority&&pass==1&&WorkerLimit<3)continue;
+            int allowance=flightPriority?1-(pass==0?coarseRunning:fineRunning):Math.Max(1,WorkerLimit/2)-coarseRunning-fineRunning;
+            if(allowance<=0)continue;
+            int requested=0;
+            foreach(var p in backdropOrder)
+            {
+                if(ActiveWorkerCount>=WorkerLimit)return;
+                if(flightPriority&&((p.Key.SizeM>4096)!=(pass==0)))continue;
+                if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key,flightPriority&&pass==0))continue;
+                RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
+                if(++requested>=allowance)break;
+            }
         }
     }
     int CompareBackdrop(BackdropEntry a,BackdropEntry b)

@@ -351,8 +351,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
-        // With resident ground beneath a flying player, keep one lane serving
-        // outward coverage and its finer fallbacks. The remaining lanes finish detail.
+        // Resident ground permits bounded outward coverage before refinement.
+        // Missing horizon and finer fallbacks have separate worker allowances.
         long priorTerrainRequests=TerrainBuildRequests;
         if(coveredFlight)ScheduleBackdrop(flightPriority:true);
         ScheduleCurrentTerrain(nearOnly:true);
