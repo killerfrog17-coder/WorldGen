@@ -11,6 +11,7 @@ namespace WorldGen.Core
         double[] lakeLevels,rimLevels;
         WaterBody[] lakeBodies;
         int[] lakeOutletOwners;
+        int[] lakeBodyOwners;
         public int ConditionedLakeSpills {get;private set;}
         public int LakeBasinCount {get;private set;}
         public int RejectedLakeBasins {get;private set;}
@@ -25,14 +26,14 @@ namespace WorldGen.Core
         // Connected sublevel components use actual control beds. Dry perimeter
         // edges become refinement constraints; designated outlets remain river
         // interfaces, not arbitrary cuts through the body of a lake.
-        void BuildLakeBasins(World world,CancellationToken token)
+        void BuildLakeBasins(World world,CancellationToken token,double[] requestedLevels=null)
         {
             LakeBasinCount=RejectedLakeBasins=LakeBasinFaces=0;
             var watch=Stopwatch.StartNew();var waters=lakeBodies=world.Hydrology.Waters;
             lakeFaces=new int[roots.Length];rimLevels=new double[roots.Length];lakeLevels=new double[waters.Length];
             for(int i=0;i<roots.Length;i++){lakeFaces[i]=-1;rimLevels[i]=double.NaN;}
             var seeds=new List<int>[waters.Length];
-            for(int i=0;i<waters.Length;i++)lakeLevels[i]=StandingLakeLevel(waters[i]);
+            for(int i=0;i<waters.Length;i++)lakeLevels[i]=requestedLevels==null?StandingLakeLevel(waters[i]):requestedLevels[i];
             for(int face=0;face<roots.Length;face++)
             {
                 var f=roots[face];int first=-1,second=-1;
@@ -79,6 +80,19 @@ namespace WorldGen.Core
                 foreach(int face in queue)if(lakeFaces[face]<0){lakeFaces[face]=id;LakeBasinFaces++;}
                 LakeBasinCount++;
             }
+            // Equal-stage connected catalog lakes can merge under backwater.
+            // Keep every original spill linked to the actual surviving basin.
+            lakeBodyOwners=new int[waters.Length];for(int id=0;id<waters.Length;id++)
+            {
+                int owner=-1;bool ambiguous=false;
+                if(seeds[id]!=null)foreach(int face in seeds[id])
+                {
+                    int other=lakeFaces[face];if(other<0||Math.Abs(lakeLevels[other]-lakeLevels[id])>.001)continue;
+                    if(other==id){owner=id;ambiguous=false;break;}
+                    if(owner>=0&&owner!=other){ambiguous=true;break;}owner=other;
+                }
+                lakeBodyOwners[id]=ambiguous?-1:owner;
+            }
             // Preserve actual dry divides over all later refinements. A river
             // outlet is explicitly exempt; rivers are not solved by this pass.
             foreach(var edge in coarseEdges)
@@ -104,11 +118,11 @@ namespace WorldGen.Core
         // are materialized; retain its original valley substrate.
         void RemoveRejectedLakeControls(World world)
         {
-            var accepted=new bool[lakeBodies.Length];foreach(int id in lakeFaces)if(id>=0)accepted[id]=true;
             for(int i=0;i<rootNodes.Length;i++)
             {
                 ref var node=ref rootNodes[i];if(node.Type!=Kind.Lake||node.LakeKey==0)continue;
-                int id=(int)node.LakeKey-1;if(id>=0&&id<accepted.Length&&accepted[id])continue;
+                int id=(int)node.LakeKey-1,owner=id>=0&&id<lakeBodyOwners.Length?lakeBodyOwners[id]:-1;
+                if(owner>=0){node.LakeKey=(ulong)(uint)(owner+1);node.Water=node.LakeLevel=lakeLevels[owner];continue;}
                 bool river=nodeChannels[i]>=0&&node.Flow>=.04&&world.Hydrology.Receiver[i]>=0;
                 node.Type=river?Kind.River:Kind.Terrain;node.LakeKey=0;node.LakeLevel=0;node.LakeWeight=0;
                 node.Water=river?node.Height+Depth(node.Flow):node.Height;
@@ -133,16 +147,15 @@ namespace WorldGen.Core
         void ConditionLakeSpills(World world,CancellationToken token)
         {
             lakeOutletOwners=new int[rootNodes.Length];for(int i=0;i<lakeOutletOwners.Length;i++)lakeOutletOwners[i]=-1;
-            var accepted=new bool[lakeBodies.Length];foreach(int id in lakeFaces)if(id>=0)accepted[id]=true;
             for(int id=0;id<lakeBodies.Length;id++)
             {
-                if(!accepted[id])continue;var body=lakeBodies[id];int cell=body.OutletCell;
+                int owner=lakeBodyOwners[id];if(owner<0)continue;var body=lakeBodies[id];int cell=body.OutletCell;
                 if(body.Endorheic||cell<0||cell>=rootNodes.Length||body.DownstreamCell<0)continue;
                 ref var node=ref rootNodes[cell];if(node.Type==Kind.Ocean)continue;
-                if(node.Type==Kind.Lake&&node.LakeKey!=(ulong)(uint)(id+1))continue;
-                double level=lakeLevels[id];
+                if(node.Type==Kind.Lake&&node.LakeKey!=(ulong)(uint)(owner+1))continue;
+                double level=lakeLevels[owner];
                 if(lakeOutletOwners[cell]>=0&&Math.Abs(rootNodes[cell].Water-level)>.001)continue;
-                lakeOutletOwners[cell]=id;
+                lakeOutletOwners[cell]=owner;
                 node.Water=level;
                 // This is the pre-incision spill lip. The local paired river
                 // section excavates its actual scaled depth ONCE afterwards.
@@ -171,6 +184,35 @@ namespace WorldGen.Core
             // of repairing its outlet.
         }
 
+        void ReconcileLakeBackwater(World world,CancellationToken token)
+        {
+            var required=(double[])lakeLevels.Clone();var downstream=new double[rootNodes.Length];
+            var draining=new bool[lakeBodies.Length];for(int i=0;i<draining.Length;i++)draining[i]=!lakeBodies[i].Endorheic;
+            foreach(int owner in lakeOutletOwners)if(owner>=0)draining[owner]=true;
+            int Body(int node)=>rootNodes[node].Type==Kind.Lake?(int)rootNodes[node].LakeKey-1:lakeOutletOwners[node];
+            bool changed=true,any=false;int iterations=0;
+            while(changed)
+            {
+                token.ThrowIfCancellationRequested();changed=false;
+                if(++iterations>lakeBodies.Length+1)throw new InvalidOperationException("Standing-water head reconciliation did not converge");
+                for(int i=0;i<rootNodes.Length;i++){int id=Body(i);downstream[i]=rootNodes[i].Type==Kind.Ocean?0:id>=0?required[id]:double.NegativeInfinity;}
+                for(int k=world.Hydrology.VisitOrder.Length-1;k>=0;k--)
+                {
+                    int i=world.Hydrology.VisitOrder[k],next=world.Hydrology.Receiver[i],id=Body(i);
+                    if(next>=0&&(id<0||draining[id]))downstream[i]=Math.Max(downstream[i],downstream[next]);
+                    if(id>=0&&draining[id]&&downstream[i]>required[id]){required[id]=downstream[i];changed=any=true;}
+                }
+            }
+            if(!any)return;
+            // No fine vertex or edge has been materialized yet. Rebuild basin
+            // ownership at the common receiving head, retaining all merged
+            // bodies' physical spills rather than merely raising a water mesh.
+            for(int i=0;i<rootNodes.Length;i++)if(rootNodes[i].Type==Kind.Lake)
+            {int id=(int)rootNodes[i].LakeKey-1;rootNodes[i].Water=rootNodes[i].LakeLevel=required[id];}
+            for(int id=0;id<required.Length;id++)if(lakeBodyOwners[id]>=0)required[id]=required[lakeBodyOwners[id]];
+            BuildLakeBasins(world,token,required);RemoveRejectedLakeControls(world);ConditionLakeSpills(world,token);
+        }
+
         void CutLakeSpillMouth(V point,ref Surface surface)
         {
             int id=(int)surface.BodyKey-1;if(id<0||id>=lakeBodies.Length)return;
@@ -187,9 +229,10 @@ namespace WorldGen.Core
             surface.Mask=surface.Water-surface.Height;
         }
 
-        static bool IsLakeOutlet(CoarseEdge edge,int id,WaterBody[] waters)
+        bool IsLakeOutlet(CoarseEdge edge,int id,WaterBody[] waters)
         {
             var w=waters[id];if(w.Endorheic||w.OutletCell<0)return false;
+            if(lakeLevels[id]>StandingLakeLevel(w)+.001)return false; // original outlet is drowned by downstream backwater
             return edge.A==w.OutletCell||edge.B==w.OutletCell||edge.A==w.DownstreamCell||edge.B==w.DownstreamCell;
         }
 

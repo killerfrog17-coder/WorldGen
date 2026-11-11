@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-channel-domain-profiles-99";
+        public const string Version = "hyper-amplification-channel-domain-profiles-101";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -367,6 +367,7 @@ namespace WorldGen.Core
             BuildLakeBasins(world,token);
             RemoveRejectedLakeControls(world);
             ConditionLakeSpills(world,token);
+            ReconcileLakeBackwater(world,token);
             Fjords=new FjordCoasts(world,profiles,scale,landscapeLocator,token);
             BuildRiverscapes(world,profiles,token,cachedRiverDatums);
             Canyons=new CanyonValleys(world,profiles,scale,riverDatums,riverNodeWidths,token);
