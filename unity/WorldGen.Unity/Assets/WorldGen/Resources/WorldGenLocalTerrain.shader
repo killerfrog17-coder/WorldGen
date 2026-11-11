@@ -96,7 +96,10 @@ Shader "WorldGen/LocalTerrain"
                 if(_TransitionEnabled>.5&&!TerrainTest(TD_COVERAGE))
                 {
                     float fade=max(WorldGenFadeWeight(_LodFade.xy),safety);
-                    if(_LodFade.z>.5)clip(dither-fade);else clip(fade-dither);
+                    // Different-height surfaces do not project onto identical
+                    // pixels. Keep the previous solid floor underneath the new
+                    // dithered surface until that replacement is fully opaque.
+                    if(_LodFade.z>.5)clip(.999999-fade);else clip(fade-dither);
                 }
                 if(_CoverageEnabled>.5&&!TerrainTest(TD_COVERAGE))
                 {
@@ -110,7 +113,12 @@ Shader "WorldGen/LocalTerrain"
                         {
                             if(_TransitionEnabled<.5)clip(-1);
                             int index=(int)(-next-1);float2 times=_CoverageFadeTimes.Load(int3(index%256,index/256,0)).xy;
-                            clip(dither-max(WorldGenFadeWeight(times),safety));break;
+                            // A fading-in child must not punch matching holes
+                            // through a differently shaped ancestor. During
+                            // coarsening the ancestor returns immediately and
+                            // remains solid while its outgoing child fades.
+                            if(times.y<=0)clip(.999999-max(WorldGenFadeWeight(times),safety));
+                            break;
                         }
                         if(next<=0)break;
                         node=(int)next-1;uv-=quadrant;

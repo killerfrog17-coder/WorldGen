@@ -397,6 +397,28 @@ public sealed partial class LocalTerrainExplorer
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
         while((!owner.Ready||!owner.NearReady)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
         Check(owner.Ready&&owner.NearReady&&owner.Error=="","Actual worker terrain neighbourhood is uploaded without errors");double loadSeconds=timer.Elapsed.TotalSeconds;
+        if(kind=="Canyon"||kind=="Waterfall")
+        {
+            int supportSteps=0,steepStarts=0;double minimumClearance=double.PositiveInfinity;
+            foreach(double radius in new[]{16d,32,64})for(int direction=0;direction<8;direction++)
+            {
+                double angle=direction*Math.PI/4,x=Math.Cos(angle)*radius,z=Math.Sin(angle)*radius;
+                double drawn=owner.VisibleGround(x,z,double.NaN);if(!double.IsFinite(drawn))continue;
+                double dx=owner.VisibleGround(x+.5,z,drawn)-owner.VisibleGround(x-.5,z,drawn),dz=owner.VisibleGround(x,z+.5,drawn)-owner.VisibleGround(x,z-.5,drawn);
+                if(dx*dx+dz*dz>1)steepStarts++;
+                var walker=new TerrainMotion();walker.Place(x,z,owner.PlayerSolidGround(x,z));
+                for(int step=0;step<24;step++)
+                {
+                    walker.Move(1d/60,1,0,0,direction*45,0,false,false,owner.PlayerSolidGround,walk:true);
+                    double surface=owner.VisibleGround(walker.X,walker.Z,double.NaN);
+                    if(!double.IsFinite(surface))throw new InvalidOperationException("Native walker left resident drawn terrain");
+                    minimumClearance=Math.Min(minimumClearance,walker.Y-TerrainMotion.EyeHeightM-surface);supportSteps++;
+                }
+                yield return null;
+            }
+            File.WriteAllText(Path.Combine(output,"player-ground-contact.txt"),"Actual production terrain motor/support; steps="+supportSteps+"; steep starts="+steepStarts+"; minimum foot/drawn-triangle clearance="+minimumClearance+"m");
+            Check(supportSteps>0&&steepStarts>0&&minimumClearance>=-.025,"Production walking motor remains above actual steep rendered terrain");
+        }
         owner.TestView(3);owner.TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,reviewRange*1.5),2,1,3,0);owner.SetDaylight(12,190000.5);
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;
         while(keys.Any(k=>!owner.scatterChunks.TryGetValue(k,out var chunk)||chunk.Groups==null)&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
