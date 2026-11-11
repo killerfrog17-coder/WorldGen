@@ -10,13 +10,16 @@ namespace WorldGen.Presentation
         public int Segments {get;}
         readonly ulong[] cells;
         int minX,minZ,maxX,maxZ;
-        TerrainHeightChange(int n){Segments=n;cells=new ulong[(n*n+63)/64];minX=minZ=n;maxX=maxZ=-1;}
+        internal TerrainHeightChange(int n){Segments=n;cells=new ulong[(n*n+63)/64];minX=minZ=n;maxX=maxZ=-1;}
         void Mark(int x,int z)
         {
             int n=Segments;if(x<0||z<0||x>=n||z>=n)return;
             int at=z*n+x;cells[at>>6]|=1UL<<(at&63);
             minX=Math.Min(minX,x);minZ=Math.Min(minZ,z);maxX=Math.Max(maxX,x);maxZ=Math.Max(maxZ,z);
         }
+        internal bool Empty=>maxX<0;
+        internal void MarkBounds(int x0,int z0,int x1,int z1)
+        {for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)Mark(x,z);}
         public static TerrainHeightChange? Compare(float[] before,float[] after,int segments)
         {
             if(segments<1||segments>128||before.Length!=(segments+1)*(segments+1)||after.Length!=before.Length)throw new ArgumentException("Incompatible terrain height grids");

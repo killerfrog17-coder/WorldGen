@@ -54,6 +54,36 @@ namespace WorldGen.Presentation
             currentHeights[vertex]=height;
         }
 
+        /// <summary>Conservative regular-grid cells of the actual triangles
+        /// incident to edited vertices. Invalid indices return null so callers
+        /// retain whole-tile correction rather than omit a changed surface.</summary>
+        public TerrainHeightChange? ChangedTriangleCells(int gridSegments,IReadOnlyList<int> vertices)
+        {
+            if(gridSegments!=segments)return null;
+            var change=new TerrainHeightChange(gridSegments);
+            foreach(int vertex in vertices)
+            {
+                if(vertex<0||vertex>=positions.Length/3)return null;
+                double x=positions[vertex*3],z=positions[vertex*3+2];
+                int x0=Cell(x-1e-5),x1=Cell(x+1e-5),z0=Cell(z-1e-5),z1=Cell(z+1e-5);
+                // Every incident triangle includes this vertex's point, and is
+                // already indexed in one of its adjacent cells. No global scan
+                // or persistent vertex-to-triangle index is necessary.
+                for(int cz=z0;cz<=z1;cz++)for(int cx=x0;cx<=x1;cx++)
+                {
+                    int cell=cz*segments+cx;
+                    for(int at=offsets[cell];at<offsets[cell+1];at++)
+                    {
+                        int triangle=entries[at];
+                        if(triangles[triangle]!=vertex&&triangles[triangle+1]!=vertex&&triangles[triangle+2]!=vertex)continue;
+                        Bounds(triangle,out int left,out int bottom,out int right,out int top);
+                        change.MarkBounds(left,bottom,right,top);
+                    }
+                }
+            }
+            return change.Empty?null:change;
+        }
+
         int Cell(double value)=>Math.Max(0,Math.Min(segments-1,(int)Math.Floor(value/step)));
         void Bounds(int triangle,out int x0,out int z0,out int x1,out int z1)
         {

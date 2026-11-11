@@ -351,10 +351,11 @@ public sealed partial class LocalTerrainExplorer
     {
         var data=tile.ResidentEdges;bool changed=data.TopologyChanged,conformed=false;int changedVertices=0;
         bool regular=tile.Contact==null&&!data.TopologyChanged&&tile.Heights!=null&&tile.Heights.Length==(tile.Segments+1)*(tile.Segments+1);
+        bool partial=!data.TopologyChanged&&(regular||tile.Contact!=null);
         residentChangedGridVertices.Clear();
         for(int i=0;i<data.Points.Length;i++)
         {
-            if(data.Heights[i]!=data.Published[i]){changed=true;changedVertices++;if(regular)residentChangedGridVertices.Add(data.Points[i].Vertex);}
+            if(data.Heights[i]!=data.Published[i]){changed=true;changedVertices++;if(partial)residentChangedGridVertices.Add(data.Points[i].Vertex);}
             if(data.Heights[i]!=data.Points[i].Position.y)conformed=true;
         }
         if(!changed)return;
@@ -382,10 +383,10 @@ public sealed partial class LocalTerrainExplorer
         if(!outgoing)
         {
             ReleaseGroundCover(tile);
-            // Only incident regular-grid triangles changed. Preserve any
-            // broader pending publication notification; refined geometry
-            // still conservatively invalidates its complete footprint.
-            var cells=regular?TerrainHeightChange.FromVertices(tile.Segments,residentChangedGridVertices):null;
+            // Height-only fitting affects the actual incident land triangles,
+            // including refined banks. Knot/topology changes retain whole-key
+            // correction, as does any invalid/unsupported partial mask.
+            var cells=!partial?null:tile.Contact!=null?tile.Contact.ChangedTriangleCells(tile.Segments,residentChangedGridVertices):TerrainHeightChange.FromVertices(tile.Segments,residentChangedGridVertices);
             if(cells!=null)scatterGroundChanges.Add(key,cells);else scatterGroundChanges.Add(key);
             scatterGroundRevision++;residentRevision++;
         }
