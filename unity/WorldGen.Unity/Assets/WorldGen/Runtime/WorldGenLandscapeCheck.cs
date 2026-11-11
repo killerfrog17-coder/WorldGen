@@ -625,6 +625,37 @@ public sealed partial class LocalTerrainExplorer
                 fallMotionPixels=pixels;
             }
             Destroy(image);RenderTexture.active=prior;
+            if(arguments.Contains("--worldgen-surface-diagnosis"))
+            {
+                var savedFlags=TerrainDiagnostics.Flags;bool savedShadows=TerrainDiagnostics.NoReceiveShadows;
+                string[] modes={"flat","unlit","no-cover","no-receive-shadows"};
+                TerrainDiagnosticFlags[] flags={TerrainDiagnosticFlags.FlatColour,TerrainDiagnosticFlags.Unlit,
+                    TerrainDiagnosticFlags.NoGrassMat|TerrainDiagnosticFlags.NoMoss|TerrainDiagnosticFlags.NoLichen,0};
+                try
+                {
+                    // No yielding, camera movement, daylight or world changes:
+                    // compare the same submitted scene with one material switch.
+                    for(int mode=0;mode<modes.Length;mode++)
+                    {
+                        TerrainDiagnostics.Flags=flags[mode];TerrainDiagnostics.NoReceiveShadows=mode==3||savedShadows;
+                        TerrainDiagnostics.Changed();owner.ApplyTerrainDiagnostics();
+                        owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                        var diagnostic=new Texture2D(1536,864,TextureFormat.RGB24,false);
+                        try
+                        {
+                            diagnostic.ReadPixels(new Rect(0,0,1536,864),0,0);diagnostic.Apply();
+                            File.WriteAllBytes(Path.Combine(output,name+"-"+modes[mode]+".png"),diagnostic.EncodeToPNG());
+                        }
+                        finally{Destroy(diagnostic);RenderTexture.active=prior;}
+                        File.AppendAllText(Path.Combine(output,"surface-diagnosis.txt"),name+"-"+modes[mode]+" flags="+flags[mode]+" noReceiveShadows="+TerrainDiagnostics.NoReceiveShadows+" camera="+owner.view.transform.localPosition+" rotation="+owner.view.transform.localRotation+"\n");
+                    }
+                }
+                finally
+                {
+                    TerrainDiagnostics.Flags=savedFlags;TerrainDiagnostics.NoReceiveShadows=savedShadows;
+                    TerrainDiagnostics.Changed();owner.ApplyTerrainDiagnostics();RenderTexture.active=prior;
+                }
+            }
             if(name=="valley-axis"&&arguments.Contains("--worldgen-water-shading-review"))
             {
                 var waterMaterials=owner.tiles.Values.Where(t=>t.Materials!=null).SelectMany(t=>t.Materials).Where(m=>m!=null&&m.shader.name=="WorldGen/WaterSurface").Distinct().ToArray();

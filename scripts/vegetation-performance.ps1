@@ -135,6 +135,16 @@ try {
     if($HideWaterDrawing -and (!(Test-Path -LiteralPath (Join-Path $destination 'terrain-geometry.txt')) -or !(Select-String -LiteralPath (Join-Path $destination 'terrain-geometry.txt') -SimpleMatch 'hide_water=True' -Quiet))){throw 'This packaged player did not confirm the requested hidden-water diagnostic'}
     if((Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash -ne $before){throw 'Input snapshot changed'}
     $before | Out-File -LiteralPath (Join-Path $destination 'input-sha256.txt') -Encoding ascii
+    if($Presented){
+        $focusPath=Join-Path $destination 'focus.txt'
+        if(!(Test-Path -LiteralPath $focusPath)){throw 'Presented comparison has no focus receipt; do not accept its FPS.'}
+        foreach($focusLine in Get-Content -LiteralPath $focusPath){
+            if($focusLine -notmatch 'focused_frames=(\d+) unfocused_frames=(\d+)' -or [long]$Matches[1] -eq 0 -or [long]$Matches[2] -ne 0){
+                'INVALID: measurement lost game focus. Preserve as background diagnostics only.' | Set-Content -LiteralPath (Join-Path $destination 'invalid-focus.txt')
+                throw 'The review game was not focused throughout measurement; FPS comparison is invalid. See focus.txt.'
+            }
+        }
+    }
     Write-Output "Completed, input unchanged: $destination"
 } finally {
     # Only processes started by this invocation, never an owner's player.
