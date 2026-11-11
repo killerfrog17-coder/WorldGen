@@ -7,6 +7,7 @@ param(
     [switch]$GrassReview,
     [switch]$TreeShadowReview,
     [switch]$BarkReview,
+    [switch]$TreeLodReview,
     [switch]$WaterShadingReview,
     [switch]$CliffReview,
     [switch]$Presented,
@@ -47,6 +48,7 @@ foreach($kind in $Kinds){
     if($GrassReview){$arguments+='--worldgen-grass-review'}
     if($TreeShadowReview){$arguments+='--worldgen-tree-shadow-review'}
     if($BarkReview){$arguments+='--worldgen-bark-review'}
+    if($TreeLodReview){$arguments+='--worldgen-tree-lod-review'}
     if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
     if($CliffReview){$arguments+='--worldgen-cliff-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)

@@ -36,7 +36,7 @@ public sealed partial class LocalTerrainExplorer
         public int Tiles,ScatterPages,WaterRenderers;
         public int NearbyPools,Reeds,SubmergedReeds;
         public int BakedTrees,BakedStands,PendingTreeBakes;
-        public int TreeQuality;public float TreeNear,TreeFar;
+        public int TreeQuality,TerrainQuality,LoadingEffort,SurfaceQuality;public float TreeNear,TreeFar;
         public double TerrainReveal,ForestReveal,FogDistance;
         public string SampleBiome;public LandscapeControls Province;public double ForestCoverage;public double[] CoverWeights;
         public SmallLake Pond,WetlandPool;
@@ -50,6 +50,17 @@ public sealed partial class LocalTerrainExplorer
         public V RiverCenter;public double RiverWidth;
         public string Coast,Landform;
         public DuneLandmark Dune;
+    }
+    public sealed class TreeLodFrameReceipt
+    {
+        public string Capture;public double RequestedHorizontalDistanceM,RootDistanceM,CrownDistanceM;
+        public V Camera,Forward;public double EyeClearanceM;public int ForestDraws;
+    }
+    public sealed class TreeLodReviewReceipt
+    {
+        public ulong TreeId;public int Variant;public V PlanetPosition,Root,Crown,Approach;
+        public double HeightM,WidthM,ApproachObstructionScore;
+        public List<TreeLodFrameReceipt> Captures=new List<TreeLodFrameReceipt>();
     }
     sealed class LandscapeReviewSite{public V Position,CoastDirection,RiverCenter;public SmallLake Pond,WetlandPool;public LocalTerrainSample Sample;public VolcanicTerrain.Volcano Volcano;public BedrockRemnants.Outcrop Outcrop;public CanyonValleys.Reach Canyon;public GlacialValleys.Reach? Trough;public FjordCoasts.Inlet? Fjord;public RiverscapeSpan? Fall;public DuneLandmark Dune;public int RiverReach=-1;public double RiverWidth;public string Coast,Landform;}
     public static IEnumerator CheckLandscape(string path,string output,string kind)
@@ -487,6 +498,7 @@ public sealed partial class LocalTerrainExplorer
         }
         double floor=site.Fjord.HasValue?0:site.Pond?.Level??sample.ElevationM;float y=(float)owner.frame.SurfaceY(site.Position,floor);
         var cameraReceipts=new List<string>();Color[] fallMotionPixels=null;
+        bool treeLodReview=arguments.Contains("--worldgen-tree-lod-review");TreeLodReviewReceipt treeLodReceipt=null;
         IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false,Vector3? inspectionTarget=null)
         {
             int selection=Array.IndexOf(arguments,"--worldgen-landscape-captures");
@@ -496,7 +508,7 @@ public sealed partial class LocalTerrainExplorer
             var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
             double offsetRadius=new Vector2(offset.x,offset.z).magnitude;
             double inspectedRadius=site.Dune?.RadiusM??site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??site.Fjord?.HalfWidth??Math.Min(200,reviewFootprint*.2);
-            if(!arguments.Contains("--worldgen-cliff-review"))Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
+            if(!arguments.Contains("--worldgen-cliff-review")&&!treeLodReview)Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
             if(site.Coast!=null||site.Fjord.HasValue)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,0));
@@ -507,13 +519,13 @@ public sealed partial class LocalTerrainExplorer
             var look=walking?new Vector3(-offset.x,-new Vector2(offset.x,offset.z).magnitude*.10f,-offset.z):new Vector3(0,y+.5f,0)-camera;
             if(faceCenter)look=new Vector3(0,y+.5f,0)-camera;
             if(inspectionTarget.HasValue)look=inspectionTarget.Value-camera;
-            if(site.RiverCenter.Length>.1)
+            if(site.RiverCenter.Length>.1&&!inspectionTarget.HasValue)
             {
                 TerrainHandoff.Coordinates(owner.frame,site.RiverCenter,out double rx,out double rz);
                 var river=model.Patch(site.RiverCenter,4000).Geometry(site.RiverCenter);
                 look=new Vector3((float)rx,(float)owner.frame.SurfaceY(site.RiverCenter,river.WaterSurfaceM),(float)rz)-camera;
             }
-            if(site.Fall.HasValue)
+            if(site.Fall.HasValue&&!inspectionTarget.HasValue)
             {
                 var fall=site.Fall.Value;V at=(fall.A+fall.B).Unit;TerrainHandoff.Coordinates(owner.frame,at,out double fx,out double fz);
                 var targetPoint=new Vector3((float)fx,(float)owner.frame.SurfaceY(at,(fall.LevelA+fall.LevelB)*.5),(float)fz);
@@ -521,7 +533,7 @@ public sealed partial class LocalTerrainExplorer
             }
             cameraReceipts.Add(name+" camera="+camera+" look="+look+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
             owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);
-            if(arguments.Contains("--worldgen-cliff-review"))
+            if(arguments.Contains("--worldgen-cliff-review")||treeLodReview)
             {
                 // A detached camera used to inspect nearby walls through the
                 // origin's distant LOD. Stream from the actual observer, just
@@ -570,6 +582,16 @@ public sealed partial class LocalTerrainExplorer
             }
             owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
+            if(treeLodReceipt!=null&&name.StartsWith("tree-range-",StringComparison.Ordinal))
+            {
+                var actual=owner.view.transform.localPosition;var forward=owner.view.transform.forward;
+                var root=new Vector3((float)treeLodReceipt.Root.X,(float)treeLodReceipt.Root.Y,(float)treeLodReceipt.Root.Z);
+                var crown=new Vector3((float)treeLodReceipt.Crown.X,(float)treeLodReceipt.Crown.Y,(float)treeLodReceipt.Crown.Z);
+                treeLodReceipt.Captures.Add(new TreeLodFrameReceipt{Capture=name,RequestedHorizontalDistanceM=int.Parse(name.Substring("tree-range-".Length)),
+                    RootDistanceM=Vector3.Distance(actual,root),CrownDistanceM=Vector3.Distance(actual,crown),Camera=new V(actual.x,actual.y,actual.z),
+                    Forward=new V(forward.x,forward.y,forward.z),EyeClearanceM=actual.y-cameraFloor,ForestDraws=owner.ForestDrawCalls});
+                File.WriteAllText(Path.Combine(output,"tree-lod.json"),WorldJson.Write(treeLodReceipt));
+            }
             if(name=="cliff-wall-near"&&arguments.Contains("--worldgen-cliff-review"))
             {
                 var walls=owner.tiles.Values.Where(t=>t.Materials!=null).SelectMany(t=>t.Materials).Where(m=>m.shader.name=="WorldGen/LocalTerrain"&&m.GetFloat("_Water")<.5f).ToArray();
@@ -762,6 +784,49 @@ public sealed partial class LocalTerrainExplorer
                 yield return owner.StartCoroutine(Capture("bark-forest-"+i,offset,true,inspectionTarget:center+Vector3.up*1.6f));
             }
         }
+        if(treeLodReview)
+        {
+            var trees=owner.scatterChunks.Values.Where(c=>c.Source?.Instances!=null).SelectMany(c=>c.Source.Instances)
+                .Where(t=>t.Kind==ScatterKind.GeneratedTree).GroupBy(t=>t.Id).Select(g=>g.First()).ToArray();
+            var candidates=trees.Where(t=>t.HeightM>=8&&(t.Position-site.Position).Length*owner.frame.RadiusM<=100)
+                .OrderByDescending(t=>t.HeightM).ThenBy(t=>t.Id).Take(12).ToArray();
+            Check(candidates.Length>0,"Tree LOD review finds a real generated tree at least8m tall within100m");
+            Vector3 Root(ScatterInstance tree)
+            {
+                TerrainHandoff.Coordinates(owner.frame,tree.Position,out double x,out double z);
+                return new Vector3((float)(x-owner.originX),(float)owner.VisibleGround(x,z,owner.frame.SurfaceY(tree.Position,tree.GroundM))-.045f,(float)(z-owner.originZ));
+            }
+            // Choose a comparatively clear sight line from actual resident
+            // trees. This does not hide neighbours or replace the game renderer.
+            var roots=trees.Select(t=>Root(t)).ToArray();var selected=candidates[0];var center=Root(selected);var approach=Vector3.back;double best=double.PositiveInfinity;
+            foreach(var candidate in candidates)
+            {
+                var p=Root(candidate);float eye=p.y+(float)candidate.HeightM*.65f;
+                for(int angle=0;angle<8;angle++)
+                {
+                    var direction=Quaternion.Euler(0,angle*45,0)*Vector3.forward;double obstruction=0;
+                    for(int i=0;i<trees.Length;i++)
+                    {
+                        if(trees[i].Id==candidate.Id||roots[i].y+trees[i].HeightM<eye-1)continue;
+                        var delta=roots[i]-p;float along=Vector3.Dot(delta,direction);if(along<3||along>250)continue;
+                        float cross=Mathf.Abs(delta.x*direction.z-delta.z*direction.x),radius=(float)trees[i].WidthM*.45f+1;
+                        if(cross<radius)obstruction+=(1-along/300d)*(1-cross/radius);
+                    }
+                    double score=obstruction+new Vector2(p.x,p.z).magnitude*.0001-candidate.HeightM*.001;
+                    if(score>=best)continue;best=score;selected=candidate;center=p;approach=direction;
+                }
+            }
+            var crown=center+Vector3.up*(float)selected.HeightM*.65f;
+            treeLodReceipt=new TreeLodReviewReceipt{TreeId=selected.Id,Variant=selected.Variant,PlanetPosition=selected.Position,
+                Root=new V(center.x,center.y,center.z),Crown=new V(crown.x,crown.y,crown.z),Approach=new V(approach.x,approach.y,approach.z),
+                HeightM=selected.HeightM,WidthM=selected.WidthM,ApproachObstructionScore=best};
+            File.WriteAllText(Path.Combine(output,"tree-lod.json"),WorldJson.Write(treeLodReceipt));
+            foreach(int distance in new[]{40,80,140,250})
+            {
+                var eye=crown+approach*distance;
+                yield return owner.StartCoroutine(Capture("tree-range-"+distance,new Vector3(eye.x,eye.y-y-.5f,eye.z),inspectionTarget:crown));
+            }
+        }
         if(site.Volcano!=null)
         {
             yield return owner.StartCoroutine(Capture("crater-overview",new Vector3(width*.05f,width*.65f,width*.1f)));
@@ -864,7 +929,8 @@ public sealed partial class LocalTerrainExplorer
             WaterRenderers=owner.tiles.Values.Count(t=>t.Renderers!=null&&t.Renderers.Length>1),Pond=site.Pond,WetlandPool=site.WetlandPool,Volcano=site.Volcano,Outcrop=site.Outcrop,Canyon=site.Canyon,Trough=GlacialTroughReceipt.From(site.Trough),Fjord=FjordReceipt.From(site.Fjord),Fall=site.Fall,RiverReach=site.RiverReach,RiverCenter=site.RiverCenter,RiverWidth=site.RiverWidth,Coast=site.Coast,Landform=site.Landform,Dune=site.Dune,
             NearbyPools=pools,Reeds=reeds,SubmergedReeds=submergedReeds,SampleBiome=sample.Biome.ToString(),Province=sample.Province,ForestCoverage=sample.Forest.Coverage,
             BakedTrees=owner.BakedTreeModels,BakedStands=owner.BakedForestModels,PendingTreeBakes=owner.PendingTreeModels,
-            TreeQuality=TerrainVideoOptions.TreeQuality,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
+            TreeQuality=TerrainVideoOptions.TreeQuality,TerrainQuality=TerrainVideoOptions.Current.Quality,LoadingEffort=TerrainVideoOptions.Current.Effort,SurfaceQuality=TerrainVideoOptions.SurfaceQuality,
+            TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,
             TerrainReveal=owner.terrainRevealRadius,ForestReveal=owner.forestRevealRadius,FogDistance=owner.StreamingFogDistance,
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
