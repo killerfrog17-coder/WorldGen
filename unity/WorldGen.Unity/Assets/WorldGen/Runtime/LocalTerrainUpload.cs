@@ -123,24 +123,27 @@ public sealed partial class LocalTerrainExplorer
     bool SplitResidentLandBoundary(TerrainTileKey key,Tile tile,System.Collections.Generic.List<double>[] cuts)
     {
         var previous=tile.ResidentEdges;var oldMesh=previous.Mesh;if(oldMesh==null)return false;
-        TerrainVertex[] original;int[] oldIndices;int oldIndexBytes;
+        System.Collections.Generic.List<TerrainVertex> vertices;int originalCount;int[] oldIndices;int oldIndexBytes;
         using(var read=Mesh.AcquireReadOnlyMeshData(oldMesh))
         {
-            var source=read[0];var sub=source.GetSubMesh(0);original=new TerrainVertex[sub.vertexCount];
-            var sourceVertices=source.GetVertexData<TerrainVertex>();for(int i=0;i<original.Length;i++)original[i]=sourceVertices[i];
+            var source=read[0];var sub=source.GetSubMesh(0);originalCount=sub.vertexCount;
+            int reserve=16;foreach(var side in cuts)if(side!=null)reserve+=side.Count;
+            vertices=new System.Collections.Generic.List<TerrainVertex>(originalCount+Math.Min(4096,reserve));
+            // Keep the original prefix immutable while appending union knots;
+            // no intermediate full vertex snapshot is needed on the Mono heap.
+            var sourceVertices=source.GetVertexData<TerrainVertex>();for(int i=0;i<originalCount;i++)vertices.Add(sourceVertices[i]);
             oldIndices=new int[sub.indexCount];oldIndexBytes=source.indexFormat==IndexFormat.UInt16?2:4;
             if(source.indexFormat==IndexFormat.UInt16){var indices=source.GetIndexData<ushort>();for(int i=0;i<oldIndices.Length;i++)oldIndices[i]=indices[sub.indexStart+i]+sub.baseVertex;}
             else{var indices=source.GetIndexData<int>();for(int i=0;i<oldIndices.Length;i++)oldIndices[i]=indices[sub.indexStart+i]+sub.baseVertex;}
         }
-        var vertices=new System.Collections.Generic.List<TerrainVertex>(original);
         var triangles=new System.Collections.Generic.List<int>(oldIndices.Length+64);
         var inserted=new System.Collections.Generic.Dictionary<(int,int),int[]>();
-        var boundaryMasks=new int[original.Length];foreach(var point in previous.Points)boundaryMasks[point.Vertex]=point.Mask;
+        var boundaryMasks=new int[originalCount];foreach(var point in previous.Points)boundaryMasks[point.Vertex]=point.Mask;
         double size=key.SizeM;
         int[] Edge(int a,int b)
         {
             int low=Math.Min(a,b),high=Math.Max(a,b);if(inserted.TryGetValue((low,high),out var existing))return existing;
-            var pa=original[low].Position;var pb=original[high].Position;
+            var pa=vertices[low].Position;var pb=vertices[high].Position;
             int mask=boundaryMasks[low]&boundaryMasks[high],side=(mask&1)!=0?0:(mask&2)!=0?1:(mask&4)!=0?2:(mask&8)!=0?3:-1;
             if(side<0||cuts[side]==null||cuts[side].Count==0)return Array.Empty<int>();
             bool vertical=side<2;double from=vertical?pa.z:pa.x,to=vertical?pb.z:pb.x;
@@ -148,7 +151,7 @@ public sealed partial class LocalTerrainExplorer
             foreach(double cut in cuts[side])
             {
                 if((float)cut<=(float)first||(float)cut>=(float)last)continue;
-                var vertex=InterpolateResidentVertex(original[low],original[high],(float)((cut-from)/(to-from)));
+                var vertex=InterpolateResidentVertex(vertices[low],vertices[high],(float)((cut-from)/(to-from)));
                 var position=vertex.Position;if(vertical)position.z=(float)cut;else position.x=(float)cut;vertex.Position=position;
                 added.Add(vertices.Count);vertices.Add(vertex);
             }
@@ -176,17 +179,18 @@ public sealed partial class LocalTerrainExplorer
             // degenerate fan that silently discards one chain's knots.
             var polygon=new System.Collections.Generic.List<int>(3+ab.Length+bc.Length+ca.Length);
             AddEdgePolygon(polygon,a,b,ab);AddEdgePolygon(polygon,b,c,bc);AddEdgePolygon(polygon,c,a,ca);
-            int centre=vertices.Count;vertices.Add(InterpolateResidentVertex(InterpolateResidentVertex(original[a],original[b],.5f),original[c],1f/3));
+            int centre=vertices.Count;vertices.Add(InterpolateResidentVertex(InterpolateResidentVertex(vertices[a],vertices[b],.5f),vertices[c],1f/3));
             for(int i=0;i<polygon.Count;i++){triangles.Add(polygon[i]);triangles.Add(polygon[(i+1)%polygon.Count]);triangles.Add(centre);}
         }
-        int addedCount=vertices.Count-original.Length;if(addedCount==0)return false;
+        int addedCount=vertices.Count-originalCount;if(addedCount==0)return false;
         var positions=new float[vertices.Count*3];for(int i=0;i<vertices.Count;i++){var p=vertices[i].Position;positions[i*3]=p.x;positions[i*3+1]=p.y;positions[i*3+2]=p.z;}
         var finalIndices=triangles.ToArray();var wire=new LocalTerrainMesh{Positions=positions,Triangles=finalIndices,Segments=tile.Segments,SizeM=size,GroundVertices=tile.Heights.Length};
         var contact=TerrainContactSurface.Build(wire);ResidentEdgeData data=null;Mesh mesh=null;
         try
         {
-            using(var native=new NativeArray<TerrainVertex>(vertices.ToArray(),Allocator.Temp))
+            using(var native=new NativeArray<TerrainVertex>(vertices.Count,Allocator.Temp,NativeArrayOptions.UninitializedMemory))
             {
+                for(int i=0;i<vertices.Count;i++)native[i]=vertices[i];
                 data=ResidentEdgeData.Build(wire,native);mesh=new Mesh{name="Resident terrain boundary knot union"};mesh.MarkDynamic();
                 mesh.SetVertexBufferParams(native.Length,TerrainUpload.Layout);mesh.SetVertexBufferData(native,0,0,native.Length);
                 bool compact=native.Length<=65535;mesh.SetIndexBufferParams(finalIndices.Length,compact?IndexFormat.UInt16:IndexFormat.UInt32);
@@ -196,7 +200,7 @@ public sealed partial class LocalTerrainExplorer
             }
         }
         catch{data?.Dispose();if(mesh!=null)Destroy(mesh);throw;}
-        long oldLand=terrainMeshPool.TryCapacityBytes(oldMesh,out long capacity)?capacity:(long)original.Length*Marshal.SizeOf<TerrainVertex>()+(long)oldIndices.Length*oldIndexBytes;
+        long oldLand=terrainMeshPool.TryCapacityBytes(oldMesh,out long capacity)?capacity:(long)originalCount*Marshal.SizeOf<TerrainVertex>()+(long)oldIndices.Length*oldIndexBytes;
         long newLand=(long)vertices.Count*Marshal.SizeOf<TerrainVertex>()+(long)finalIndices.Length*(vertices.Count<=65535?2:4);
         tile.BufferBytes+=newLand-oldLand+data.Bytes-previous.Bytes-(previous.Texture!=null?(long)previous.Points.Length*4:0)+(contact?.Bytes??0)-(tile.Contact?.Bytes??0);
         data.Mesh=mesh;data.TopologyChanged=true;tile.Root.transform.Find("Land and seabed").GetComponent<MeshFilter>().sharedMesh=mesh;
@@ -231,6 +235,7 @@ public sealed partial class LocalTerrainExplorer
         IndexFormat[] formats;
         public double EastM,NorthM,BuildMilliseconds,BufferMilliseconds;
         public int Segments;
+        public bool MorphPrepared;
         public long BufferBytes;
         public float[] Heights;public TerrainContactSurface Contact;public NativeArray<float> Cover,MidCover,ForestCover;
         ResidentCoverBuffers coverBuffers;
@@ -240,6 +245,24 @@ public sealed partial class LocalTerrainExplorer
         bool hasWater;
         public bool HasWater=>hasWater;
         public Bounds WaterBounds=>hasWater?bounds[1]:default;
+        public bool UnrefinedLand=>live!=0&&buffers[0].vertexCount==Heights.Length&&Contact==null;
+        public bool HasForestPotential
+        {
+            get{for(int i=3;i<ForestCover.Length;i+=8)if(ForestCover[i]>0)return true;return false;}
+        }
+        public void PrepareMorph(TerrainTileKey sourceKey,Tile source)
+        {
+            if(live==0)throw new ObjectDisposedException(nameof(TerrainUpload));
+            var data=buffers[0];var vertices=data.GetVertexData<TerrainVertex>();var low=bounds[0].min;var high=bounds[0].max;
+            for(int i=0;i<vertices.Length;i++)
+            {
+                var vertex=vertices[i];
+                if(!ResidentHeight(sourceKey,source,EastM+vertex.Position.x,NorthM+vertex.Position.z,out double height)||!double.IsFinite(height))return;
+                vertex.Uv=new Vector2((float)height,1);vertices[i]=vertex;low.y=Math.Min(low.y,(float)height);high.y=Math.Max(high.y,(float)height);
+            }
+            bounds[0]=new Bounds((low+high)*.5f,high-low);var sub=data.GetSubMesh(0);sub.bounds=bounds[0];
+            data.SetSubMesh(0,sub,MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);MorphPrepared=true;
+        }
         static SynchronizationContext mainContext;static int mainThread,pendingReleases;
         public static int PendingReleases=>Volatile.Read(ref pendingReleases);
         static TerrainUpload Allocate()
@@ -292,7 +315,7 @@ public sealed partial class LocalTerrainExplorer
                         if((i&1023)==0)token.ThrowIfCancellationRequested();
                         var p=new Vector3(positions[i*3],positions[i*3+1],positions[i*3+2]);low=Vector3.Min(low,p);high=Vector3.Max(high,p);
                         var v=new TerrainVertex{Position=p,Normal=water?Vector3.up:new Vector3(source.Normals[i*3],source.Normals[i*3+1],source.Normals[i*3+2]),
-                            Color=new Color(colors[i*4],colors[i*4+1],colors[i*4+2],colors[i*4+3]),Uv=new Vector2((float)(source.EastM+p.x)*.5f,(float)(source.NorthM+p.z)*.5f)};
+                            Color=new Color(colors[i*4],colors[i*4+1],colors[i*4+2],colors[i*4+3]),Uv=new Vector2(p.y,0)};
                         if(!water)
                         {
                             v.GroundA=new Vector4(source.SurfaceWeights[i*4],source.SurfaceWeights[i*4+1],source.SurfaceWeights[i*4+2],source.SurfaceWeights[i*4+3]);

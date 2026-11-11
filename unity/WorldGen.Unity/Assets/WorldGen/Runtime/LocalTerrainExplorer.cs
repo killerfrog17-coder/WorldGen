@@ -13,6 +13,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
+    const float TerrainMorphSafetyRadius=800;
     sealed class Tile { public ResidentEdgeData ResidentEdges; public TerrainContactSurface Contact; public bool CoverageOnly,WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     readonly TerrainEdges.Workspace terrainEdgeWorkspace=new TerrainEdges.Workspace();
@@ -442,13 +443,14 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(cacheOnly)root.SetActive(false);installationsThisFrame++;
         root.transform.localPosition=new Vector3((float)(data.EastM-(prepared==null?originX:0)),0,(float)(data.NorthM-(prepared==null?originZ:0)));
         int collections=GC.CollectionCount(0);double beforeApply=timer.Elapsed.TotalMilliseconds;
+        if(prepared==null&&!cacheOnly)PrepareTerrainMorph(key,data);
         var meshes=data.Apply(WorldGenPerformance.ReuseTerrainMeshes?terrainMeshPool:null);double applyMs=timer.Elapsed.TotalMilliseconds-beforeApply;
         void Part(string name,Mesh mesh,Material material){var part=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));part.layer=30;part.transform.SetParent(root.transform,false);part.GetComponent<MeshFilter>().sharedMesh=mesh;part.GetComponent<MeshRenderer>().sharedMaterial=material;}
         Part("Land and seabed",meshes[0],landMaterial);
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
-        var product=new Tile{ResidentEdges=data.TakeResidentEdges(),Contact=data.Contact,CoverageOnly=fallback,Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
+        var product=new Tile{FadeIn=data.MorphPrepared?TransitionNow:0,ResidentEdges=data.TakeResidentEdges(),Contact=data.Contact,CoverageOnly=fallback,Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
         foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.GetSubMesh(0).vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;

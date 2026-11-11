@@ -39,7 +39,9 @@ public sealed partial class LocalTerrainExplorer
         if(GroundPublicationPending){groundStageBypass=GroundStageBypass.Pending;return false;}
         if(!wanted.ContainsKey(key)){groundStageBypass=GroundStageBypass.Backdrop;return false;}
         if(scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision){groundStageBypass=GroundStageBypass.PreviousChanges;return false;}
-        if(scatterChunks.Count==0&&forestFields.Count==0){groundStageBypass=GroundStageBypass.NoRoots;return false;}
+        // Empty census metadata is not physical topology. Far publications
+        // with no possibly affected roots need no staged root correction.
+        if(TerrainRootFree(key)){groundStageBypass=GroundStageBypass.NoRoots;return false;}
         foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame)){groundStageBypass=GroundStageBypass.UnpreparedGroups;return false;}
         groundStageBypass=GroundStageBypass.Staged;
         product.Root.SetActive(false);groundPublication.Retiring=false;groundPublication.Fallback=fallback;groundPublication.Key=key;groundPublication.Product=product;
@@ -51,7 +53,7 @@ public sealed partial class LocalTerrainExplorer
     {
         if(!WorldGenPerformance.StagedTerrainRetirement||GroundPublicationPending||
             scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision)return false;
-        if(scatterChunks.Count==0&&forestFields.Count==0)return false;
+        if(TerrainRootFree(key))return false;
         foreach(var chunk in scatterChunks.Values)if(chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))return false;
         // Product denotes the old, still-visible surface during a retirement.
         // Its objects remain owned by tiles until the atomic commit.

@@ -36,15 +36,16 @@ public sealed partial class LocalTerrainExplorer
         var shader=Resources.Load<Shader>("WorldGenLocalTerrain");
         if(shader==null||!shader.isSupported)throw new Exception("Coverage shader unsupported");
         var material=new Material(shader);material.SetFloat("_Water",1);material.SetFloat("_Daylight",1);material.SetFloat("_FogDistance",1e9f);
-        GameObject Quad(string name,float size,float y,Color color)
+        GameObject Quad(string name,float size,float y,Color color,float? fromY=null)
         {
             var root=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));
             var mesh=new Mesh{vertices=new[]{new Vector3(0,y,0),new Vector3(size,y,0),new Vector3(0,y,size),new Vector3(size,y,size)},
                 normals=new[]{Vector3.up,Vector3.up,Vector3.up,Vector3.up},colors=new[]{color,color,color,color},triangles=new[]{0,2,1,1,2,3}};
+            if(fromY.HasValue){var uv=new Vector2(fromY.Value,1);mesh.uv=new[]{uv,uv,uv,uv};mesh.bounds=new Bounds(new Vector3(size*.5f,(y+fromY.Value)*.5f,size*.5f),new Vector3(size,Math.Abs(y-fromY.Value)+.01f,size));}
             root.GetComponent<MeshFilter>().sharedMesh=mesh;root.GetComponent<MeshRenderer>().sharedMaterial=material;return root;
         }
         var parent=new TerrainTileKey(0,0,1,1d/512);var child=new TerrainTileKey(0,0,0,1d/512);
-        explorer.tiles.Add(parent,new Tile{Root=Quad("coarse fallback",4,2,Color.red)});
+        explorer.tiles.Add(parent,new Tile{Root=Quad("coarse fallback",4,2,Color.red),Edges=new double[4]});
         var cameraRoot=new GameObject("Coverage camera",typeof(Camera));var camera=cameraRoot.GetComponent<Camera>();
         camera.orthographic=true;camera.orthographicSize=2;camera.transform.position=new Vector3(2,10,2);camera.transform.rotation=Quaternion.Euler(90,0,0);
         camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.black;camera.nearClipPlane=.1f;
@@ -79,46 +80,84 @@ public sealed partial class LocalTerrainExplorer
         explorer.TerrainProducts.Put(new TerrainProductKey(child,4,identical.Edges),identical,0);
         explorer.installationsThisFrame=0;explorer.frameUploadMs=0;int groundRevision=explorer.scatterGroundRevision;
         if(!explorer.RestoreTerrain(child,4,identical.Edges)||explorer.scatterGroundRevision!=groundRevision||explorer.scatterGroundChanges.Count!=0)throw new Exception("Identical cached heights unnecessarily invalidated vegetation");
-        explorer.previousTerrain.Remove(child);explorer.DestroyTile(tile);tile=identical;tile.FadeIn=0;
+        tile=identical;tile.FadeIn=0;
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        while(Time.time<1.6f)yield return null;
-        tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        while(Time.time<3.2f)yield return null;
         (int Red,int Green,int Holes) SurfaceCounts(Color[] image)
         {
             int red=0,green=0,holes=0;
             for(int y=8;y<56;y++)for(int x=8;x<56;x++){var p=image[y*128+x];if(p.r>p.g+.05)red++;else if(p.g>p.r+.05)green++;else holes++;}
             return(red,green,holes);
         }
-        void ChildHeight(float y)
+        void ChildMorph(float finalY,float fromY,float elapsed)
         {
             var mesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;var vertices=mesh.vertices;
-            for(int i=0;i<vertices.Length;i++)vertices[i].y=y;mesh.vertices=vertices;mesh.RecalculateBounds();
+            var uv=new Vector2[vertices.Length];for(int i=0;i<vertices.Length;i++){vertices[i].y=finalY;uv[i]=new Vector2(fromY,1);}
+            mesh.vertices=vertices;mesh.uv=uv;mesh.bounds=new Bounds(new Vector3(1,(finalY+fromY)*.5f,1),new Vector3(2,Math.Abs(finalY-fromY)+.01f,2));
+            tile.FadeIn=Math.Max(.001f,Time.time-elapsed);tile.FadeOut=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
         }
-        // The production policy deliberately keeps outgoing/fallback terrain
-        // opaque until the incoming surface is opaque. A higher fallback can
-        // therefore occlude a lower incoming surface midway through the fade;
-        // requiring a 50/50 colour mix here was the obsolete complementary-
-        // clipping contract. It must stay solid and reveal the lower endpoint.
-        var lowerHalf=SurfaceCounts(Capture("half-transition"));
-        if(lowerHalf.Red<2200||lowerHalf.Green>10||lowerHalf.Holes>10)throw new Exception("Higher fallback did not remain solid over a lower incoming surface: "+lowerHalf);
-        ChildHeight(4);tile.FadeIn=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var upperHalf=SurfaceCounts(Capture("half-transition-upper"));
-        if(upperHalf.Red<500||upperHalf.Green<500||upperHalf.Holes>10)throw new Exception("Upper incoming surface did not fade over solid fallback: "+upperHalf);
-        ChildHeight(0);tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var incomingEnd=SurfaceCounts(Capture("completed-transition-lower"));
-        if(incomingEnd.Green<2200||incomingEnd.Red>10||incomingEnd.Holes>10)throw new Exception("Completed incoming fade did not reveal the lower fine surface: "+incomingEnd);
-        tile.FadeIn=0;tile.FadeOut=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var outgoingLower=SurfaceCounts(Capture("half-coarsening"));
-        if(outgoingLower.Red<2200||outgoingLower.Green>10||outgoingLower.Holes>10)throw new Exception("Higher coarse fallback was not solid during lower-child coarsening: "+outgoingLower);
-        ChildHeight(4);tile.FadeOut=Time.time-1.5f;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var outgoingUpper=SurfaceCounts(Capture("half-coarsening-upper"));
-        if(outgoingUpper.Red<500||outgoingUpper.Green<500||outgoingUpper.Holes>10)throw new Exception("Upper outgoing surface did not fade over solid coarse fallback: "+outgoingUpper);
-        while(Time.time<3.1f)yield return null;
-        tile.FadeOut=Math.Max(.001f,Time.time-4);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var outgoingEnd=SurfaceCounts(Capture("completed-coarsening"));
-        if(outgoingEnd.Red<2200||outgoingEnd.Green>10||outgoingEnd.Holes>10)throw new Exception("Completed outgoing fade did not expose the coarse endpoint: "+outgoingEnd);
-        ChildHeight(0);
-        tile.FadeOut=0;
+        // A ready child owns its complete footprint from the first frame.
+        // Height changes move its opaque geometry; there is no pixel discard
+        // and no outgoing second surface at either side of the old height.
+        foreach(bool lower in new[]{true,false})foreach(float elapsed in new[]{0f,1.5f,3.1f})
+        {
+            ChildMorph(lower?0:4,lower?4:0,elapsed);yield return null;
+            var counts=SurfaceCounts(Capture((lower?"lower":"upper")+"-opaque-morph-"+elapsed.ToString("F1",System.Globalization.CultureInfo.InvariantCulture)));
+            if(counts.Green<2200||counts.Red>10||counts.Holes>10)throw new Exception("A current opaque child lost coverage during geometry morph: "+counts);
+        }
+        var topPosition=camera.transform.position;var topRotation=camera.transform.rotation;float topSize=camera.orthographicSize;
+        explorer.tiles[parent].Root.SetActive(false);
+        camera.transform.position=new Vector3(1,7,-5);camera.transform.LookAt(new Vector3(1,1,1));camera.orthographicSize=4;
+        float GreenMeanY(Color[] image)
+        {
+            int count=0;double sum=0;for(int y=0;y<128;y++)for(int x=0;x<128;x++)
+            {var p=image[y*128+x];if(p.g>p.r+.05f&&p.g>p.b+.05f){count++;sum+=y;}}
+            if(count<50)throw new Exception("Geometry morph fixture is not visible from its oblique camera");return(float)(sum/count);
+        }
+        ChildMorph(2,2,3.1f);yield return null;float referenceMid=GreenMeanY(Capture("geometry-reference-midpoint"));
+        ChildMorph(0,4,1.5f);yield return null;float lowerMid=GreenMeanY(Capture("geometry-lower-midpoint"));
+        ChildMorph(4,0,1.5f);yield return null;float upperMid=GreenMeanY(Capture("geometry-upper-midpoint"));
+        if(Math.Abs(lowerMid-referenceMid)>2||Math.Abs(upperMid-referenceMid)>2)throw new Exception("Shader did not move opaque vertices through the expected halfway height: "+referenceMid+"/"+lowerMid+"/"+upperMid);
+        ChildMorph(4,4,3.1f);yield return null;float referenceEnd=GreenMeanY(Capture("geometry-reference-final"));
+        ChildMorph(4,0,0);tile.Materials[0].SetFloat("_LodSafetyRadius",100);yield return null;
+        if(Math.Abs(GreenMeanY(Capture("geometry-physical-near-final"))-referenceEnd)>2)throw new Exception("Physical-near guard did not force the final geometry");
+        tile.Materials[0].SetFloat("_LodSafetyRadius",0);
+        ChildMorph(4,0,0);tile.Materials[0].SetFloat("_TransitionEnabled",0);yield return null;
+        if(Math.Abs(GreenMeanY(Capture("geometry-hard-final"))-referenceEnd)>2)throw new Exception("Hard geometry updates did not force the final geometry");
+        tile.Materials[0].SetFloat("_TransitionEnabled",1);
+        tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        if(Math.Abs(GreenMeanY(Capture("geometry-unstamped-final"))-referenceEnd)>2)throw new Exception("A cached start-height marker without an active stamp did not use final geometry");
+        // The moving interior must not move its shared boundary. A final-edge
+        // height texture pins the perimeter to its flat coarse neighbour.
+        var quadMesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;
+        var fanVertices=new TerrainVertex[5];var positions=new[]{new Vector3(0,4,0),new Vector3(2,4,0),new Vector3(0,4,2),new Vector3(2,4,2),new Vector3(1,4,1)};
+        for(int i=0;i<5;i++)fanVertices[i]=new TerrainVertex{Position=positions[i],Normal=Vector3.up,Color=Color.green,Uv=new Vector2(0,1),EdgeIndex=i<4?i+1:0};
+        var fan=new Mesh{name="Opaque morph shared boundary fixture"};fan.SetVertexBufferParams(5,TerrainUpload.Layout);fan.SetVertexBufferData(fanVertices,0,0,5);
+        var fanIndices=new ushort[]{0,2,4,2,3,4,3,1,4,1,0,4};fan.SetIndexBufferParams(fanIndices.Length,UnityEngine.Rendering.IndexFormat.UInt16);fan.SetIndexBufferData(fanIndices,0,0,fanIndices.Length);
+        fan.bounds=new Bounds(new Vector3(1,2,1),new Vector3(2,4,2));fan.subMeshCount=1;fan.SetSubMesh(0,new UnityEngine.Rendering.SubMeshDescriptor(0,fanIndices.Length){vertexCount=5,bounds=fan.bounds},UnityEngine.Rendering.MeshUpdateFlags.DontRecalculateBounds);
+        tile.Root.GetComponent<MeshFilter>().sharedMesh=fan;
+        var edgeHeights=new Texture2D(4,1,TextureFormat.RFloat,false,true);edgeHeights.SetPixelData(new float[4],0);edgeHeights.Apply(false,false);
+        var parentMesh=explorer.tiles[parent].Root.GetComponent<MeshFilter>().sharedMesh;var parentVertices=parentMesh.vertices;
+        for(int i=0;i<parentVertices.Length;i++)parentVertices[i].y=0;parentMesh.vertices=parentVertices;parentMesh.RecalculateBounds();explorer.tiles[parent].Root.SetActive(true);
+        camera.transform.position=new Vector3(2,7,-5);camera.transform.LookAt(new Vector3(2,0,2));
+        foreach(float elapsed in new[]{0f,1.5f,3.1f})
+        {
+            tile.FadeIn=Math.Max(.001f,Time.time-elapsed);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
+            tile.Materials[0].SetTexture("_ResidentEdgeHeights",edgeHeights);tile.Materials[0].SetFloat("_ResidentEdgeCount",4);yield return null;
+            var image=Capture("perspective-pinned-boundary-"+elapsed.ToString("F1",System.Globalization.CultureInfo.InvariantCulture));int holes=0;
+            for(int z=0;z<20;z++)for(int x=0;x<20;x++)
+            {
+                var view=camera.WorldToViewportPoint(new Vector3(.1f+x*.2f,0,.1f+z*.2f));
+                if(view.z<=0||view.x<=0||view.x>=1||view.y<=0||view.y>=1)throw new Exception("Perspective coverage sample escaped its fixture camera");
+                var p=image[Math.Min(127,(int)(view.y*128))*128+Math.Min(127,(int)(view.x*128))];if(Math.Max(p.r,p.g)<=p.b+.05f)holes++;
+            }
+            if(holes!=0)throw new Exception("Opaque interior morph opened a perspective gap at its pinned boundary: "+holes);
+        }
+        tile.Root.GetComponent<MeshFilter>().sharedMesh=quadMesh;Destroy(fan);Destroy(edgeHeights);tile.Materials[0].SetFloat("_ResidentEdgeCount",0);
+        for(int i=0;i<parentVertices.Length;i++)parentVertices[i].y=2;parentMesh.vertices=parentVertices;parentMesh.RecalculateBounds();
+        camera.transform.position=topPosition;camera.transform.rotation=topRotation;camera.orthographicSize=topSize;
+        ChildMorph(0,0,3.1f);tile.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
+        File.WriteAllText(Path.Combine(output,"opaque-geometry-morph.txt"),"PASS actual shader: upper/lower current terrain remains opaque at start/mid/end; oblique midpoint heights match a static reference; physical-near/hard guards use final geometry; moving interior retains its final shared boundary without perspective ground holes.");
         var oldParent=explorer.tiles[parent];var newParent=new Tile{Root=Quad("same-key replacement",4,2,Color.red),Edges=new double[4]};
         explorer.BeginTerrainReplacement(parent,newParent,oldParent);explorer.tiles[parent]=newParent;
         if(explorer.TerrainTiming(child).In>0)throw new Exception("Replacing a parent suppressed already-resident children");
@@ -128,26 +167,9 @@ public sealed partial class LocalTerrainExplorer
         explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
         explorer.wanted.Clear();explorer.wanted.Add(child,64);tile.Segments=64;tile.FadeIn=tile.FadeOut=0;
-        newParent.FadeOut=Math.Max(.001f,Time.time-4);explorer.UpdateTerrainTransitions();
-        if(newParent.FadeOut!=0||explorer.TerrainTiming(child).Out!=0||explorer.TerrainTiming(child).In!=0)
-            throw new Exception("Reversing coarsening left wanted fine terrain inheriting an obsolete parent fade");
         explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();yield return null;
-        var reversed=Capture("coarsening-reversed");
-        if(reversed[32*128+32].g<=reversed[32*128+32].r)throw new Exception("Reversed coarsening did not restore the wanted fine surface");
-        // Exercise uploaded values, not just TerrainTiming's return value:
-        // ancestor previous-presence changes must invalidate both descendant
-        // draw bindings and the grandparent's coverage timing texture.
-        var ancestorPrevious=new Tile{Root=Quad("Ancestor previous binding fixture",4,2,Color.red),Edges=new double[4]};
-        newParent.FadeIn=Math.Max(.001f,Time.time-1.5f);explorer.previousTerrain[parent]=ancestorPrevious;
-        explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
-        var grandTile=explorer.tiles[grand];
-        if(tile.Materials[0].GetVector("_LodFade").x!=0||grandTile.CoverageTimingNodes.Length<4||grandTile.CoverageTimingNodes[0]!=0)
-            throw new Exception("A previous ancestor did not suppress uploaded descendant/grandparent incoming stamps");
-        explorer.previousTerrain.Remove(parent);explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
-        if(tile.Materials[0].GetVector("_LodFade").x!=newParent.FadeIn||grandTile.CoverageTimingNodes[0]!=newParent.FadeIn)
-            throw new Exception("Removing a previous ancestor did not refresh uploaded descendant/grandparent incoming stamps");
-        explorer.DestroyTile(ancestorPrevious);newParent.FadeIn=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
-        File.WriteAllText(Path.Combine(output,"coverage-inherited-stamps.txt"),"PASS: changing an ancestor's previous-surface presence refreshes actual descendant material and grandparent coverage timing uploads; no geometry change required.");
+        var finest=Capture("fine-after-parent-publication");
+        if(finest[32*128+32].g<=finest[32*128+32].r)throw new Exception("Publishing an ancestor obscured the already resident fine surface");
         if(!explorer.CanRetireTransition(parent))throw new Exception("A fully ready fine replacement did not release its parent");
         bool oldKeep=WorldGenPerformance.KeepBackdrops;WorldGenPerformance.KeepBackdrops=true;explorer.backdrops[parent]=new double[4];
         if(explorer.CanRetireTransition(parent))throw new Exception("A still-planned coarse backdrop was unnecessarily retired");
@@ -181,24 +203,30 @@ public sealed partial class LocalTerrainExplorer
         var fallbackHost=new GameObject("Fallback publication regression");var fallbackOwner=fallbackHost.AddComponent<LocalTerrainExplorer>();fallbackOwner.enabled=false;fallbackOwner.terrainRoot=fallbackHost;
         var fallbackKey=new TerrainTileKey(0,0,0,1);fallbackOwner.wanted[fallbackKey]=16;fallbackOwner.wantedEdges[fallbackKey]=new[]{64d,64d,64d,64d};
         var fallbackEdges=new[]{128d,128d,128d,128d};fallbackOwner.backdrops[fallbackKey]=fallbackEdges;
-        fallbackOwner.forestFields.Add(new WorldGen.Core.ForestPageKey(0,0,0,0),new ForestField{Source=new WorldGen.Core.ForestPage()});
+        var fallbackBatch=new ForestBatch();fallbackBatch.Data.Add(new ForestRoot{Position=new Vector3(64,1,64),Width=2,Height=4,Tint=Vector3.one});fallbackBatch.GroundLevels.Add(17);
+        var fallbackField=new ForestField{Source=new WorldGen.Core.ForestPage(),Bounds=new Bounds(new Vector3(64,3,64),new Vector3(2,4,2))};
+        fallbackField.Roots.Add(fallbackBatch,new System.Collections.Generic.List<int>{0});fallbackOwner.forestFields.Add(new WorldGen.Core.ForestPageKey(0,0,0,0),fallbackField);
         var fallbackTile=new Tile{Root=Quad("Valid nonfinal coverage",1024,0,Color.green),Segments=8,Edges=fallbackEdges,Heights=new float[81]};
         bool oldStaging=WorldGenPerformance.StagedGroundPublication;WorldGenPerformance.StagedGroundPublication=true;
         if(!fallbackOwner.StageGroundPublication(fallbackKey,fallbackTile,fallback:true))throw new Exception("Fallback regression did not exercise staged publication");
         for(int i=0;i<10&&fallbackOwner.GroundPublicationPending;i++)fallbackOwner.AdvanceGroundPublication();
         if(fallbackOwner.GroundPublicationPending||!fallbackOwner.tiles.TryGetValue(fallbackKey,out var shown)||!ReferenceEquals(shown,fallbackTile)||!shown.Root.activeSelf)
             throw new Exception("Useful fallback was rejected merely for differing from the final mesh detail");
+        if(Math.Abs(fallbackBatch.Data[0].Position.y+.045f)>.0001f)throw new Exception("Accepted fallback did not ground its actual affected forest root");
         WorldGenPerformance.StagedGroundPublication=oldStaging;
-        File.WriteAllText(Path.Combine(output,"fallback-publication.txt"),"PASS: a useful staged 8-segment fallback publishes while its same-address final request still requires 16 segments and different edges; no reject/restage loop.");
+        fallbackOwner.forestFields.Clear();fallbackBatch.Dispose();
+        File.WriteAllText(Path.Combine(output,"fallback-publication.txt"),"PASS: a useful staged 8-segment fallback publishes and grounds an actual affected forest root while its same-address final request still requires 16 segments and different edges; no reject/restage loop.");
         bool oldHard=TerrainVideoOptions.HardChunkUpdates;TerrainVideoOptions.HardChunkUpdates=false;
-        var hardReplacement=new Tile{Root=Quad("Hard-update replacement",1024,-1,Color.blue),Segments=16,Edges=new[]{64d,64d,64d,64d},Heights=new float[289]};
+        var hardReplacement=new Tile{Root=Quad("Hard-update replacement",1024,-1,Color.blue,0),Segments=16,Edges=new[]{64d,64d,64d,64d},Heights=new float[289],FadeIn=fallbackOwner.TransitionNow};
         fallbackOwner.BeginTerrainReplacement(fallbackKey,hardReplacement,fallbackTile);fallbackOwner.tiles[fallbackKey]=hardReplacement;
-        if(fallbackOwner.previousTerrain.Count!=1||hardReplacement.FadeIn==0)throw new Exception("Hard-update regression did not begin with a live smooth transition");
+        if(fallbackOwner.previousTerrain.Count!=0||hardReplacement.FadeIn==0||fallbackTile.Root.activeSelf)throw new Exception("Prepared opaque morph lost its stamp or retained a second old draw");
+        fallbackOwner.UpdateTerrainCoverage();yield return null;
+        var preparedImage=Capture("prepared-opaque-before-hard");if(preparedImage[32*128+32].b<=preparedImage[32*128+32].g)throw new Exception("Prepared opaque terrain did not own its footprint immediately");
         TerrainVideoOptions.HardChunkUpdates=true;fallbackOwner.UpdateTerrainTransitions();fallbackOwner.UpdateTerrainCoverage();
         if(fallbackOwner.previousTerrain.Count!=0||fallbackTile.Root.activeSelf||hardReplacement.FadeIn!=0||Array.Exists(hardReplacement.Materials,m=>m.GetFloat("_TransitionEnabled")!=0))
             throw new Exception("Hard chunk updates retained an old surface or an active fade");
         var hardImage=Capture("hard-replacement");if(hardImage[32*128+32].b<=hardImage[32*128+32].g)throw new Exception("Old higher surface still occludes the instant replacement");
-        var nextHard=new Tile{Root=Quad("Next instant replacement",1024,-2,Color.green),Segments=16,Edges=hardReplacement.Edges,Heights=new float[289]};
+        var nextHard=new Tile{Root=Quad("Next instant replacement",1024,-2,Color.green,-1),Segments=16,Edges=hardReplacement.Edges,Heights=new float[289],FadeIn=fallbackOwner.TransitionNow};
         fallbackOwner.BeginTerrainReplacement(fallbackKey,nextHard,hardReplacement);fallbackOwner.tiles[fallbackKey]=nextHard;
         fallbackOwner.UpdateTerrainCoverage();
         if(nextHard.FadeIn!=0||fallbackOwner.previousTerrain.Count!=0||hardReplacement.Root.activeSelf)throw new Exception("New hard replacement still waited for a fade");
@@ -206,30 +234,37 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.HardChunkUpdates=false;fallbackOwner.UpdateTerrainTransitions();fallbackOwner.UpdateTerrainCoverage();
         if(Array.Exists(nextHard.Materials,m=>m.GetFloat("_TransitionEnabled")!=1))throw new Exception("Turning hard chunk updates off did not restore smooth rendering");
         TerrainVideoOptions.HardChunkUpdates=oldHard;
-        File.WriteAllText(Path.Combine(output,"hard-chunk-updates.txt"),"PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.");
+        File.WriteAllText(Path.Combine(output,"hard-chunk-updates.txt"),"PASS: prepared opaque replacements retain their morph stamp with no outgoing draw; hard mode clears the active stamp and forces final geometry, subsequent hard replacements snap, and disabling restores geometry morph support.");
         var overlapHost=new GameObject("Overlapping same-key fade regression");var overlapOwner=overlapHost.AddComponent<LocalTerrainExplorer>();overlapOwner.enabled=false;overlapOwner.terrainRoot=overlapHost;
         var priorParent=new Tile{Root=Quad("Parent before a leaf revision",4,2,Color.red),Edges=new double[4]};
-        var leafParent=new Tile{Root=Quad("Parent leaf revision",4,1,Color.red),Edges=new double[4]};
+        float parentStamp=overlapOwner.TransitionNow;
+        var leafParent=new Tile{Root=Quad("Parent leaf revision",4,1,Color.red,2),Edges=new double[4],FadeIn=parentStamp};
         overlapOwner.tiles[parent]=priorParent;
         overlapOwner.BeginTerrainReplacement(parent,leafParent,priorParent);overlapOwner.tiles[parent]=leafParent;
-        if(!overlapOwner.previousTerrain.TryGetValue(parent,out var leafUnderlay)||!ReferenceEquals(leafUnderlay,priorParent)||leafParent.FadeIn<=0)
-            throw new Exception("A same-key leaf replacement lost its normal smooth fade");
-        var arrivingChild=new Tile{Root=Quad("Child arriving during a parent revision",2,0,Color.green),Edges=new double[4]};
+        if(overlapOwner.previousTerrain.Count!=0||priorParent.Root.activeSelf||leafParent.FadeIn!=parentStamp)
+            throw new Exception("A prepared leaf did not retain its stamp on its single opaque mesh");
+        float childStamp=overlapOwner.TransitionNow;
+        var arrivingChild=new Tile{Root=Quad("Child arriving during a parent revision",2,0,Color.green,1),Edges=new double[4],FadeIn=childStamp};
         overlapOwner.BeginTerrainReplacement(child,arrivingChild,null);overlapOwner.tiles[child]=arrivingChild;
         if(overlapOwner.previousTerrain.ContainsKey(parent)||leafParent.FadeIn!=0||priorParent.Root.activeSelf)
             throw new Exception("An arriving child retained an incompatible previous parent interior");
-        if(arrivingChild.FadeIn<=0)throw new Exception("Finishing an overlapping same-key parent revision also disabled the ordinary parent to child fade");
-        var overlappingParent=new Tile{Root=Quad("Parent revision over existing children",4,3,Color.red),Edges=new double[4]};
+        if(arrivingChild.FadeIn!=childStamp)throw new Exception("Finishing an ancestor morph discarded the child's own prepared stamp");
+        overlapOwner.UpdateTerrainCoverage();
+        if(leafParent.Materials[0].GetVector("_LodFade").x!=0||arrivingChild.Materials[0].GetVector("_LodFade").x!=childStamp)
+            throw new Exception("Ancestor completion and the child's independent morph stamp were not uploaded");
+        var overlappingParent=new Tile{Root=Quad("Parent revision over existing children",4,3,Color.red,1),Edges=new double[4],FadeIn=overlapOwner.TransitionNow};
         overlapOwner.BeginTerrainReplacement(parent,overlappingParent,leafParent);overlapOwner.tiles[parent]=overlappingParent;
         if(overlapOwner.previousTerrain.ContainsKey(parent)||overlappingParent.FadeIn!=0||leafParent.Root.activeSelf)
             throw new Exception("Existing children retained a fading previous same-key parent");
-        var leafChild=new Tile{Root=Quad("Child leaf revision",2,.5f,Color.green),Edges=new double[4]};
+        float leafStamp=overlapOwner.TransitionNow;
+        var leafChild=new Tile{Root=Quad("Child leaf revision",2,.5f,Color.green,0),Edges=new double[4],FadeIn=leafStamp};
         overlapOwner.BeginTerrainReplacement(child,leafChild,arrivingChild);overlapOwner.tiles[child]=leafChild;
-        if(!overlapOwner.previousTerrain.TryGetValue(child,out var childUnderlay)||!ReferenceEquals(childUnderlay,arrivingChild)||leafChild.FadeIn<=0)
-            throw new Exception("An ordinary child leaf revision lost its same-key smooth fade");
+        if(overlapOwner.previousTerrain.Count!=0||arrivingChild.Root.activeSelf||leafChild.FadeIn!=leafStamp)
+            throw new Exception("A child leaf revision did not preserve its prepared opaque morph");
+        foreach(var resident in overlapOwner.tiles.Values)resident.Root.SetActive(false);
         Destroy(overlapHost);
-        File.WriteAllText(Path.Combine(output,"overlapping-parent-fades.txt"),"PASS: same-key leaf revisions retain old underlays and smooth fades; an existing child or a newly arriving child completes only the overlapping same-key parent revision; ordinary parent-to-child and child-leaf fades remain enabled.");
-        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, opaque fallback for lower incoming/outgoing surfaces, visible midpoint fades for upper surfaces, correct final fine/coarse endpoints without holes, uploaded ancestor/previous-surface timing propagation, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
+        File.WriteAllText(Path.Combine(output,"opaque-parent-morphs.txt"),"PASS: prepared leaf stamps survive single-mesh publication without outgoing draws; an arriving child finishes its ancestor before exposing an interior cut, child stamps remain independent, and ancestor replacements with existing children snap.");
+        File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention and paced retirement.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
     }
 }

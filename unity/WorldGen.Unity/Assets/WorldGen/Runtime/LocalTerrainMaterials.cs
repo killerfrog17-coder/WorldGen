@@ -43,7 +43,7 @@ public sealed partial class LocalTerrainExplorer
     void BindTerrainTile(Tile owner,Tile source,TerrainTileKey key,Vector4 fade)
     {
         EnsureTerrainMaterials(owner);var b=owner.MaterialBinding;
-        float size=(float)key.SizeM,safety=view==null?0:(float)Math.Max(12,TerrainLod.BaseSizeM*HorizontalScale/64*3);
+        float size=(float)key.SizeM,safety=view==null?0:TerrainMorphSafetyRadius;
         bool transitions=!TerrainVideoOptions.HardChunkUpdates;
         if(b.Initialized&&b.Transitions==transitions&&ReferenceEquals(b.Coverage,source.Coverage)&&ReferenceEquals(b.Times,source.CoverageTimes)&&ReferenceEquals(b.Flora,source.FloraSurface)&&ReferenceEquals(b.Mid,source.MidSurface)&&ReferenceEquals(b.Forest,source.ForestSurface)&&ReferenceEquals(b.Floor,source.ForestFloor)&&b.Fade.Equals(fade)&&b.Size==size&&b.Safety==safety)return;
         foreach(var material in owner.Materials)

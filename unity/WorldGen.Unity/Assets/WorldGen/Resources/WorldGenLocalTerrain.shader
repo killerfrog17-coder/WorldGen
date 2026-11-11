@@ -81,11 +81,28 @@ Shader "WorldGen/LocalTerrain"
             TEXTURE2D(_ForestFloor);SAMPLER(sampler_ForestFloor);
             Texture2D<float4> _TerrainCoverage,_CoverageFadeTimes;
             Texture2D<float> _ResidentEdgeHeights;
-            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float edgeIndex:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
+            struct A { float4 positionOS:POSITION;float3 normalOS:NORMAL;float4 color:COLOR;float4 weights:TEXCOORD1;float4 groundB:TEXCOORD2;float2 morph:TEXCOORD0;float edgeIndex:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5; };
             struct O { float4 positionCS:SV_POSITION;float3 normal:TEXCOORD0;float3 position:TEXCOORD1;float4 color:COLOR;float4 weights:TEXCOORD2;float4 groundB:TEXCOORD3;float4 rocks:TEXCOORD4;float2 rocksB:TEXCOORD5;float2 coverageUV:TEXCOORD6; };
             // Boundary vertices carry the coarse edge's interpolated normal.
             // Normalizing here would bend that interpolation a second time.
-            O vert(A a){O o;if(a.edgeIndex>0&&a.edgeIndex<=_ResidentEdgeCount)a.positionOS.y=_ResidentEdgeHeights.Load(int3((int)a.edgeIndex-1,0,0));o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);o.normal=TransformObjectToWorldNormal(a.normalOS,false);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;}
+            O vert(A a)
+            {
+                O o;
+                // One opaque mesh changes height; no second terrain draw or
+                // alpha-discard handoff can expose the sky underneath it.
+                if(a.morph.y>.5&&_TransitionEnabled>.5&&_LodFade.x>0&&a.edgeIndex<=0)
+                {
+                    float2 worldXZ=TransformObjectToWorld(a.positionOS.xyz).xz;
+                    float nearFinal=_LodSafetyRadius>0?1-smoothstep(_LodSafetyRadius*.8,_LodSafetyRadius,length(worldXZ-_WorldSpaceCameraPos.xz)):0;
+                    float blend=max(WorldGenFadeWeight(float2(_LodFade.x,0)),nearFinal);
+                    a.positionOS.y=lerp(a.morph.x,a.positionOS.y,blend);
+                }
+                // Shared boundary heights stay fixed throughout the interior
+                // morph, including topology union vertices at refined banks.
+                if(a.edgeIndex>0&&a.edgeIndex<=_ResidentEdgeCount)a.positionOS.y=_ResidentEdgeHeights.Load(int3((int)a.edgeIndex-1,0,0));
+                o.position=TransformObjectToWorld(a.positionOS.xyz);o.positionCS=TransformWorldToHClip(o.position);
+                o.normal=TransformObjectToWorldNormal(a.normalOS,false);o.color=a.color;o.weights=a.weights;o.groundB=a.groundB;o.rocks=a.rocks;o.rocksB=a.rocksB;o.coverageUV=a.positionOS.xz/max(.001,_CoverageTileSize);return o;
+            }
             float GroundContribution(O i,float4 weights,float4 groundB,int layer)
             {
                 float contribution=layer<4?weights[layer&3]:layer<8?groundB[layer&3]:groundB.x*(layer<12?i.rocks[(layer-8)&3]:i.rocksB[(layer-12)&1])*_RockLayers;
@@ -94,16 +111,7 @@ Shader "WorldGen/LocalTerrain"
             #include "WorldGenTerrainSurface.hlsl"
             half4 frag(O i):SV_Target
             {
-                float safety=1-smoothstep(_LodSafetyRadius*.65,max(.001,_LodSafetyRadius),length(i.position.xz-_WorldSpaceCameraPos.xz));
                 float dither=WorldGenDither(i.positionCS.xy);
-                if(_TransitionEnabled>.5&&!TerrainTest(TD_COVERAGE))
-                {
-                    float fade=max(WorldGenFadeWeight(_LodFade.xy),safety);
-                    // Different-height surfaces do not project onto identical
-                    // pixels. Keep the previous solid floor underneath the new
-                    // dithered surface until that replacement is fully opaque.
-                    if(_LodFade.z>.5)clip(.999999-fade);else clip(fade-dither);
-                }
                 if(_CoverageEnabled>.5&&!TerrainTest(TD_COVERAGE))
                 {
                     float2 uv=clamp(i.coverageUV,0,.99999994);int node=0;
@@ -112,17 +120,7 @@ Shader "WorldGen/LocalTerrain"
                         uv*=2;int2 quadrant=(int2)uv;
                         float4 children=_TerrainCoverage.Load(int3(node%256,node/256,0));
                         float next=children[quadrant.x+2*quadrant.y];
-                        if(next<0)
-                        {
-                            if(_TransitionEnabled<.5)clip(-1);
-                            int index=(int)(-next-1);float2 times=_CoverageFadeTimes.Load(int3(index%256,index/256,0)).xy;
-                            // A fading-in child must not punch matching holes
-                            // through a differently shaped ancestor. During
-                            // coarsening the ancestor returns immediately and
-                            // remains solid while its outgoing child fades.
-                            if(times.y<=0)clip(.999999-max(WorldGenFadeWeight(times),safety));
-                            break;
-                        }
+                        if(next<0)clip(-1);
                         if(next<=0)break;
                         node=(int)next-1;uv-=quadrant;
                     }

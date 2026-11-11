@@ -47,68 +47,38 @@ public sealed partial class LocalTerrainExplorer
     }
     float TransitionNow=>Math.Max(.001f,Time.time);
     bool terrainHardUpdates;
-    bool FadeComplete(Tile tile)=>TerrainVideoOptions.HardChunkUpdates||tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
+    bool FadeComplete(Tile tile)=>TerrainVideoOptions.HardChunkUpdates||tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds;
     void BeginTerrainReplacement(TerrainTileKey key,Tile next,Tile old)
     {
         if(previousTerrain.TryGetValue(key,out var earlier)){CacheTerrain(key,earlier);previousTerrain.Remove(key);}
         bool finer=tiles.Keys.Any(k=>k.Level<key.Level&&Overlaps(key,k));
-        // An old same-key parent has a different interior from the current
-        // parent to which its children are fitted. Its descendant coverage
-        // cuts therefore cannot safely serve as a fading solid underlay.
-        if(old!=null){if(TerrainVideoOptions.HardChunkUpdates||finer)CacheTerrain(key,old);else{old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}}
-        bool parent=false;
+        if(old!=null)CacheTerrain(key,old);
         for(int depth=1;depth<24-key.Level;depth++)
         {
             var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
-            if(!tiles.TryGetValue(ancestor,out var resident))continue;parent=true;
-            // Finish an existing same-key parent replacement before this
-            // child can introduce an internal coverage cut. Ordinary parent
-            // to child fades have no previous same-key draw and stay smooth.
+            if(!tiles.TryGetValue(ancestor,out var resident))continue;
+            // Child boundaries are fitted to the parent's final triangles,
+            // including interior coverage cuts. Finish a parent morph first.
+            resident.FadeIn=resident.FadeOut=0;
             if(previousTerrain.TryGetValue(ancestor,out var previous))
-            {resident.FadeIn=0;previousTerrain.Remove(ancestor);CacheTerrain(ancestor,previous);}
+            {previousTerrain.Remove(ancestor);CacheTerrain(ancestor,previous);}
         }
-        next.FadeIn=!TerrainVideoOptions.HardChunkUpdates&&!finer&&(old!=null||parent)?TransitionNow:0;next.FadeOut=0;
-        // No fade from missing ground/sky. Finer coverage supplies the fade-out
-        // when coarsening, rather than making the whole coarse patch transparent.
-        while(previousTerrain.Count>32)
-        {
-            var oldest=previousTerrain.OrderBy(p=>tiles.TryGetValue(p.Key,out var t)?t.FadeIn:0).First();
-            if(tiles.TryGetValue(oldest.Key,out var t))t.FadeIn=0;
-            previousTerrain.Remove(oldest.Key);CacheTerrain(oldest.Key,oldest.Value);
-        }
+        // Only PrepareTerrainMorph may opt a safe distant leaf into morphing.
+        // A cached product or an unprepared/interactive replacement snaps.
+        if(TerrainVideoOptions.HardChunkUpdates||finer||next.FadeIn>0&&!TerrainRootFree(key))next.FadeIn=0;next.FadeOut=0;
         coverageDirty=true;
     }
     void UpdateTerrainTransitions()
     {
         if(terrainHardUpdates!=TerrainVideoOptions.HardChunkUpdates){terrainHardUpdates=TerrainVideoOptions.HardChunkUpdates;coverageDirty=true;}
-        if(terrainHardUpdates)
-        {
-            ClearTerrainTransitions();
-            foreach(var tile in tiles.Values)if(tile.FadeIn!=0||tile.FadeOut!=0){tile.FadeIn=tile.FadeOut=0;coverageDirty=true;}
-            return;
-        }
-        transitionSnapshot.Clear();foreach(var pair in previousTerrain)transitionSnapshot.Add(pair);
-        foreach(var pair in transitionSnapshot)
-            if(!tiles.TryGetValue(pair.Key,out var current)||FadeComplete(current))
-            {previousTerrain.Remove(pair.Key);CacheTerrain(pair.Key,pair.Value);}
+        if(previousTerrain.Count>0)ClearTerrainTransitions();
         foreach(var pair in tiles)
         {
             var tile=pair.Value;
-            if(tile.FadeIn>0&&Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds){tile.FadeIn=0;coverageDirty=true;}
-            if(tile.FadeOut>0&&!wanted.ContainsKey(pair.Key)&&HasFinerWantedOverlap(pair.Key))
+            if(tile.FadeOut!=0||tile.FadeIn>0&&(terrainHardUpdates||FadeComplete(tile)||
+                TerrainLod.DistanceSquared(pair.Key,motion.X,motion.Z)<=TerrainMorphSafetyRadius*TerrainMorphSafetyRadius))
             {
-                // The camera reversed a coarsening decision. New fine products
-                // inherit this parent's visibility, so an old outgoing stamp
-                // would make every replacement vanish until the whole subtree
-                // eventually retires. Restore the fallback before revealing
-                // those descendants; never fade from an already empty region.
                 tile.FadeIn=tile.FadeOut=0;coverageDirty=true;
-            }
-            else if(tile.FadeOut>0&&wanted.ContainsKey(pair.Key))
-            {
-                double p=TerrainCoverage.Fade(Time.time,tile.FadeIn,tile.FadeOut),lo=0,hi=1;
-                for(int i=0;i<16;i++){double mid=(lo+hi)*.5;if(mid*mid*(3-2*mid)<p)lo=mid;else hi=mid;}
-                tile.FadeOut=0;tile.FadeIn=(float)(Time.time-(lo+hi)*.5*TerrainCoverage.FadeSeconds);coverageDirty=true;
             }
         }
     }
@@ -173,27 +143,12 @@ public sealed partial class LocalTerrainExplorer
                 foreach(var replacement in descendants)if(wanted.TryGetValue(replacement,out int segments)&&!Ready(replacement,segments))return false;
         }
         if(!any)return true;
-        var tile=tiles[key];
-        if(coarser)
-        {
-            if(TerrainVideoOptions.HardChunkUpdates)return true;
-            if(previousTerrain.TryGetValue(key,out var previous)){previousTerrain.Remove(key);CacheTerrain(key,previous);tile.FadeIn=0;}
-            if(tile.FadeOut==0){tile.FadeIn=0;tile.FadeOut=TransitionNow;coverageDirty=true;}
-            return Time.time-tile.FadeOut>=TerrainCoverage.FadeSeconds;
-        }
-        return complete;
+        // A ready opaque parent already supplies the entire coarsened area.
+        return coarser||complete;
     }
     TerrainFadeStamp TerrainTiming(TerrainTileKey key,bool coverage=false)
     {
-        var tile=tiles[key];float incoming=coverage&&previousTerrain.ContainsKey(key)?0:tile.FadeIn,outgoing=tile.FadeOut;
-        for(int depth=1;depth<24-key.Level;depth++)
-        {
-            var ancestorKey=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
-            if(!tiles.TryGetValue(ancestorKey,out var ancestor))continue;
-            if(!previousTerrain.ContainsKey(ancestorKey))incoming=Math.Max(incoming,ancestor.FadeIn);
-            if(ancestor.FadeOut>0)outgoing=outgoing<=0?ancestor.FadeOut:Math.Min(outgoing,ancestor.FadeOut);
-        }
-        return new TerrainFadeStamp(key,incoming,outgoing);
+        return new TerrainFadeStamp(key,tiles[key].FadeIn,0);
     }
     void ClearTerrainTransitions()
     {
