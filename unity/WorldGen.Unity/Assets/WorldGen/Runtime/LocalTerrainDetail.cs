@@ -212,9 +212,9 @@ public sealed partial class LocalTerrainExplorer
         for(int pass=0;pass<(flightPriority?2:1);pass++)
         {
             // A long canonical-neighbourhood build cannot monopolize the
-            // cheap missing-horizon lane. Balanced retains its other worker
-            // for nearby detail; larger pools can also improve near fallbacks.
-            if(flightPriority&&pass==1&&WorkerLimit<3)continue;
+            // cheap missing-horizon lane. Small pools start a quality fallback
+            // only after coarse coverage has had its turn.
+            if(flightPriority&&pass==1&&WorkerLimit<3&&coarseRunning>0)continue;
             int allowance=flightPriority?1-(pass==0?coarseRunning:fineRunning):Math.Max(1,WorkerLimit/2)-coarseRunning-fineRunning;
             if(allowance<=0)continue;
             int requested=0;
@@ -224,6 +224,7 @@ public sealed partial class LocalTerrainExplorer
                 if(flightPriority&&((p.Key.SizeM>coarseBoundary)!=(pass==0)))continue;
                 if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key,flightPriority&&pass==0))continue;
                 RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
+                if(flightPriority&&pass==0)coarseRunning++;
                 if(++requested>=allowance)break;
             }
         }
