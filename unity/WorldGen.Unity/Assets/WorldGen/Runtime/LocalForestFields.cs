@@ -397,7 +397,22 @@ public sealed partial class LocalTerrainExplorer
                 var root=new ForestRoot{Position=new Vector3((float)x,height-.045f,(float)z),Width=(float)(tree.WidthM*(macro?cohort:source.CrownScale)),Height=(float)tree.HeightM*cohort,Yaw=macro?(float)(random.Unit()*Math.PI*2):(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=gx,CellY=gy,Face=(uint)face|(densityHash<<8),
                     Tint=macro?new Vector3((float)(tree.Color.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z/Math.Max(.01,shared.Z))):new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
                 ProjectForestRootGround(ref root,out int groundLevel);
-                int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}DirtyForestRoot(batch,slot);forestRootCount++;
+                int slot;
+                if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}
+                else
+                {
+                    slot=batch.Data.Count;
+                    if(WorldGenPerformance.TraceEnabled&&(batch.Data.Count==batch.Data.Capacity||batch.GroundLevels.Count==batch.GroundLevels.Capacity))
+                    {
+                        int oldRoots=batch.Data.Capacity,oldLevels=batch.GroundLevels.Capacity,gc=GC.CollectionCount(0);
+                        long growthStarted=System.Diagnostics.Stopwatch.GetTimestamp();
+                        batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);
+                        double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-growthStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
+                        if(elapsed>=8)Debug.Log("FOREST_ROOT_GROWTH page="+page.Key+" batch="+batchCode+" count="+slot+"->"+batch.Data.Count+" rootCapacity="+oldRoots+"->"+batch.Data.Capacity+" levelCapacity="+oldLevels+"->"+batch.GroundLevels.Capacity+" gc0Delta="+(GC.CollectionCount(0)-gc)+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("R",System.Globalization.CultureInfo.InvariantCulture)+" elapsed_ms="+elapsed.ToString("R",System.Globalization.CultureInfo.InvariantCulture));
+                    }
+                    else{batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}
+                }
+                DirtyForestRoot(batch,slot);forestRootCount++;
                 if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
                 var bounds=ForestRootBounds(root);if(first){field.Bounds=bounds;first=false;}else field.Bounds.Encapsulate(bounds);
                 // A partial page remains physically represented for exact ground
@@ -446,6 +461,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)
     {
+        long groundStarted=WorldGenPerformance.TraceEnabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
         double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
         Tile tile=null;TerrainTileKey key=default;
         if(Math.Abs(root.Padding)>1.5f&&groundLevel<17)
@@ -455,6 +471,11 @@ public sealed partial class LocalTerrainExplorer
             tiles.TryGetValue(key,out tile);
         }
         ApplyForestRootGround(ref root,y,groundLevel,tile,key);
+        if(groundStarted!=0)
+        {
+            double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-groundStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            if(elapsed>=8)Debug.Log("FOREST ROOT GROUND ms="+elapsed.ToString("F3",System.Globalization.CultureInfo.InvariantCulture)+" level="+groundLevel+" x="+x+" z="+z+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
+        }
     }
     static void ApplyForestRootGround(ref ForestRoot root,double y,int groundLevel,Tile tile,TerrainTileKey key)
     {
