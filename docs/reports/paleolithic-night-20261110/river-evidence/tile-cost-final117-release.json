@@ -1,0 +1,101 @@
+{
+  "Version": "local-terrain-channel-domain-profiles-117",
+  "Source": 126812,
+  "Scope": "Isolated CoreCLR mesh component; not game FPS or complete loading time",
+  "Rows": [
+    {
+      "size": 3276.8,
+      "n": 16,
+      "BuildMilliseconds": 1537.9884,
+      "GroundVertices": 5187,
+      "WaterTriangles": 11451,
+      "FullSurfaceQueries": 289,
+      "GeometryQueries": 72,
+      "Channel": {
+        "ChannelConstraintsMs": 8.6217,
+        "ChannelIndexMs": 0.0012999999999987466,
+        "ChannelClippingMs": 356.6162,
+        "ChannelVerticesMs": 412.54310000000186,
+        "ChannelStitchingMs": 112.0195,
+        "ChannelNewVertices": 4898
+      },
+      "Stages": [
+        {
+          "Name": "patch/index setup",
+          "Ms": 761.0238
+        },
+        {
+          "Name": "height/water sampling",
+          "Ms": 173.28639999999996
+        },
+        {
+          "Name": "surface materials",
+          "Ms": 18.791399999999953
+        },
+        {
+          "Name": "edge stitching",
+          "Ms": 1.4755999999999858
+        },
+        {
+          "Name": "channel refinement",
+          "Ms": 491.5232000000001
+        },
+        {
+          "Name": "water meshes",
+          "Ms": 93.32860000000005
+        },
+        {
+          "Name": "cover masks",
+          "Ms": 2.0434000000000196
+        }
+      ]
+    },
+    {
+      "size": 13107.2,
+      "n": 8,
+      "BuildMilliseconds": 9329.4088,
+      "GroundVertices": 24566,
+      "WaterTriangles": 53750,
+      "FullSurfaceQueries": 81,
+      "GeometryQueries": 40,
+      "Channel": {
+        "ChannelConstraintsMs": 1995.235,
+        "ChannelIndexMs": 3399.4230000000007,
+        "ChannelClippingMs": 1210.8138,
+        "ChannelVerticesMs": 1657.8539000001492,
+        "ChannelStitchingMs": 651.8594999999996,
+        "ChannelNewVertices": 24485
+      },
+      "Stages": [
+        {
+          "Name": "patch/index setup",
+          "Ms": 0.2628
+        },
+        {
+          "Name": "height/water sampling",
+          "Ms": 1795.4811
+        },
+        {
+          "Name": "surface materials",
+          "Ms": 0.16810000000009495
+        },
+        {
+          "Name": "edge stitching",
+          "Ms": 0.0020999999999276042
+        },
+        {
+          "Name": "channel refinement",
+          "Ms": 7263.5965
+        },
+        {
+          "Name": "water meshes",
+          "Ms": 267.9847000000009
+        },
+        {
+          "Name": "cover masks",
+          "Ms": 1.9138999999995576
+        }
+      ]
+    }
+  ]
+}

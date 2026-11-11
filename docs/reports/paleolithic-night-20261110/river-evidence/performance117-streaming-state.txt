@@ -1,0 +1,4 @@
+river-alluvial travel-current hold_terrain=False hold_plants=False
+river-alluvial travel-whip-current hold_terrain=False hold_plants=False
+river-major travel-current hold_terrain=False hold_plants=False
+river-major travel-whip-current hold_terrain=False hold_plants=False

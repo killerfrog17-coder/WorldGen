@@ -1,0 +1,37 @@
+{
+  "Version": "local-terrain-channel-domain-profiles-117",
+  "PreparationSeconds": 35.9796173,
+  "FittingMs": 28628.4508,
+  "UsedCached": false,
+  "Probes": 5658,
+  "OpenEdgeProbes": 0,
+  "CoveredByOtherWaterOrFan": 553,
+  "Bands": [
+    {
+      "Band": "small",
+      "Reaches": 48,
+      "Probes": 1464,
+      "OpenEdgeProbes": 0
+    },
+    {
+      "Band": "local-fit",
+      "Reaches": 48,
+      "Probes": 1496,
+      "OpenEdgeProbes": 0
+    },
+    {
+      "Band": "broad",
+      "Reaches": 48,
+      "Probes": 1552,
+      "OpenEdgeProbes": 0
+    },
+    {
+      "Band": "major",
+      "Reaches": 48,
+      "Probes": 1146,
+      "OpenEdgeProbes": 0
+    }
+  ],
+  "Failures": [],
+  "Scope": "Sampled actual scalar ground at paired outer render edges, excluding fragments removed inside rendered fans; native mesh/perimeter validation still required"
+}

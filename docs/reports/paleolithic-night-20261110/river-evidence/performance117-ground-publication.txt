@@ -1,0 +1,4 @@
+river-alluvial travel-current: cumulative_including_loading slices=248 commits=216 restarts=0 max_prepare_ms=2.7412 max_commit_ms=3.1626 pending=False key=-2,3,4 resident=259/260 canopy=571/571 topology=612/871
+river-alluvial travel-whip-current: cumulative_including_loading slices=248 commits=216 restarts=0 max_prepare_ms=2.7412 max_commit_ms=3.1626 pending=False key=-2,3,4 resident=259/260 canopy=571/571 topology=612/871
+river-major travel-current: cumulative_including_loading slices=235 commits=213 restarts=0 max_prepare_ms=0.7879 max_commit_ms=0.2219 pending=False key=-2,3,4 resident=256/257 canopy=947/947 topology=1148/1392
+river-major travel-whip-current: cumulative_including_loading slices=235 commits=213 restarts=0 max_prepare_ms=0.7879 max_commit_ms=0.2219 pending=False key=-2,3,4 resident=256/257 canopy=947/947 topology=1148/1392

@@ -1,0 +1,4 @@
+48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.
+river-alluvial: 10282 loading/idle readiness comparisons passed.
+48 global map probes: identical blended ground/cover/mid/forest profiles, source identities, and terrain/water values.
+river-major: 13915 loading/idle readiness comparisons passed.

@@ -1,0 +1,24 @@
+PASS Actual generated world supplies the requested context
+PASS Actual worker terrain neighbourhood is uploaded without errors
+PASS Actual surrounding vegetation/scatter is resident
+PASS Wide capture has an actually loaded surrounding terrain footprint
+PASS Normal terrain and vegetation reveal expose the reviewed landscape extent
+PASS Actual player has all seventeen registered surface layers
+PASS Actual water review uses the production water surface shader
+PASS Actual uploaded ground materials bind forest-floor weights
+PASS Canonical local terrain remains finite
+PASS Art capture uses actual summer daylight: wide
+PASS Detached capture has resident coverage beyond the reviewed feature: wide
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Alluvial feature center is inside the actual camera reveal distance
+PASS Art capture uses actual summer daylight: ground
+PASS Detached capture has resident coverage beyond the reviewed feature: ground
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Alluvial feature center is inside the actual camera reveal distance
+PASS Reviewed channel has actual uploaded water geometry
+PASS Art capture uses actual summer daylight: river-overview
+PASS Detached capture has resident coverage beyond the reviewed feature: river-overview
+PASS Visible distant-tree models complete while the review camera stays still
+PASS Alluvial feature center is inside the actual camera reveal distance
+PASS Local landscape queries do not mutate regional history
+PASS Scene and post-teleport updates contain no runtime errors

@@ -1,5 +1,39 @@
 # Version 3 validation evidence
 
+## River checkpoint 117 - 10 November 2026
+
+Slot B is a normal Mono non-development build of runtime `1434add9`, with
+local terrain 117 / Hyper 104. Slot A and the normal shortcut are unchanged;
+accepted main389 remains the preceding checkpoint. This branch is ready for
+owner river review, not universal hydrology or 100FPS-floor certification.
+
+- Two 200k-cell worlds: 10,998 scalar bank probes across 384 reaches, 0 exposed
+  edges. Four required major sites / three LODs: 1,997 drawn-water probes pass.
+- 64 actual ordinary joins / 384 checks, 7,548 actual water vertices,
+  8,046 grade controls, 64,636 + 44,492 lake-stage controls and 121,215
+  preparation-order controls pass without modifying regional history.
+- Actual mixed-LOD bank gap: approximately 3 micrometres after common boundary
+  curves. 15 bank meshes have 0 interior holes/folds beyond weld precision.
+  Legacy 52127 passes unchanged limits with 0.018 m ground difference across
+  10 cm and 0 water jump; its previous 0.266 m discontinuity was fixed.
+- Final native meander/alluvial/major/legacy reviews pass 21/24/21/21 checks;
+  all 12 actual captures inspected. Residual polygonal aerial banks and
+  simplified junction pools are declared visual limits.
+- Four focused 1080p/medium/6km native travel windows average 239.8/225.5 FPS
+  at the alluvial bank and 206.0/194.7 FPS at the major bank. P99 is 11.54-12.11 ms,
+  worst 14.38-30.15 ms; zero unfocused frames. Streaming stays active. The
+  strict 100 FPS floor is NOT met; these two sites do not certify other biomes.
+- Shipped-DLL isolated cold preparation 18.60 s; sampled 3.28 km and 13.1 km river
+  mesh builds 1.54 s and 9.33 s. These are CoreCLR components, not complete game
+  loading/FPS. Difficult distant shoreline refinement remains costly.
+
+Canonical compact evidence is in
+[river-overhaul-20261110.json](../assets/verification/river-overhaul-20261110.json)
+and `docs/reports/paleolithic-night-20261110/river-evidence`.
+[The twelve-page report](<reports/paleolithic-night-20261110/WorldGen - Paleolithic Systems and Rivers.pdf>)
+contains actual screenshots, measured conditions and the preceding item/NPC work.
+No feature after rivers was started.
+
 ## Portable item functionality - 28 October 2026
 
 The latest Mono ranged-check diagnostic passes 123 native checks: real knapping

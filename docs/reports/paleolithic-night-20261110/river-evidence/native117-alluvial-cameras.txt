@@ -1,0 +1,3 @@
+wide camera=(-491.18, 210.50, 213.05) look=(491.18, -210.00, -213.05) ground=2.504948 eyeClearance=207.9949 solarHour=12
+ground camera=(5.87, 1.80, -1.26) look=(-5.87, -0.60, 1.26) ground=-0.0003074655 eyeClearance=1.8 solarHour=12
+river-overview camera=(-140.00, 245.50, -420.00) look=(140.00, -245.00, 420.00) ground=2.497516 eyeClearance=243.0023 solarHour=12

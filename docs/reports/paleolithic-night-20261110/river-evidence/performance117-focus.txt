@@ -1,0 +1,4 @@
+river-alluvial travel-current focused_frames=7196 unfocused_frames=0
+river-alluvial travel-whip-current focused_frames=6767 unfocused_frames=0
+river-major travel-current focused_frames=6183 unfocused_frames=0
+river-major travel-whip-current focused_frames=5844 unfocused_frames=0

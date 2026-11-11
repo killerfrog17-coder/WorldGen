@@ -1,0 +1,11 @@
+AMD Ryzen 7 5700X 8-Core Processor
+NVIDIA GeForce RTX 4060
+Direct3D 11.0 [level 11.1]
+RAM 32694 MB VRAM 7957 MB
+1920x1080, Linear, VSync 0, target -1
+Unity 6000.6.0f1
+UTC 2026-11-11T02:44:17.2195531Z
+Seed 73421; scale .1; clear noon; terrain quality2; view 6000m; vegetation quality2; fine radius153.6m.
+CPU sections are submission/update times, NOT GPU times. PresentMon is the independent GPU/presentation measurement.
+Render mode: normal automatic camera + presented window 1920x1080. Frame timing stats enabled: False. Original CPU paths: False.
+Explicit dense-site file: C:\Users\kille\Desktop\WorldGen\assets\verification\river-performance-sites-20261110.json; these sites use local summer noon.

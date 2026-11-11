@@ -1,0 +1,122 @@
+[
+  {
+    "id": 126812,
+    "size": 204.8,
+    "n": 64,
+    "failures": 0,
+    "error": 0.0017069790582997513,
+    "vertices": 5206,
+    "waterTriangles": 162,
+    "ms": 477.2109
+  },
+  {
+    "id": 126812,
+    "size": 819.2,
+    "n": 32,
+    "failures": 0,
+    "error": 0.0014588648397930726,
+    "vertices": 3026,
+    "waterTriangles": 1253,
+    "ms": 521.9016
+  },
+  {
+    "id": 126812,
+    "size": 3276.8,
+    "n": 16,
+    "failures": 0,
+    "error": 0.001342567335600009,
+    "vertices": 5293,
+    "waterTriangles": 11732,
+    "ms": 1817.1157
+  },
+  {
+    "id": 127655,
+    "size": 204.8,
+    "n": 64,
+    "failures": 0,
+    "error": 0.0013161514874635571,
+    "vertices": 4554,
+    "waterTriangles": 172,
+    "ms": 311.0263
+  },
+  {
+    "id": 127655,
+    "size": 819.2,
+    "n": 32,
+    "failures": 0,
+    "error": 0.0014705388196016855,
+    "vertices": 3530,
+    "waterTriangles": 1421,
+    "ms": 648.8181
+  },
+  {
+    "id": 127655,
+    "size": 3276.8,
+    "n": 16,
+    "failures": 0,
+    "error": 0.0015581024217308226,
+    "vertices": 6192,
+    "waterTriangles": 7906,
+    "ms": 2417.4059
+  },
+  {
+    "id": 129629,
+    "size": 204.8,
+    "n": 64,
+    "failures": 0,
+    "error": 0.001267490023790785,
+    "vertices": 5245,
+    "waterTriangles": 108,
+    "ms": 379.5359
+  },
+  {
+    "id": 129629,
+    "size": 819.2,
+    "n": 32,
+    "failures": 0,
+    "error": 0.0014526598646238398,
+    "vertices": 4144,
+    "waterTriangles": 1596,
+    "ms": 621.1734
+  },
+  {
+    "id": 129629,
+    "size": 3276.8,
+    "n": 16,
+    "failures": 0,
+    "error": 0.001605075213015894,
+    "vertices": 8355,
+    "waterTriangles": 6637,
+    "ms": 2848.0238
+  },
+  {
+    "id": 102676,
+    "size": 204.8,
+    "n": 64,
+    "failures": 0,
+    "error": 0.0011958762860881933,
+    "vertices": 4354,
+    "waterTriangles": 58,
+    "ms": 328.1643
+  },
+  {
+    "id": 102676,
+    "size": 819.2,
+    "n": 32,
+    "failures": 0,
+    "error": 0.0011605579793432241,
+    "vertices": 1385,
+    "waterTriangles": 939,
+    "ms": 145.031
+  },
+  {
+    "id": 102676,
+    "size": 3276.8,
+    "n": 16,
+    "failures": 0,
+    "error": 0.0013024740333342777,
+    "vertices": 1014,
+    "waterTriangles": 7293,
+    "ms": 897.313
+  }
+]

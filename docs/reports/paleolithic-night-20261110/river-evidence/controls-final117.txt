@@ -1,0 +1,25 @@
+PASS 384 exact geometry and scalar water controls at 64 actual ordinary joins
+river-2169 205m: 2048 triangles; 50.4ms; bank raise 0.00m
+river-2169 3277m: 460 triangles; 57.7ms; bank raise 0.00m
+river-2313 205m: 0 triangles; 25.8ms; bank raise 0.00m
+river-2313 3277m: 136 triangles; 68.9ms; bank raise 0.00m
+river-2402 205m: 0 triangles; 29.0ms; bank raise 0.00m
+river-2402 3277m: 51 triangles; 100.7ms; bank raise 0.00m
+river-2471 205m: 67 triangles; 39.3ms; bank raise 0.00m
+river-2471 3277m: 89 triangles; 156.3ms; bank raise 0.03m
+river-2573 205m: 22 triangles; 112.8ms; bank raise 0.00m
+river-2573 3277m: 0 triangles; 235.2ms; bank raise 0.00m
+river-2704 205m: 0 triangles; 35.0ms; bank raise 0.00m
+river-2704 3277m: 0 triangles; 128.0ms; bank raise 0.00m
+coast-6 205m: 2048 triangles; 36.9ms; bank raise 0.00m
+coast-6 3277m: 337 triangles; 85.8ms; bank raise 0.00m
+coast-9 205m: 2048 triangles; 35.8ms; bank raise 0.00m
+coast-9 3277m: 506 triangles; 53.0ms; bank raise 0.00m
+lake-5304 205m: 2048 triangles; 35.4ms; bank raise 0.00m
+lake-5304 3277m: 512 triangles; 90.9ms; bank raise 0.00m
+lake-5448 205m: 2048 triangles; 37.5ms; bank raise 0.00m
+lake-5448 3277m: 512 triangles; 180.5ms; bank raise 0.00m
+PASS 7548 actual-world water vertices; 699 contained lateral bank edges; 251 outside exact footprint (linear LOD approximation); worst level error 0.042m; max sampled depth 134.11m; maximum bank raise 0.03m; total 35.79s; unchanged f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c
+Grade render source 2573, point 0.068710108,-0.215169809,-0.974156494
+PASS 8046 station/render checks, 2004 spans, 877 graded, 0 falling sheets, 25 ordinary render vertices
+PASS 64636 lake/river stage controls; 849 standing nodes, 38 spills, 62896 admitted links

@@ -1,0 +1,12 @@
+river-alluvial travel-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False
+warmup_limit_seconds=420
+river-alluvial travel-current presentation=Windowed resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2
+river-alluvial travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False
+warmup_limit_seconds=150
+river-alluvial travel-whip-current presentation=Windowed resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2
+river-major travel-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False
+warmup_limit_seconds=420
+river-major travel-current presentation=Windowed resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2
+river-major travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=False
+warmup_limit_seconds=150
+river-major travel-whip-current presentation=Windowed resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2

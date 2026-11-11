@@ -1,0 +1,820 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 455.6097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\ochre-marked-bonded-spear.jpg",
+    "bottom": 471.4897637795277,
+    "height": 220
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 246.00976377952773,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 530.6097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\continents-0.png",
+    "bottom": 546.4897637795277,
+    "height": 145
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 519.7297637795277,
+    "height": 21.76
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\continents-190000.png",
+    "bottom": 546.4897637795277,
+    "height": 145
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 343.84976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\islands-0.png",
+    "bottom": 359.72976377952773,
+    "height": 145
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 343.84976377952773,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\islands-190000.png",
+    "bottom": 359.72976377952773,
+    "height": 145
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 290.44976377952776,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 240.04976377952775,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\clothes-front.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 3,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\filled-waterskin.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 357.21114173228364,
+    "height": 25.6
+  },
+  {
+    "page": 3,
+    "kind": "text",
+    "bottom": 319.6111417322836,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\fired-pot-and-boiled-water.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 552.8111417322837,
+    "height": 10.88
+  },
+  {
+    "page": 4,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\ground-food-equipment.jpg",
+    "bottom": 568.6911417322837,
+    "height": 160.39862204724412
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 357.21114173228364,
+    "height": 25.6
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 332.4111417322836,
+    "height": 12.8
+  },
+  {
+    "page": 4,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 563.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\prepared-flaking-face.jpg",
+    "bottom": 579.0897637795277,
+    "height": 150
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 563.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\pressure-finished-blade.jpg",
+    "bottom": 579.0897637795277,
+    "height": 150
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 347.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 5,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\ochre-marked-bonded-spear.jpg",
+    "bottom": 363.20976377952775,
+    "height": 185
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 306.72976377952773,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 269.1297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 231.5297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 5,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 568.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 6,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\spread-woven-bedding.jpg",
+    "bottom": 584.0897637795277,
+    "height": 145
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 568.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 6,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\bone-pendant-and-reed-mat.jpg",
+    "bottom": 584.0897637795277,
+    "height": 145
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 392.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 6,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\carried-torch-at-night.jpg",
+    "bottom": 408.20976377952775,
+    "height": 145
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 392.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 6,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\armed-stone-deadfall.jpg",
+    "bottom": 408.20976377952775,
+    "height": 145
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 351.72976377952773,
+    "height": 25.6
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 314.1297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 276.5297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 238.9297637795277,
+    "height": 25.6
+  },
+  {
+    "page": 6,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 503.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 7,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\reed-raft-afloat.jpg",
+    "bottom": 519.0897637795277,
+    "height": 210
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 262.32976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 7,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\deer-hide-frame-boat.jpg",
+    "bottom": 278.20976377952775,
+    "height": 210
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 221.72976377952776,
+    "height": 25.6
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 171.32976377952775,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 133.72976377952776,
+    "height": 25.6
+  },
+  {
+    "page": 7,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 8,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 8,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 8,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 8,
+    "kind": "text",
+    "bottom": 342.88976377952775,
+    "height": 51.2
+  },
+  {
+    "page": 8,
+    "kind": "text",
+    "bottom": 318.08976377952774,
+    "height": 12.8
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 462.32976377952775,
+    "height": 21.76
+  },
+  {
+    "page": 9,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\crowd-100-final.jpg",
+    "bottom": 489.08976377952774,
+    "height": 240
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 408.9297637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 265.5297637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 227.9297637795278,
+    "height": 25.6
+  },
+  {
+    "page": 9,
+    "kind": "text",
+    "bottom": 190.3297637795278,
+    "height": 25.6
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 703.4897637795277,
+    "height": 25.6
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 676.7697637795277,
+    "height": 14.72
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 511.531003937008,
+    "height": 10.88
+  },
+  {
+    "page": 10,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river-before-meanderingriver.png",
+    "bottom": 527.411003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 511.531003937008,
+    "height": 10.88
+  },
+  {
+    "page": 10,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river117-meander-river-overview.jpg",
+    "bottom": 527.411003937008,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 336.2922440944883,
+    "height": 10.88
+  },
+  {
+    "page": 10,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river-before-alluvialriver.png",
+    "bottom": 352.1722440944883,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 325.4122440944883,
+    "height": 21.76
+  },
+  {
+    "page": 10,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river117-alluvial-river-overview.jpg",
+    "bottom": 352.1722440944883,
+    "height": 144.3587598425197
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 284.8122440944883,
+    "height": 25.6
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 247.21224409448828,
+    "height": 25.6
+  },
+  {
+    "page": 10,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 473.20976377952775,
+    "height": 10.88
+  },
+  {
+    "page": 11,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river117-legacy-river-overview.jpg",
+    "bottom": 489.08976377952774,
+    "height": 240
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 419.80976377952777,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 199.20976377952778,
+    "height": 25.6
+  },
+  {
+    "page": 11,
+    "kind": "text",
+    "bottom": 56.76,
+    "height": 10.24
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 573.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 12,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river117-performance-alluvial.jpg",
+    "bottom": 589.0897637795277,
+    "height": 140
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 573.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 12,
+    "kind": "image",
+    "source": "docs\\reports\\paleolithic-night-20261110\\river117-performance-major.jpg",
+    "bottom": 589.0897637795277,
+    "height": 140
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 374.80976377952777,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 337.20976377952775,
+    "height": 25.6
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 310.4897637795277,
+    "height": 14.72
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 267.08976377952774,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 216.68976377952774,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 12,
+    "kind": "text",
+    "bottom": 166.28976377952773,
+    "height": 38.400000000000006
+  }
+]

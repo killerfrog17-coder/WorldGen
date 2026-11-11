@@ -1,0 +1,20 @@
+river-alluvial travel-current hide_water=False
+kind,renderers,vertices,triangles
+land,224,328454,631326
+water,100,9634,13924
+submitted-reeds,77,924,462
+river-alluvial travel-whip-current hide_water=False
+kind,renderers,vertices,triangles
+land,224,328454,631326
+water,100,9634,13924
+submitted-reeds,77,924,462
+river-major travel-current hide_water=False
+kind,renderers,vertices,triangles
+land,224,415408,806899
+water,138,122085,222676
+submitted-reeds,678,13296,9078
+river-major travel-whip-current hide_water=False
+kind,renderers,vertices,triangles
+land,224,415408,806899
+water,138,122085,222676
+submitted-reeds,678,13296,9078

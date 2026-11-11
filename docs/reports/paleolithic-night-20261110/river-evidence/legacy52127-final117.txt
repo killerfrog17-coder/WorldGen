@@ -1,0 +1,1 @@
+Reach 52127: 40 sections, max 10cm along-stream ground difference 0.0180m / water 0.0000m; 0 diagnostic rows

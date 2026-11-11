@@ -1,0 +1,10 @@
+{
+  "Assembly": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen_Data\\Managed\\WorldGen.Core.dll",
+  "AssemblySha256": "EFF40CC8FA0F8A5A167154FD0B1D7158F3DE628138B3F9F8683FE851595200D7",
+  "Version": "local-terrain-channel-domain-profiles-117",
+  "ReadSeconds": 5.8612585,
+  "PreparationSeconds": 18.5978411,
+  "FittingMs": 16369.2268,
+  "Reaches": 62896,
+  "Scope": "Cold CoreCLR constructor component only; no game startup/FPS claim"
+}

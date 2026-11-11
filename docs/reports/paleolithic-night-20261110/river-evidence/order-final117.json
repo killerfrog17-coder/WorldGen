@@ -1,0 +1,129 @@
+{
+  "Version": "local-terrain-channel-domain-profiles-117",
+  "Checks": 121215,
+  "Sources": 24,
+  "Reduced": 21,
+  "Preparation": [
+    {
+      "source": 126812,
+      "Milliseconds": 562.2779,
+      "Spans": 18
+    },
+    {
+      "source": 127655,
+      "Milliseconds": 97.1213,
+      "Spans": 17
+    },
+    {
+      "source": 129629,
+      "Milliseconds": 314.7975,
+      "Spans": 18
+    },
+    {
+      "source": 74799,
+      "Milliseconds": 157.6783,
+      "Spans": 382
+    },
+    {
+      "source": 46966,
+      "Milliseconds": 92.2449,
+      "Spans": 256
+    },
+    {
+      "source": 134628,
+      "Milliseconds": 133.2702,
+      "Spans": 248
+    },
+    {
+      "source": 91811,
+      "Milliseconds": 284.0741,
+      "Spans": 54
+    },
+    {
+      "source": 104048,
+      "Milliseconds": 276.8151,
+      "Spans": 22
+    },
+    {
+      "source": 79776,
+      "Milliseconds": 188.9285,
+      "Spans": 181
+    },
+    {
+      "source": 112740,
+      "Milliseconds": 61.171,
+      "Spans": 77
+    },
+    {
+      "source": 76361,
+      "Milliseconds": 149.6522,
+      "Spans": 361
+    },
+    {
+      "source": 187067,
+      "Milliseconds": 324.8775,
+      "Spans": 172
+    },
+    {
+      "source": 36872,
+      "Milliseconds": 111.6327,
+      "Spans": 176
+    },
+    {
+      "source": 162700,
+      "Milliseconds": 120.1352,
+      "Spans": 217
+    },
+    {
+      "source": 66034,
+      "Milliseconds": 78.1712,
+      "Spans": 192
+    },
+    {
+      "source": 137420,
+      "Milliseconds": 174.5783,
+      "Spans": 43
+    },
+    {
+      "source": 66315,
+      "Milliseconds": 220.3692,
+      "Spans": 259
+    },
+    {
+      "source": 101729,
+      "Milliseconds": 137.4669,
+      "Spans": 408
+    },
+    {
+      "source": 89043,
+      "Milliseconds": 86.7944,
+      "Spans": 17
+    },
+    {
+      "source": 55773,
+      "Milliseconds": 105.9743,
+      "Spans": 117
+    },
+    {
+      "source": 79570,
+      "Milliseconds": 114.9436,
+      "Spans": 235
+    },
+    {
+      "source": 91883,
+      "Milliseconds": 104.8015,
+      "Spans": 163
+    },
+    {
+      "source": 189453,
+      "Milliseconds": 172.1443,
+      "Spans": 137
+    },
+    {
+      "source": 129210,
+      "Milliseconds": 143.8841,
+      "Spans": 268
+    }
+  ],
+  "Scope": "Exact public station data from forward/reverse preparation, with shared immutable broad datums; no native FPS claim"
+}

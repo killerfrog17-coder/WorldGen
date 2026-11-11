@@ -1,5 +1,5 @@
 {
-  "title": "WorldGen - Paleolithic Systems 2026-11-10",
+  "title": "WorldGen - Paleolithic Systems and Rivers 2026-11-10",
   "section": "PALEOLITHIC UPDATE",
   "date": "10 NOV 2026",
   "footer": "Actual game captures and labelled simulation audits | Functional prototype",
@@ -412,13 +412,13 @@
           "text": "<b>Acceptance:</b> All 43 technology families have a representative playable route. Final native checks cover portable crafting (38), combat (184), woodwork (16), camps (98), nature (32), land blueprints (261), fishing (14) and boats (32), alongside the new equipment checks. Functional captures are capped at 60 FPS and are not performance benchmarks. Finished art, every regional variant and autonomous NPC manufacture are outside this pass."
         },
         {
-          "text": "<b>Remaining work:</b> River-size/morphology overhaul. Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
+          "text": "<b>Remaining work:</b> Advanced tracking, locational injuries, autonomous NPC hunting and finished item art remain later work."
         }
       ]
     },
     {
       "title": "Crowded camps",
-      "subtitle": "100 distinct physical NPCs, measured at eye height. One controlled open-camp scene.",
+      "subtitle": "Stage 3 checkpoint before the river pass: 100 distinct physical NPCs, measured at eye height.",
       "blocks": [
         {
           "images": [
@@ -470,6 +470,200 @@
         },
         {
           "text": "<b>Validation:</b> 421 exact camp-part selections and 3,877 shelter-cache controls pass. Native camp work (42), belongings (19), daily routines (33), real material use (19), combat/items (184), construction (261) and current animation controls (86) pass."
+        }
+      ]
+    },
+    {
+      "title": "Rivers at a physical scale",
+      "subtitle": "Source-globe discharge determines size. World compression controls admission, not the dimensions of an admitted river.",
+      "blocks": [
+        {
+          "text": "Width, depth and flow now come from the source river rather than compressed graph-edge limits. Irregular physical-distance profiles vary the width and pool/riffle depth; terrain confinement limits bends. Endpoint tapers preserve shared joins."
+        },
+        {
+          "heading": "Same drainage, revised river profile"
+        },
+        {
+          "images": [
+            {
+              "file": "river-before-meanderingriver.png",
+              "caption": "Before: source 143549, narrower channel with frequent short bends."
+            },
+            {
+              "file": "river117-meander-river-overview.jpg",
+              "caption": "After 117: the same source, broader bends and a wider channel."
+            }
+          ],
+          "max_height": 150
+        },
+        {
+          "images": [
+            {
+              "file": "river-before-alluvialriver.png",
+              "caption": "Before: alluvial source 115180. Existing alluvial banks were retained."
+            },
+            {
+              "file": "river117-alluvial-river-overview.jpg",
+              "caption": "After 117: the same drainage, with revised width/depth profiles and bank fitting."
+            }
+          ],
+          "max_height": 150
+        },
+        {
+          "text": "These are actual game captures at medium vegetation. The bank camera is reselected from the changed surface, so this is a same-source comparison, not an identical-camera pixel test. Some aerial banks still look angular; junction pools remain simplified."
+        },
+        {
+          "text": "Four deep major-river samples are 1.05-1.52 km wide and 26-34 m deep, with sampled speeds 1.57-2.03 m/s. They are examples from this world, not universal limits."
+        }
+      ],
+      "sources": [
+        [
+          "USGS hydraulic geometry",
+          "https://pubs.usgs.gov/publication/pp252"
+        ],
+        [
+          "USGS channel patterns",
+          "https://pubs.usgs.gov/publication/pp282B"
+        ]
+      ]
+    },
+    {
+      "title": "Connected water and terrain",
+      "subtitle": "The final build was checked on the original failure sites. Failed intermediate trials remain recorded.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "river117-legacy-river-overview.jpg",
+              "caption": "Source 52127: actual final tributaries and receiving channel. The previous bed discontinuity now passes its unchanged test."
+            }
+          ],
+          "max_height": 240
+        },
+        {
+          "text": "Ordinary joins share an exact section. Confluences fit their incoming valley banks; connected lakes reconcile their water levels before fine terrain is generated. Chunk boundaries use the same shoreline height curve, and curved channel sections keep a continuous bed coordinate."
+        },
+        {
+          "table": {
+            "headers": [
+              "Final 117 check",
+              "Result"
+            ],
+            "rows": [
+              [
+                "Two 200k-cell worlds",
+                "10,998 bank probes / 384 reaches; 0 exposed edges."
+              ],
+              [
+                "Four major sites, three LODs",
+                "1,997 water probes; 12 meshes; 0 failed probes."
+              ],
+              [
+                "Ordinary joins and chunk sea ms",
+                "384 checks at 64 nodes; mixed-LOD visible gap about 3 micrometres. 15 bank meshes:0 interior holes or folds beyond weld precision."
+              ],
+              [
+                "Lake stages and preparation order",
+                "64,636 +44,492 lake/river controls; 121,215 query-order controls pass."
+              ],
+              [
+                "Legacy 52127 curved bed",
+                "0.018 m ground change across 10 cm, below unchanged 0.1 m limit; 0 water jump."
+              ]
+            ],
+            "widths": [
+              0.34,
+              0.66
+            ]
+          }
+        },
+        {
+          "text": "Four native reviews pass: meandering 143549 (21 checks), alluvial 115180 (24), major 126812 (21), legacy 52127 (21). All 12 final native images were inspected. These are sampled validation, not proof of every possible world or shoreline."
+        }
+      ],
+      "sources": [
+        [
+          "Procedural Riverscapes,2019",
+          "https://diglib.eg.org/items/555e713d-c93f-4c7c-987e-674f7153d34d"
+        ]
+      ]
+    },
+    {
+      "title": "Moving performance and limits",
+      "subtitle": "Final 117 release Mono build. Ryzen 7 5700X / RTX 4060 / 1920x1080 / medium terrain and vegetation / 6 km view.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "river117-performance-alluvial.jpg",
+              "caption": "Actual alluvial-bank benchmark scene, after travel."
+            },
+            {
+              "file": "river117-performance-major.jpg",
+              "caption": "Actual major-river-bank scene, after travel."
+            }
+          ],
+          "max_height": 140
+        },
+        {
+          "table": {
+            "headers": [
+              "30-second window",
+              "Average FPS",
+              "99th percentile",
+              "Worst frame"
+            ],
+            "rows": [
+              [
+                "Alluvial / travel",
+                "239.8",
+                "11.93 ms",
+                "14.38 ms"
+              ],
+              [
+                "Alluvial / turning",
+                "225.5",
+                "12.11 ms",
+                "30.15 ms"
+              ],
+              [
+                "Major / travel",
+                "206.0",
+                "11.54 ms",
+                "25.12 ms"
+              ],
+              [
+                "Major / turning",
+                "194.7",
+                "11.75 ms",
+                "20.85 ms"
+              ]
+            ],
+            "widths": [
+              0.35,
+              0.18,
+              0.24,
+              0.23
+            ]
+          }
+        },
+        {
+          "text": "All four windows have zero unfocused frames. Travel is 8 m/s around a 30 m loop, with an additional rapid-turn case. Normal terrain, water, vegetation and animal rendering stay enabled; streaming is not held. No model inference. End-of-window streaming was still active in one case. Background-window trial results are excluded."
+        },
+        {
+          "text": "<b>The strict 100 FPS floor is not met.</b> Residual 14-30 ms frames remain, and these two banks do not certify every biome, high-speed flight or dense NPC crowds. The small instantaneous FPS overlay in the post-run stills is not the measured-window average."
+        },
+        {
+          "heading": "Loading cost remains separate"
+        },
+        {
+          "text": "Cold preparation took 18.60 s using the shipped Core DLL, including 16.37 s of datum fitting. The earlier original-model reference was 24.52 s total, measured in a separate window. These are isolated CoreCLR component measurements, not an end-to-end game-load comparison."
+        },
+        {
+          "text": "The sampled 3.28 km river tile took 1.54 s to build; a difficult 13.1 km far tile took 9.33 s in the background. Fine shoreline constraints remain expensive. Far meshes simplify bathymetry and material sampling while preserving actual outer shores. Loading is not instantaneous."
+        },
+        {
+          "text": "<b>Handoff:</b> Slot B contains 117/Hyper 104, built from 1434add9. Slot A and the normal shortcut are unchanged. Source, compact receipts and report inputs are preserved on work/river-hydraulics-20261110. River work stops here; no following geography or NPC feature was started."
         }
       ]
     }

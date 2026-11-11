@@ -1,0 +1,19 @@
+River 102676 mixed-LOD: 158 actual edge/end/midpoint probes, 84 submerged; visible gap 3.068283788820736E-06m at 320
+PASS drawn coarse/fine river boundary
+Ground seam (-1, 0, 0)/32: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312500002
+Ground seam (-1, -1, 0)/32: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312500002
+Ground seam (0, -1, 0)/32: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312500002
+Ground seam (-3, -2, 2)/32: 0 interior open edges; 0 folds beyond weld precision; area 167772.16500000004
+Ground seam (2, 0, 1)/32: 0 interior open edges; 0 folds beyond weld precision; area 41943.04125000001
+Ground seam (-1, 0, 0)/64: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312488113
+Ground seam (-1, -1, 0)/64: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312500035
+Ground seam (0, -1, 0)/64: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312500035
+Ground seam (-3, -2, 2)/64: 0 interior open edges; 0 folds beyond weld precision; area 167772.16500000056
+Ground seam (2, 0, 1)/64: 0 interior open edges; 0 folds beyond weld precision; area 41943.04125000014
+Ground seam (-1, 0, 0)/128: 0 interior open edges; 0 folds beyond weld precision; area 10485.76031249106
+Ground seam (-1, -1, 0)/128: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312499999
+Ground seam (0, -1, 0)/128: 0 interior open edges; 0 folds beyond weld precision; area 10485.760312499999
+Ground seam (-3, -2, 2)/128: 0 interior open edges; 0 folds beyond weld precision; area 167772.16499999998
+Ground seam (2, 0, 1)/128: 0 interior open edges; 0 folds beyond weld precision; area 41943.041249999995
+PASS 15 river-bank ground meshes have no interior open edges
+PASS 121215 local river-stage/order controls across 24 sources; 21 real local head corrections

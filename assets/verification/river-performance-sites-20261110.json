@@ -1,0 +1,25 @@
+{
+  "HistoryHash": "61047dba4a4bc5d57bd4dde0d64fb2b8480f450cebc59483429d045e6ca1cd73",
+  "Sites": [
+    {
+      "Name": "river-alluvial",
+      "Position": {
+        "X": 0.556875878,
+        "Y": -0.816078802,
+        "Z": 0.154611271
+      },
+      "CanopyShade": 0,
+      "Biome": "TropicalSeasonalForest"
+    },
+    {
+      "Name": "river-major",
+      "Position": {
+        "X": 0.676391716,
+        "Y": -0.685656225,
+        "Z": 0.269016335
+      },
+      "CanopyShade": 0.1040312157179674,
+      "Biome": "Floodplain"
+    }
+  ]
+}
