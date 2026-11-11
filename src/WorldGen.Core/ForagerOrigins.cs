@@ -147,7 +147,7 @@ namespace WorldGen.Core
                         c.Knowledge[k]=inherited;c.Skill[k]=inherited*.9;c.Use[k]=c.Skill[k]*ForagerTechnology.Demand(d,environment,c,k)*ForagerTechnology.Materials(d,environment,k);
                     }
                 }
-                double uv=HistoryHumanVariation.UvExposure(d.Center.Z,World.ElevationM[d.Cell],(int)(d.Aridity*1000), (int)(d.Canopy*1000));
+                double uv=HistoryHumanVariation.UvExposure(d.Center.Z,World.ElevationM[d.Cell],(int)Math.Round(d.AnnualRainMm), (int)(d.Canopy*1000));
                 for(int k=0;k<HumanPhenotypes.Count;k++)c.Appearance[k]=k<8?HistoryHumanVariation.FounderValue(World.Recipe.Seed,d.Id,(HumanAppearanceTrait)k,uv,(int)(d.MeanC*10))/10000.0:HumanPhenotypes.Founder(World.Recipe.Seed,state.Lineages[lineage],d.Id,k);
             }
             c.FirstKnownYear=c.Knowledge.Select(v=>v>=.2?year:-1).ToArray();c.FirstSkilledYear=c.Skill.Select(v=>v>=.5?year:-1).ToArray();c.LastLossYear=Enumerable.Repeat(-1,ForagerTechnology.Count).ToArray();

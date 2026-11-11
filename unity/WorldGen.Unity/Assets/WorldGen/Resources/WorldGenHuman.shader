@@ -4,6 +4,9 @@ Shader "WorldGen/Human"
     {
         _BloodMask("Runtime impact stains",2D)="black"{} _BloodEnabled("Impact stains",Float)=0 _BloodColor("Blood pigment",Color)=(.23,.012,.009,1)
         _BaseMap("Pigment and opacity",2D)="white"{}
+        _PigmentMode("Inherited pigment region",Float)=0
+        _PigmentColor("Inherited colour",Color)=(1,1,1,1)
+        _PigmentReference("Source luminance",Float)=.12
         _Roughness("Roughness",Range(.05,1))=.72
         _Cutoff("Alpha threshold",Range(0,1))=0
         _VegetationSceneEnabled("World day/night lighting",Float)=1
@@ -20,6 +23,7 @@ Shader "WorldGen/Human"
         CBUFFER_START(UnityPerMaterial)
         float4 _BloodColor;float _BloodEnabled;
         float4 _BaseMap_ST;float _Roughness,_Cutoff,_HumanViewId,_VegetationSceneEnabled;
+        float4 _PigmentColor;float _PigmentMode,_PigmentReference;
         CBUFFER_END
         #define WORLDGEN_VEGETATION_SCENE_MATERIAL_SWITCH
         // Camera-scoped identity, never a global mutation of a person's mesh.
@@ -37,7 +41,24 @@ Shader "WorldGen/Human"
             bool ownView=_WorldGenFirstPersonHumanId>.5&&abs(_HumanViewId-_WorldGenFirstPersonHumanId)<.25;
             clip(ownView&&(_WorldGenFirstPersonBodyVisible<.5||head>.5)?-1:1);
         }
-        half4 Pigment(float2 uv){half4 p=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,uv);clip(p.a-max(.001,_Cutoff));return p;}
+        half4 Pigment(float2 uv)
+        {
+            half4 p=SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,uv);clip(p.a-max(.001,_Cutoff));
+            if(_PigmentMode>.5)
+            {
+                half luminance=dot(p.rgb,half3(.2126,.7152,.0722));
+                half detail=clamp(luminance/max(.002,_PigmentReference),.22,2.2);
+                if(_PigmentMode<2.5)p.rgb=_PigmentColor.rgb*detail;
+                else
+                {
+                    // Retain white sclera, black pupil, opacity and highlights.
+                    half chroma=max(p.r,max(p.g,p.b))-min(p.r,min(p.g,p.b));
+                    half iris=saturate(chroma*35)*smoothstep(.002,.012,luminance)*(1-smoothstep(.55,.8,luminance));
+                    p.rgb=lerp(p.rgb,_PigmentColor.rgb*clamp(detail,.4,1.5),iris);
+                }
+            }
+            return p;
+        }
         ENDHLSL
         Pass
         {

@@ -1,0 +1,99 @@
+{
+  "status": "in_progress_not_visually_accepted",
+  "scope": "Inherited NPC appearance and persistent peoples; cultural grooming; character-creation backend only",
+  "design": {
+    "inherited": [
+      "skin pigmentation and undertone",
+      "hair pigmentation and texture",
+      "iris pigmentation and hue",
+      "facial proportions",
+      "adult stature and body build"
+    ],
+    "cultural": [
+      "hair cutting, tying, braiding and shaving",
+      "beard grooming"
+    ],
+    "identity": "People identity, culture, ancestry and political ownership remain separate. Appearance is not an ability or personality statistic.",
+    "cost": "Individual shapes baked once at spawn into native-weight full/middle/far meshes; no active per-frame blendshapes."
+  },
+  "sources": [
+    {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.0914628107",
+      "use": "UV/skin pigmentation rationale; not a universal one-factor predictor"
+    },
+    {
+      "url": "https://humanorigins.si.edu/evidence/genetics/human-skin-color-variation",
+      "use": "Pigmentation and migration/environment history"
+    },
+    {
+      "url": "https://medlineplus.gov/genetics/understanding/traits/eyecolor/",
+      "use": "Multigenic iris variation"
+    },
+    {
+      "url": "https://medlineplus.gov/genetics/understanding/traits/height/",
+      "use": "Polygenic height and developmental conditions"
+    },
+    {
+      "url": "https://www.nature.com/articles/nature17993",
+      "use": "Deep population history; modern ethnic appearance packages are not fixed timeless categories"
+    },
+    {
+      "url": "https://humanorigins.si.edu/evidence/human-fossils/species/homo-floresiensis",
+      "use": "Inter-species size differences exceed ordinary within-sapiens population differences"
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3575602/",
+      "use": "Hair trait biology; does not establish speculative wind-to-eyelid causal rule"
+    },
+    {
+      "url": "https://www.makehumancommunity.org/about/license.html",
+      "use": "Core MakeHuman asset licence"
+    },
+    {
+      "url": "https://download.makehumancommunity.org/assets/assetpacks/hair01.html",
+      "use": "CC0 asset-pack listing for reused community hair; legacy .mhclo headers predate relicensing"
+    }
+  ],
+  "checks": {
+    "core_inheritance": {
+      "passed": 5810
+    },
+    "actual_world_query": {
+      "residents": 24,
+      "peoples": 8,
+      "human_species": 5,
+      "deterministic": true,
+      "global_history_unchanged": true
+    },
+    "import_v3": {
+      "passed": true,
+      "age_body_templates": 24,
+      "fitted_hair_forms": 216
+    },
+    "rejected_trials": [
+      {
+        "name": "import_v2",
+        "reason": "C: filled during Unity cache creation; failed asset creation, not accepted"
+      },
+      {
+        "name": "editor_gallery_v1",
+        "reason": "Unity serializes null inline classes as empty objects; runtime attempted missing non-body LOD mesh. Mesh-presence guard corrected; retest pending"
+      }
+    ]
+  },
+  "local_cache_move": {
+    "from": "unity/WorldGen.Unity/Library/DataStore",
+    "to": "D:/WorldGenCaches/UnityDataStore",
+    "junction": true,
+    "files": 61,
+    "bytes": 3927002009,
+    "permanent_inputs_changed": false
+  },
+  "build": "Slot A and root shortcut protected; slot B unchanged pending full new asset build",
+  "limits": [
+    "Not an exact reconstruction of named modern ethnic groups",
+    "Limb-proportion channel stored but not yet rendered",
+    "No character creation UI",
+    "Native/gameplay/performance acceptance pending"
+  ]
+}

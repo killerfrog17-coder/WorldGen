@@ -60,6 +60,10 @@ unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance/
 unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanAppearance.meta
 unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance/
 unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanAppearance.meta
+unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanPhenotypes/
+unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanPhenotypes.meta
+unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanPhenotypes/
+unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanPhenotypes.meta
 .env
 .env.*
 !.env.example

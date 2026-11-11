@@ -61,6 +61,13 @@ def inventory():
     add('assets-source/humans/appearance-review/Human physique comparison.blend','human-appearance-source',True)
     tree('assets-source/humans/appearance-runtime','human-appearance-source',{'.fbx','.png','.json'})
     tree('assets-source/humans/npc-ages','human-npc-source',{'.fbx','.json'})
+    tree('assets-source/humans/phenotypes','human-phenotype-source',{'.fbx','.json','.txt'})
+    for sourceRoot,names in [('research/builders/mpfb-assets',['short02','ponytail01']),('appearance-review/mpfb-assets',['afro01','long01','braid01','cortu_short_messy_hair','elvs_unkempt_french_braid'])]:
+        for name in names:
+            tree('assets-source/humans/'+sourceRoot+'/hair/'+name,'human-phenotype-source',{'.obj','.mhclo','.mhmat','.png','.txt'})
+    for directory in ['unity/WorldGen.Unity/Assets/WorldGen/GeneratedHumanPhenotypes','unity/WorldGen.Unity/Assets/WorldGen/Resources/HumanPhenotypes']:
+        tree(directory,'human-phenotype-runtime',{'.asset','.prefab','.mat','.meta','.fbx','.png','.json'})
+        add(directory+'.meta','human-phenotype-runtime')
     tree('assets-source/terrain/surfaces','terrain-authoring-source',{'.png','.jpg','.json','.txt'})
     tree('assets-source/terrain/rocks','terrain-rock-source',{'.blend','.json','.txt'})
     tree('unity/WorldGen.Unity/Assets/WorldGen/Resources/CliffRockV1','terrain-rock-runtime',{'.bytes','.json','.meta'})

@@ -22,6 +22,8 @@ public sealed partial class LocalTerrainExplorer
         public readonly Dictionary<Transform,Quaternion> RelaxedArms=new Dictionary<Transform,Quaternion>();
         public Transform SneakSpine,SneakNeck;
         public readonly List<Material> OwnedMaterials=new List<Material>();
+        public readonly List<Mesh> PhenotypeMeshes=new List<Mesh>();
+        public HumanPhenotype Phenotype;public Vector3 PhenotypeScale=Vector3.one;
         public readonly Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas> Blood=new Dictionary<SkinnedMeshRenderer,WorldGenBloodCanvas>();
         public int Id;public double Health=100;public WorldGenHumanRagdoll Ragdoll;
         public BleedingState Bleeding;public ExertionState Exertion=new ExertionState();
@@ -75,13 +77,13 @@ public sealed partial class LocalTerrainExplorer
         int variant=playState?.PlayerHumanVariant??-1;if(variant<0||variant>=humanLibrary.People.Length)variant=humanRandom.Next(humanLibrary.People.Length);
         if(playState!=null)playState.PlayerHumanVariant=variant;
         humanCamera.Restore(playState?.CameraDistance??0,playState?.CameraDistanceLocked??false);humanCameraDistance=(float)humanCamera.Distance;
-        humanPlayer=CreateHuman(variant,1);
+        humanPlayer=CreateHuman(variant,1,person:playState?.Identity?.Person);
         if(playState?.Identity!=null){humanPlayer.ResidentId=playState.Identity.Person.Id;humanPlayer.GroupId=playState.Identity.Group;humanPlayer.Resident=playState.Identity.Person;humanPlayer.Root.name=playState.Identity.Person.Name;}
         RestorePlayerBlood();humanPlayer.Yaw=humanPlayer.TargetYaw=heading;
-        humanEyeOffset=humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM;
+        humanEyeOffset=HumanActualEye(humanPlayer)-(float)TerrainMotion.EyeHeightM;
         RenderPipelineManager.beginCameraRendering+=BindHumanCamera;
     }
-    HumanActor CreateHuman(int variant,int id,bool natural=false,HumanAgeModel ageModel=null)
+    HumanActor CreateHuman(int variant,int id,bool natural=false,HumanAgeModel ageModel=null,ForagerPersonSample person=null)
     {
         var definition=humanLibrary.People[variant];var root=Instantiate(ageModel?.Prefab??definition.Prefab,transform,false);root.name=id==1?"Player human":"Demo human "+id;
         var animator=root.GetComponent<Animator>();animator.applyRootMotion=false;animator.cullingMode=AnimatorCullingMode.AlwaysAnimate;
@@ -127,7 +129,7 @@ public sealed partial class LocalTerrainExplorer
             actor.Output.SetSourcePlayable(actor.Shared.Output);actor.Graph.DestroySubgraph(actor.Mixer);
             actor.Inputs=Array.Empty<AnimationClipPlayable>();actor.Weights=Array.Empty<float>();
         }
-        actor.Graph.Play();actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);return actor;
+        actor.Graph.Play();actor.Graph.Evaluate(0);ApplyHumanAgePose(actor);ApplyInheritedHumanAppearance(actor,person);return actor;
     }
     void BindHumanCamera(ScriptableRenderContext context,Camera camera)
     {
@@ -230,7 +232,7 @@ public sealed partial class LocalTerrainExplorer
         }
         }finally{deferNpcPoses=false;}
         livingTickMs=ElapsedHumanMs(livingTickStart);WaitCpu(livingTickStart);
-        humanEyeOffset=Mathf.Lerp(humanEyeOffset,humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
+        humanEyeOffset=Mathf.Lerp(humanEyeOffset,HumanActualEye(humanPlayer)-(float)TerrainMotion.EyeHeightM-(crouch?.42f:0),1-Mathf.Exp(-dt*12));
         Ground(motion.X,motion.Z); // Preserve player-centred elevation/debug memo.
     }
     void AnimateHuman(HumanActor actor,float speed,bool airborne,bool crouch,float dt,bool swimming=false)
@@ -324,7 +326,7 @@ public sealed partial class LocalTerrainExplorer
             // gait/idle head animation. Keep calibrated eye height and smooth
             // crouching without importing hip sway or running head bob.
             var eye=humanPlayer.Shared.RestEye;
-            eye.y+=humanEyeOffset-(humanPlayer.Definition.EyeHeight-(float)TerrainMotion.EyeHeightM);
+            eye.y+=(humanEyeOffset-(HumanActualEye(humanPlayer)-(float)TerrainMotion.EyeHeightM))/Mathf.Max(.1f,humanPlayer.Root.transform.localScale.y);
             // Looking down rotates the eye anchor back towards the collar.
             // Keep the local camera in front of that collar instead of exposing
             // the head-removal boundary from inside the neck.
@@ -366,13 +368,13 @@ public sealed partial class LocalTerrainExplorer
         if(arguments.Length>1||arguments.Length==1&&(!int.TryParse(arguments[0],out count)||count<1))return new PlayCommandResult(false,"Usage: /spawn human [positive count] or /spawn human clear.");
         humanSpawnQueued+=count;return new PlayCommandResult(true,"Queued "+count+" humans on nearby dry, gentle ground. /spawn clear cancels pending spawns.");
     }
-    void DestroyHuman(HumanActor human){ClearNpcProps(human);DestroyInventoryVisual(human.InfantCarrier);DisposeHumanCombatSurface(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
+    void DestroyHuman(HumanActor human){ClearNpcProps(human);DestroyInventoryVisual(human.InfantCarrier);DisposeHumanCombatSurface(human);DisposeInheritedHuman(human);human.Shared?.Dispose();if(human.Ragdoll!=null)Destroy(human.Ragdoll);if(human.Graph.IsValid())human.Graph.Destroy();if(human.Root!=null)UnityEngine.Object.Destroy(human.Root);foreach(var material in human.OwnedMaterials)if(material!=null)UnityEngine.Object.Destroy(material);}
     void DisposeHumans()
     {
         DisposeNpcMinds();CaptureLivingHumans();DisposeLivingHumans();
         RenderPipelineManager.beginCameraRendering-=BindHumanCamera;Shader.SetGlobalFloat("_WorldGenFirstPersonHumanId",0);Shader.SetGlobalFloat("_WorldGenFirstPersonBodyVisible",0);
         if(humanPlayer!=null)DestroyHuman(humanPlayer);humanPlayer=null;
-        foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanLibrary=null;
+        foreach(var human in humanNpcs)DestroyHuman(human);humanNpcs.Clear();humanLibrary=null;DisposeHumanPhenotypes();
     }
     public void TestHumanView(double distance,bool locked=false){humanCamera.Restore(distance,locked);humanCameraDistance=(float)distance;humanCameraProbeAt=0;UpdateCamera();}
     public int TestHumanCount=>humanNpcs.Count;

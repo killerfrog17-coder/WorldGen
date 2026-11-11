@@ -68,9 +68,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/unity-check.ps1 -Bui
 
 The restore tool uses Python 3.11 or later. The build additionally needs the Unity editor version in `ProjectVersion.txt`,
 its Windows build support, a free activated Unity Personal license and the .NET
-SDK. These tools are installed separately, not uploaded with the game. Every
-player build uses IL2CPP and needs Unity's Windows C++ prerequisites; Mono is
-never an iteration fallback.
+SDK. These tools are installed separately, not uploaded with the game. Routine
+iteration uses normal non-development Mono players. IL2CPP and its Windows C++
+prerequisites are reserved for explicitly requested major release builds.
 
 The existing local TripoSG installation uses permanent paths under `tools` and
 the owner's external AI installations/weights. After moving the checkout, run

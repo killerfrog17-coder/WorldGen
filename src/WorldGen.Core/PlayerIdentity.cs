@@ -62,7 +62,9 @@ namespace WorldGen.Core
                 var residents=planner.Residents(group);
                 var adults=residents.Members.Where(p=>p.AgeYears>=18&&!play.Humans.People.Any(m=>m.Person==p.Id&&(m.Dead||m.Health<=0))).ToArray();
                 if(adults.Length==0)continue;
-                var person=adults[rng.Next(adults.Length)];var activity=planner.Activity(group,residents,person,clock,18,0);
+                var person=adults[rng.Next(adults.Length)];var remembered=play.Humans.People.FirstOrDefault(p=>p.Person==person.Id);
+                if(remembered?.Phenotype!=null){person.Phenotype=remembered.Phenotype.Copy();person.Grooming=remembered.Grooming?.Copy()??person.Grooming;}
+                var activity=planner.Activity(group,residents,person,clock,18,0);
                 var identity=new PlayerIdentity{Group=id,Cohort=residents.Cohort,District=residents.District,Culture=residents.Culture,Language=residents.Language,Belief=residents.Belief,Lineage=residents.Lineage,
                     BandName=residents.Name,CultureName=f.Cultures[residents.Culture].Name,LanguageName=f.Languages[residents.Language].Name,BeliefName=f.Beliefs[residents.Belief].Name,LineageName=f.Lineages[residents.Lineage].Name,
                     Person=person,Family=residents.FamilyRecords,Techniques=residents.Techniques}.Copy();

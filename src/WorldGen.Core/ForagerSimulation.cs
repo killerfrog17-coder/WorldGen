@@ -214,7 +214,7 @@ namespace WorldGen.Core
                 for(int k=8;k<HumanPhenotypes.Count;k++)c.Appearance[k]=HumanPhenotypes.Drift(c.Appearance[k],World.Recipe.Seed,c.Id,year,k,elapsed,c.Population);
                 for(int k=0;k<8;k++)
                 {
-                    double uv=HistoryHumanVariation.UvExposure(district.Center.Z,World.ElevationM[district.Cell],(int)(district.Aridity*1000),(int)(environment[c.District].Canopy*1000));
+                    double uv=HistoryHumanVariation.UvExposure(district.Center.Z,World.ElevationM[district.Cell],(int)Math.Round(district.AnnualRainMm),(int)(environment[c.District].Canopy*1000));
                     c.Appearance[k]=HistoryHumanVariation.Evolve(World.Recipe.Seed,c.Id,year,(HumanAppearanceTrait)k,(int)Math.Round(c.Appearance[k]*10000),elapsed,(long)c.Population,uv,(int)(environment[c.District].MeanC*10),c.Use[14])/10000.0;
                 }
             }

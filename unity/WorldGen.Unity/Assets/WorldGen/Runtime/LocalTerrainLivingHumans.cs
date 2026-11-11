@@ -355,11 +355,12 @@ public sealed partial class LocalTerrainExplorer
         if(!ResolveLivingDryPoint(point,group.Grounded?group.Anchor:group.Situation.Camp.Position,out point))return false;
         TerrainHandoff.Coordinates(frame,point,out double x,out double z);
         double residentFloor=VisibleGround(x,z,double.NaN);if(double.IsNaN(residentFloor))return false;
+        if(memory?.Phenotype!=null){person.Phenotype=memory.Phenotype.Copy();person.Grooming=memory.Grooming?.Copy()??person.Grooming;}
         uint hash=HumanHash(person.Id);int variant=PlayerWorldEntry.Variant(person);
         int id=unchecked((int)(hash&0x3fffffffu))+100000;
         while(humanNpcs.Any(p=>p.Id==id))id++;
         var ageModel=Resources.Load<WorldGenHumanAgeLibrary>("HumanAges/Library")?.Find(humanLibrary.People[variant].Variant,person.AgeYears);
-        var actor=CreateHuman(variant,id,true,ageModel);actor.ResidentId=person.Id;actor.GroupId=group.Situation.Band.Id;actor.Resident=person;actor.Routine=activity;if(AutomaticNpcPose(actor))actor.Graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.GameTime);
+        var actor=CreateHuman(variant,id,true,ageModel,person);actor.ResidentId=person.Id;actor.GroupId=group.Situation.Band.Id;actor.Resident=person;actor.Routine=activity;if(AutomaticNpcPose(actor))actor.Graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.GameTime);
         actor.Root.name=person.Name+" · "+group.Situation.Band.Name;
         actor.Health=memory?.Health??100;actor.Bleeding=memory?.Bleeding?.Copy();
         if(actor.Bleeding!=null)
@@ -374,7 +375,7 @@ public sealed partial class LocalTerrainExplorer
         if(ageModel!=null)
         {
             double heightFactor=person.AgeYears<ageModel.Years?1-(ageModel.Years-person.AgeYears)*.035:1+(person.AgeYears-ageModel.Years)*.018;
-            actor.Root.transform.localScale=Vector3.one*(float)(person.AgeYears<3?.58+.14*person.AgeYears:Math.Max(.78,Math.Min(1.09,heightFactor)));
+            actor.Root.transform.localScale=actor.PhenotypeScale*(float)(person.AgeYears<3?.58+.14*person.AgeYears:Math.Max(.78,Math.Min(1.09,heightFactor)));
         }
         actor.CurrentActivity=activity.Activity;InitializeNpcBelongings(actor,group);livingPeople.Add(person.Id,actor);humanNpcs.Add(actor);return true;
     }
@@ -582,6 +583,7 @@ public sealed partial class LocalTerrainExplorer
         if(memory==null){memory=new HumanPersonMemory{Person=actor.ResidentId,Group=actor.GroupId};LivingState.People.Add(memory);}
         memory.Health=actor.Health;memory.Dead=actor.Health<=0;memory.Position=actor.Planet;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=actor.Bleeding?.Copy();
         memory.Inventory=actor.Belongings;
+        memory.Phenotype??=actor.Resident?.Phenotype?.Copy();memory.Grooming??=actor.Resident?.Grooming?.Copy();
     }
     void CaptureLivingHumans()
     {
@@ -590,6 +592,7 @@ public sealed partial class LocalTerrainExplorer
             var identity=PlayerRules.Identity;var memory=LivingState.People.FirstOrDefault(p=>p.Person==identity.Person.Id);
             if(memory==null){memory=new HumanPersonMemory{Person=identity.Person.Id,Group=identity.Group};LivingState.People.Add(memory);}
             memory.Position=Position;memory.Health=Vitals.Health;memory.Dead=Vitals.Dead;memory.SolarDays=PlayerRules.SolarDays;memory.Bleeding=Vitals.Bleeding?.Copy();
+            memory.Phenotype??=identity.Person.Phenotype?.Copy();memory.Grooming??=identity.Person.Grooming?.Copy();
         }
         foreach(var actor in livingPeople.Values)CaptureLivingPerson(actor);foreach(var group in livingGroups.Values)StoreLivingCamp(group);foreach(var trace in livingTraces.Values)StoreLivingCamp(trace);}
     void DisposeLivingHumans(){DisposeCampClearing();npcInitialSupplyQueue.Clear();npcMaterialAdmission.Clear();npcCampGeometry.Clear();wildlifeHumanNeighbours.Clear();npcAwareness.Clear();livingGroups.Clear();livingPeople.Clear();livingTraces.Clear();livingOrdered=Array.Empty<LivingGroup>();}

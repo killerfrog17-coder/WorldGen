@@ -46,6 +46,10 @@ namespace WorldGen.Core
         {
             double ancestry=lineage.Ancestry.Length>channel%8?lineage.Ancestry[channel%8]:.5;
             double value=.5+(ancestry-.5)*.65+(Unit(seed,"ancestral-form-",lineage.OriginDistrict,channel)-.5)*.45;
+            if(channel==(int)HumanFormTrait.JawWidth)value+=lineage.JawBreadth-.5;
+            if(channel==(int)HumanFormTrait.NoseProjection)value+=(lineage.FaceProjection-.4)*.5;
+            if(channel==(int)HumanFormTrait.BrowRidge)value+=lineage.BrowRidge-.5;
+            if(channel==(int)HumanFormTrait.LimbProportion)value+=lineage.LimbRatio-.5;
             // Red pigmentation is a separate low-frequency axis. It is not
             // prescribed by latitude, skin colour or a modern named ethnicity.
             if(channel==(int)HumanFormTrait.RedHair)value=.06+.14*Unit(seed,"ancestral-red-",lineage.OriginDistrict);
@@ -83,11 +87,11 @@ namespace WorldGen.Core
                 bool hasParents=record.Mother>=0||record.Father>=0;
                 values[k]=D.Q(D.Clamp(hasParents?(Parent(record.Mother,k)+Parent(record.Father,k))*.5+Normal(seed,record.Id,k)*Spread(k)*.55:Parent(record.Id,k)),1000000);
             }
-            double statureMean=lineage.StatureM+(record.Female?-.065:.065);
+            double sizeRatio=lineage.StatureM/1.7,statureMean=lineage.StatureM+(record.Female?-.065:.065)*sizeRatio;
             // Population means vary modestly inside sapiens; species baselines
             // carry the much larger inter-species difference. Nutrition affects
             // realised growth, rather than changing inherited potential.
-            double stature=D.Clamp(statureMean+(values[7]-.5)*.24,lineage.StatureM*.78,lineage.StatureM*1.22);
+            double stature=D.Clamp(statureMean+(values[7]-.5)*.50*sizeRatio,lineage.StatureM*.78,lineage.StatureM*1.22);
             double mass=lineage.AdultMassKg*Math.Pow(stature/Math.Max(.85,lineage.StatureM),2)*(record.Female?.87:1.05)*(.84+.32*values[23]);
             return new HumanPhenotype{People=people?.Id??-1,PeopleName=people?.Name??"",Lineage=lineage.Id,Species=lineage.Name,Traits=values,AdultStatureM=D.Q(D.Clamp(stature,.85,2.35),1000000),AdultMassKg=D.Q(D.Clamp(mass,18,180),1000000)};
         }
