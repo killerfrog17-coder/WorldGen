@@ -23,11 +23,10 @@ namespace WorldGen.Core
                     x/=1+.035*Math.Sin(z*3.2+phase);z/=1+.045*Math.Sin(x*2.7-phase);
                     return Math.Sqrt(x*x+z*z);
                 }
-                // Uneven shoulders and vertical runoff flutes break the old
-                // perfect loaf/cylinder silhouette. All are metre-addressed
-                // through the form's physical axes, with unchanged finite support.
+                // Broad uneven shoulders shape the mass. Fine runoff belongs
+                // in its surface material: a periodic height corrugation here
+                // cut repeated metre-scale teeth into every steep shoulder.
                 double shoulderZ=1+.08*Math.Sin(x*3.7+phase)+.035*Math.Sin(x*10.3+phase*2);
-                shoulderZ-=.009*(.5+.5*Math.Sin(x*145+phase))*Math.Min(1,Math.Pow(Math.Abs(z),4));
                 double shoulderX=1+.065*Math.Sin(z*4.1-phase)+.025*Math.Sin(z*12.1+phase);
                 x=Math.Abs(x/shoulderX);z=Math.Abs(z/shoulderZ);
                 return Blocky?Math.Pow(x*x*x*x+z*z*z*z,.25):Math.Sqrt(x*x+z*z);
@@ -92,6 +91,18 @@ namespace WorldGen.Core
                     foreach(int id in list){if(selected==null)selected=new List<int>();if(!selected.Contains(id))selected.Add(id);}
                 if(selected!=null){selected.Sort();faceCandidates[face]=selected.ToArray();IndexedFaces++;}
             }
+        }
+        public double PresentationRelief(V point,int face)
+        {
+            var candidates=faceCandidates[face];if(candidates==null)return 0;
+            double relief=0;
+            foreach(int index in candidates)
+            {
+                var form=Forms[index];double r=form.Coordinate(point,radius);
+                double wall=OrogenMorphology.Smooth(.40,.70,r)*(1-OrogenMorphology.Smooth(1.02,1.30,r));
+                relief=Math.Max(relief,Math.Min(100,form.HeightM*(form.Dome?.07:.20))*wall);
+            }
+            return relief;
         }
         public double Apply(V point,int face,double ground,out double exposure)
         {

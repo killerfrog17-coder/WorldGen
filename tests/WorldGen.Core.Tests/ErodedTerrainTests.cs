@@ -70,6 +70,25 @@ static class ErodedTerrainTests
         Check(outcrop.Profile(0)==1&&outcrop.Profile(.6)>.9,"A bedrock mass has a domed cap above a steep skirt, not another rolling hill");
         Check(outcrop.Profile(1)==0&&outcrop.Profile(.99999)<1e-9,"Outcrop returns continuously to unmodified ground");
         for(int i=0;i<=1000;i++)Check(double.IsFinite(outcrop.Profile(i/1000d))&&outcrop.Profile(i/1000d)>=0&&outcrop.Profile(i/1000d)<=1,"Finite bounded outcrop profile");
+        // Actual reviewed formation 32126. A wall row should have broad
+        // shoulders, rather than a regular train of small elevation teeth.
+        var reviewed=new BedrockRemnants.Outcrop{Cell=32126,Center=new V(0,1,0),Axis=new V(1,0,0),Side=new V(0,0,1),RadiusX=844.7419971227646,RadiusZ=485.2199934522421,HeightM=420};
+        double Wall(double x)
+        {
+            var at=(reviewed.Center+reviewed.Axis*(x/637100)+reviewed.Side*(reviewed.RadiusZ*.9/637100)).Unit;
+            return reviewed.HeightM*reviewed.Profile(reviewed.Coordinate(at,637100))*reviewed.Cap(at,637100);
+        }
+        int extrema=0;double previousSlope=0,maximumCurvature=0,maximumWall=0;
+        for(int x=-298;x<300;x+=2)
+        {
+            double left=Wall(x-2),here=Wall(x),right=Wall(x+2),slope=(right-here)/2;
+            if(previousSlope*slope<0)extrema++;previousSlope=slope;
+            maximumCurvature=Math.Max(maximumCurvature,Math.Abs(right-2*here+left)/4);
+            maximumWall=Math.Max(maximumWall,here);
+        }
+        Check(extrema<=2&&maximumCurvature<.035,"Actual remnant shoulder has broad continuous shape without periodic fine height corrugations");
+        Check(maximumWall>150,"Removing corrugation preserves the large steep bedrock mass");
+        Console.WriteLine($"Reviewed remnant 32126: lateral extrema {extrema}, maximum curvature {maximumCurvature:F4}/m");
         Check(LandscapeProvince.Describe(sandstone,Biome.Desert,.1,0,120,0,0).Remnant>.5,"Resistant sedimentary desert bedrock can support isolated remnants");
         Check(LandscapeProvince.Describe(sandstone,Biome.Marsh,1,0,120,0,1).Remnant==0,"Wet marshes do not acquire desert monoliths");
         Console.WriteLine($"PASS {checks} eroded terrain checks");

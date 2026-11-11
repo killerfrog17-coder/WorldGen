@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-continuous-valley-119";
+        public const string Version = "local-terrain-continuous-valley-120";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -141,10 +141,23 @@ namespace WorldGen.Core
             if(Amplification==null)return 0;
             for(int k=faceOffsets[nearest];k<faceOffsets[nearest+1];k++)
             {
-                int t=faces[k];V a=profiles[world.Surface.Triangles[t]].Center,b=profiles[world.Surface.Triangles[t+1]].Center,c=profiles[world.Surface.Triangles[t+2]].Center;
+                int t=faces[k],ia=world.Surface.Triangles[t],ib=world.Surface.Triangles[t+1],ic=world.Surface.Triangles[t+2];
+                var pa=profiles[ia];var pb=profiles[ib];var pc=profiles[ic];V a=pa.Center,b=pb.Center,c=pc.Center;
                 double det=V.Dot(a,V.Cross(b,c));
-                if(Math.Min(V.Dot(point,V.Cross(b,c))/det,Math.Min(V.Dot(point,V.Cross(c,a))/det,V.Dot(point,V.Cross(a,b))/det))< -1e-7)continue;
-                return Math.Max(Amplification.Canyons?.PresentationRelief(point,t/3)??0,Amplification.Glaciers?.PresentationRelief(point,t/3)??0);
+                double x=V.Dot(point,V.Cross(b,c))/det,y=V.Dot(point,V.Cross(c,a))/det,z=V.Dot(point,V.Cross(a,b))/det;
+                if(Math.Min(x,Math.Min(y,z))< -1e-7)continue;
+                double sharp=Math.Max(Amplification.Canyons?.PresentationRelief(point,t/3)??0,Amplification.Glaciers?.PresentationRelief(point,t/3)??0);
+                sharp=Math.Max(sharp,Math.Max(Amplification.Remnants.PresentationRelief(point,t/3),Amplification.Fjords.PresentationRelief(point,t/3)));
+                // The same coastal faces as the shore profile need a narrow
+                // scarp allowance even when their broad inland hills are flat.
+                // This uses immutable source fields, never terrain subdivision.
+                double sum=x+y+z;x/=sum;y/=sum;z/=sum;
+                double sea=(world.Hydrology.OceanConnected[ia]?x:0)+(world.Hydrology.OceanConnected[ib]?y:0)+(world.Hydrology.OceanConnected[ic]?z:0);
+                double elevation=pa.ElevationM*x+pb.ElevationM*y+pc.ElevationM*z;
+                double relief=(pa.HillHeightM+pa.MountainHeightM)*x+(pb.HillHeightM+pb.MountainHeightM)*y+(pc.HillHeightM+pc.MountainHeightM)*z;
+                double coast=64*OrogenMorphology.Smooth(0,.025,sea)*OrogenMorphology.Smooth(-160,-10,elevation)
+                    *(1-OrogenMorphology.Smooth(180,500,elevation))*OrogenMorphology.Smooth(60,650,relief);
+                return Math.Max(sharp,coast);
             }
             return 0;
         }

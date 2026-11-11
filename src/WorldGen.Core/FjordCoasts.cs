@@ -164,6 +164,19 @@ namespace WorldGen.Core
             }
             indices=packed.ToArray();
         }
+        public double PresentationRelief(V point,int face)
+        {
+            if(offsets.Length==0)return 0;double relief=0;
+            for(int i=offsets[face];i<offsets[face+1];i++)
+            {
+                var section=Sections[indices[i]];V d=section.B-section.A,p=point-section.A;
+                double along=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));
+                double ratio=(p-d*along).Length*radius/(section.WidthA+(section.WidthB-section.WidthA)*along);
+                double wall=OrogenMorphology.Smooth(.25,.45,ratio)*(1-OrogenMorphology.Smooth(1,1.30,ratio));
+                relief=Math.Max(relief,Math.Min(100,section.Relief*.12)*wall);
+            }
+            return relief;
+        }
         public double Apply(V point,int face,double ground,out double footprint,out double exposure)
         {
             footprint=double.NegativeInfinity;exposure=0;double result=ground;

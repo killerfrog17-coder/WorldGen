@@ -68,8 +68,21 @@ static class TerrainDetailTests
                 var key=new TerrainTileKey(0,0,2,.1);double coarse=localEstimate.Error(key,16),fine=localEstimate.Error(key,64);
                 Check(coarse>fine&&localEstimate.Count==1&&fine==localEstimate.Error(key,64),"Feature detail decreases with refinement and reuses one immutable metadata entry");
             }
+            foreach(var form in terrain.Amplification.Remnants.Forms.OrderByDescending(f=>f.HeightM).Take(3))
+            {
+                var at=(form.Center+form.Side*(form.RadiusZ*.9/(terrain.RadiusM*.1))).Unit;
+                double wall=terrain.SharpPresentationRelief(at,terrain.NearestCell(at));
+                Check(wall>0&&wall<=100,"Indexed bedrock shoulders contribute bounded geometric detail independently of broad regional relief");featureChecks++;
+            }
+            foreach(var section in terrain.Amplification.Fjords.Sections.Take(3))
+            {
+                var center=(section.A+section.B).Unit;var side=V.Cross(center,section.B-section.A).Unit;
+                var at=(center+side*((section.WidthA+section.WidthB)*.375/(terrain.RadiusM*.1))).Unit;
+                double wall=terrain.SharpPresentationRelief(at,terrain.NearestCell(at));
+                Check(wall>0&&wall<=100,"Indexed fjord walls contribute bounded geometric detail");featureChecks++;
+            }
             Check(terrain.Amplification.SubdivisionGroups==groups,"Presentation metadata never constructs local terrain subdivision groups");
-            Console.WriteLine($"Indexed cliff relief: {featureChecks} canyon contexts; no terrain subdivision");
+            Console.WriteLine($"Indexed cliff relief: {featureChecks} canyon, bedrock and fjord contexts; no terrain subdivision");
             var frame=new LocalTerrainFrame(origin,terrain.RadiusM,0,.1);var estimator=new TerrainDetailEstimator(terrain,frame);
             foreach(int q in new[]{0,2,4})
             {
