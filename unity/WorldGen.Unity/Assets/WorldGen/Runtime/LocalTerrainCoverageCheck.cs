@@ -120,10 +120,10 @@ public sealed partial class LocalTerrainExplorer
             var renderer=tile.Root.GetComponent<MeshRenderer>();var mesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;var activeMaterial=renderer.sharedMaterial;
             var text=new System.Text.StringBuilder();var culture=System.Globalization.CultureInfo.InvariantCulture;
             text.AppendLine(label+" frame="+Time.frameCount+" time="+Time.time.ToString("R",culture)+" levelTime="+Time.timeSinceLevelLoad.ToString("R",culture)+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("R",culture)+" delta="+Time.deltaTime.ToString("R",culture));
-            text.AppendLine("tileIn="+tile.FadeIn.ToString("R",culture)+" material="+activeMaterial.GetInstanceID()+" expectedMaterial="+tile.Materials[0].GetInstanceID()+" shader="+activeMaterial.shader.name+" active="+tile.Root.activeInHierarchy+" propertyBlock="+renderer.HasPropertyBlock());
+            text.AppendLine("tileIn="+tile.FadeIn.ToString("R",culture)+" material="+activeMaterial.GetEntityId()+" expectedMaterial="+tile.Materials[0].GetEntityId()+" shader="+activeMaterial.shader.name+" active="+tile.Root.activeInHierarchy+" propertyBlock="+renderer.HasPropertyBlock());
             text.AppendLine("LodFade="+activeMaterial.GetVector("_LodFade").ToString("R")+" transition="+activeMaterial.GetFloat("_TransitionEnabled").ToString("R",culture)+" safety="+activeMaterial.GetFloat("_LodSafetyRadius").ToString("R",culture)+" residentCount="+activeMaterial.GetFloat("_ResidentEdgeCount").ToString("R",culture));
             text.AppendLine("global_Time="+Shader.GetGlobalVector("_Time").ToString("R")+" global_TimeParameters="+Shader.GetGlobalVector("_TimeParameters").ToString("R")+" camera="+camera.transform.position.ToString("R"));
-            var vertices=mesh.vertices;var uv=mesh.uv;text.AppendLine("mesh="+mesh.GetInstanceID()+" vertices="+vertices.Length+" uv="+uv.Length);
+            var vertices=mesh.vertices;var uv=mesh.uv;text.AppendLine("mesh="+mesh.GetEntityId()+" vertices="+vertices.Length+" uv="+uv.Length);
             for(int i=0;i<Math.Min(4,vertices.Length);i++)text.AppendLine("v"+i+"="+vertices[i].ToString("R")+" uv0="+(i<uv.Length?uv[i].ToString("R"):"missing"));
             File.AppendAllText(morphStatePath,text.ToString());
         }
