@@ -411,27 +411,10 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectScatterRoot(ScatterChunk chunk,int i)
     {
-            var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
-            double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);chunk.GroundLevels[i]=level;
-            bool cliff=p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant);
-            if(cliff){y=frame.SurfaceY(p.Position,p.GroundM);chunk.GroundLevels[i]=-1;} // Geological mass, not a root fitted to a coarse terrain triangle.
-            bool herb=IsSpecialist(p.Kind),vertical=cliff||herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
-            V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
-            // An ellipsoidal mesh touching at its bottom point looks levitating.
-            // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
-            var position=new Vector3((float)(x-originX),(float)y-ScatterEmbedding(p),(float)(z-originZ));chunk.Roots[i]=position;
-            var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
-            if(cliff)
-            {
-                var outward=new Vector3((float)V.Dot(p.Normal,frame.East),(float)V.Dot(p.Normal,frame.Origin),(float)V.Dot(p.Normal,frame.North));
-                rotation=Quaternion.LookRotation(outward,normal);
-                // Center the scanned face on the wall and lean its vertical
-                // axis uphill. A radial upright slab protrudes above the hill.
-                position=new Vector3((float)(x-originX),(float)y,(float)(z-originZ))
-                    -(rotation*Vector3.up)*(float)(p.HeightM*.5)-outward*(float)(p.WidthM*.03);
-                chunk.Roots[i]=position;
-            }
-            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
+        var p=chunk.Source.Instances[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
+        double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
+        double y=VisibleGround(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);
+        ProjectScatterRootAt(chunk,i,frame,originX,originZ,x,z,y,level);
     }
     LocalTerrainArtSet.Binding FindScatterBinding(ScatterKind kind)
         =>artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);

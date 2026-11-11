@@ -36,6 +36,7 @@ public sealed partial class LocalTerrainExplorer
                 var key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),level,HorizontalScale);
                 if(!pending.Tiles.TryGetValue(key,out var tile)||tile.Heights==null)continue;
                 groundLevel=level;
+                if(tile.Contact!=null&&tile.Contact.TryHeight(x-key.X*size,z-key.Z*size,out double drawn))return drawn;
                 int n=tile.Segments,side=n+1;
                 double gx=(x/size-key.X)*n,gz=(z/size-key.Z)*n;
                 int a=Math.Min(n-1,Math.Max(0,(int)gx)),b=Math.Min(n-1,Math.Max(0,(int)gz));double u=gx-a,v=gz-b;
@@ -49,15 +50,36 @@ public sealed partial class LocalTerrainExplorer
         {
             var p=source[i];double dot=Math.Max(.1,V.Dot(p.Position,frame.Origin));
             double x=V.Dot(p.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(p.Position,frame.North)*frame.RadiusM/dot;
-            double y=Height(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);chunk.GroundLevels[i]=level;
-            bool herb=IsSpecialist(p.Kind),vertical=herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
-            V up=vertical?p.Position:p.Normal;
-            var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
-            var position=new Vector3((float)(x-ox),(float)y-ScatterEmbedding(p),(float)(z-oz));
-            chunk.Roots[i]=position;var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
-            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
+            double y=Height(x,z,frame.SurfaceY(p.Position,p.GroundM),out int level);
+            ProjectScatterRootAt(chunk,i,frame,ox,oz,x,z,y,level);
         }
         PrepareScatterBounds(chunk,frame);
+    }
+    // Both ordinary placement and hidden chart preparation use exactly the
+    // same root orientation, embedding and canonical cliff placement. Ground
+    // lookup stays with the caller so live placement keeps its owner memo.
+    void ProjectScatterRootAt(ScatterChunk chunk,int i,LocalTerrainFrame projectionFrame,double ox,double oz,double x,double z,double y,int level)
+    {
+        var frame=projectionFrame;var p=chunk.Source.Instances[i];chunk.GroundLevels[i]=level;
+            bool cliff=p.Kind==ScatterKind.Outcrop&&CliffRocks.Is(p.Variant);
+            if(cliff){y=frame.SurfaceY(p.Position,p.GroundM);chunk.GroundLevels[i]=-1;} // Geological mass, not a root fitted to a coarse terrain triangle.
+            bool herb=IsSpecialist(p.Kind),vertical=cliff||herb||p.Kind==ScatterKind.GeneratedTree||p.Kind==ScatterKind.MidPlant||p.Kind==ScatterKind.Broadleaf||p.Kind==ScatterKind.Conifer||p.Kind==ScatterKind.SavannaTree;
+            V up=vertical?p.Position:p.Normal;var normal=new Vector3((float)V.Dot(up,frame.East),(float)V.Dot(up,frame.Origin),(float)V.Dot(up,frame.North)).normalized;
+            // An ellipsoidal mesh touching at its bottom point looks levitating.
+            // Embed its broad lower body; outcrops are bedrock, not balanced eggs.
+            var position=new Vector3((float)(x-ox),(float)y-ScatterEmbedding(p),(float)(z-oz));chunk.Roots[i]=position;
+            var rotation=Quaternion.FromToRotation(Vector3.up,normal)*Quaternion.Euler(0,(float)p.YawDegrees,0);
+            if(cliff)
+            {
+                var outward=new Vector3((float)V.Dot(p.Normal,frame.East),(float)V.Dot(p.Normal,frame.Origin),(float)V.Dot(p.Normal,frame.North));
+                rotation=Quaternion.LookRotation(outward,normal);
+                // Center the scanned face on the wall and lean its vertical
+                // axis uphill. A radial upright slab protrudes above the hill.
+                position=new Vector3((float)(x-ox),(float)y,(float)(z-oz))
+                    -(rotation*Vector3.up)*(float)(p.HeightM*.5)-outward*(float)(p.WidthM*.03);
+                chunk.Roots[i]=position;
+            }
+            chunk.Matrices[i]=Matrix4x4.TRS(position,rotation,ScatterScale(p));
     }
     void AdoptScatterFrame(PreparedFrame pending,bool preparedGround)
     {
@@ -76,9 +98,11 @@ public sealed partial class LocalTerrainExplorer
                 pair.Value.GroundLevels=prepared.GroundLevels;
                 pair.Value.Groups=prepared.Groups;pair.Value.GroupsFrame=prepared.GroupsFrame;
                 pair.Value.RangeValid=false; // Cached bins reference the previous chart's group objects.
+                pair.Value.RootRevision++; // Existing Burst buffers must adopt the new chart too.
             }
             else ProjectScatter(pair.Value);
         }
+        if(preparedGround)canopySourceRevision++;
         scatterGroundChanges.Clear();projectedGroundRevision=scatterGroundRevision;scatterDirty=true;
     }
     public double TestPreparedScatterError()
