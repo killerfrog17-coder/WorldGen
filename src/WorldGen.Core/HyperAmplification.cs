@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-channel-domain-profiles-96";
+        public const string Version = "hyper-amplification-channel-domain-profiles-99";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -255,7 +255,7 @@ namespace WorldGen.Core
                 heights[i] = world.ElevationM[i];
                 int body = i < hydro.WaterBody.Length ? hydro.WaterBody[i] : -1;
                 if (body >= 0 && body < hydro.Waters.Length && hydro.LakeCoverageFraction[i] > .5)
-                    heights[i] = Math.Min(heights[i], hydro.Waters[body].SurfaceElevationM - 2);
+                    heights[i] = Math.Min(heights[i], StandingLakeLevel(hydro.Waters[body]) - 2);
             }
             // Preserve source drainage connectivity, but do not fill valley floors
             // up to spill heights. The derived channel ceiling only cuts the base.
@@ -277,10 +277,10 @@ namespace WorldGen.Core
                 if(river&&world.ElevationM[i]>=0)bed=Math.Max(.02,bed);
                 nodes[i] = new RootVertexData { Key = Mix((ulong)(uint)seed << 32 | (uint)i), Position = world.Surface.Cells[i].Position,BasinFloor=double.NegativeInfinity,
                     Type = ocean ? Kind.Ocean : lake ? Kind.Lake : river ? Kind.River : Kind.Terrain,
-                    Height = bed, Water = ocean ? 0 : lake ? hydro.Waters[body].SurfaceElevationM : bed + depth,
+                    Height = bed, Water = ocean ? 0 : lake ? StandingLakeLevel(hydro.Waters[body]) : bed + depth,
                     RiverBed = bed, Distance = ocean || lake || river ? 0 : Math.Sqrt(world.Surface.Cells[i].AreaM2) * scale,
                     Flow = flows[i], Crust = p.ElevationM, Mountain = p.MountainHeightM, Hill = p.HillHeightM,
-                    LakeKey=lake?(ulong)(uint)(body+1):0,LakeLevel=lake?hydro.Waters[body].SurfaceElevationM:0,LakeWeight=lake?1:0,
+                    LakeKey=lake?(ulong)(uint)(body+1):0,LakeLevel=lake?StandingLakeLevel(hydro.Waters[body]):0,LakeWeight=lake?1:0,
                     SeaWeight=ocean?1:0,
                     ChannelKey=Mix(((ulong)(uint)seed<<32)^(uint)i^0x72546e43UL),
                     Plateau = p.Plateau, Sediment = p.Sediment,
@@ -295,13 +295,19 @@ namespace WorldGen.Core
             {
                 int i = hydro.VisitOrder[k], r = hydro.Receiver[i];
                 if (r < 0 || nodes[i].Type != Kind.River || !nodes[r].Wet) continue;
-                double floor=nodes[r].Water;
+                double floor=nodes[r].LakeKey!=0?nodes[r].LakeLevel:nodes[r].Water;
                 nodes[i].Water=Math.Max(nodes[i].Water,floor);
                 nodes[i].Height=nodes[i].RiverBed=nodes[i].Water-Depth(flows[i]);
                 // A supplied lake can inundate a below-surface tributary control;
                 // this is standing water, not a raised river suspended over it.
                 if(nodes[r].LakeKey!=0&&floor>nodes[i].Crust)
-                {nodes[i].Type=Kind.Lake;nodes[i].LakeKey=nodes[r].LakeKey;nodes[i].LakeLevel=floor;nodes[i].LakeWeight=1;}
+                {
+                    nodes[i].Type=Kind.Lake;nodes[i].LakeKey=nodes[r].LakeKey;nodes[i].Water=nodes[i].LakeLevel=floor;nodes[i].LakeWeight=1;
+                    // An inundated tributary is now standing lake water. Its
+                    // old independent river potential must not become the
+                    // receiving lake level of the next upstream control.
+                    nodes[i].Height=nodes[i].RiverBed=Math.Min(nodes[i].Height,floor-Depth(flows[i]));
+                }
             }
             nodeChannels=new int[count];nodeRivers=new int[count];
             for(int i=0;i<count;i++)nodeChannels[i]=nodeRivers[i]=-1;

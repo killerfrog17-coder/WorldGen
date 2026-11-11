@@ -16,6 +16,10 @@ namespace WorldGen.Core
         public int RejectedLakeBasins {get;private set;}
         public int LakeBasinFaces {get;private set;}
         public double LakeBasinPreparationMilliseconds {get;private set;}
+        // An enclosed basin can lie below sea level. An open catalog lake
+        // draining to the ocean cannot maintain a negative downstream head;
+        // its local standing control shares the receiving sea backwater.
+        static double StandingLakeLevel(WaterBody body)=>body.Endorheic?body.SurfaceElevationM:Math.Max(0,body.SurfaceElevationM);
 
         // Once per derived terrain, not per history tick or streamed vertex.
         // Connected sublevel components use actual control beds. Dry perimeter
@@ -28,7 +32,7 @@ namespace WorldGen.Core
             lakeFaces=new int[roots.Length];rimLevels=new double[roots.Length];lakeLevels=new double[waters.Length];
             for(int i=0;i<roots.Length;i++){lakeFaces[i]=-1;rimLevels[i]=double.NaN;}
             var seeds=new List<int>[waters.Length];
-            for(int i=0;i<waters.Length;i++)lakeLevels[i]=waters[i].SurfaceElevationM;
+            for(int i=0;i<waters.Length;i++)lakeLevels[i]=StandingLakeLevel(waters[i]);
             for(int face=0;face<roots.Length;face++)
             {
                 var f=roots[face];int first=-1,second=-1;
@@ -136,9 +140,10 @@ namespace WorldGen.Core
                 if(body.Endorheic||cell<0||cell>=rootNodes.Length||body.DownstreamCell<0)continue;
                 ref var node=ref rootNodes[cell];if(node.Type==Kind.Ocean)continue;
                 if(node.Type==Kind.Lake&&node.LakeKey!=(ulong)(uint)(id+1))continue;
-                if(lakeOutletOwners[cell]>=0&&Math.Abs(rootNodes[cell].Water-body.SurfaceElevationM)>.001)continue;
+                double level=lakeLevels[id];
+                if(lakeOutletOwners[cell]>=0&&Math.Abs(rootNodes[cell].Water-level)>.001)continue;
                 lakeOutletOwners[cell]=id;
-                node.Water=body.SurfaceElevationM;
+                node.Water=level;
                 // This is the pre-incision spill lip. The local paired river
                 // section excavates its actual scaled depth ONCE afterwards.
                 // Subtracting the old unscaled channel depth here leaves a
