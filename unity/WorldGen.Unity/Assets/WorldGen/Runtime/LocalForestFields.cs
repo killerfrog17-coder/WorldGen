@@ -387,6 +387,17 @@ public sealed partial class LocalTerrainExplorer
     void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)
     {
         double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
+        Tile tile=null;TerrainTileKey key=default;
+        if(Math.Abs(root.Padding)>1.5f&&groundLevel<17)
+        {
+            double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<groundLevel);
+            key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),groundLevel,HorizontalScale);
+            tiles.TryGetValue(key,out tile);
+        }
+        ApplyForestRootGround(ref root,y,groundLevel,tile,key);
+    }
+    static void ApplyForestRootGround(ref ForestRoot root,double y,int groundLevel,Tile tile,TerrainTileKey key)
+    {
         root.Position.y=(float)y-.045f;
         bool macro=Math.Abs(root.Padding)>1.5f;
         float footprint=macro?Math.Max(2,Math.Abs(root.Padding)):0;
@@ -396,12 +407,9 @@ public sealed partial class LocalTerrainExplorer
             // Terrain already carries ecological admission, including water,
             // exposed cliffs and treeline. Read that grid instead of running
             // more exact tree/soil/height queries for a distant preview.
-            double unit=TerrainLod.BaseSizeM*HorizontalScale;var address=new Vector2Int((int)Math.Floor(x/unit),(int)Math.Floor(z/unit));
-            Tile tile;TerrainTileKey key;
-            if(visibleGroundOwners.TryGetValue(address,out var owner)){tile=owner.Value;key=owner.Key;}
-            else tile=VisibleGroundOwner(x,z,out key);
             if(tile!=null&&tile.ForestCover.IsCreated)
             {
+                double x=root.Position.x,z=root.Position.z;
                 int side=tile.Segments+1,gx=Mathf.Clamp((int)Math.Round((x/key.SizeM-key.X)*tile.Segments),0,tile.Segments),gz=Mathf.Clamp((int)Math.Round((z/key.SizeM-key.Z)*tile.Segments),0,tile.Segments);
                 if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=-footprint;
             }

@@ -134,10 +134,22 @@ public sealed partial class LocalTerrainExplorer
         return false;
     }
     double PublicationGround(GroundPublication plan,double x,double z,double fallback,out int level)
+        =>PublicationGround(plan,x,z,fallback,out level,out _,out _);
+    double PublicationGround(GroundPublication plan,double x,double z,double fallback,out int level,out Tile tile,out TerrainTileKey key)
     {
         double current=VisibleGround(x,z,fallback,out level),size=plan.Key.SizeM;
-        if(plan.Key.Level>level||(int)Math.Floor(x/size)!=plan.Key.X||(int)Math.Floor(z/size)!=plan.Key.Z)return current;
-        var key=plan.Key;var tile=plan.Product;
+        key=default;tile=null;
+        if(plan.Key.Level>level||(int)Math.Floor(x/size)!=plan.Key.X||(int)Math.Floor(z/size)!=plan.Key.Z)
+        {
+            if(level<17)
+            {
+                double currentSize=TerrainLod.BaseSizeM*HorizontalScale*(1<<level);
+                key=new TerrainTileKey((int)Math.Floor(x/currentSize),(int)Math.Floor(z/currentSize),level,HorizontalScale);
+                tiles.TryGetValue(key,out tile);
+            }
+            return current;
+        }
+        key=plan.Key;tile=plan.Product;
         if(plan.Retiring)
         {
             tile=null;
@@ -210,20 +222,12 @@ public sealed partial class LocalTerrainExplorer
             var bounds=field.Bounds;bool changed=false;
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {
-                var root=pair.Key.Data[slot];double margin=root.Padding==0?.01:Math.Max(2,root.Width*.5)+.01;
-                if(PublicationChanges(plan,root.Position.x,root.Position.z,margin,pair.Key.GroundLevels[slot]))
+                var root=pair.Key.Data[slot];
+                if(PublicationChanges(plan,root.Position.x,root.Position.z,.01,pair.Key.GroundLevels[slot]))
                 {
-                    var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level);
-                    root.Position.y=(float)y-.045f;
-                    if(root.Padding==0)root.SlopeX=root.SlopeZ=0;
-                    else
-                    {
-                        double step=Math.Max(2,root.Width*.5);
-                        root.SlopeX=(float)Math.Max(-2,Math.Min(2,(PublicationGround(plan,x+step,z,y,out int a)-PublicationGround(plan,x-step,z,y,out int b))/(2*step)));
-                        root.SlopeZ=(float)Math.Max(-2,Math.Min(2,(PublicationGround(plan,x,z+step,y,out int c)-PublicationGround(plan,x,z-step,y,out int d))/(2*step)));
-                        level=Math.Max(level,Math.Max(Math.Max(a,b),Math.Max(c,d)));
-                    }
-                    bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ;
+                    var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level,out Tile owner,out TerrainTileKey ownerKey);
+                    ApplyForestRootGround(ref root,y,level,owner,ownerKey);
+                    bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding;
                     plan.Roots.Add(new ForestGroundEdit{Batch=pair.Key,Slot=slot,Level=level,Root=root,Changed=moved});
                     if(moved){bounds.Encapsulate(ForestRootBounds(root));changed=true;}
                 }
