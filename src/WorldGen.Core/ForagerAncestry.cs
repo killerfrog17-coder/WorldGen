@@ -49,13 +49,13 @@ namespace WorldGen.Core
                 double aShare=number/pair.a.Population,bShare=number/pair.b.Population;
                 for(int i=0;i<f.Lineages.Length;i++)
                 {double difference=genes[pair.b.Id][i]-genes[pair.a.Id][i];pair.a.Admixture[i]+=aShare*difference;pair.b.Admixture[i]-=bShare*difference;}
-                for(int i=0;i<8;i++)
+                for(int i=0;i<Math.Min(pair.a.Appearance.Length,pair.b.Appearance.Length);i++)
                 {double difference=appearance[pair.b.Id][i]-appearance[pair.a.Id][i];pair.a.Appearance[i]+=aShare*difference;pair.b.Appearance[i]-=bShare*difference;}
             }
             foreach(var c in live.Values)
             {
                 double sum=c.Admixture.Sum();for(int k=0;k<c.Admixture.Length;k++)c.Admixture[k]=D.Q(D.Clamp(c.Admixture[k]/Math.Max(.000001,sum)),1000000000);
-                for(int k=0;k<8;k++)c.Appearance[k]=D.Q(D.Clamp(c.Appearance[k]),1000000000);
+                for(int k=0;k<c.Appearance.Length;k++)c.Appearance[k]=D.Q(D.Clamp(c.Appearance[k]),1000000000);
             }
         }
     }

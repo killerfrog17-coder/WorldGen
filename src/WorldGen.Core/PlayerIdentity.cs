@@ -22,6 +22,7 @@ namespace WorldGen.Core
         public static ForagerPersonSample CopyPerson(ForagerPersonSample p)=>p==null?null:new ForagerPersonSample{
             Id=p.Id,Household=p.Household,Mother=p.Mother,Father=p.Father,Partner=p.Partner,Name=LanguageGenerator.Capitalize(p.Name),Role=p.Role,Female=p.Female,
             AgeYears=p.AgeYears,BirthYear=p.BirthYear,DeathYear=p.DeathYear,Appearance=(double[])p.Appearance.Clone(),Knowledge=(double[])p.Knowledge.Clone(),Skills=(double[])p.Skills.Clone(),
+            Phenotype=p.Phenotype?.Copy(),Grooming=p.Grooming?.Copy(),
             Languages=p.Languages.Select(l=>new ForagerLanguageKnowledge{Language=l.Language,Fluency=l.Fluency,Native=l.Native}).ToArray()};
         public void Validate()
         {
@@ -29,6 +30,7 @@ namespace WorldGen.Core
                 Person.Appearance==null||Person.Knowledge==null||Person.Skills==null||Person.Languages==null||!double.IsFinite(Person.AgeYears)||Person.AgeYears<18)
                 throw new ArgumentException("Invalid controlled resident identity.");
             Person.Name=LanguageGenerator.Capitalize(Person.Name);
+            Person.Phenotype?.Validate();
         }
     }
     public sealed class ResidentEntry
@@ -37,8 +39,10 @@ namespace WorldGen.Core
     {
         public static int Variant(ForagerPersonSample person)
         {
-            double pigment=person.Appearance.Length>0?person.Appearance[0]:.5,curl=person.Appearance.Length>3?person.Appearance[3]:.5;
-            return person.Female?pigment>.62&&curl>.48?0:pigment<.38?2:4:person.AgeYears>55&&pigment<.55?5:pigment>.5?3:1;
+            // A rig/build choice, not a pigmentation or ethnicity lookup.
+            double build=person.Phenotype?.Trait(HumanFormTrait.Build)??.5;
+            int frame=build<.36?0:build>.66?2:1;
+            return frame*2+(person.Female?0:1);
         }
         public static ResidentEntry RandomResident(World world,PlaySession play,int seed)
         {

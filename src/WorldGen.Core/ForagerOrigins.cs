@@ -73,7 +73,9 @@ namespace WorldGen.Core
                 var ancestor=parent>=0?lineages[parent]:null;
                 double Noise(string trait)=>Rng.Value(World.Recipe.Seed,"hominin-"+trait,d.Id)-.5;
                 double compact=D.Clamp(.5+(12-d.MeanC)/55+Noise("body")*.2);
-                double island=state.Districts.Where(x=>x.Realm==d.Realm).Sum(x=>x.AreaKm2)<50000?.85:1;
+                double islandArea=state.Districts.Where(x=>x.Realm==d.Realm).Sum(x=>x.AreaKm2);
+                bool smallIsolated=i>0&&islandArea<50000&&ancestral.costs[d.Id]>1800000&&d.MeanC>12;
+                double island=smallIsolated?.48+.16*Rng.Value(World.Recipe.Seed,"lineage-island-body",d.Id):1;
                 var profile=LanguageGenerator.Create(World.Recipe.Seed^0x47213,i,0);
                 string root=LanguageGenerator.Word(profile,"land").Text.Replace(" ","").ToLowerInvariant();
                 var l=new HomininLineage{Id=i,Parent=parent,OriginDistrict=d.Id,AncestorOrigin=originDistrict,PlayerSpecies=i==0,Sapient=i==0,
@@ -131,7 +133,7 @@ namespace WorldGen.Core
             }
             else c.Identity=parent.Identity;
             if(parent!=null)
-            {c.Knowledge=(double[])parent.Knowledge.Clone();c.Skill=(double[])parent.Skill.Clone();c.Use=(double[])parent.Use.Clone();c.Appearance=(double[])parent.Appearance.Clone();c.Admixture=(double[])parent.Admixture.Clone();}
+            {c.Knowledge=(double[])parent.Knowledge.Clone();c.Skill=(double[])parent.Skill.Clone();c.Use=(double[])parent.Use.Clone();c.Appearance=(double[])HumanPhenotypes.Complete(parent.Appearance,World.Recipe.Seed,state.Lineages[parent.Lineage],parent.District).Clone();c.Admixture=(double[])parent.Admixture.Clone();}
             else
             {
                 var environment=ForagerEcology.At(World.Recipe.Seed,d,0,World.ElevationM[d.Cell]);
@@ -146,7 +148,7 @@ namespace WorldGen.Core
                     }
                 }
                 double uv=HistoryHumanVariation.UvExposure(d.Center.Z,World.ElevationM[d.Cell],(int)(d.Aridity*1000), (int)(d.Canopy*1000));
-                for(int k=0;k<8;k++)c.Appearance[k]=HistoryHumanVariation.FounderValue(World.Recipe.Seed,d.Id,(HumanAppearanceTrait)k,uv,(int)(d.MeanC*10))/10000.0;
+                for(int k=0;k<HumanPhenotypes.Count;k++)c.Appearance[k]=k<8?HistoryHumanVariation.FounderValue(World.Recipe.Seed,d.Id,(HumanAppearanceTrait)k,uv,(int)(d.MeanC*10))/10000.0:HumanPhenotypes.Founder(World.Recipe.Seed,state.Lineages[lineage],d.Id,k);
             }
             c.FirstKnownYear=c.Knowledge.Select(v=>v>=.2?year:-1).ToArray();c.FirstSkilledYear=c.Skill.Select(v=>v>=.5?year:-1).ToArray();c.LastLossYear=Enumerable.Repeat(-1,ForagerTechnology.Count).ToArray();
             c.TeachingFrom=new double[ForagerTechnology.Count*2];

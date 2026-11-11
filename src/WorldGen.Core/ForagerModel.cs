@@ -124,7 +124,7 @@ namespace WorldGen.Core
         public int[] FirstKnownYear=Array.Empty<int>(),FirstSkilledYear=Array.Empty<int>(),LastLossYear=Array.Empty<int>();
         // Saved per-technique expertise/access blocks; see TeacherContext.
         public double[] TeachingFrom=Array.Empty<double>();public double ContactTeaching,TeachingAdults;
-        public double[] Diet=new double[5],Appearance=new double[8],Admixture=Array.Empty<double>();
+        public double[] Diet=new double[5],Appearance=new double[HumanPhenotypes.Count],Admixture=Array.Empty<double>();
         public long ShockStart,ShockEnd;
         [NonSerialized] internal double[] TribalAccess;
         internal ForagerCohort TechnologyView(double[] known,double[] makers,double[] use,double[] access)
@@ -195,7 +195,7 @@ namespace WorldGen.Core
     // host persists identities/edits for bands it actually instantiates.
     public sealed class ForagerBandSample
     {
-        public long Id;public int Cohort,District,Lineage,Culture,Language,Belief;
+        public long Id;public int Cohort,District,Lineage,Culture,Language,Belief,PeopleIdentity=-1;
         public string Name="";public V Home,Position;public int People;
         public double HomeRangeKm,MoveFrequencyPerYear,Aggregation,FoodSecurity,Hospitality;
         public ForagerResidence Residence;
@@ -221,6 +221,8 @@ namespace WorldGen.Core
         public long Id,Household,Mother=-1,Father=-1,Partner=-1;
         public string Name="",Role="";public bool Female;public double AgeYears,BirthYear,DeathYear;
         public double[] Appearance=Array.Empty<double>(),Knowledge=Array.Empty<double>(),Skills=Array.Empty<double>();
+        public HumanPhenotype Phenotype;
+        public HumanGrooming Grooming;
         public ForagerLanguageKnowledge[] Languages=Array.Empty<ForagerLanguageKnowledge>();
     }
     public sealed class ForagerCampSample

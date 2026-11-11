@@ -108,7 +108,7 @@ namespace WorldGen.Core
             bool Finite(double[] a,int count)=>a!=null&&a.Length==count&&a.All(x=>double.IsFinite(x)&&x>=0);
             foreach(var c in f.Cohorts)
             {
-                if(c.District<0||c.District>=f.Districts.Length||c.Lineage<0||c.Lineage>=f.Lineages.Length||c.Culture<0||c.Culture>=f.Cultures.Length||c.Identity<0||c.Identity>=f.Peoples.Length||c.Language<0||c.Language>=f.Languages.Length||c.Belief<0||c.Belief>=f.Beliefs.Length||!Finite(c.Ages,5)||!Finite(c.Knowledge,ForagerTechnology.Count)||!Finite(c.Skill,ForagerTechnology.Count)||!Finite(c.Use,ForagerTechnology.Count)||!Finite(c.Appearance,8)||!Finite(c.Admixture,f.Lineages.Length)||Math.Abs(c.Ages.Sum()-c.Population)>.00001)throw new ArgumentException("Invalid foraging population/cohort.");
+                if(c.District<0||c.District>=f.Districts.Length||c.Lineage<0||c.Lineage>=f.Lineages.Length||c.Culture<0||c.Culture>=f.Cultures.Length||c.Identity<0||c.Identity>=f.Peoples.Length||c.Language<0||c.Language>=f.Languages.Length||c.Belief<0||c.Belief>=f.Beliefs.Length||!Finite(c.Ages,5)||!Finite(c.Knowledge,ForagerTechnology.Count)||!Finite(c.Skill,ForagerTechnology.Count)||!Finite(c.Use,ForagerTechnology.Count)||!(Finite(c.Appearance,8)||Finite(c.Appearance,HumanPhenotypes.Count))||!Finite(c.Admixture,f.Lineages.Length)||Math.Abs(c.Ages.Sum()-c.Population)>.00001)throw new ArgumentException("Invalid foraging population/cohort.");
             }
             // Extinct resident records remain in the genealogy. Recolonisation
             // can found a new community. Shared heritage or species does not

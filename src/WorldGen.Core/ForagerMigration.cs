@@ -75,7 +75,9 @@ namespace WorldGen.Core
                 double number=Math.Min(move.people,source.Population*.18),old=receiver.Population,total=old+number;if(number<=0)continue;
                 for(int k=0;k<f.Lineages.Length;k++)f.SpeciesShares[receiver.District*f.Lineages.Length+k]=(f.SpeciesShare(receiver,k)*old+f.SpeciesShare(source,k)*number)/total;
                 for(int k=0;k<ForagerTechnology.Count;k++){receiver.Knowledge[k]=(receiver.Knowledge[k]*old+source.Knowledge[k]*number)/total;receiver.Skill[k]=(receiver.Skill[k]*old+source.Skill[k]*number)/total;receiver.Use[k]=(receiver.Use[k]*old+source.Use[k]*number)/total;}
-                for(int k=0;k<8;k++)receiver.Appearance[k]=(receiver.Appearance[k]*old+source.Appearance[k]*number)/total;
+                receiver.Appearance=HumanPhenotypes.Complete(receiver.Appearance,World.Recipe.Seed,f.Lineages[receiver.Lineage],receiver.District);
+                source.Appearance=HumanPhenotypes.Complete(source.Appearance,World.Recipe.Seed,f.Lineages[source.Lineage],source.District);
+                for(int k=0;k<HumanPhenotypes.Count;k++)receiver.Appearance[k]=(receiver.Appearance[k]*old+source.Appearance[k]*number)/total;
                 for(int k=0;k<receiver.Admixture.Length;k++)receiver.Admixture[k]=(receiver.Admixture[k]*old+source.Admixture[k]*number)/total;
                 receiver.Speech=ForagerAffiliations.Blend(receiver.Speech,old,source.Speech,number);
                 receiver.Traditions=ForagerAffiliations.Blend(receiver.Traditions,old,source.Traditions,number);

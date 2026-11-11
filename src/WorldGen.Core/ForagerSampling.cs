@@ -104,7 +104,7 @@ namespace WorldGen.Core
         {
             if(!Foraging(s)||ordinal<0)return null;var f=s.Foragers;var c=ForagerResident(f,cohortId);
             if(c==null)return null;c=ForagerAdoption.Project(f,c);int count=ForagerBandCount(s,c);if(ordinal>=count)return null;
-            var band=ForagerBandLayout(s,c,ordinal,count);var d=f.Districts[c.District];double years=f.Seconds/(double)SimulationTime.Year;
+            var band=ForagerBandLayout(s,c,ordinal,count);band.PeopleIdentity=c.Identity;var d=f.Districts[c.District];double years=f.Seconds/(double)SimulationTime.Year;
             int key=unchecked(c.Id*104729+ordinal*7919);
             double speciesDraw=Rng.Value(World.Recipe.Seed,"regional-band-species",key),speciesCumulative=0;
             for(int k=0;k<f.Lineages.Length;k++){speciesCumulative+=f.SpeciesShare(c,k);if(speciesDraw<speciesCumulative){band.Lineage=k;break;}}
@@ -151,7 +151,7 @@ namespace WorldGen.Core
                 (6+7*d.Seasonality[0]+6*(1-D.Clamp(c.FoodSecurity)))*(.55+1.15*moveRank);
             if(culture.Residence==ForagerResidence.ResidentialMobility&&d.MeanC>18&&d.Canopy>.55&&moveRank>.7)moves+=20*(moveRank-.7)/.3;
             moves=Math.Max(2,Math.Min(40,Math.Round(moves)));
-            var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,Home=home.position,People=people,
+            var band=new ForagerBandSample{Id=id,Cohort=c.Id,District=d.Id,Lineage=c.Lineage,Culture=c.Culture,Language=c.Language,Belief=c.Belief,PeopleIdentity=c.Identity,Home=home.position,People=people,
                 Name=culture.Name+" · "+LanguageGenerator.WordWithRootSeed(f.Languages[c.Language].Sounds,"home",key).Text,
                 HomeRangeKm=range,MoveFrequencyPerYear=moves,
                 Aggregation=D.Clamp(.2+.35*(d.Coast+d.River)+.25*c.Connectivity),FoodSecurity=c.FoodSecurity,Hospitality=culture.GuestAccess,Residence=culture.Residence,Techniques=new bool[ForagerTechnology.Count]};
@@ -276,6 +276,9 @@ namespace WorldGen.Core
                 }
                 person.Languages=languages.ToArray();
                 for(int k=0;k<8;k++)person.Appearance[k]=D.Clamp(c.Appearance[k]+(Rng.Value(World.Recipe.Seed,"household-appearance-"+k,(int)record.Household)-.5)*.12+(Rng.Value(World.Recipe.Seed,"individual-appearance-"+k,(int)id)-.5)*.08);
+                person.Phenotype=HumanPhenotypes.Sample(World.Recipe.Seed,c,f.Lineages[band.Lineage],f.Peoples[c.Identity],record,records);
+                person.Appearance=person.Phenotype.Traits.Take(8).ToArray();
+                person.Grooming=HumanPhenotypes.Grooming(World.Recipe.Seed,f.Cultures[band.Culture],record,age,person.Appearance[3]);
                 double apprenticeship=D.Clamp((age-5)/18);
                 void Skilled(int technique,double proficiency)
                 {

@@ -1,0 +1,42 @@
+{
+  "status": "In progress; core inheritance tested, visuals not accepted",
+  "scope": [
+    "Inherited biological variation, individual and regional",
+    "Species size and morphology distinct from peoples/culture",
+    "Cultural hairstyles and personal grooming",
+    "Persistent people identity independent of political ownership",
+    "No character creation menu"
+  ],
+  "research": [
+    {
+      "url": "https://www.pnas.org/doi/10.1073/pnas.0914628107",
+      "application": "UV-related pigmentation selection, not a temperature-to-race lookup; diet and migration matter."
+    },
+    {
+      "url": "https://medlineplus.gov/genetics/understanding/traits/eyecolor/",
+      "application": "Continuous polygenic iris pigmentation; no single eye-colour gene or fixed skin/eye package."
+    },
+    {
+      "url": "https://medlineplus.gov/genetics/understanding/traits/height/",
+      "application": "Polygenic stature plus growth conditions; population means and individual ranges must remain separate."
+    },
+    {
+      "url": "https://www.nature.com/articles/nature17993",
+      "application": "Migration and population turnover; modern continental appearance packages are not timeless Paleolithic presets."
+    },
+    {
+      "url": "https://humanorigins.si.edu/evidence/human-fossils/species/homo-floresiensis",
+      "application": "Small-bodied human species baseline; no 1m ordinary sapiens ethnic-group mean."
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3575602/",
+      "application": "Hair morphology inheritance; avoid attributing every visible trait to one simple environmental adaptation."
+    }
+  ],
+  "limits": [
+    "No asserted wind/plateau cause for eyelid morphology. Eyelid folds are ancestry/individual morph variation.",
+    "Stochastic game distributions are plausible procedural parameters, not a reconstruction of named present-day peoples."
+  ],
+  "core_controls": 5810,
+  "visual_controls": null
+}

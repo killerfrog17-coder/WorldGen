@@ -210,6 +210,8 @@ namespace WorldGen.Core
                     foreach(var local in c.Speech.Where(x=>x.Share>.05))
                     {if(!languageContacts.TryGetValue(local.Id,out var list))languageContacts[local.Id]=list=new HashSet<int>();foreach(var other in contact.people.Speech.Where(x=>x.Share>.05))list.Add(other.Id);}
                 }
+                c.Appearance=HumanPhenotypes.Complete(c.Appearance,World.Recipe.Seed,f.Lineages[c.Lineage],c.District);
+                for(int k=8;k<HumanPhenotypes.Count;k++)c.Appearance[k]=HumanPhenotypes.Drift(c.Appearance[k],World.Recipe.Seed,c.Id,year,k,elapsed,c.Population);
                 for(int k=0;k<8;k++)
                 {
                     double uv=HistoryHumanVariation.UvExposure(district.Center.Z,World.ElevationM[district.Cell],(int)(district.Aridity*1000),(int)(environment[c.District].Canopy*1000));
