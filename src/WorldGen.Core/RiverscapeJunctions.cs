@@ -66,7 +66,8 @@ namespace WorldGen.Core
                     {
                         int other=riverIncidents[incident],source=riverReceivers[other]==node?other:node,target=riverReceivers[source];
                         bool incoming=target==node;if(through&&!incoming)continue;
-                        var points=RiverscapeKernel.InsertJunctionCollars(RiverPlanPoints(source),physical,source==node?collar:0,target==node?collar:0);
+                        var original=RiverPlanPoints(source);var points=RiverscapeKernel.InsertJunctionCollars(original,physical,source==node?collar:0,target==node?collar:0);
+                        var sides=RiverscapeKernel.SectionSides(original,points,ThroughRiverNode(source)?RiverNodeTangent(source):(V?)null,ThroughRiverNode(target)?RiverNodeTangent(target):(V?)null);
                         int n=points.Length-1;RiverDimensions(source,points,out var widths,out _);
                         for(int j=0;j<n;j++)
                         {
@@ -77,8 +78,7 @@ namespace WorldGen.Core
                             // upstream low banks. Outgoing reaches can descend
                             // freely, so only their true shared collar is fit.
                             if(!incoming&&Math.Min(da,db)>collar+.01)continue;
-                            V sideA=V.Cross(points[j],j==0&&ThroughRiverNode(source)?RiverNodeTangent(source):(points[Math.Min(n,j+1)]-points[Math.Max(0,j-1)]).Unit).Unit;
-                            V sideB=V.Cross(points[j+1],j==n-1&&ThroughRiverNode(target)?RiverNodeTangent(target):(points[Math.Min(n,j+2)]-points[j]).Unit).Unit;
+                            V sideA=sides[j],sideB=sides[j+1];
                             foreach(double t in new[]{0d,.25,.5,.75,1d})
                             {
                                 if(!incoming&&((points[j]*(1-t)+points[j+1]*t).Unit-rootNodes[node].Position).Length*physical>collar+.01)continue;

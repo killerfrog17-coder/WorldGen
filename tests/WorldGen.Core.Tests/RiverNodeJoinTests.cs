@@ -19,6 +19,11 @@ static class RiverNodeJoinTests
         var close=RiverscapeKernel.InsertJunctionCollars(new[]{P(0),P(149),P(400),P(1000)},radius,150,0);
         Check(!close.Contains(P(149))&&close.Any(p=>Math.Abs((p-P(0)).Length*radius-150)<.003),"Near-coincident original sampling station retires while the exact collar remains");
         Check(close[0].Equals(P(0))&&close[^1].Equals(P(1000)),"Collar cleanup cannot move either graph endpoint");
+        var curve=new[]{P(0),new V(1,400/radius,70/radius).Unit,new V(1,800/radius,90/radius).Unit,P(1000)};
+        var inserted=RiverscapeKernel.InsertJunctionCollars(curve,radius,450,0);
+        var originalSides=RiverscapeKernel.SectionSides(curve,curve);var insertedSides=RiverscapeKernel.SectionSides(curve,inserted);
+        for(int i=0;i<curve.Length;i++)
+        {int index=Array.IndexOf(inserted,curve[i]);if(index>=0)Check(insertedSides[index].Equals(originalSides[i]),"Inserted pool boundary does not rotate any original bank section");}
         foreach(double angle in new[]{15d,30,60,90,120,175,180})
         {
             double theta=angle*Math.PI/180,half=75,r=RiverscapeKernel.ConfluenceRadius(half,Math.Cos(theta));

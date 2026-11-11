@@ -22,7 +22,7 @@ static class RiverLakeStageTests
             {
                 int id=(int)(ulong)Value("LakeKey")-1;
                 Check(accepted.Contains(id),$"Rejected basin cannot remain a fixed lake control at {i}");
-                double expected=amp.Fjords.OceanNode(i)?0:world.Hydrology.Waters[id].Endorheic?levels[id]:Math.Max(0,levels[id]);
+                double expected=amp.Fjords.OceanNode(i)?0:levels[id];
                 Check(Math.Abs(datums[i]-expected)<1e-8,$"Accepted lake {id} keeps its rendered stage at node {i}: {datums[i]:R}/{expected:R}");fixedNodes++;
             }
             // A below-sea catalog lake draining to the sea is backwater at0;

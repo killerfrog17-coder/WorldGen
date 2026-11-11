@@ -26,7 +26,7 @@ static class RiverMeshDiagnostic
         {
             V d=s.B-s.A,p=point-s.A;double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d))),distance=(p-d*u).Length*terrain.RadiusM*.1,width=s.WidthA+(s.WidthB-s.WidthA)*u;
             if(distance>width*5+8)continue;
-            rows.Add(new{s.Reach,s.Receiver,s.From,s.To,s.PoolA,s.PoolB,Primitive=s.Primitive.ToString(),s.LevelA,s.LevelB,s.WidthA,s.WidthB,s.DepthA,s.DepthB,U=u,Distance=distance,Margin=width-distance,Length=d.Length*terrain.RadiusM*.1,A=new[]{s.A.X,s.A.Y,s.A.Z},B=new[]{s.B.X,s.B.Y,s.B.Z}});
+            rows.Add(new{s.Reach,s.Receiver,s.From,s.To,s.PoolA,s.PoolB,Primitive=s.Primitive.ToString(),s.LevelA,s.LevelB,s.WidthA,s.WidthB,s.DepthA,s.DepthB,U=u,Distance=distance,Margin=width-distance,BeforeM=Dot(p,V.Cross(s.SideA,s.A).Unit)*terrain.RadiusM*.1,AfterM=Dot(point-s.B,V.Cross(s.SideB,s.B).Unit)*terrain.RadiusM*.1,Length=d.Length*terrain.RadiusM*.1,A=new[]{s.A.X,s.A.Y,s.A.Z},B=new[]{s.B.X,s.B.Y,s.B.Z}});
         }
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,Point=new[]{point.X,point.Y,point.Z},actual.ElevationM,actual.PreWaterElevationM,actual.WaterSurfaceM,actual.WaterMaskM,actual.WaterBodyKey,Kind=actual.WaterKind.ToString(),Spans=rows},new JsonSerializerOptions{WriteIndented=true,NumberHandling=System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals}));
         Console.WriteLine($"Point: {actual.WaterKind}/{actual.WaterBodyKey}, stage {actual.WaterSurfaceM:R}, ground {actual.ElevationM:R}; {rows.Count} nearby profiles");

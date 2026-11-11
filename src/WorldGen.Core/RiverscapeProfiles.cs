@@ -22,7 +22,7 @@ namespace WorldGen.Core
                 var variation=RiverLongitudinalProfile.At(distance[i]+phase,nominal,grade,a.Sediment,a.Hardness,bend,a.Key);
                 double taper=Math.Min(RiverscapeKernel.Smooth(distance[i]/transition),RiverscapeKernel.Smooth((total-distance[i])/transition));
                 int node=distance[i]<total*.5?source:target;
-                widths[i]=nominal*(1+(variation.WidthScale-1)*.3)*taper+riverNodeWidths[node]*(1-taper);
+                widths[i]=nominal*variation.WidthScale*taper+riverNodeWidths[node]*(1-taper);
                 depths[i]=Math.Min(widths[i]*.75,baseDepth*variation.DepthScale*taper+riverNodeDepths[node]*(1-taper));
             }
         }

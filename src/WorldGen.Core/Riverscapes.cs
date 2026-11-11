@@ -51,6 +51,30 @@ namespace WorldGen.Core
             return Math.Min(uncut,Math.Max(cut,cut+(Math.Min(uncut,bank)-cut)*weight));
         }
         public static double HalfWidth(double sourceFlow,double scale)=>RiverHydraulics.HalfWidth(sourceFlow,scale);
+        public static V[] SectionSides(V[] original,V[] sampled,V? startTangent=null,V? endTangent=null)
+        {
+            int n=original.Length-1;var sides=new V[n+1];var known=new Dictionary<V,int>(original.Length);
+            double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
+            for(int i=0;i<=n;i++)
+            {
+                V tangent=i==0&&startTangent.HasValue?startTangent.Value:i==n&&endTangent.HasValue?endTangent.Value:(original[Math.Min(n,i+1)]-original[Math.Max(0,i-1)]).Unit;
+                sides[i]=V.Cross(original[i],tangent).Unit;known[original[i]]=i;
+            }
+            if(ReferenceEquals(original,sampled))return sides;
+            var result=new V[sampled.Length];
+            for(int i=0;i<sampled.Length;i++)
+            {
+                if(known.TryGetValue(sampled[i],out int station)){result[i]=sides[station];continue;}
+                double best=double.PositiveInfinity,u=0;int segment=0;
+                for(int j=0;j<n;j++)
+                {
+                    V d=original[j+1]-original[j],p=sampled[i]-original[j];double t=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d)));V offset=p-d*t;double distance=Dot(offset,offset);
+                    if(distance<best){best=distance;u=t;segment=j;}
+                }
+                result[i]=(sides[segment]*(1-u)+sides[segment+1]*u).Unit;
+            }
+            return result;
+        }
         public static V[] InsertJunctionCollars(V[] points,double radiusM,double startRadius,double endRadius)
         {
             if(points.Length<2||startRadius<=0&&endRadius<=0)return points;
@@ -272,7 +296,7 @@ namespace WorldGen.Core
                 int target=riverReceivers[source];var a=rootNodes[source];var b=rootNodes[target];
                 double length=(a.Position-b.Position).Length*radius*scale;
                 double width=RiverscapeKernel.HalfWidth(a.Flow,scale);
-                var points=RiverPlanPoints(source);int n=points.Length-1;
+                var points=RiverPlanPoints(source);var originalPoints=points;int n=points.Length-1;
                 var sourceNode=ActualRiverNode(source);var targetNode=ActualRiverNode(target);
                 double start=sourceNode.Level,end=targetNode.Level;
                 bool throughA=ThroughRiverNode(source),throughB=ThroughRiverNode(target);
@@ -282,6 +306,7 @@ namespace WorldGen.Core
                 bool poolA=RiverHasPool(source),poolB=RiverHasPool(target);
                 double collarA=poolA?sourceNode.Radius:0,collarB=poolB?targetNode.Radius:0;
                 points=RiverscapeKernel.InsertJunctionCollars(points,radius*scale,collarA,collarB);n=points.Length-1;
+                var sectionSides=RiverscapeKernel.SectionSides(originalPoints,points,throughA?RiverNodeTangent(source):(V?)null,throughB?RiverNodeTangent(target):(V?)null);
                 var levels=new double[n+1];RiverDimensions(source,points,out var widths,out var depths);
                 var faceSet=new SortedSet<int>();
                 void Include(int node){for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)faceSet.Add(riverFaces[k]*3);}
@@ -324,7 +349,7 @@ namespace WorldGen.Core
                     double slope=(levels[i]-levels[i+1])/Math.Max(.001,distance);
                     double depth=(depths[i]+depths[i+1])*.5;
                     var section=new RiverSection(levels[i],(widths[i]+widths[i+1])*.5,depth,RiverHydraulics.Discharge(a.Flow,scale),slope,a.Sediment);
-                    result[i]=new RiverscapeSpan{A=points[i],B=points[i+1],SideA=V.Cross(points[i],i==0&&throughA?RiverNodeTangent(source):tangentA).Unit,SideB=V.Cross(points[i+1],i==n-1&&throughB?RiverNodeTangent(target):tangentB).Unit,
+                    result[i]=new RiverscapeSpan{A=points[i],B=points[i+1],SideA=sectionSides[i],SideB=sectionSides[i+1],
                         LevelA=levels[i],LevelB=levels[i+1],WidthA=widths[i],WidthB=widths[i+1],Depth=depth,DepthA=depths[i],DepthB=depths[i+1],
                         Speed=section.Speed,Turbulence=section.Turbulence,Bend=D.Clamp(RiverDot(tangentB-tangentA,V.Cross(points[i],tangentA))*.8,-.6,.6),
                         BedGravel=bedGravel,
@@ -542,7 +567,11 @@ namespace WorldGen.Core
                     double distance=(p-d*u).Length*physical,width=span.WidthA+(span.WidthB-span.WidthA)*u;
                     double support=width*5+4;if(distance>=support)return;
                     V ta=basis.TangentA,tb=basis.TangentB;
-                    bool before=RiverDot(p,ta)<-1e-10,after=RiverDot(point-span.B,tb)>1e-10;
+                    // Match the renderer's finite2m underlap in physical units.
+                    // Angular round-off at an exact endpoint bank corner must
+                    // not retire its dry-bank protection a fraction of a
+                    // millimetre before the water polygon actually ends.
+                    bool before=RiverDot(p,ta)<-2.25/physical,after=RiverDot(point-span.B,tb)>2.25/physical;
                     // Adjacent paired cross-sections partition longitudinal
                     // space. Round caps at EVERY station used to let a lower
                     // cascade carve underneath the preceding higher ribbon.
