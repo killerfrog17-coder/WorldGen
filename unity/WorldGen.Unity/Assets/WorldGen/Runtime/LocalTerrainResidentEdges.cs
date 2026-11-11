@@ -128,7 +128,7 @@ public sealed partial class LocalTerrainExplorer
         if(!data.Conformed)return;
         for(int i=0;i<data.Points.Length;i++)
         {
-            var point=data.Points[i];float height=point.Position.y;data.Heights[i]=height;
+            var point=data.Points[i];float height=point.Position.y;if(data.Heights[i]==height)continue;data.Heights[i]=height;
             if(point.Vertex<tile.Heights.Length)tile.Heights[point.Vertex]=height;
             if(tile.Cover.IsCreated&&point.Vertex<tile.Heights.Length&&point.Vertex*16+15<tile.Cover.Length)tile.Cover[point.Vertex*16+15]=height;
             tile.Contact?.SetHeight(point.Vertex,height);
@@ -137,21 +137,47 @@ public sealed partial class LocalTerrainExplorer
     Tile ResidentOwner(double x,double z,out TerrainTileKey key)
     {
         double unit=TerrainLod.BaseSizeM*HorizontalScale;var address=new Vector2Int((int)Math.Floor(x/unit),(int)Math.Floor(z/unit));
+        var owner=ResidentOwnerCell(address,x,z);key=owner.Key;return owner.Value;
+    }
+    KeyValuePair<TerrainTileKey,Tile> ResidentOwnerCell(Vector2Int address,double x,double z)
+    {
         if(!edgeOwners.TryGetValue(address,out var owner))
-        {var tile=VisibleGroundOwner(x,z,out key);owner=new KeyValuePair<TerrainTileKey,Tile>(key,tile);edgeOwners.Add(address,owner);}
-        key=owner.Key;return owner.Value;
+        {var tile=VisibleGroundOwner(x,z,out var key);owner=new KeyValuePair<TerrainTileKey,Tile>(key,tile);edgeOwners.Add(address,owner);}
+        return owner;
     }
     float ResidentTarget(TerrainTileKey key,Tile tile,int pointIndex)
     {
         var point=tile.ResidentEdges.Points[pointIndex];double x=key.X*key.SizeM+((point.Mask&1)!=0?0:(point.Mask&2)!=0?key.SizeM:point.Position.x),z=key.Z*key.SizeM+((point.Mask&4)!=0?0:(point.Mask&8)!=0?key.SizeM:point.Position.z);
         double epsilon=Math.Max(.002,key.SizeM*1e-8),best=-1;Tile authority=null;TerrainTileKey authorityKey=default;
+        double unit=TerrainLod.BaseSizeM*HorizontalScale,x0=x-epsilon,x1=x+epsilon,z0=z-epsilon,z1=z+epsilon;
+        int cx0=(int)Math.Floor(x0/unit),cx1=(int)Math.Floor(x1/unit),cz0=(int)Math.Floor(z0/unit),cz1=(int)Math.Floor(z1/unit);
+        // A base cell has one resident owner. Query its first occurrence only,
+        // in exactly the original (-z,-x),(-z,+x),(+z,-x),(+z,+x) order.
+        var q0=ResidentOwnerCell(new Vector2Int(cx0,cz0),x0,z0);
+        var q1=cx1==cx0?q0:ResidentOwnerCell(new Vector2Int(cx1,cz0),x1,z0);
+        var q2=cz1==cz0?q0:ResidentOwnerCell(new Vector2Int(cx0,cz1),x0,z1);
+        var q3=cz1==cz0?q1:cx1==cx0?q2:ResidentOwnerCell(new Vector2Int(cx1,cz1),x1,z1);
+        Tile seen0=null,seen1=null,seen2=null;TerrainTileKey seenKey0=default,seenKey1=default,seenKey2=default;double step0=0,step1=0,step2=0;
         // Both sides of a shared point use the same incident owners and tie
         // break, including T-junctions and four-tile corners. Desired jobs and
         // hidden parent rectangles cannot become the authority accidentally.
-        for(int iz=-1;iz<=1;iz+=2)for(int ix=-1;ix<=1;ix+=2)
+        for(int quadrant=0;quadrant<4;quadrant++)
         {
-            var other=ResidentOwner(x+ix*epsilon,z+iz*epsilon,out var otherKey);if(other==null||other.ResidentEdges==null)continue;
-            double step=ResidentStep(otherKey,other,x,z);
+            var candidate=quadrant==0?q0:quadrant==1?q1:quadrant==2?q2:q3;var other=candidate.Value;var otherKey=candidate.Key;
+            if(other==null||other.ResidentEdges==null)continue;
+            double step;
+            if(ReferenceEquals(other,seen0)&&otherKey.Equals(seenKey0))step=step0;
+            else if(ReferenceEquals(other,seen1)&&otherKey.Equals(seenKey1))step=step1;
+            else if(ReferenceEquals(other,seen2)&&otherKey.Equals(seenKey2))step=step2;
+            else
+            {
+                step=ResidentStep(otherKey,other,x,z);
+                if(seen0==null){seen0=other;seenKey0=otherKey;step0=step;}
+                else if(seen1==null){seen1=other;seenKey1=otherKey;step1=step;}
+                else if(seen2==null){seen2=other;seenKey2=otherKey;step2=step;}
+            }
+            // Replay all four winner comparisons, even for a repeated owner:
+            // this preserves the existing tolerance and tie-order semantics.
             if(authority==null||step>best*1.00000001||Math.Abs(step-best)<.000001&&ResidentOrder(otherKey,authorityKey)<0)
             {authority=other;authorityKey=otherKey;best=step;}
         }

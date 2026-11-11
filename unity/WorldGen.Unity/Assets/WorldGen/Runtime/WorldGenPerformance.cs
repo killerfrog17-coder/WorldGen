@@ -818,6 +818,7 @@ public sealed partial class LocalTerrainExplorer
     }
     public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
     public bool PerformanceSettled=>!GroundPublicationPending&&PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
+    public string PerformanceStreamingWork=>StreamingWorkReceipt;
     public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}; readiness near={NearReady} all={AllReady} detail={DetailPlanning} jobs={jobs.Count} previous={previousTerrain.Count} retiring={retiringFrames.Count} fades={tiles.Values.Count(t=>!FadeComplete(t))} scatter={ScatterReady} scatterJobs={scatterJobs.Count} coverRequests={coverRequests.Count}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
@@ -1594,7 +1595,7 @@ public sealed partial class WorldGenRuntime
                 // walking beyond the loaded foliage. Animals and all existing
                 // draw/cull work remain live. This is NOT a playable mode.
                 if(item.Name=="turning-whip-resident-only")TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;
-                File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" hold_terrain="+TerrainDiagnostics.HoldTerrain+" hold_plants="+TerrainDiagnostics.HoldPlants+"\n");
+                File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" hold_terrain="+TerrainDiagnostics.HoldTerrain+" hold_plants="+TerrainDiagnostics.HoldPlants+"; before: "+terrainExplorer.PerformanceStreamingWork+"\n");
                 File.AppendAllText(Path.Combine(output,"terrain-upload-pool-before.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceUploadPool+"\n");
                 File.AppendAllText(Path.Combine(output,"terrain-geometry.txt"),site.Item1+" "+item.Name+" hide_water="+hideWaterDrawing+"\n"+terrainExplorer.PerformanceTerrainGeometry());
                 var renderCosts=new List<double>();var frames=new List<double>(10000);var sections=new double[4];int gc=GC.CollectionCount(0);
@@ -1736,6 +1737,7 @@ public sealed partial class WorldGenRuntime
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
+                File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" after: "+terrainExplorer.PerformanceStreamingWork+"\n");
                 File.AppendAllText(Path.Combine(output,"gpu-counter-validation.txt"),site.Item1+" "+item.Name+": valid="+timingCount+" rejected="+rejectedGpuTimings+" largest_rejected_ms="+largestRejectedGpu.ToString("R",CultureInfo.InvariantCulture)+"; actual frame/FPS samples never filtered\n");
                 File.AppendAllText(Path.Combine(output,"ground-publication.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceGroundPublication+"\n");
                 if(WorldGenPerformance.TraceEnabled)terrainExplorer.PerformanceWriteGroundTrace(Path.Combine(output,site.Item1+"-"+item.Name+"-ground-corrections.csv"));

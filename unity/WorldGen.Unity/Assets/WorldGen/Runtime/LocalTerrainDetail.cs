@@ -30,18 +30,17 @@ public sealed partial class LocalTerrainExplorer
     // Forest requests use the SAME worker permits. Completed forest payloads
     // awaiting their bounded install are no longer consuming a CPU permit
     // (including while the user has disabled their drawing).
-    int ActiveWorkerCount
+    int RunningWorkerCount
     {get{
         int count=0;
         foreach(var work in jobs)if(legacyLoader||!work.Task.IsCompleted)count++;
         foreach(var work in scatterJobs)if(legacyLoader||!work.Task.IsCompleted)count++;
         foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;
         if(animalPlan!=null&&!animalPlan.IsCompleted)count++;
-        // A finished payload releases its CPU lane, but never allows an
-        // unbounded producer queue while main-thread publication is occupied.
-        if(!legacyLoader&&jobs.Count+scatterJobs.Count>=WorkerLimit*2)return Math.Max(count,WorkerLimit);
         return count;
     }}
+    int ActiveWorkerCount=>!legacyLoader&&jobs.Count+scatterJobs.Count>=WorkerLimit*2?
+        Math.Max(RunningWorkerCount,WorkerLimit):RunningWorkerCount;
     bool reserveScatterFrame;double lastStreamingOpportunity;
     bool flightForestTurn=true;
     void ScheduleFlightBackground()

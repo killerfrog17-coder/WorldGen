@@ -200,7 +200,7 @@ public sealed partial class LocalTerrainExplorer
         bool forestFirst=!legacyLoader&&!mapOpen&&(Time.frameCount&1)==0&&forestRevealRadius<terrainRevealRadius&&forestJobs.Any(j=>j.Task.IsCompletedSuccessfully);
         if(forestFirst){UpdateTreeImpostors();UpdateForestFields();}
         InstallScatterSlice();
-        if(!mapOpen&&installingScatter==null&&CenterReady&&!NearTerrainPending()&&ActiveWorkerCount<WorkerLimit&&scatterJobs.Count<1)
+        if(!mapOpen&&installingScatter==null&&CenterReady&&!NearTerrainPending()&&RunningWorkerCount<WorkerLimit&&scatterJobs.Count<1)
         {
             foreach(var key in scatterPriority)
             {if(scatterChunks.TryGetValue(key,out var ready)&&(ready.TreesIncluded||!ScatterNeedsTrees(key))||HasScatterJob(key))continue;RequestScatter(key);break;}
