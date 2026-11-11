@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-scale-sites")){RiverScaleWorldTests.Run(args[1],args[2],args.Skip(3).Select(int.Parse).ToArray());return;}
 if(args.Contains("--river-tile-cost")){RiverMeshDiagnostic.Cost(args[1],int.Parse(args[2]),args[3],args.Length>4?args[4]:null);return;}
 if(args.Contains("--river-bank-sources-reference")){RiverColdPreparationAudit.Contact(args[1],args[2],args[3],args.Skip(4).Select(int.Parse).ToArray());return;}
 if(args.Contains("--river-bank-sources")){RiverBankContactAudit.Run(args[1],args[2],args.Skip(3).Select(int.Parse).ToArray());return;}

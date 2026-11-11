@@ -5,12 +5,12 @@ using System.Text.Json;
 
 static class RiverScaleWorldTests
 {
-    public static void Run(string path,string output)
+    public static void Run(string path,string output,int[] sources=null)
     {
         Directory.CreateDirectory(output);var world=WorldFile.ReadFile(path);var terrain=new LocalTerrain(world,horizontalScale:.1);Console.WriteLine("Junction datum fitting "+terrain.Amplification.RiverscapeFittingMilliseconds.ToString("F1")+"ms");var h=world.Hydrology;var rows=new List<object>();var sites=new List<object>();int probes=0,bad=0;
         double Q(int i)=>(h.NorthernSpringDischargeM3PerS[i]+h.NorthernSummerDischargeM3PerS[i]+h.NorthernAutumnDischargeM3PerS[i]+h.NorthernWinterDischargeM3PerS[i])*.25;
         var selected=new List<V>();
-        foreach(int id in Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!h.OceanConnected[i]&&h.Receiver[i]>=0).OrderByDescending(Q).Take(250))
+        foreach(int id in sources??Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!h.OceanConnected[i]&&h.Receiver[i]>=0).OrderByDescending(Q).Take(250).ToArray())
         {
             var profile=terrain.Amplification.RiverReach(id);var possible=profile.Where(s=>s.LevelA>5&&s.LevelB>1&&Math.Min(s.WidthA,s.WidthB)>250).OrderBy(s=>Math.Abs(s.LevelA-s.LevelB)).ToArray();
             foreach(var span in possible)
@@ -35,11 +35,11 @@ static class RiverScaleWorldTests
                 }
                 break;
             }
-            if(selected.Count>=3)break;
+            if(selected.Count>=(sources?.Length??3))break;
         }
         var options=new JsonSerializerOptions{WriteIndented=true,NumberHandling=System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals};
         File.WriteAllText(Path.Combine(output,"sites.json"),JsonSerializer.Serialize(sites,options));File.WriteAllText(Path.Combine(output,"meshes.json"),JsonSerializer.Serialize(rows,options));
-        if(selected.Count<3)throw new Exception("Fewer than three actual deep major-river sites found");if(bad>0)throw new Exception(bad+" major-river rendering probes failed");
+        if(selected.Count<(sources?.Length??3))throw new Exception("Not every required actual deep major-river site was exercised");if(bad>0)throw new Exception(bad+" major-river rendering probes failed");
         Console.WriteLine("PASS "+probes+" major-river probes, three deep river sites; active reaches "+terrain.Amplification.RiverscapeReachCount);
     }
 }

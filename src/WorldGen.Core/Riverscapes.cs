@@ -239,7 +239,7 @@ namespace WorldGen.Core
             V at=rootNodes[node].Position;
             return RiverDot((at-rootNodes[riverPrevious[node]].Position).Unit,(rootNodes[riverReceivers[node]].Position-at).Unit)>-.65;
         }
-        bool RiverHasPool(int node)=>riverIncoming[node]>0&&!ThroughRiverNode(node)&&rootNodes[node].Type!=Kind.Lake&&rootNodes[node].Type!=Kind.Ocean&&lakeOutletOwners[node]<0&&!Fjords.OceanNode(node);
+        bool RiverHasPool(int node)=>riverIncoming[node]>0&&!ThroughRiverNode(node)&&rootNodes[node].Type!=Kind.Lake&&rootNodes[node].Type!=Kind.Ocean&&!Fjords.OceanNode(node);
         V RiverNodeTangent(int node)
         {
             V at=rootNodes[node].Position;
