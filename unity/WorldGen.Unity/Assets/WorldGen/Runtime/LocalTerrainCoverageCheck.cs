@@ -39,9 +39,14 @@ public sealed partial class LocalTerrainExplorer
         GameObject Quad(string name,float size,float y,Color color,float? fromY=null)
         {
             var root=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));
-            var mesh=new Mesh{vertices=new[]{new Vector3(0,y,0),new Vector3(size,y,0),new Vector3(0,y,size),new Vector3(size,y,size)},
-                normals=new[]{Vector3.up,Vector3.up,Vector3.up,Vector3.up},colors=new[]{color,color,color,color},triangles=new[]{0,2,1,1,2,3}};
-            if(fromY.HasValue){var uv=new Vector2(fromY.Value,1);mesh.uv=new[]{uv,uv,uv,uv};mesh.bounds=new Bounds(new Vector3(size*.5f,(y+fromY.Value)*.5f,size*.5f),new Vector3(size,Math.Abs(y-fromY.Value)+.01f,size));}
+            var positions=new[]{new Vector3(0,y,0),new Vector3(size,y,0),new Vector3(0,y,size),new Vector3(size,y,size)};var vertices=new TerrainVertex[4];
+            for(int i=0;i<vertices.Length;i++)vertices[i]=new TerrainVertex{Position=positions[i],Normal=Vector3.up,Color=color,Uv=new Vector2(fromY??y,fromY.HasValue?1:0),EdgeIndex=0};
+            // Match production declarations, including explicit TEXCOORD3=0;
+            // absent vertex attributes are not a valid edge-index fixture.
+            var mesh=new Mesh{name=name};mesh.SetVertexBufferParams(vertices.Length,TerrainUpload.Layout);mesh.SetVertexBufferData(vertices,0,0,vertices.Length);
+            var indices=new ushort[]{0,2,1,1,2,3};mesh.SetIndexBufferParams(indices.Length,UnityEngine.Rendering.IndexFormat.UInt16);mesh.SetIndexBufferData(indices,0,0,indices.Length);
+            mesh.bounds=new Bounds(new Vector3(size*.5f,(y+(fromY??y))*.5f,size*.5f),new Vector3(size,Math.Abs(y-(fromY??y))+.01f,size));mesh.subMeshCount=1;
+            mesh.SetSubMesh(0,new UnityEngine.Rendering.SubMeshDescriptor(0,indices.Length){vertexCount=vertices.Length,bounds=mesh.bounds},UnityEngine.Rendering.MeshUpdateFlags.DontRecalculateBounds);
             root.GetComponent<MeshFilter>().sharedMesh=mesh;root.GetComponent<MeshRenderer>().sharedMaterial=material;return root;
         }
         var parent=new TerrainTileKey(0,0,1,1d/512);var child=new TerrainTileKey(0,0,0,1d/512);
@@ -93,7 +98,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var mesh=tile.Root.GetComponent<MeshFilter>().sharedMesh;var vertices=mesh.vertices;
             var uv=new Vector2[vertices.Length];for(int i=0;i<vertices.Length;i++){vertices[i].y=finalY;uv[i]=new Vector2(fromY,1);}
-            mesh.vertices=vertices;mesh.uv=uv;mesh.bounds=new Bounds(new Vector3(1,(finalY+fromY)*.5f,1),new Vector3(2,Math.Abs(finalY-fromY)+.01f,2));
+            mesh.SetVertices(vertices);mesh.SetUVs(0,uv);mesh.bounds=new Bounds(new Vector3(1,(finalY+fromY)*.5f,1),new Vector3(2,Math.Abs(finalY-fromY)+.01f,2));
             tile.FadeIn=Math.Max(.001f,Time.time-elapsed);tile.FadeOut=0;explorer.coverageDirty=true;explorer.UpdateTerrainCoverage();
         }
         // A ready child owns its complete footprint from the first frame.
@@ -124,6 +129,7 @@ public sealed partial class LocalTerrainExplorer
             text.AppendLine("LodFade="+activeMaterial.GetVector("_LodFade").ToString("R")+" transition="+activeMaterial.GetFloat("_TransitionEnabled").ToString("R",culture)+" safety="+activeMaterial.GetFloat("_LodSafetyRadius").ToString("R",culture)+" residentCount="+activeMaterial.GetFloat("_ResidentEdgeCount").ToString("R",culture));
             text.AppendLine("global_Time="+Shader.GetGlobalVector("_Time").ToString("R")+" global_TimeParameters="+Shader.GetGlobalVector("_TimeParameters").ToString("R")+" camera="+camera.transform.position.ToString("R"));
             var vertices=mesh.vertices;var uv=mesh.uv;text.AppendLine("mesh="+mesh.GetEntityId()+" vertices="+vertices.Length+" uv="+uv.Length);
+            foreach(var attribute in mesh.GetVertexAttributes())text.AppendLine("attribute="+attribute.attribute+" format="+attribute.format+" dimension="+attribute.dimension+" stream="+attribute.stream);
             for(int i=0;i<Math.Min(4,vertices.Length);i++)text.AppendLine("v"+i+"="+vertices[i].ToString("R")+" uv0="+(i<uv.Length?uv[i].ToString("R"):"missing"));
             File.AppendAllText(morphStatePath,text.ToString());
         }
