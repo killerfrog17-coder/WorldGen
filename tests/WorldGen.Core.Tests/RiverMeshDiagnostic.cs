@@ -5,11 +5,26 @@ using WorldGen.Serialization;
 
 static class RiverMeshDiagnostic
 {
+    public static void Point(string input,V point,string output,string cache)
+    {
+        var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1,directory:cache);var patch=terrain.Patch(point,40000);
+        var actual=patch.Geometry(point);var spans=patch.RiverSpans();var rows=new List<object>();double Dot(V a,V b)=>a.X*b.X+a.Y*b.Y+a.Z*b.Z;
+        foreach(var s in spans)
+        {
+            V d=s.B-s.A,p=point-s.A;double u=D.Clamp(Dot(p,d)/Math.Max(1e-30,Dot(d,d))),distance=(p-d*u).Length*terrain.RadiusM*.1,width=s.WidthA+(s.WidthB-s.WidthA)*u;
+            if(distance>width*5+8)continue;
+            rows.Add(new{s.Reach,s.Receiver,s.From,s.To,s.PoolA,s.PoolB,Primitive=s.Primitive.ToString(),s.LevelA,s.LevelB,s.WidthA,s.WidthB,s.DepthA,s.DepthB,U=u,Distance=distance,Margin=width-distance,Length=d.Length*terrain.RadiusM*.1,A=new[]{s.A.X,s.A.Y,s.A.Z},B=new[]{s.B.X,s.B.Y,s.B.Z}});
+        }
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);File.WriteAllText(output,JsonSerializer.Serialize(new{Version=LocalTerrain.Version,Point=new[]{point.X,point.Y,point.Z},actual.ElevationM,actual.PreWaterElevationM,actual.WaterSurfaceM,actual.WaterMaskM,actual.WaterBodyKey,Kind=actual.WaterKind.ToString(),Spans=rows},new JsonSerializerOptions{WriteIndented=true,NumberHandling=System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals}));
+        Console.WriteLine($"Point: {actual.WaterKind}/{actual.WaterBodyKey}, stage {actual.WaterSurfaceM:R}, ground {actual.ElevationM:R}; {rows.Count} nearby profiles");
+    }
     public static void Nodes(string input,string output,int[] sources)
     {
         var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);var h=world.Hydrology;
         var amp=terrain.Amplification;var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
         var nodes=(Array)amp.GetType().GetField("rootNodes",flags)!.GetValue(amp)!;
+        var accepted=((int[])amp.GetType().GetField("lakeFaces",flags)!.GetValue(amp)!).Where(x=>x>=0).ToHashSet();
+        var owners=(int[])amp.GetType().GetField("lakeOutletOwners",flags)!.GetValue(amp)!;
         var datums=amp.ExportRiverDatums();var collars=(double[])amp.GetType().GetField("riverCollarRadii",flags)!.GetValue(amp)!;
         var seen=new HashSet<int>();var rows=new List<object>();
         foreach(int source in sources)
@@ -20,7 +35,7 @@ static class RiverMeshDiagnostic
                 if(!seen.Add(id))break;object node=nodes.GetValue(id)!;var t=node.GetType();object Field(string name)=>t.GetField(name)!.GetValue(node)!;
                 int body=h.WaterBody[id];object lake=body<0?null!:new{h.Waters[body].Id,h.Waters[body].SurfaceElevationM,h.Waters[body].OutletCell,h.Waters[body].DownstreamCell,h.Waters[body].Endorheic};
                 var spans=amp.RiverReach(id);var position=world.Surface.Cells[id].Position;var actual=terrain.Patch(position,30000).Geometry(position);
-                rows.Add(new{Id=id,Receiver=h.Receiver[id],Ocean=h.OceanConnected[id],RawElevation=world.ElevationM[id],Type=Field("Type").ToString(),Height=Field("Height"),Crust=Field("Crust"),Water=Field("Water"),LakeKey=Field("LakeKey"),Flow=Field("Flow"),Datum=datums[id],Collar=collars[id],Body=lake,Actual=new{actual.ElevationM,actual.WaterSurfaceM,Kind=actual.WaterKind.ToString(),actual.WaterBodyKey},Spans=spans.Length,Head=spans.Length>0?new[]{spans[0].LevelA,spans[^1].LevelB}:Array.Empty<double>()});
+                rows.Add(new{Id=id,Receiver=h.Receiver[id],Ocean=h.OceanConnected[id],RawElevation=world.ElevationM[id],Type=Field("Type").ToString(),Height=Field("Height"),Crust=Field("Crust"),Water=Field("Water"),LakeKey=Field("LakeKey"),RootLakeAccepted=accepted.Contains((int)(ulong)Field("LakeKey")-1),BodyAccepted=accepted.Contains(body),OutletOwner=owners[id],Flow=Field("Flow"),Datum=datums[id],Collar=collars[id],Body=lake,Actual=new{actual.ElevationM,actual.WaterSurfaceM,Kind=actual.WaterKind.ToString(),actual.WaterBodyKey},Spans=spans.Length,Head=spans.Length>0?new[]{spans[0].LevelA,spans[^1].LevelB}:Array.Empty<double>()});
                 id=h.Receiver[id];
             }
         }

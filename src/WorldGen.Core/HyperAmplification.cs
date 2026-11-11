@@ -15,7 +15,7 @@ namespace WorldGen.Core
     /// </summary>
     public sealed partial class HyperAmplification
     {
-        public const string Version = "hyper-amplification-combined-river-water-82";
+        public const string Version = "hyper-amplification-channel-domain-composition-86";
         public const double FinestSpacingM = 8;
         const int WorkingSet = 32768;
         readonly object gate = new object();
@@ -359,6 +359,7 @@ namespace WorldGen.Core
                 if(r>=0&&nodes[r].Type!=Kind.Ocean&&nodes[r].Type!=Kind.Lake)nodes[i].ChannelKey=nodes[r].ChannelKey;
             }
             BuildLakeBasins(world,token);
+            RemoveRejectedLakeControls(world);
             ConditionLakeSpills(world,token);
             Fjords=new FjordCoasts(world,profiles,scale,landscapeLocator,token);
             BuildRiverscapes(world,profiles,token,cachedRiverDatums);
@@ -1023,7 +1024,6 @@ namespace WorldGen.Core
             public LandscapeControls Landscape;
             public double LandscapeOffset;
             public double Height, UnshapedHeight, Water, Mask, RiverInfluence,Footprint,Minimum,Maximum,Speed,Turbulence,DetailProtection,RiverSand,RiverGravel;
-            public int RiverContributors;
             public LocalWaterKind Kind;public ulong BodyKey;public V Gradient,Flow;
         }
         internal Patch Region(int[] triangleOffsets) => new Patch(this, triangleOffsets);

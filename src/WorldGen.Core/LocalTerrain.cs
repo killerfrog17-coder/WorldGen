@@ -8,7 +8,7 @@ namespace WorldGen.Core
     /// Pin Version with a world before using locations for permanent structures. Units are physical metres.</summary>
     public sealed partial class LocalTerrain
     {
-        public const string Version = "local-terrain-combined-river-water-95";
+        public const string Version = "local-terrain-channel-domain-composition-99";
         public readonly double RadiusM;
         public readonly double HorizontalScale;
         readonly World world;
@@ -268,7 +268,6 @@ namespace WorldGen.Core
             public double MaximumForestCoverage {get;private set;}
             public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.RiverscapePieces(Center,HalfExtentM*owner.HorizontalScale)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
             public RiverscapeSpan[] RiverSpans(double minimumWidthM=0)=>amplified?.RiverscapeSpans(Center,HalfExtentM*owner.HorizontalScale,minimumWidthM)??Array.Empty<RiverscapeSpan>();
-            public RiverWaterState RiverWater(V point)=>amplified?.RiverWater(point)??default;
             public SmallLake LocalLakeAt(ulong identity,V point)=>amplified?.LocalLakeAt(identity,point);
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)
             {

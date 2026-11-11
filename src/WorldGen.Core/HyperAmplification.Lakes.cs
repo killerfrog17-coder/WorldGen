@@ -93,6 +93,33 @@ namespace WorldGen.Core
             LakeBasinPreparationMilliseconds=watch.Elapsed.TotalMilliseconds;
         }
 
+        // The broad hydrology catalog can contain a standing body whose local
+        // basin opens into the sea or a lower accepted lake. That body is not
+        // drawn here, so it must not remain a fixed stage in the river graph.
+        // Clear its inherited standing-water roles before any fine vertices
+        // are materialized; retain its original valley substrate.
+        void RemoveRejectedLakeControls(World world)
+        {
+            var accepted=new bool[lakeBodies.Length];foreach(int id in lakeFaces)if(id>=0)accepted[id]=true;
+            for(int i=0;i<rootNodes.Length;i++)
+            {
+                ref var node=ref rootNodes[i];if(node.Type!=Kind.Lake||node.LakeKey==0)continue;
+                int id=(int)node.LakeKey-1;if(id>=0&&id<accepted.Length&&accepted[id])continue;
+                bool river=nodeChannels[i]>=0&&node.Flow>=.04&&world.Hydrology.Receiver[i]>=0;
+                node.Type=river?Kind.River:Kind.Terrain;node.LakeKey=0;node.LakeLevel=0;node.LakeWeight=0;
+                node.Water=river?node.Height+Depth(node.Flow):node.Height;
+            }
+            // Edges previously wholly inside that rejected lake are now real
+            // drainage links, rather than holes in the outgoing river chain.
+            for(int i=0;i<coarseEdges.Length;i++)
+            {
+                var edge=coarseEdges[i];int a=edge.A,b=edge.B;
+                bool drain=nodeChannels[a]==i||nodeChannels[b]==i;
+                bool sameLake=rootNodes[a].Type==Kind.Lake&&rootNodes[b].Type==Kind.Lake&&rootNodes[a].LakeKey==rootNodes[b].LakeKey;
+                edge.Type=drain&&!sameLake?Kind.River:Kind.Terrain;coarseEdges[i]=edge;
+            }
+        }
+
         // Constrain the INITIAL incision substrate at an accepted lake's
         // physical spill control. The old channel lowering pass could excavate
         // it tens of metres below the saved lake while leaving its surface
