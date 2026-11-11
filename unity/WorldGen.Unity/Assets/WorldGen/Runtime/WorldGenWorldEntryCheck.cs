@@ -20,11 +20,23 @@ public sealed partial class WorldGenRuntime
         ChooseWorldEntry();Check(worldEntryOpen,"entry choices open");yield return new WaitForSecondsRealtime(2);yield return new WaitForEndOfFrame();
         var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes(Path.Combine(output,"entry-options.png"),image.EncodeToPNG());Destroy(image);
         StartWorldEntry(false);Check(worldEntryWork!=null,"creative selection starts its background task");deadline=Time.realtimeSinceStartupAsDouble+240;
-        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline){if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;}
+        bool observedCoverageLoading=false;Camera entryCamera=null;
+        while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady||!terrainExplorer.InitialViewReady)&&Time.realtimeSinceStartupAsDouble<deadline)
+        {
+            if(terrainExplorer!=null&&!terrainExplorer.InitialViewReady&&!observedCoverageLoading)
+            {
+                entryCamera=terrainExplorer.GetComponentInChildren<Camera>();
+                Check(terrainExplorer.Paused&&entryCamera!=null&&entryCamera.cullingMask==0,"loading hides incomplete terrain and pauses gameplay");observedCoverageLoading=true;
+            }
+            if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;
+        }
         Check(terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.CenterReady,"random-land entry loads actual ground");
+        Check(observedCoverageLoading&&terrainExplorer.InitialViewReady&&!terrainExplorer.Paused&&terrainExplorer.HasInitialViewCoverage(),"first playable view has actual surrounding coverage and releases loading pause");
+        Check(entryCamera!=null&&entryCamera.cullingMask!=0,"first playable view restores the actual camera");
         Check(play.Identity==null&&play.Mode==GameMode.Creative&&terrainExplorer.IsWalking==false,"random-land entry uses Creative flight and no NPC identity");
         Check(LocalTreeTextures.IsPrepared,"shared tree bank and all leaf hulls are prepared before gameplay");
         var warm=LocalTreeTextures.Prepare();Check(!warm.MoveNext(),"repeated tree preparation completes without waiting");
+        yield return new WaitForEndOfFrame();
         terrainExplorer.Capture(Path.Combine(output,"creative-land.png"));
         if(Environment.GetCommandLineArgs().Contains("--worldgen-entry-creative-only"))
         {File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Application.Quit(0);yield break;}

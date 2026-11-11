@@ -91,6 +91,13 @@ public sealed partial class LocalTerrainExplorer
         {
         if(MenuSkin!=null)GUI.skin=MenuSkin;
         GUI.color=GUI.contentColor=GUI.backgroundColor=Color.white;
+        if(!InitialViewReady)
+        {
+            GUI.color=new Color(.08f,.10f,.12f,1);GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height),Texture2D.whiteTexture);GUI.color=Color.white;
+            GUILayout.BeginArea(new Rect(Screen.width/2f-180,Screen.height/2f-80,360,160),GUI.skin.box);
+            GUILayout.Label(error.Length==0?"Loading world...":"Unable to load world.\n"+error);
+            if(GUILayout.Button("Back"))Close();GUILayout.EndArea();return;
+        }
         if(DeathVisible){DrawPlayerDeath();return;}
         if(inventoryOpen){DrawInventory();return;}
         DrawChat();

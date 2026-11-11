@@ -53,6 +53,37 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
     double lastBuildMs,largestBuildMs; string error="";
     bool forestScheduledFirst;
     public bool Ready=>terrain!=null;
+    bool initialCoverageRequired,initialViewReady,initialPriorPaused;
+    int initialViewMask=1<<30;double initialCoverageCheckAt;
+    readonly Dictionary<TerrainTileKey,int> initialCoverageResidents=new Dictionary<TerrainTileKey,int>();
+    public bool InitialViewReady=>!initialCoverageRequired||initialViewReady;
+    public void RequireInitialCoverage()
+    {
+        if(initialCoverageRequired)return;
+        initialCoverageRequired=true;initialPriorPaused=paused;paused=true;
+        if(view!=null){if(view.cullingMask!=0)initialViewMask=view.cullingMask;view.cullingMask=0;}
+        CaptureMouse();
+    }
+    public bool HasInitialViewCoverage()
+    {
+        if(!Ready||!CenterReady||wanted.Count==0)return false;
+        initialCoverageResidents.Clear();
+        foreach(var pair in tiles)
+            if(pair.Value.Root!=null&&pair.Value.Root.activeInHierarchy&&pair.Value.Heights!=null&&pair.Value.ResidentEdges?.Mesh!=null)
+                initialCoverageResidents.Add(pair.Key,pair.Value.Segments);
+        return TerrainHandoff.Ready(wanted,initialCoverageResidents,motion.X,motion.Z,0,coverageMasksReady:true,coverageRadius:viewDistance);
+    }
+    void UpdateInitialCoverage()
+    {
+        if(InitialViewReady)return;
+        if(view!=null&&view.cullingMask!=0){initialViewMask=view.cullingMask;view.cullingMask=0;}
+        double now=Time.realtimeSinceStartupAsDouble;
+        if(now<initialCoverageCheckAt||error.Length>0)return;initialCoverageCheckAt=now+.1;
+        if(!HasInitialViewCoverage())return;
+        initialViewReady=true;paused=initialPriorPaused;
+        if(view!=null)view.cullingMask=initialViewMask;
+        initialCoverageResidents.Clear();CaptureMouse();
+    }
     public bool AcceptsQuickSave=>Ready&&!DeathVisible&&!inventoryOpen&&!mapOpen&&!paused&&!chatOpen&&!ecologyOpen;
     public bool IsWalking=>!motion.Flying;
     public double TravelM=>motion.X+motion.Z;
@@ -179,8 +210,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         RecordLoadingFrame();
         if(closed)return;
         CaptureMouse();
-        bool inventoryInput=!WorldGenPerformance.Enabled&&HandleInventoryKeys();
-        bool chatInput=!DeathVisible&&!inventoryInput&&!WorldGenPerformance.Enabled&&HandleChatKeys();if(Application.isFocused&&!DeathVisible&&!inventoryInput&&!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
+        bool inventoryInput=InitialViewReady&&!WorldGenPerformance.Enabled&&HandleInventoryKeys();
+        bool chatInput=InitialViewReady&&!DeathVisible&&!inventoryInput&&!WorldGenPerformance.Enabled&&HandleChatKeys();if(InitialViewReady&&Application.isFocused&&!DeathVisible&&!inventoryInput&&!chatInput&&!WorldGenPerformance.Enabled)HandleDebugKeys();if(closed)return;
         if(terrain==null)
         {
             if(!building.IsCompleted)return;
@@ -331,7 +362,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
         long weatherTrace=WorldGenPerformance.TraceBegin(),weatherStarted=WorldGenPerformance.Begin();UpdateWeatherPresentation();WorldGenPerformance.End(3,weatherStarted);WorldGenPerformance.TraceEnd(3,weatherTrace);
         long readoutTrace=WorldGenPerformance.TraceBegin();UpdateDebugReadout();WorldGenPerformance.TraceEnd(38,readoutTrace);
-        if(mapOpen){UpdateTerrainCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}
+        if(mapOpen){UpdateTerrainCoverage();UpdateInitialCoverage();UpdateStreamingFog();RetireTerrainGradually();return;}
         // Nearby ground always goes first, including when a hidden replacement
         // chart is overdue. Do not let scatter or far work monopolize both slots.
         long schedulingTrace=WorldGenPerformance.TraceBegin();
@@ -382,7 +413,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         if(TerrainBuildRequests>priorTerrainRequests)forestScheduledFirst=false;
         WorldGenPerformance.TraceEnd(37,schedulingTrace);
-        UpdateTerrainCoverage();UpdateStreamingFog();
+        UpdateTerrainCoverage();UpdateInitialCoverage();UpdateStreamingFog();
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();
     }
