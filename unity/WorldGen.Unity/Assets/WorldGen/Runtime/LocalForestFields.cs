@@ -258,10 +258,22 @@ public sealed partial class LocalTerrainExplorer
         if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||!CenterReady||forestCull==null||!coveredFlight&&NearTerrainPending()||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||ActiveWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
         while(flightForestNext<flightForestPriority.Length||forestNextRequest<forestPriority.Length)
         {
-            bool coverage=flightForestNext<flightForestPriority.Length;
+            // Merge the two existing queues instead of draining every flight
+            // parent first. Nearby exact pages must get their turn even when
+            // a large coarse parent's bounds also contain the camera.
+            while(forestNextRequest<forestPriority.Length&&
+                (forestFields.ContainsKey(forestPriority[forestNextRequest])||forestJobs.Any(j=>j.Key.Equals(forestPriority[forestNextRequest]))))forestNextRequest++;
+            while(flightForestNext<flightForestPriority.Length&&
+                (forestFields.ContainsKey(flightForestPriority[flightForestNext])||forestJobs.Any(j=>j.Key.Equals(flightForestPriority[flightForestNext]))||ForestReplacementReady(flightForestPriority[flightForestNext])))flightForestNext++;
+            bool leaf=forestNextRequest<forestPriority.Length,parent=flightForestNext<flightForestPriority.Length;
+            if(!leaf&&!parent)break;
+            bool coverage=parent;
+            if(leaf&&parent)
+            {
+                double near=ForestGapDistance(forestPriority[forestNextRequest]);
+                coverage=near>LegacyForestReach+64&&ForestGapDistance(flightForestPriority[flightForestNext])<near;
+            }
             var key=coverage?flightForestPriority[flightForestNext++]:forestPriority[forestNextRequest++];
-            if(forestFields.ContainsKey(key)||forestJobs.Any(j=>j.Key.Equals(key)))continue;
-            if(coverage&&ForestReplacementReady(key))continue;
             var source=scatter;var producer=meshProcess;var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
             forestJobs.Add(new ForestWork{Key=key,Cancellation=stop,Task=Task.Run(()=>producer==null?source.BuildForest(key,token):producer.Forest(key,token),token)});return true;
         }
@@ -279,9 +291,7 @@ public sealed partial class LocalTerrainExplorer
             if(leaf.Level>=level)continue;var key=leaf;
             while(key.Level<level)key=key.Parent;parents.Add(key);
         }
-        double speed=Math.Sqrt(streamingVX*streamingVX+streamingVZ*streamingVZ),lead=Math.Min(viewDistance*.4,speed*3);
-        var ahead=speed>1?frame.Position(motion.X+streamingVX/speed*lead,motion.Z+streamingVZ/speed*lead):Position;
-        return parents.OrderBy(k=>{scatter.ForestBounds(k,out V center,out double radius);return Math.Max(0,(center-ahead).Length*frame.RadiusM-radius);}).ToArray();
+        return parents.OrderBy(ForestGapDistance).ToArray();
     }
     bool ForestReplacementReady(ForestPageKey key)
     {

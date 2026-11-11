@@ -28,11 +28,15 @@ namespace WorldGen.Presentation
             }
             double maximum=0;foreach(double size in spacing)maximum=Math.Max(maximum,size);
             var samplePatch=maximum>mesh.SizeM?terrain.Patch(frame.Position(mesh.EastM+mesh.SizeM*.5,mesh.NorthM+mesh.SizeM*.5),(mesh.SizeM+maximum*2+32)/frame.HorizontalScale):patch;
-            void Segment(V a,V b)
+            void Segment(V a,V b,double width,bool inner=false)
             {
                 TerrainHandoff.Coordinates(frame,a,out double ax,out double az);TerrainHandoff.Coordinates(frame,b,out double bx,out double bz);
                 for(int edge=0;edge<4;edge++)
                 {
+                    // Both sides use the coarser shared edge spacing. The
+                    // perimeter must not reintroduce tiny rivers and inner
+                    // rings omitted by the distant interior representation.
+                    if(spacing[edge]>256&&(inner||width<spacing[edge]*.1))continue;
                     double origin=edge<2?ax:az,delta=edge<2?bx-ax:bz-az,fixedAt=Fixed(edge),along=edge<2?az:ax,run=edge<2?bz-az:bx-ax;
                     void Add(double value){if(value>=Begin(edge)-spacing[edge]-.001&&value<=Begin(edge)+mesh.SizeM+spacing[edge]+.001)events[edge].Add(Key(value));}
                     if(Math.Abs(delta)<1e-12){if(Math.Abs(origin-fixedAt)<.0001){Add(along);Add(along+run);}continue;}
@@ -44,19 +48,19 @@ namespace WorldGen.Presentation
             {
                 if(id<0||width<=0||!pools.Add(id))return;
                 foreach(double radius in new[]{width,RiverscapeKernel.JunctionRadius(width)})for(int i=0;i<RiverscapeKernel.JunctionSides;i++)
-                    Segment(RiverscapeKernel.JunctionPoint(at,radius,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,radius,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM));
+                    Segment(RiverscapeKernel.JunctionPoint(at,radius,i*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),RiverscapeKernel.JunctionPoint(at,radius,(i+1)*Math.PI*2/RiverscapeKernel.JunctionSides,frame.RadiusM),width,radius==width);
             }
-            // Include narrow rivers and both bank rings even when the distant
-            // tile simplifies its interior bathymetry. Shared edges need the
-            // same finite events independently of either side's interior LOD.
-            foreach(var s in samplePatch.RiverSpans())
+            // The near path remains exact. Far shared edges use the same
+            // visible-width admission as coarse channel interiors.
+            double minimum=double.PositiveInfinity;foreach(double value in spacing)minimum=Math.Min(minimum,value);
+            foreach(var s in samplePatch.RiverSpans(minimum>256?minimum*.1:0))
             {
-                token.ThrowIfCancellationRequested();Segment(s.A,s.B);
+                token.ThrowIfCancellationRequested();double width=Math.Max(s.WidthA,s.WidthB);Segment(s.A,s.B,width);
                 foreach(double extra in new[]{0d,2})
                 {
                     double wa=s.WidthA+(s.WidthA>0?extra:0),wb=s.WidthB+(s.WidthB>0?extra:0);
                     V al=(s.A+s.SideA*(wa/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(wa/frame.RadiusM)).Unit,bl=(s.B+s.SideB*(wb/frame.RadiusM)).Unit,br=(s.B-s.SideB*(wb/frame.RadiusM)).Unit;
-                    Segment(al,bl);Segment(ar,br);Segment(al,ar);Segment(bl,br);
+                    Segment(al,bl,width,extra==0);Segment(ar,br,width,extra==0);Segment(al,ar,width,extra==0);Segment(bl,br,width,extra==0);
                 }
                 if(s.PoolA)Pool(s.From,s.A,s.WidthA);if(s.PoolB)Pool(s.To,s.B,s.WidthB);
             }

@@ -26,14 +26,15 @@ static class RiverLodSeamTests
         }
         return result;
     }
-    public static void Run(string path,int source)
+    public static void Run(string path,int source,bool far=false)
     {
         var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         var spans=terrain.Amplification.RiverReach(source);if(spans.Length==0)throw new Exception("Explicit mixed-LOD site is not an actual river");
         var s=spans[spans.Length/2];V at=((s.A+s.B).Unit+(s.SideA+s.SideB).Unit*((s.WidthA+s.WidthB)*.5/(terrain.RadiusM*.1))).Unit;
-        var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);var patch=terrain.Patch(at,20000);
-        var keys=new[]{new TerrainTileKey(-1,-1,3,.1),new TerrainTileKey(-1,0,3,.1),new TerrainTileKey(0,-1,2,.1),new TerrainTileKey(0,0,2,.1)};
-        var plan=keys.ToDictionary(k=>k,k=>k.Level==3?16:32);var steps=TerrainEdges.Build(plan);
+        var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);var patch=terrain.Patch(at,far?140000:20000);
+        int coarseLevel=far?7:3;
+        var keys=new[]{new TerrainTileKey(-1,-1,coarseLevel,.1),new TerrainTileKey(-1,0,coarseLevel,.1),new TerrainTileKey(0,-1,coarseLevel-1,.1),new TerrainTileKey(0,0,coarseLevel-1,.1)};
+        var plan=keys.ToDictionary(k=>k,k=>k.Level==coarseLevel?16:32);var steps=TerrainEdges.Build(plan);
         var meshes=keys.Select(k=>LocalTerrainMesh.Build(terrain,frame,k.X*k.SizeM,k.Z*k.SizeM,k.SizeM,plan[k],edgeSteps:steps[k])).ToArray();
         if(meshes.All(m=>m.WaterClipTriangles.Length==0))throw new Exception("Mixed-LOD bank fixture did not exercise actual river constraints");
         int probes=0,hidden=0;double worst=0,worstAt=0;

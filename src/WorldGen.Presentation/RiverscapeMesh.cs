@@ -21,6 +21,10 @@ namespace WorldGen.Presentation
         {
             if(patch==null)return;
             double step=mesh.SizeM/mesh.Segments;
+            // Distant water keeps its true ribbon and datum, but a subpixel
+            // chord need not carry the millimetre tessellation of a near bank.
+            // Use one common far cap so adjacent distant products agree.
+            double chordLimit=step>256?512:Math.Min(128,Math.Max(4,Math.Sqrt(frame.RadiusM*.008)));
             var spans=patch.RiverSpans(step>32?step*.1:0);if(spans.Length==0)return;
             var positions=new List<float>(mesh.WaterPositions);var colors=new List<float>(mesh.WaterColors);var indices=new List<int>(mesh.WaterTriangles);
             // Reusable Sutherland-Hodgman buffers: no per-pixel/vertex noise
@@ -57,10 +61,9 @@ namespace WorldGen.Presentation
             void Final(Point a,Point b,Point c,int depth=0)
             {
                 double Square(Point p,Point q)=>Math.Pow(p.X-q.X,2)+Math.Pow(p.Z-q.Z,2);
-                // Bound spherical chord sag to about a millimetre, including
-                // coarse tiles. A tile-size-dependent limit left centimetre
-                // steps where a junction fan met its clipped ribbon.
-                double ab=Square(a,b),bc=Square(b,c),ca=Square(c,a),limit=Math.Min(128,Math.Max(4,Math.Sqrt(frame.RadiusM*.008)));
+                // Nearby shores retain the original millimetre chord bound;
+                // distant edges are bounded by their common coarser cap.
+                double ab=Square(a,b),bc=Square(b,c),ca=Square(c,a),limit=chordLimit;
                 if(depth<18&&Math.Max(ab,Math.Max(bc,ca))>limit*limit)
                 {
                     if(ab>=bc&&ab>=ca){var m=Point.Between(a,b,.5);Final(a,m,c,depth+1);Final(m,b,c,depth+1);}

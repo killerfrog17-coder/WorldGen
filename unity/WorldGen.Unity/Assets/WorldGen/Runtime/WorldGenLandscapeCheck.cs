@@ -391,6 +391,7 @@ public sealed partial class LocalTerrainExplorer
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{if(arguments.Contains("--worldgen-landscape-keep-open"))Application.Quit(0);},world,play,worker:worker);
+        var bootstrapCamera=Camera.main;if(bootstrapCamera!=null&&bootstrapCamera!=owner.view)bootstrapCamera.enabled=false;
         if(arguments.Contains("--worldgen-chunk-loading-check"))
         {yield return owner.CheckChunkLoading(output,preparation);yield break;}
         timer.Restart();double deadline=Time.realtimeSinceStartupAsDouble+180;
@@ -493,7 +494,18 @@ public sealed partial class LocalTerrainExplorer
                 look=targetPoint-camera;
             }
             cameraReceipts.Add(name+" camera="+camera+" look="+look+" ground="+cameraFloor+" eyeClearance="+(camera.y-cameraFloor)+" solarHour="+hour);
-            owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();owner.UpdatePlayerWater(true);
+            owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);
+            if(arguments.Contains("--worldgen-cliff-review"))
+            {
+                // A detached camera used to inspect nearby walls through the
+                // origin's distant LOD. Stream from the actual observer, just
+                // as ordinary spectator movement does.
+                owner.motion.X=camera.x+owner.originX;owner.motion.Z=camera.z+owner.originZ;owner.motion.Y=camera.y;
+                owner.RefreshWanted();double observerDeadline=Time.realtimeSinceStartupAsDouble+90;
+                while((!owner.NearReady||owner.DetailPlanning)&&Time.realtimeSinceStartupAsDouble<observerDeadline)yield return null;
+                Check(owner.NearReady&&!owner.DetailPlanning,"Actual review observer has its requested terrain detail: "+name);
+            }
+            owner.UpdateCamera();owner.UpdatePlayerWater(true);
             owner.BuildScatterBatches();
             double bakedDeadline=Time.realtimeSinceStartupAsDouble+90,nextBakeReport=0;
             bool VisiblePending()=>owner.drawBatches.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked)||owner.forestBatches.Values.Any(b=>b.Model.TreeBake&&!b.Model.TreeBaked);

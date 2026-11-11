@@ -7,7 +7,7 @@ using WorldGen.Serialization;
 
 static class CliffSurfaceDiagnostic
 {
-    public static void Run(string input,int source,string output)
+    public static void Run(string input,int source,string output,bool upper=false)
     {
         var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         var spans=terrain.Amplification.RiverReach(source);var middle=spans[spans.Length/2];var center=(middle.A+middle.B).Unit;
@@ -25,21 +25,22 @@ static class CliffSurfaceDiagnostic
             if(found)break;
         }
         if(!found)throw new Exception("No nearby steep wall at actual canyon source");
-        const double size=256;double east=Math.Floor((wx-size/2)/size)*size,north=Math.Floor((wz-size/2)/size)*size;
+        double size=upper?2048:256;if(upper){wx=0;wz=-700;}int segments=upper?128:64,raster=upper?256:128;
+        double east=wx-size/2,north=wz-size/2;
         // Centre the diagnostic raster on the exact selected wall, with ordinary
         // production triangulation and a final-triangle height query.
         east=wx-size/2;north=wz-size/2;
-        var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,64);var contact=TerrainContactSurface.Build(mesh);
+        var mesh=LocalTerrainMesh.Build(terrain,frame,east,north,size,segments);var contact=TerrainContactSurface.Build(mesh);
         var csv=new StringBuilder("x,z,field,pre_water,drawn,regular,exposure\n");double maxError=0;int at=0;
         double Regular(double x,double z)
         {
-            const int side=65;double gx=(x-east)/4,gz=(z-north)/4;int ix=Math.Min(63,Math.Max(0,(int)gx)),iz=Math.Min(63,Math.Max(0,(int)gz));double u=gx-ix,v=gz-iz;
+            int side=segments+1;double gx=(x-east)*segments/size,gz=(z-north)*segments/size;int ix=Math.Min(segments-1,Math.Max(0,(int)gx)),iz=Math.Min(segments-1,Math.Max(0,(int)gz));double u=gx-ix,v=gz-iz;
             double A(int dx,int dz)=>mesh.Positions[((iz+dz)*side+ix+dx)*3+1];
             return u+v<=1?A(0,0)+(A(1,0)-A(0,0))*u+(A(0,1)-A(0,0))*v:A(1,1)+(A(0,1)-A(1,1))*(1-u)+(A(1,0)-A(1,1))*(1-v);
         }
-        for(int z=0;z<=128;z++)for(int x=0;x<=128;x++)
+        for(int z=0;z<=raster;z++)for(int x=0;x<=raster;x++)
         {
-            double px=east+x*2,pz=north+z*2;var p=frame.Position(px,pz);var sample=patch.Geometry(p);double y=frame.SurfaceY(p,sample.ElevationM),pre=frame.SurfaceY(p,sample.PreWaterElevationM),regular=Regular(px,pz),drawn=regular;
+            double px=east+x*size/raster,pz=north+z*size/raster;var p=frame.Position(px,pz);var sample=patch.Geometry(p);double y=frame.SurfaceY(p,sample.ElevationM),pre=frame.SurfaceY(p,sample.PreWaterElevationM),regular=Regular(px,pz),drawn=regular;
             if(contact!=null&&contact.TryHeight(px-east,pz-north,out double h))drawn=h;maxError=Math.Max(maxError,Math.Abs(y-drawn));at++;
             csv.AppendLine(string.Join(",",new[]{px,pz,y,pre,drawn,regular,(double)sample.Province.CanyonExposure}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture))));
         }
