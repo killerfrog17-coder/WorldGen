@@ -14,6 +14,7 @@ param(
     [switch]$KeepOpen,
     [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
+    [ValidateRange(-1,4)][int]$TerrainQuality=-1,
     [string[]]$Captures=@(),
     [int]$SourceCell=-1
 )
@@ -49,6 +50,7 @@ foreach($kind in $Kinds){
     if($WaterShadingReview){$arguments+='--worldgen-water-shading-review'}
     if($CliffReview){$arguments+='--worldgen-cliff-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
+    if($TerrainQuality -ge 0){$arguments+=@('--worldgen-chunk-quality',[string]$TerrainQuality)}
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
     if($Captures.Count -gt 0){foreach($capture in $Captures){if($capture -notmatch '^[a-z0-9-]+$'){throw 'Invalid capture name'}};$arguments+=@('--worldgen-landscape-captures',($Captures -join ','))}
     $style=if($Presented){'Normal'}else{'Hidden'}

@@ -11,6 +11,8 @@ param(
     [ValidateRange(0,2000)][double]$TravelLoopMeters=0,
     [double]$ViewDistance=60000,
     [int]$PlantQuality=2,
+    [ValidateRange(-1,4)][int]$TerrainQuality=-1,
+    [ValidateRange(-1,3)][int]$LoadingEffort=-1,
     [int]$Width=1920,[int]$Height=1080,
     [int]$TimeoutMinutes=45,
     [switch]$PresentMon,
@@ -60,6 +62,8 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     HideWaterDrawingDiagnostic=[bool]$HideWaterDrawing
     LegacyReedFarDiagnostic=[bool]$LegacyReedFar
     TravelLoopMeters=$TravelLoopMeters
+    TerrainQualityOverride=$TerrainQuality
+    LoadingEffortOverride=$LoadingEffort
     RecordedUtc=[DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $destination 'package.json') -Encoding UTF8
 $before=(Get-FileHash -LiteralPath $inputFile -Algorithm SHA256).Hash
@@ -90,6 +94,8 @@ if($TravelLoopMeters -gt 0){$arguments+=@('--worldgen-perf-travel-loop',$TravelL
 if($SitesFile){$sitesInput=[IO.Path]::GetFullPath((Join-Path $repo $SitesFile));if(!(Test-Path -LiteralPath $sitesInput)){throw 'Performance sites file missing'};$arguments+=@('--worldgen-perf-sites-file',('"'+$sitesInput+'"'))}
 $arguments+=@('--worldgen-perf-view',$ViewDistance.ToString([Globalization.CultureInfo]::InvariantCulture))
 $arguments+=@('--worldgen-perf-plant-quality',"$PlantQuality")
+if($TerrainQuality -ge 0){$arguments+=@('--worldgen-perf-terrain-quality',"$TerrainQuality")}
+if($LoadingEffort -ge 0){$arguments+=@('--worldgen-perf-loading-effort',"$LoadingEffort")}
 $run=$null;$capture=$null;$telemetry=$null
 # Unity itself persists window/display settings on exit, even though the test
 # never calls PlayerPrefs.Save. Restore only those keys after our own player.

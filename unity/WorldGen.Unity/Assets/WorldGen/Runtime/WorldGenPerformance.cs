@@ -1330,6 +1330,9 @@ public sealed partial class WorldGenRuntime
         if(!double.IsFinite(travelLoop)||travelLoop<0||travelLoop>2000)throw new ArgumentOutOfRangeException("travelLoop");
         double profileView=double.Parse(Argument("--worldgen-perf-view","60000"),CultureInfo.InvariantCulture);
         int profilePlants=int.Parse(Argument("--worldgen-perf-plant-quality","2"));
+        int profileTerrain=int.Parse(Argument("--worldgen-perf-terrain-quality","-1"));
+        int profileLoading=int.Parse(Argument("--worldgen-perf-loading-effort","-1"));
+        if(profileTerrain< -1||profileTerrain>4||profileLoading< -1||profileLoading>3)throw new ArgumentOutOfRangeException("Performance quality override");
         bool savedSettings=Environment.GetCommandLineArgs().Contains("--worldgen-perf-saved-settings");
         var cases=new List<PerfCase>{
             new PerfCase("grass-clumps",()=>TerrainVideoOptions.GrassClumps=true),
@@ -1520,7 +1523,7 @@ public sealed partial class WorldGenRuntime
         foreach(var site in sites)
         {
             if(site.Item2<0||filter.Length>0&&!filter.Split(',').Contains(site.Item1))continue;
-            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=flightCasesOnly?3:1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();}
+            void Defaults(){var w=WeatherVideoOptions.Current;w.Clouds=1;w.SunGlare=.35f;w.SunRays=.12f;w.Adaptation=.5f;w.Visibility=1;TerrainVideoOptions.ResetVegetation();TerrainVideoOptions.GroundCover=true;TerrainVideoOptions.GrassDensity=1;TerrainVideoOptions.GrassDetail=2;TerrainVideoOptions.GrassBladeDistance=30;TerrainVideoOptions.GrassDistance=300;TerrainVideoOptions.GrassCanopy=true;TerrainVideoOptions.Current.Quality=2;TerrainVideoOptions.Current.Effort=flightCasesOnly?3:1;TerrainVideoOptions.Current.ViewDistanceM=profileView;TerrainVideoOptions.Current.FullDetailTiles=1.5;TerrainVideoOptions.ApplyAllPlantQuality(profilePlants);if(savedSettings)TerrainVideoOptions.Load();if(profileTerrain>=0)TerrainVideoOptions.Current.Quality=profileTerrain;if(profileLoading>=0)TerrainVideoOptions.Current.Effort=profileLoading;}
             // Read saved preferences only on explicit request; never write them.
             // Record the distinction from all-Medium instead of presenting a
             // different configuration as the owner's actual gameplay baseline.
