@@ -25,7 +25,10 @@ namespace WorldGen.Core
             double wavelength=lengthM/cycles;
             // The radius of a bend remains wider than the channel itself.
             // Endpoint collars share position AND tangent with the parent spine.
-            double amplitude=Math.Min(Math.Min(halfWidthM*5.5,lengthM*.08),wavelength*.18)*freedom;
+            // A short graph link only a few channel widths long is part of
+            // a broad bend/confluence, not room for an extra complete meander.
+            double reachFreedom=Smooth(6,12,lengthM/Math.Max(.6,halfWidthM));
+            double amplitude=Math.Min(Math.Min(halfWidthM*5.5,lengthM*(.035+.045*reachFreedom)),wavelength*.18)*freedom;
             double phase=((key>>12)&65535)/65535d*Math.PI*2;
             var result=new V[stations+1];
             V Base(double t)
