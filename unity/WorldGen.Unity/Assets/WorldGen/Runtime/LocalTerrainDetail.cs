@@ -191,6 +191,10 @@ public sealed partial class LocalTerrainExplorer
         // request after forest scheduling could be starved by long forest/fine
         // jobs; filling every lane would delay the nearby forest in large views.
         int requested=0,allowance=Math.Max(1,WorkerLimit/2);
+        // The limit is concurrent work, not a fresh allowance every frame.
+        // Otherwise repeated calls can occupy every lane with far backdrops.
+        foreach(var job in jobs)if(job.Prepared==null&&job.Backdrop&&!job.Task.IsCompleted)allowance--;
+        if(allowance<=0)return;
         foreach(var p in backdropOrder)
         {
             if(ActiveWorkerCount>=WorkerLimit)return;

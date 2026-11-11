@@ -9,6 +9,54 @@ using WorldGen.Presentation;
 
 public sealed partial class LocalTerrainExplorer
 {
+    public IEnumerator CheckSteepPlayerSolidContact(string output)
+    {
+        double bx=0,bz=0,gx=0,gz=0,steepest=1;
+        foreach(double radius in new[]{16d,32,64})for(int direction=0;direction<8;direction++)
+        {
+            double angle=direction*Math.PI/4,x=Math.Cos(angle)*radius,z=Math.Sin(angle)*radius;
+            double h=VisibleGround(x,z,double.NaN);if(!double.IsFinite(h))continue;
+            double dx=VisibleGround(x+.5,z,h)-VisibleGround(x-.5,z,h),dz=VisibleGround(x,z+.5,h)-VisibleGround(x,z-.5,h),grade=dx*dx+dz*dz;
+            if(grade>steepest){steepest=grade;bx=x;bz=z;gx=dx;gz=dz;}
+        }
+        if(steepest<=1)throw new InvalidOperationException("Player collision proof needs actual resident steep terrain");
+        double length=Math.Sqrt(gx*gx+gz*gz);gx/=length;gz/=length;double sx=bx-gx*.8,sz=bz-gz*.8,tx=-gz,tz=gx;
+        var savedMode=Mode;bool savedPause=paused,savedTerrain=TerrainDiagnostics.HoldTerrain,savedPlants=TerrainDiagnostics.HoldPlants;
+        double savedX=motion.X,savedY=motion.Y,savedZ=motion.Z,savedVertical=motion.VerticalSpeed;
+        bool savedFlying=motion.Flying,savedGrounded=motion.Grounded,savedNoClip=motion.NoClip;var savedWater=motion.Water;
+        var obstacle=new GameObject("Steep terrain adjacent solid proof");obstacle.layer=ScatterSolidLayer;obstacle.transform.SetParent(transform,false);
+        int steps=0,contacts=0;double minimumClearance=double.PositiveInfinity;
+        try
+        {
+            paused=true;TerrainDiagnostics.HoldTerrain=TerrainDiagnostics.HoldPlants=true;PlayerRules.Mode=GameMode.Creative;ApplyPlayerMode();
+            motion.Water=null;motion.Place(sx,sz,SurfaceGround(sx,sz));PreparePlayerSolids();
+            obstacle.transform.localPosition=new Vector3((float)(bx-gx*.2+tx*.45-originX),(float)SurfaceGround(sx,sz)+1,(float)(bz-gz*.2+tz*.45-originZ));
+            obstacle.transform.localRotation=Quaternion.LookRotation(new Vector3((float)gx,0,(float)gz),Vector3.up);
+            var box=obstacle.AddComponent<BoxCollider>();box.size=new Vector3(.3f,3,1.4f);Physics.SyncTransforms();
+            double yaw=Math.Atan2(gx+tx*.65,gz+tz*.65)*180/Math.PI;
+            for(int i=0;i<180;i++)
+            {
+                PreparePlayerSolids();motion.Move(1d/60,1,0,0,yaw,0,false,false,PlayerSolidGround,walk:true);
+                double surface=VisibleGround(motion.X,motion.Z,double.NaN);if(!double.IsFinite(surface))throw new InvalidOperationException("Actual player left resident terrain during steep collision proof");
+                double clearance=motion.Y-TerrainMotion.EyeHeightM-surface;minimumClearance=Math.Min(minimumClearance,clearance);
+                if(clearance<-.025)throw new InvalidOperationException("CharacterController pushed actual player below rendered terrain: "+clearance);
+                var feet=PlayerFeet();float radius=playerSolid.radius;
+                var low=transform.TransformPoint(feet+Vector3.up*radius),high=transform.TransformPoint(feet+Vector3.up*(playerSolid.height-radius));
+                if(Physics.CheckCapsule(low,high,Math.Max(.01f,radius-.03f),1<<ScatterSolidLayer,QueryTriggerInteraction.Ignore))throw new InvalidOperationException("Steep terrain correction moved the player body inside an adjacent solid");
+                var middle=transform.TransformPoint(feet+Vector3.up*playerSolid.height*.5f);
+                if((box.ClosestPoint(middle)-middle).sqrMagnitude<=(radius+.04f)*(radius+.04f))contacts++;
+                steps++;if(i%30==29)yield return null;
+            }
+            if(contacts==0)throw new InvalidOperationException("Actual player proof did not reach the adjacent solid");
+            File.WriteAllText(Path.Combine(output,"player-solid-steep-contact.txt"),"PASS actual Creative player motor +CharacterController on resident steep terrain; steps="+steps+"; adjacent-solid contact steps="+contacts+"; start grade="+Math.Sqrt(steepest)+"; minimum final foot/rendered-triangle clearance="+minimumClearance+"m; body remains outside solids.\n");
+        }
+        finally
+        {
+            obstacle.SetActive(false);Destroy(obstacle);Physics.SyncTransforms();PlayerRules.Mode=savedMode;ApplyPlayerMode();
+            motion.X=savedX;motion.Y=savedY;motion.Z=savedZ;motion.VerticalSpeed=savedVertical;motion.Flying=savedFlying;motion.Grounded=savedGrounded;motion.NoClip=savedNoClip;motion.Water=savedWater;
+            paused=savedPause;TerrainDiagnostics.HoldTerrain=savedTerrain;TerrainDiagnostics.HoldPlants=savedPlants;solidRefreshAt=0;UpdateCamera();
+        }
+    }
     public IEnumerator CheckSolidScatterFlow(string output,List<string> report)
     {
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("SOLID SCATTER "+text);report.Add("PASS "+text);Debug.Log("SOLID SCATTER PASS "+text);}

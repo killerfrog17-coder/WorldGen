@@ -419,6 +419,7 @@ public sealed partial class LocalTerrainExplorer
             }
             File.WriteAllText(Path.Combine(output,"player-ground-contact.txt"),"Native terrain movement support; steps="+supportSteps+"; steep starts="+steepStarts+"; minimum foot/drawn-triangle clearance="+minimumClearance+"m; maximum drawn/analytic difference="+maximumAnalyticDifference+"m");
             Check(supportSteps>0&&steepStarts>0&&minimumClearance>=-.025,"Terrain movement support remains above actual steep rendered terrain");
+            yield return owner.CheckSteepPlayerSolidContact(output);
         }
         owner.TestView(3);owner.TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,reviewRange*1.5),2,1,3,0);owner.SetDaylight(12,190000.5);
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;

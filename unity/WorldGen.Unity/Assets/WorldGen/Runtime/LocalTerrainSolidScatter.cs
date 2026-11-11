@@ -131,7 +131,46 @@ public sealed partial class LocalTerrainExplorer
         playerSolid.transform.localPosition=from;playerSolid.enabled=true;
         float falling=(float)Math.Max(0,-motor.VerticalSpeed);
         var flags=playerSolid.Move(transform.TransformVector(target-from));
-        var result=playerSolid.transform.localPosition;playerSolid.enabled=false;
+        var result=playerSolid.transform.localPosition;
+        if((result-target).sqrMagnitude>1e-10f)
+        {
+            double oldGround=SurfaceGround(oldX,oldZ);
+            bool terrainGrounded=motor.Grounded&&!motor.Flying&&!motor.Swimming&&Math.Abs(oldY-TerrainMotion.EyeHeightM-oldGround)<=.03;
+            double ground=oldGround;
+            bool Allowed(Vector3 candidate)
+            {
+                double x=motor.X+(candidate.x-target.x),z=motor.Z+(candidate.z-target.z);
+                ground=SurfaceGround(x,z);
+                if(ground>candidate.y+.005)return false;
+                double distance=Math.Sqrt((x-oldX)*(x-oldX)+(z-oldZ)*(z-oldZ));
+                return !terrainGrounded||ground-oldGround<=distance*1.0101+.005;
+            }
+            if(!Allowed(result))
+            {
+                // A solid's lateral depenetration/slide must not bypass the
+                // terrain motor's slope constraint. Retry ordinary controller
+                // slides along each axis; never move back inside the obstacle
+                // by interpolating its already-resolved endpoint.
+                var corrected=result;var best=from;var bestFlags=CollisionFlags.None;float longest=-1;
+                for(int axis=0;axis<2;axis++)
+                {
+                    playerSolid.transform.localPosition=from;
+                    var destination=axis==0?new Vector3(corrected.x,target.y,from.z):new Vector3(from.x,target.y,corrected.z);
+                    var axisFlags=playerSolid.Move(transform.TransformVector(destination-from));var candidate=playerSolid.transform.localPosition;
+                    if(!Allowed(candidate))continue;
+                    float travel=(candidate.x-from.x)*(candidate.x-from.x)+(candidate.z-from.z)*(candidate.z-from.z);
+                    if(travel>longest){longest=travel;best=candidate;bestFlags=axisFlags;}
+                }
+                if(longest<0)
+                {
+                    playerSolid.enabled=false;motor.X=oldX;motor.Z=oldZ;motor.Y=Math.Max(oldY,oldGround+TerrainMotion.EyeHeightM);
+                    if((flags&CollisionFlags.Above)!=0&&motor.VerticalSpeed>0)motor.VerticalSpeed=0;return;
+                }
+                result=best;flags=bestFlags;Allowed(result);
+            }
+            result.y=Math.Max(result.y,(float)ground);
+        }
+        playerSolid.enabled=false;
         // Apply only the solver's correction. Copying its float position back
         // wholesale would quantize ordinary movement at high FPS/far origins.
         motor.X+=result.x-target.x;motor.Z+=result.z-target.z;motor.Y+=result.y-target.y;
