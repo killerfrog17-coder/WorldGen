@@ -465,12 +465,14 @@ public sealed partial class LocalTerrainExplorer
         var cameraReceipts=new List<string>();Color[] fallMotionPixels=null;
         IEnumerator Capture(string name,Vector3 offset,bool walking=false,double hour=12,bool faceCenter=false,Vector3? inspectionTarget=null)
         {
+            int selection=Array.IndexOf(arguments,"--worldgen-landscape-captures");
+            if(selection>=0&&!arguments[selection+1].Split(',').Contains(name))yield break;
             owner.nextDaylightAt=0;owner.SetDaylight(hour,190000+(site.Position.Z<0?0:.5));
             Check(owner.SkyFrame.Daylight>.75,"Art capture uses actual summer daylight: "+name);
             var camera=new Vector3(offset.x,y+.5f+offset.y,offset.z);
             double offsetRadius=new Vector2(offset.x,offset.z).magnitude;
             double inspectedRadius=site.Dune?.RadiusM??site.Outcrop?.RadiusM??site.Volcano?.RadiusM??site.Canyon?.HalfWidth??site.Trough?.HalfWidth??site.Fjord?.HalfWidth??Math.Min(200,reviewFootprint*.2);
-            Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
+            if(!arguments.Contains("--worldgen-cliff-review"))Check(Math.Min(owner.terrainRevealRadius,owner.forestRevealRadius)>offsetRadius+inspectedRadius,"Detached capture has resident coverage beyond the reviewed feature: "+name);
             var cameraPoint=owner.frame.Position(camera.x,camera.z);var cameraGround=model.Patch(cameraPoint,3000).Sample(cameraPoint);
             float cameraFloor=(float)owner.frame.SurfaceY(cameraPoint,cameraGround.ElevationM);
             if(site.Coast!=null||site.Fjord.HasValue)cameraFloor=Mathf.Max(cameraFloor,(float)owner.frame.SurfaceY(cameraPoint,0));
@@ -501,9 +503,10 @@ public sealed partial class LocalTerrainExplorer
                 // origin's distant LOD. Stream from the actual observer, just
                 // as ordinary spectator movement does.
                 owner.motion.X=camera.x+owner.originX;owner.motion.Z=camera.z+owner.originZ;owner.motion.Y=camera.y;
-                owner.RefreshWanted();double observerDeadline=Time.realtimeSinceStartupAsDouble+90;
-                while((!owner.NearReady||owner.DetailPlanning)&&Time.realtimeSinceStartupAsDouble<observerDeadline)yield return null;
-                Check(owner.NearReady&&!owner.DetailPlanning,"Actual review observer has its requested terrain detail: "+name);
+                owner.RefreshWanted();double observerDeadline=Time.realtimeSinceStartupAsDouble+120;
+                double inspectedDistance=Math.Min(reviewRange*.85,Math.Max(100,look.magnitude*1.1));
+                while((!owner.NearReady||owner.DetailPlanning||owner.terrainRevealRadius<inspectedDistance)&&Time.realtimeSinceStartupAsDouble<observerDeadline)yield return null;
+                Check(owner.NearReady&&!owner.DetailPlanning&&owner.terrainRevealRadius>=inspectedDistance,"Actual review observer has requested terrain detail through its inspected view: "+name);
             }
             owner.UpdateCamera();owner.UpdatePlayerWater(true);
             owner.BuildScatterBatches();
@@ -535,7 +538,13 @@ public sealed partial class LocalTerrainExplorer
                 owner.landscapeReviewCamera=camera;owner.landscapeReviewRotation=Quaternion.LookRotation(look);owner.UpdateCamera();
             }
             if(kind=="AlluvialRiver")Check((camera-new Vector3(0,y+.5f,0)).magnitude<owner.publishedFog*.85f,"Alluvial feature center is inside the actual camera reveal distance");
-            owner.UpdatePlayerWater(true);owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+            owner.UpdatePlayerWater(true);
+            if(arguments.Contains("--worldgen-cliff-review"))
+            {
+                var at=owner.frame.Position(camera.x+owner.originX,camera.z+owner.originZ);var physical=model.Patch(at,3000).Geometry(at);
+                File.AppendAllText(Path.Combine(output,"observer-state.txt"),name+" frameR="+owner.frame.RadiusM+" frameAltitude="+owner.frame.AltitudeM+" origin="+owner.originX+","+owner.originZ+" generation="+owner.generation+" motion="+owner.motion.X+","+owner.motion.Y+","+owner.motion.Z+" camera="+owner.view.transform.position+" desired="+camera+" localground="+owner.frame.SurfaceY(at,physical.ElevationM)+" drawn="+owner.VisibleGround(camera.x+owner.originX,camera.z+owner.originZ,double.NaN)+" water="+owner.frame.SurfaceY(at,physical.WaterSurfaceM)+" fog="+owner.publishedFog+" terrainReveal="+owner.terrainRevealRadius+" forestReveal="+owner.forestRevealRadius+" underwater="+owner.waterScreen.Blend+" tiles="+owner.tiles.Count+" active="+owner.tiles.Values.Count(t=>t.Root.activeInHierarchy)+" cull="+owner.view.cullingMask+"\n");
+            }
+            owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
             var image=new Texture2D(1536,864,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1536,864),0,0);image.Apply();File.WriteAllBytes(Path.Combine(output,name+".png"),image.EncodeToPNG());
             if(name=="cliff-wall-near"&&arguments.Contains("--worldgen-cliff-review"))
             {

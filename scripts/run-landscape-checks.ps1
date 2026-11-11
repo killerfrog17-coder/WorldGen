@@ -14,6 +14,7 @@ param(
     [switch]$KeepOpen,
     [ValidateSet('Leftmost','Rightmost')][string]$ReviewMonitor='Rightmost',
     [ValidateRange(0,4)][int]$PlantQuality=3,
+    [string[]]$Captures=@(),
     [int]$SourceCell=-1
 )
 $ErrorActionPreference='Stop'
@@ -49,6 +50,7 @@ foreach($kind in $Kinds){
     if($CliffReview){$arguments+='--worldgen-cliff-review'}
     $arguments+=@('--worldgen-landscape-quality',[string]$PlantQuality)
     if($SourceCell -ge 0){$arguments+=@('--worldgen-landscape-source',[string]$SourceCell)}
+    if($Captures.Count -gt 0){foreach($capture in $Captures){if($capture -notmatch '^[a-z0-9-]+$'){throw 'Invalid capture name'}};$arguments+=@('--worldgen-landscape-captures',($Captures -join ','))}
     $style=if($Presented){'Normal'}else{'Hidden'}
     $process=Start-Process -FilePath $player -ArgumentList $arguments -WindowStyle $style -PassThru
     if($Presented){& (Join-Path $PSScriptRoot 'place-review-window.ps1') -ReviewProcessId $process.Id -Monitor $ReviewMonitor}

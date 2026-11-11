@@ -101,7 +101,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             var camera=landscapeReviewCamera.Value;
             double dx=camera.x-(motion.X-originX),dz=camera.z-(motion.Z-originZ);
-            distance=(float)Math.Min(distance,Math.Max(40,Math.Min(terrainRevealRadius,forestRevealRadius)-Math.Sqrt(dx*dx+dz*dz)-8));
+            // A diagnostic which now moves the real observer is no longer
+            // detached. Preserve ordinary monotonic reveal in that case.
+            if(dx*dx+dz*dz>.01)distance=(float)Math.Min(distance,Math.Max(40,Math.Min(terrainRevealRadius,forestRevealRadius)-Math.Sqrt(dx*dx+dz*dz)-8));
         }
         // A settled reveal used to resend the identical uniform to every cached
         // species material every frame. New art is initialized to this datum too.
