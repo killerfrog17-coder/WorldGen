@@ -352,9 +352,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
         // With resident ground beneath a flying player, keep one lane serving
-        // missing outward coverage. The remaining lanes finish nearby detail.
+        // outward coverage and its finer fallbacks. The remaining lanes finish detail.
         long priorTerrainRequests=TerrainBuildRequests;
-        if(coveredFlight)ScheduleBackdrop(missingOnly:true);
+        if(coveredFlight)ScheduleBackdrop(flightPriority:true);
         ScheduleCurrentTerrain(nearOnly:true);
         if(!NearTerrainPending())
         {
