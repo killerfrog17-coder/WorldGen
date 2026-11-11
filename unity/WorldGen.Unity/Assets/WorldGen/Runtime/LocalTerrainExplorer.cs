@@ -345,17 +345,27 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         ScheduleCurrentTerrain(nearOnly:true);
         if(!NearTerrainPending())
         {
-            // Fill missing outward coverage before upgrading already visible
-            // land. Only after that do forest/prediction use spare workers.
-            ScheduleBackdrop();
+            // A coarse fallback beneath the player is not finished foreground
+            // detail. Finish the visible neighbourhood before missing distant
+            // tiles can consume all lanes with large far-terrain requests.
+            ScheduleCurrentTerrain(foregroundOnly:true);
             if(forestRevealRadius<Math.Min(terrainRevealRadius,Math.Max(600,detailOptions.FullRadius(HorizontalScale))))
                 ScheduleForestWork();
-            ScheduleCurrentTerrain(missingOnly:true);
-            ScheduleCurrentTerrain();
+            bool foregroundPending=ForegroundTerrainPending();
+            if(!foregroundPending)
+            {
+                ScheduleBackdrop();
+                ScheduleCurrentTerrain(missingOnly:true);
+                ScheduleCurrentTerrain();
+            }
+            // Chart handoffs can still use spare capacity during fast travel.
             SchedulePreparedWork(false);
-            if(coveredFlight)ScheduleFlightBackground();
-            ScheduleForestWork();
-            SchedulePredictiveTerrain();
+            if(!foregroundPending)
+            {
+                if(coveredFlight)ScheduleFlightBackground();
+                ScheduleForestWork();
+                SchedulePredictiveTerrain();
+            }
         }
         if(TerrainBuildRequests>priorTerrainRequests)forestScheduledFirst=false;
         WorldGenPerformance.TraceEnd(37,schedulingTrace);
@@ -363,11 +373,19 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         RetireTerrainGradually();
         if(WorldGenPerformance.Enabled&&!WorldGenPerformance.Measuring)PerformanceVerifyPending();
     }
-    void ScheduleCurrentTerrain(bool nearOnly=false,bool missingOnly=false)
+    double ForegroundRadius=>Math.Min(600,viewDistance*.75);
+    bool ForegroundTerrain(TerrainTileKey key)=>TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=ForegroundRadius*ForegroundRadius;
+    bool ForegroundTerrainPending()
+    {
+        foreach(var pair in wanted)if(ForegroundTerrain(pair.Key)&&
+            (!tiles.TryGetValue(pair.Key,out var tile)||tile.CoverageOnly||tile.Segments!=pair.Value||!TerrainEdges.Equal(tile.Edges,wantedEdges[pair.Key])))return true;
+        return false;
+    }
+    void ScheduleCurrentTerrain(bool nearOnly=false,bool missingOnly=false,bool foregroundOnly=false)
     {
         foreach(var key in priority)
         {
-            if(nearOnly&&!ImmediateTerrain(key)||missingOnly&&HasResidentCoverage(key))continue;
+            if(nearOnly&&!ImmediateTerrain(key)||foregroundOnly&&!ForegroundTerrain(key)||missingOnly&&HasResidentCoverage(key))continue;
             int detail=wanted[key];
             if(tiles.TryGetValue(key,out var tile)&&!tile.CoverageOnly&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
             if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false)))
@@ -397,6 +415,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         nearMemoFrame=Time.frameCount;nearMemoRevision=residentRevision;nearMemoCount=tiles.Count;nearMemoWanted=wanted;nearMemoX=motion.X;nearMemoZ=motion.Z;
         return nearMemoPending=NearTerrainPendingFresh();
     }
+    readonly List<TerrainTileKey> refreshRetiredTerrain=new List<TerrainTileKey>();
     void RefreshWanted(bool resetDetail=false)
     {
         bool bootstrap=resetDetail||detailBaseline||legacyPlanRefresh||double.IsNaN(plannedX);
@@ -406,7 +425,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         wanted=bootstrap?fallback:TerrainStreamingPlan.CompleteCoverage(TerrainStreamingPlan.ProtectNear(wanted,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,plannedAltitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance)),fallback);
         priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
         wantedEdges.Clear();foreach(var pair in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
-        foreach(var key in tiles.Keys.Where(k=>!wanted.ContainsKey(k)&&!wanted.Keys.Any(w=>Overlaps(k,w))).ToArray()){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
+        refreshRetiredTerrain.Clear();foreach(var key in tiles.Keys)if(!HasWantedTerrainOverlap(key))refreshRetiredTerrain.Add(key);
+        foreach(var key in refreshRetiredTerrain){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
         foreach(var job in jobs)
             if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();
         double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);

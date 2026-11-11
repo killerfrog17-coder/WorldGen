@@ -8,6 +8,43 @@ public sealed partial class LocalTerrainExplorer
 {
     readonly Dictionary<TerrainTileKey,Tile> previousTerrain=new Dictionary<TerrainTileKey,Tile>();
     readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>> transitionSnapshot=new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<TerrainTileKey,Tile>>();
+    Dictionary<TerrainTileKey,int> transitionWantedPlan;
+    int transitionWantedCount=-1,transitionWantedMaximumLevel;double transitionWantedScale;bool transitionWantedMixedScales;
+    readonly Dictionary<TerrainTileKey,List<TerrainTileKey>> transitionWantedDescendants=new Dictionary<TerrainTileKey,List<TerrainTileKey>>();
+    readonly Stack<List<TerrainTileKey>> transitionWantedLists=new Stack<List<TerrainTileKey>>();
+
+    void PrepareTransitionWanted()
+    {
+        // Production replaces the dictionary when adopting a plan. Keep keys,
+        // not requested segment values: those are always read from the live
+        // dictionary, including the native controls' in-place detail changes.
+        if(ReferenceEquals(transitionWantedPlan,wanted)&&transitionWantedCount==wanted.Count)return;
+        transitionWantedPlan=wanted;transitionWantedCount=wanted.Count;transitionWantedMixedScales=false;transitionWantedMaximumLevel=-1;
+        foreach(var list in transitionWantedDescendants.Values){list.Clear();transitionWantedLists.Push(list);}
+        transitionWantedDescendants.Clear();bool first=true;
+        foreach(var key in wanted.Keys)
+        {
+            transitionWantedMaximumLevel=Math.Max(transitionWantedMaximumLevel,key.Level);
+            if(first){transitionWantedScale=key.Scale;first=false;}else transitionWantedMixedScales|=transitionWantedScale!=key.Scale;
+            for(int depth=1;depth<24-key.Level;depth++)
+            {
+                var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
+                if(!transitionWantedDescendants.TryGetValue(ancestor,out var list))
+                {list=transitionWantedLists.Count>0?transitionWantedLists.Pop():new List<TerrainTileKey>();transitionWantedDescendants.Add(ancestor,list);}
+                list.Add(key);
+            }
+        }
+    }
+    bool HasWantedTerrainOverlap(TerrainTileKey key)
+    {
+        PrepareTransitionWanted();
+        if(transitionWantedMixedScales||wanted.Count>0&&key.Scale!=transitionWantedScale)
+        {foreach(var candidate in wanted.Keys)if(Overlaps(key,candidate))return true;return false;}
+        if(wanted.ContainsKey(key)||transitionWantedDescendants.ContainsKey(key))return true;
+        for(int depth=1;depth<=transitionWantedMaximumLevel-key.Level;depth++)
+            if(wanted.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale)))return true;
+        return false;
+    }
     float TransitionNow=>Math.Max(.001f,Time.time);
     bool terrainHardUpdates;
     bool FadeComplete(Tile tile)=>TerrainVideoOptions.HardChunkUpdates||tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
@@ -64,7 +101,13 @@ public sealed partial class LocalTerrainExplorer
         }
     }
     bool HasFinerWantedOverlap(TerrainTileKey key)
-    {foreach(var candidate in wanted.Keys)if(candidate.Level<key.Level&&Overlaps(key,candidate))return true;return false;}
+    {
+        PrepareTransitionWanted();
+        if(transitionWantedMixedScales||wanted.Count>0&&key.Scale!=transitionWantedScale)
+        {foreach(var candidate in wanted.Keys)if(candidate.Level<key.Level&&Overlaps(key,candidate))return true;return false;}
+        if(transitionWantedDescendants.TryGetValue(key,out var descendants))foreach(var candidate in descendants)if(wanted.ContainsKey(candidate))return true;
+        return false;
+    }
     void RetireObsoleteTerrain()
     {
         if(GroundPublicationPending)return;
@@ -93,12 +136,29 @@ public sealed partial class LocalTerrainExplorer
         // repeated whole-forest corrections. Normal coverage still selects
         // the finest ready surface; an unplanned backdrop can retire normally.
         if(WorldGenPerformance.KeepBackdrops&&backdrops.ContainsKey(key))return false;
-        bool any=false,coarser=false,complete=true;
-        foreach(var replacement in wanted)
+        PrepareTransitionWanted();bool any=false,coarser=false,complete=true;
+        bool Ready(TerrainTileKey replacement,int segments)
         {
-            if(!Overlaps(key,replacement.Key))continue;any=true;
-            if(!tiles.TryGetValue(replacement.Key,out var ready)||ready.CoverageOnly||ready.Segments!=replacement.Value)return false;
-            coarser|=replacement.Key.Level>key.Level;complete&=FadeComplete(ready);
+            any=true;
+            if(!tiles.TryGetValue(replacement,out var ready)||ready.CoverageOnly||ready.Segments!=segments)return false;
+            coarser|=replacement.Level>key.Level;complete&=FadeComplete(ready);return true;
+        }
+        if(transitionWantedMixedScales||wanted.Count>0&&key.Scale!=transitionWantedScale)
+        {
+            foreach(var replacement in wanted)if(Overlaps(key,replacement.Key)&&!Ready(replacement.Key,replacement.Value))return false;
+        }
+        else
+        {
+            // Dyadic same-scale tiles overlap only through ancestry. One
+            // containing planned tile plus this key's actual descendants
+            // replace the previous scan of the entire world-view plan.
+            for(int depth=0;depth<=transitionWantedMaximumLevel-key.Level;depth++)
+            {
+                var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
+                if(wanted.TryGetValue(ancestor,out int segments)&&!Ready(ancestor,segments))return false;
+            }
+            if(transitionWantedDescendants.TryGetValue(key,out var descendants))
+                foreach(var replacement in descendants)if(wanted.TryGetValue(replacement,out int segments)&&!Ready(replacement,segments))return false;
         }
         if(!any)return true;
         var tile=tiles[key];

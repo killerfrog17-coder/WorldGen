@@ -138,7 +138,7 @@ public sealed partial class LocalTerrainExplorer
         wanted=plan;wantedEdges.Clear();foreach(var p in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(p.Key,p.Value);
         priority.Clear();priority.AddRange(wanted.Keys);
         foreach(var job in jobs)if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&!WorkMatchesCurrent(job))job.Cancellation?.Cancel();
-        priority.Sort((a,b)=>StreamingPriority(a).CompareTo(StreamingPriority(b)));fogCheckAt=0;
+        priority.Sort((a,b)=>StreamingPriority(a).CompareTo(StreamingPriority(b)));
     }
     void PlanBackdrop()
     {

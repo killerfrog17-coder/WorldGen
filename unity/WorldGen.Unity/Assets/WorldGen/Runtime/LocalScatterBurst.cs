@@ -277,6 +277,27 @@ public sealed partial class LocalTerrainExplorer
     bool CollectBurstScatter(Vector3 eye)
     {
         if(frame==null||terrain==null||!WorldGenPerformance.BurstScatter||burstUnavailable||!BurstCompiler.IsEnabled||WorldGenPerformance.Original||WorldGenPerformance.FineCullTrace||WorldGenPerformance.LegacyGroupVisibility||prefabScatterKinds.Count>0)return false;
+        // Range admission uses full 3D root bounds and each kind's actual
+        // maximum draw distance, including the width of large outcrops. At
+        // flight altitude all local bins may be out of range: reject them
+        // before copying global forest/occlusion data or scheduling jobs that
+        // would only repeat the same rejection. Retained chunks still run the
+        // ordinary per-group and per-instance tests without cached visibility.
+        burstJobs.Clear();burstScheduled.Clear();
+        foreach(var chunk in scatterCollectWork)
+        {
+            chunk.Admissions.Clear();chunk.AdmissionCounts=default;
+            if(chunk.Source.Instances.Length==0)continue;
+            if(!WorldGenPerformance.ScatterRangeCache)chunk.RangeValid=false;
+            PrepareScatterRange(chunk,eye);
+            if(chunk.RangeGroups.Count==0)
+            {chunk.AdmissionCounts=new ScatterCounts{Frustum=chunk.Source.Instances.Length};continue;}
+            var bounds=chunk.AllBounds;bounds.Expand(10+(bounds.center-eye).magnitude*.04f);
+            if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye)&&!MayCastVisibleShadow(bounds,eye))
+            {chunk.AdmissionCounts=new ScatterCounts{Frustum=chunk.Source.Instances.Length};continue;}
+            burstScheduled.Add(chunk);
+        }
+        if(burstScheduled.Count==0){BurstScatterBuilds++;return true;}
         PrepareTerrainOccluders();BurstArray(ref burstPlanes,6);BurstArray(ref burstCasts,13);NativeArray<Plane>.Copy(scatterFrustum,0,burstPlanes,0,6);for(int i=0;i<13;i++)burstCasts[i]=ScatterGroupCanCast((ScatterKind)i)?(byte)1:(byte)0;
         if(!burstCollected.IsCreated)burstCollected=new NativeParallelHashSet<ulong>(Math.Max(16,inventoryCollected.Count),Allocator.Persistent);
         if(burstCollectedCount!=inventoryCollected.Count){burstCollected.Clear();if(burstCollected.Capacity<inventoryCollected.Count)burstCollected.Capacity=inventoryCollected.Count;foreach(ulong id in inventoryCollected)burstCollected.Add(id);burstCollectedCount=inventoryCollected.Count;}
@@ -292,17 +313,13 @@ public sealed partial class LocalTerrainExplorer
         var o=new BurstScatterOptions{Eye=eye,Slack=scatterAngularSlack,ShadowRadius=vegetationShadowRadius,ShadowDistance=vegetationShadowDistance,ShadowSlope=vegetationShadowSlope,OriginX=originX,OriginZ=originZ,TileSize=TerrainLod.BaseSizeM*HorizontalScale,Ceiling=occlusionCeiling,
             AllHeadings=scatterCachedAllHeadings,Frustum=TerrainVideoOptions.ScatterFrustum,Occlusion=TerrainVideoOptions.VegetationOcclusion,GpuOcclusion=WorldGenPerformance.GpuNearOcclusion,Specialists=TerrainVideoOptions.SpecialistPlants,Mid=TerrainVideoOptions.MidPlants,Tree=TerrainVideoOptions.GeneratedTrees,Rebuilt=TerrainVideoOptions.TreeRebuild,Impostors=TerrainVideoOptions.TreeImpostors,FarForest=TerrainVideoOptions.FarForest,NoTrees=WorldGenPerformance.NoLocalTrees,IndividualTrees=WorldGenPerformance.ForceIndividualTreeAdmission,MidShadows=TerrainVideoOptions.MidPlantShadows,TreeShadows=TerrainVideoOptions.TreeShadows,
             MidDetail=TerrainVideoOptions.MidPlantDetail,TreeDetail=TerrainVideoOptions.TreeDetail,SpecialistDetail=TerrainVideoOptions.SpecialistDetail,ForestEpoch=forestOwnershipEpoch,TreeDensity=TerrainVideoOptions.TreeDensity,MidDensity=TerrainVideoOptions.MidPlantDensity,SpecialistDensity=TerrainVideoOptions.SpecialistDensity,TreeNear=TerrainVideoOptions.TreeNearLod,TreeFar=TerrainVideoOptions.TreeFarLod,MidNear=TerrainVideoOptions.MidNearLod,MidFar=TerrainVideoOptions.MidFarLod,SpecialistNear=TerrainVideoOptions.SpecialistNearLod,TreeIdentity=TerrainVideoOptions.TreeIdentityRange,TreeMaximum=TerrainVideoOptions.TreeMaxDistance,MidMaximum=TerrainVideoOptions.MidMaxDistance,HerbMaximum=TerrainVideoOptions.SpecialistDistance,FungusMaximum=TerrainVideoOptions.FungusDistance,Handoff=ForestHandoffReach,Camp=camp,CampX=campMaskX,CampZ=campMaskZ,Radius=frame.RadiusM,East=frame.East,North=frame.North,Origin=frame.Origin};
-        burstJobs.Clear();burstScheduled.Clear();
         try
         {
-            foreach(var chunk in scatterCollectWork)
+            foreach(var chunk in burstScheduled)
             {
-                chunk.Admissions.Clear();chunk.AdmissionCounts=default;if(chunk.Source.Instances.Length==0)continue;
-                var bounds=chunk.AllBounds;bounds.Expand(10+(bounds.center-eye).magnitude*.04f);
-                if(TerrainVideoOptions.ScatterFrustum&&!ScatterInFrustum(bounds,eye)&&!MayCastVisibleShadow(bounds,eye)){chunk.AdmissionCounts=new ScatterCounts{Frustum=chunk.Source.Instances.Length};continue;}
                 PrepareBurstChunk(chunk);var b=chunk.Burst;
                 var job=new ScatterAdmissionJob{Source=b.Source,Roots=b.Roots,Bounds=b.Bounds,Indices=b.Indices,Groups=b.Groups,Owners=b.Owners,Results=b.Results,Admissions=b.Admissions,Planes=burstPlanes,Casts=burstCasts,CampMask=burstCamp,Collected=burstCollected,Forest=burstForest,Slabs=burstSlabs,SlabInfo=burstSlabInfo,SlabMinimum=burstSlabMinimum,Options=o,Grouped=chunk.Groups.Length>1};
-                burstJobs.Add(job.Schedule(4,1));burstScheduled.Add(chunk);
+                burstJobs.Add(job.Schedule(4,1));
             }
             JobHandle.ScheduleBatchedJobs();
         }
