@@ -13,7 +13,7 @@ using WorldGen.Presentation;
 /// <summary>Input and bounded rendering only; all height queries use the shared terrain sampler.</summary>
 public sealed partial class LocalTerrainExplorer : MonoBehaviour
 {
-    sealed class Tile { public TerrainContactSurface Contact; public bool CoverageOnly,WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
+    sealed class Tile { public ResidentEdgeData ResidentEdges; public TerrainContactSurface Contact; public bool CoverageOnly,WaterBoundsKnown,HasWater;public Bounds WaterBounds; public int Segments; public double[] Edges; public float[] Heights;public NativeArray<float> Cover,MidCover,ForestCover;public ResidentCoverBuffers CoverBuffers;public sbyte MovingCover=-1; public float[] OcclusionMin;public float OcclusionCeiling;public int OcclusionStride; public GameObject Root; public Texture2D Coverage,CoverageTimes,FloraSurface,MidSurface,ForestSurface,ForestFloor; public float[] CoverageNodes,CoverageTimingNodes; public TerrainFadeCache CoverageInputs; public List<TerrainTileKey> CoverageChildren; public float FadeIn,FadeOut; public long BufferBytes,DiagnosticVertices,DiagnosticTriangles; public int DiagnosticRevision=-1; public Material[] Materials;public MeshRenderer[] Renderers;public TerrainMaterialBinding MaterialBinding;public CoverGpu Grass,GrassSprites; public GraphicsBuffer CoverGrid; public readonly Dictionary<CoverPageKey,CoverGpu> CoverPages=new Dictionary<CoverPageKey,CoverGpu>(); }
     sealed class Work { public TerrainTileKey Key; public double[] Edges; public int Segments,Generation; public bool Prefetch,Backdrop; public Task<TerrainUpload> Task; public PreparedFrame Prepared; public CancellationTokenSource Cancellation; }
     readonly TerrainEdges.Workspace terrainEdgeWorkspace=new TerrainEdges.Workspace();
     Task<LocalTerrain> building;
@@ -313,7 +313,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         WorldGenPerformance.TraceEnd(35,installTrace);
         long retirementTrace=WorldGenPerformance.TraceBegin();
-        UpdateTerrainTransitions();RetireObsoleteTerrain();UpdateResidentSeams();
+        UpdateTerrainTransitions();RetireObsoleteTerrain();UpdateResidentEdges();
         WorldGenPerformance.TraceEnd(36,retirementTrace);
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
@@ -426,7 +426,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(data.HasWater)Part("Water surface",meshes[1],waterMaterial);
         var target=prepared==null?tiles:prepared.Tiles;
         if(prepared!=null)prepared.Revision++;
-        var product=new Tile{Contact=data.Contact,CoverageOnly=fallback,Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
+        var product=new Tile{ResidentEdges=data.TakeResidentEdges(),Contact=data.Contact,CoverageOnly=fallback,Root=root,Segments=data.Segments,Edges=edges,Heights=data.Heights,Cover=data.Cover,MidCover=data.MidCover,ForestCover=data.ForestCover,BufferBytes=data.BufferBytes,WaterBoundsKnown=true,HasWater=data.HasWater,WaterBounds=data.WaterBounds};
         foreach(var mesh in meshes){product.DiagnosticVertices+=mesh.GetSubMesh(0).vertexCount;product.DiagnosticTriangles+=(long)mesh.GetIndexCount(0)/3;}
         product.FloraSurface=CreateFloraSurface(product);if(product.FloraSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
         product.MidSurface=CreateMidSurface(product);if(product.MidSurface!=null)product.BufferBytes+=(long)(product.Segments+1)*(product.Segments+1)*8;
@@ -455,7 +455,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var filter in scratch)if(filter.sharedMesh!=null){var mesh=filter.sharedMesh;filter.sharedMesh=null;if(pool==null||!pool.Release(mesh))UnityEngine.Object.Destroy(mesh);count++;}
         scratch.Clear();return count;
     }
-    void DestroyTile(Tile tile){ReleaseResidentSeam(tile);ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch,terrainMeshPool);Destroy(tile.Root);}
+    void DestroyTile(Tile tile){ReleaseResidentEdges(tile);ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch,terrainMeshPool);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;

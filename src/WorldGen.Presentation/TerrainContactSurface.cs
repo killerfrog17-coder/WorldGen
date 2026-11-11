@@ -11,7 +11,8 @@ namespace WorldGen.Presentation
         readonly int[] triangles,offsets,entries;
         readonly int segments;
         readonly double size,step;
-        public long Bytes=>(long)positions.Length*4+(long)(triangles.Length+offsets.Length+entries.Length)*4;
+        float[]? currentHeights;
+        public long Bytes=>(long)(positions.Length+(currentHeights?.Length??0))*4+(long)(triangles.Length+offsets.Length+entries.Length)*4;
 
         TerrainContactSurface(LocalTerrainMesh mesh)
         {
@@ -32,11 +33,25 @@ namespace WorldGen.Presentation
             }
         }
 
-        /// <summary>Ordinary grids already have exact interpolation. Keep extra
-        /// collision data only for refined nearby tiles, never distant backdrops.</summary>
+        /// <summary>Ordinary grids already have exact interpolation. Refined
+        /// meshes need their final triangles at every detail level, including
+        /// when a resident coarse edge is fitted to a finer neighbour.</summary>
         public static TerrainContactSurface? Build(LocalTerrainMesh mesh)
-            =>mesh.SizeM/mesh.Segments<=64&&(mesh.Positions.Length/3>mesh.GroundVertices||mesh.Triangles.Length!=mesh.Segments*mesh.Segments*6)
+            =>mesh.Positions.Length/3>mesh.GroundVertices||mesh.Triangles.Length!=mesh.Segments*mesh.Segments*6
                 ?new TerrainContactSurface(mesh):null;
+
+        public float OriginalHeight(int vertex)=>positions[vertex*3+1];
+        public void SetHeight(int vertex,float height)
+        {
+            float original=OriginalHeight(vertex);
+            if(currentHeights==null)
+            {
+                if(height==original)return;
+                currentHeights=new float[positions.Length/3];
+                for(int i=0;i<currentHeights.Length;i++)currentHeights[i]=positions[i*3+1];
+            }
+            currentHeights[vertex]=height;
+        }
 
         int Cell(double value)=>Math.Max(0,Math.Min(segments-1,(int)Math.Floor(value/step)));
         void Bounds(int triangle,out int x0,out int z0,out int x1,out int z1)
@@ -48,11 +63,13 @@ namespace WorldGen.Presentation
             z1=Cell(Math.Max(positions[a+2],Math.Max(positions[b+2],positions[c+2]))+1e-5);
         }
 
-        public bool TryHeight(double x,double z,out double height)
+        public bool TryHeight(double x,double z,out double height)=>TryHeight(x,z,false,out height);
+        public bool TryOriginalHeight(double x,double z,out double height)=>TryHeight(x,z,true,out height);
+        bool TryHeight(double x,double z,bool original,out double height)
         {
             height=double.NegativeInfinity;
             if(x<-.0001||z<-.0001||x>size+.0001||z>size+.0001||double.IsNaN(x)||double.IsNaN(z))return false;
-            int cell=Cell(x)+Cell(z)*segments;
+            int cell=Cell(x)+Cell(z)*segments;var heights=original?null:currentHeights;
             for(int at=offsets[cell];at<offsets[cell+1];at++)
             {
                 int i=entries[at],a=triangles[i]*3,b=triangles[i+1]*3,c=triangles[i+2]*3;
@@ -60,7 +77,8 @@ namespace WorldGen.Presentation
                 double determinant=bx*cz-bz*cx;if(Math.Abs(determinant)<1e-12)continue;
                 double px=x-ax,pz=z-az,u=(px*cz-pz*cx)/determinant,v=(bx*pz-bz*px)/determinant;
                 if(u< -1e-7||v< -1e-7||u+v>1.0000001)continue;
-                double y=positions[a+1]+u*(positions[b+1]-positions[a+1])+v*(positions[c+1]-positions[a+1]);
+                double ha=heights==null?positions[a+1]:heights[triangles[i]],hb=heights==null?positions[b+1]:heights[triangles[i+1]],hc=heights==null?positions[c+1]:heights[triangles[i+2]];
+                double y=ha+u*(hb-ha)+v*(hc-ha);
                 height=Math.Max(height,y);
             }
             return !double.IsNegativeInfinity(height);

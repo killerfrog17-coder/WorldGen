@@ -53,7 +53,15 @@ namespace WorldGen.Presentation
                     {
                         V ol=(s.A+s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit,orr=(s.A-s.SideA*((s.WidthA+2)/frame.RadiusM)).Unit;
                         V pl=(s.B+s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit,pr=(s.B-s.SideB*((s.WidthB+2)/frame.RadiusM)).Unit;
-                        Edge(ol,pl,true);Edge(orr,pr,true);Edge(ol,orr);Edge(pl,pr);
+                        Edge(ol,pl,true);Edge(orr,pr,true);
+                        // At a distant LOD retain the two continuous banks,
+                        // thalweg and closed junction rings. A cross-cut at
+                        // every fitted station creates a dense arrangement of
+                        // lines inside one coarse cell without adding a shore.
+                        // Actual reach ends still close the finite channel;
+                        // shared tile edges retain their explicit bank curve.
+                        if(step<=256||s.From>=0)Edge(ol,orr);
+                        if(step<=256||s.To>=0)Edge(pl,pr);
                     }
                 }
                 // A known pond also needs its basin in the drawn land. A coarse

@@ -20,7 +20,16 @@ static class TerrainContactSurfaceTests
         Check(!surface.TryHeight(double.NaN,8,out y),"Invalid coordinates do not alias a grid cell");
         mesh.Positions[13]=90;
         Check(surface.TryHeight(8,8,out y)&&Math.Abs(y+4)<1e-8,"Contact retains geometry after transport arrays are reused");
-        mesh.SizeM=4096;Check(TerrainContactSurface.Build(mesh)==null,"Distant products do not retain extra collision topology");
+        long originalBytes=surface.Bytes;surface.SetHeight(0,40);surface.SetHeight(2,40);
+        Check(surface.TryHeight(0,8,out y)&&Math.Abs(y-40)<1e-8,"Contact follows a conformed resident edge");
+        Check(surface.TryHeight(4,8,out y)&&Math.Abs(y-18)<1e-8,"Interior triangle interpolates its changed edge and unchanged riverbed");
+        Check(surface.TryOriginalHeight(0,8,out y)&&Math.Abs(y)<1e-8&&surface.OriginalHeight(0)==0,"Canonical edge sampling survives resident fitting");
+        Check(surface.TryOriginalHeight(4,8,out y)&&Math.Abs(y+2)<1e-8,"Original triangle interpolation is independent of fitted heights");
+        Check(surface.Bytes==originalBytes+5*4,"Only edited contacts retain one extra height per vertex");
+        surface.SetHeight(0,surface.OriginalHeight(0));surface.SetHeight(2,surface.OriginalHeight(2));
+        Check(surface.TryHeight(4,8,out y)&&Math.Abs(y+2)<1e-8,"Restoring original edge vertices restores contact interpolation");
+        mesh.SizeM=4096;var distant=TerrainContactSurface.Build(mesh);
+        Check(distant!=null&&distant.TryHeight(0,8,out y)&&Math.Abs(y)<1e-8,"Refined distant resident edges retain their actual triangle contact");
         var regular=new LocalTerrainMesh{SizeM=16,Segments=4,GroundVertices=25,Positions=new float[75],Triangles=LocalTerrainMesh.SurfaceTriangles(4)};
         Check(TerrainContactSurface.Build(regular)==null,"Ordinary regular-grid interpolation has no duplicate contact data");
         Console.WriteLine("Terrain final-triangle contact PASS "+checks);

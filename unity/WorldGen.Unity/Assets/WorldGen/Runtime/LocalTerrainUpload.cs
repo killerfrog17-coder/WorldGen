@@ -44,7 +44,9 @@ public sealed partial class LocalTerrainExplorer
         public Vector3 Position,Normal;
         public Color Color;
         public Vector2 Uv;
-        public Vector4 GroundA,GroundB,RockA;
+        public Vector4 GroundA,GroundB;
+        public float EdgeIndex;
+        public Vector4 RockA;
         public Vector2 RockB;
     }
 
@@ -126,6 +128,7 @@ public sealed partial class LocalTerrainExplorer
             new VertexAttributeDescriptor(VertexAttribute.TexCoord0,VertexAttributeFormat.Float32,2),
             new VertexAttributeDescriptor(VertexAttribute.TexCoord1,VertexAttributeFormat.Float32,4),
             new VertexAttributeDescriptor(VertexAttribute.TexCoord2,VertexAttributeFormat.Float32,4),
+            new VertexAttributeDescriptor(VertexAttribute.TexCoord3,VertexAttributeFormat.Float32,1),
             new VertexAttributeDescriptor(VertexAttribute.TexCoord4,VertexAttributeFormat.Float32,4),
             new VertexAttributeDescriptor(VertexAttribute.TexCoord5,VertexAttributeFormat.Float32,2)};
         Mesh.MeshDataArray buffers;
@@ -137,7 +140,9 @@ public sealed partial class LocalTerrainExplorer
         public long BufferBytes;
         public float[] Heights;public TerrainContactSurface Contact;public NativeArray<float> Cover,MidCover,ForestCover;
         ResidentCoverBuffers coverBuffers;
+        ResidentEdgeData residentEdges;
         public ResidentCoverBuffers TakeCoverBuffers()=>Interlocked.Exchange(ref coverBuffers,null);
+        public ResidentEdgeData TakeResidentEdges()=>Interlocked.Exchange(ref residentEdges,null);
         bool hasWater;
         public bool HasWater=>hasWater;
         public Bounds WaterBounds=>hasWater?bounds[1]:default;
@@ -203,6 +208,11 @@ public sealed partial class LocalTerrainExplorer
                         }
                         vertices[i]=v;
                     }
+                    if(!water)
+                    {
+                        result.residentEdges=ResidentEdgeData.Build(source,vertices);
+                        result.BufferBytes+=result.residentEdges.Bytes;
+                    }
                     if(compact){var target=data.GetIndexData<ushort>();for(int i=0;i<indices.Length;i++)target[i]=(ushort)indices[i];}
                     else data.GetIndexData<int>().CopyFrom(indices);
                     result.bounds[part]=new Bounds((low+high)*.5f,high-low);
@@ -223,6 +233,7 @@ public sealed partial class LocalTerrainExplorer
             try{Mesh.ApplyAndDisposeWritableMeshData(buffers,meshes,MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);}
             catch{foreach(var mesh in meshes)UnityEngine.Object.Destroy(mesh);throw;}
             live=0;for(int i=0;i<meshes.Length;i++)meshes[i].bounds=bounds[i];
+            if(residentEdges!=null)residentEdges.Mesh=meshes[0];
             if(!hasWater){UnityEngine.Object.Destroy(meshes[1]);return new[]{meshes[0]};}return meshes;
         }
         Mesh[] ApplyReused(TerrainMeshPool pool)
@@ -245,6 +256,7 @@ public sealed partial class LocalTerrainExplorer
                     else mesh.SetIndexBufferData(data.GetIndexData<uint>(),0,0,submesh.indexCount,flags);
                     mesh.SetSubMesh(0,submesh,flags);mesh.bounds=bounds[i];
                 }
+                if(residentEdges!=null)residentEdges.Mesh=meshes[0];
                 return meshes;
             }
             catch{foreach(var mesh in meshes)if(mesh!=null)pool.Release(mesh);throw;}
@@ -253,6 +265,7 @@ public sealed partial class LocalTerrainExplorer
         public void Dispose()
         {
             TakeCoverBuffers()?.Dispose();
+            TakeResidentEdges()?.Dispose();
             if(Interlocked.Exchange(ref live,0)==0)return;
             var owned=buffers;
             if(Thread.CurrentThread.ManagedThreadId==mainThread){owned.Dispose();return;}

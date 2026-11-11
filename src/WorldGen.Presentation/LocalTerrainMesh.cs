@@ -188,6 +188,9 @@ namespace WorldGen.Presentation
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
                 int i = z * side + x, at = (z + 1) * halo + x + 1; var sample = sparseMaterials?SurfaceSample(eastM+x*step,northM+z*step,samples[i]):samples[i]; double y = heights[at];
+                // Distant bank vertices reuse this ecological grid. Retain the
+                // enriched sample rather than the first pass's geometry only.
+                if(distant)samples[i]=sample;
                 mesh.MinHeightM = Math.Min(mesh.MinHeightM, y); mesh.MaxHeightM = Math.Max(mesh.MaxHeightM, y);
                 mesh.Positions[i * 3] = (float)(x * step); mesh.Positions[i * 3 + 1] = (float)y; mesh.Positions[i * 3 + 2] = (float)(z * step);
                 mesh.WaterPositions[i * 3] = (float)(x * step); mesh.WaterPositions[i * 3 + 1] = (float)frame.SurfaceY(frame.Position(eastM + x * step, northM + z * step), 0); mesh.WaterPositions[i * 3 + 2] = (float)(z * step);
