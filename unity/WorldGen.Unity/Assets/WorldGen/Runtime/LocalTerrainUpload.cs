@@ -190,7 +190,7 @@ public sealed partial class LocalTerrainExplorer
         {
             using(var native=new NativeArray<TerrainVertex>(vertices.Count,Allocator.Temp,NativeArrayOptions.UninitializedMemory))
             {
-                for(int i=0;i<vertices.Count;i++)native[i]=vertices[i];
+                var writable=native;for(int i=0;i<vertices.Count;i++)writable[i]=vertices[i];
                 data=ResidentEdgeData.Build(wire,native);mesh=new Mesh{name="Resident terrain boundary knot union"};mesh.MarkDynamic();
                 mesh.SetVertexBufferParams(native.Length,TerrainUpload.Layout);mesh.SetVertexBufferData(native,0,0,native.Length);
                 bool compact=native.Length<=65535;mesh.SetIndexBufferParams(finalIndices.Length,compact?IndexFormat.UInt16:IndexFormat.UInt32);
