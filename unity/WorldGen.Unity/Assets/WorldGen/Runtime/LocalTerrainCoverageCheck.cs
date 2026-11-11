@@ -122,7 +122,8 @@ public sealed partial class LocalTerrainExplorer
         var oldParent=explorer.tiles[parent];var newParent=new Tile{Root=Quad("same-key replacement",4,2,Color.red),Edges=new double[4]};
         explorer.BeginTerrainReplacement(parent,newParent,oldParent);explorer.tiles[parent]=newParent;
         if(explorer.TerrainTiming(child).In>0)throw new Exception("Replacing a parent suppressed already-resident children");
-        explorer.previousTerrain.Remove(parent);explorer.DestroyTile(oldParent);explorer.tiles.Remove(parent);
+        if(explorer.previousTerrain.ContainsKey(parent)||newParent.FadeIn!=0||oldParent.Root.activeSelf)throw new Exception("A same-key parent replacement retained an incompatible interior underlay beside existing children");
+        explorer.tiles.Remove(parent);
         var grand=new TerrainTileKey(0,0,2,1d/512);explorer.tiles[grand]=new Tile{Root=Quad("grand fallback",8,3,Color.red),Edges=new double[4]};
         explorer.BeginTerrainReplacement(parent,newParent,null);explorer.tiles[parent]=newParent;
         if(newParent.FadeIn!=0)throw new Exception("Coarsening unnecessarily faded through a grandparent");
@@ -206,6 +207,28 @@ public sealed partial class LocalTerrainExplorer
         if(Array.Exists(nextHard.Materials,m=>m.GetFloat("_TransitionEnabled")!=1))throw new Exception("Turning hard chunk updates off did not restore smooth rendering");
         TerrainVideoOptions.HardChunkUpdates=oldHard;
         File.WriteAllText(Path.Combine(output,"hard-chunk-updates.txt"),"PASS: toggling during an active same-address replacement removes the old draw and all fade stamps immediately; subsequent ready replacements snap; disabling restores smooth shader transitions.");
+        var overlapHost=new GameObject("Overlapping same-key fade regression");var overlapOwner=overlapHost.AddComponent<LocalTerrainExplorer>();overlapOwner.enabled=false;overlapOwner.terrainRoot=overlapHost;
+        var priorParent=new Tile{Root=Quad("Parent before a leaf revision",4,2,Color.red),Edges=new double[4]};
+        var leafParent=new Tile{Root=Quad("Parent leaf revision",4,1,Color.red),Edges=new double[4]};
+        overlapOwner.tiles[parent]=priorParent;
+        overlapOwner.BeginTerrainReplacement(parent,leafParent,priorParent);overlapOwner.tiles[parent]=leafParent;
+        if(!overlapOwner.previousTerrain.TryGetValue(parent,out var leafUnderlay)||!ReferenceEquals(leafUnderlay,priorParent)||leafParent.FadeIn<=0)
+            throw new Exception("A same-key leaf replacement lost its normal smooth fade");
+        var arrivingChild=new Tile{Root=Quad("Child arriving during a parent revision",2,0,Color.green),Edges=new double[4]};
+        overlapOwner.BeginTerrainReplacement(child,arrivingChild,null);overlapOwner.tiles[child]=arrivingChild;
+        if(overlapOwner.previousTerrain.ContainsKey(parent)||leafParent.FadeIn!=0||priorParent.Root.activeSelf)
+            throw new Exception("An arriving child retained an incompatible previous parent interior");
+        if(arrivingChild.FadeIn<=0)throw new Exception("Finishing an overlapping same-key parent revision also disabled the ordinary parent to child fade");
+        var overlappingParent=new Tile{Root=Quad("Parent revision over existing children",4,3,Color.red),Edges=new double[4]};
+        overlapOwner.BeginTerrainReplacement(parent,overlappingParent,leafParent);overlapOwner.tiles[parent]=overlappingParent;
+        if(overlapOwner.previousTerrain.ContainsKey(parent)||overlappingParent.FadeIn!=0||leafParent.Root.activeSelf)
+            throw new Exception("Existing children retained a fading previous same-key parent");
+        var leafChild=new Tile{Root=Quad("Child leaf revision",2,.5f,Color.green),Edges=new double[4]};
+        overlapOwner.BeginTerrainReplacement(child,leafChild,arrivingChild);overlapOwner.tiles[child]=leafChild;
+        if(!overlapOwner.previousTerrain.TryGetValue(child,out var childUnderlay)||!ReferenceEquals(childUnderlay,arrivingChild)||leafChild.FadeIn<=0)
+            throw new Exception("An ordinary child leaf revision lost its same-key smooth fade");
+        Destroy(overlapHost);
+        File.WriteAllText(Path.Combine(output,"overlapping-parent-fades.txt"),"PASS: same-key leaf revisions retain old underlays and smooth fades; an existing child or a newly arriving child completes only the overlapping same-key parent revision; ordinary parent-to-child and child-leaf fades remain enabled.");
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: solid/fallback coverage, cache restore/invalidation including identical-height no-op, opaque fallback for lower incoming/outgoing surfaces, visible midpoint fades for upper surfaces, correct final fine/coarse endpoints without holes, uploaded ancestor/previous-surface timing propagation, planned backdrop retained/unplanned backdrop releasable, finer children retained during parent replacement and coarsening without grandparent regression; paced retirement releases one redundant tile per shared installation allowance without dropping wanted terrain.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
     }

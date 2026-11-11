@@ -51,11 +51,23 @@ public sealed partial class LocalTerrainExplorer
     void BeginTerrainReplacement(TerrainTileKey key,Tile next,Tile old)
     {
         if(previousTerrain.TryGetValue(key,out var earlier)){CacheTerrain(key,earlier);previousTerrain.Remove(key);}
-        if(old!=null){if(TerrainVideoOptions.HardChunkUpdates)CacheTerrain(key,old);else{old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}}
-        bool parent=false;
-        for(int depth=1;depth<24-key.Level;depth++)if(tiles.ContainsKey(new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale))){parent=true;break;}
         bool finer=tiles.Keys.Any(k=>k.Level<key.Level&&Overlaps(key,k));
-        next.FadeIn=!TerrainVideoOptions.HardChunkUpdates&&(old!=null||parent&&!finer)?TransitionNow:0;next.FadeOut=0;
+        // An old same-key parent has a different interior from the current
+        // parent to which its children are fitted. Its descendant coverage
+        // cuts therefore cannot safely serve as a fading solid underlay.
+        if(old!=null){if(TerrainVideoOptions.HardChunkUpdates||finer)CacheTerrain(key,old);else{old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}}
+        bool parent=false;
+        for(int depth=1;depth<24-key.Level;depth++)
+        {
+            var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
+            if(!tiles.TryGetValue(ancestor,out var resident))continue;parent=true;
+            // Finish an existing same-key parent replacement before this
+            // child can introduce an internal coverage cut. Ordinary parent
+            // to child fades have no previous same-key draw and stay smooth.
+            if(previousTerrain.TryGetValue(ancestor,out var previous))
+            {resident.FadeIn=0;previousTerrain.Remove(ancestor);CacheTerrain(ancestor,previous);}
+        }
+        next.FadeIn=!TerrainVideoOptions.HardChunkUpdates&&!finer&&(old!=null||parent)?TransitionNow:0;next.FadeOut=0;
         // No fade from missing ground/sky. Finer coverage supplies the fade-out
         // when coarsening, rather than making the whole coarse patch transparent.
         while(previousTerrain.Count>32)
