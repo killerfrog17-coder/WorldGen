@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using UnityEngine;
@@ -14,6 +15,19 @@ public static class LocalTreeTextures
     static readonly Vector4[] hulls=new Vector4[8];
     static readonly bool[] hullReady=new bool[8];
     const string Assets="TreeSurfaceArtV1/";
+    public static bool IsPrepared
+    {
+        get{if(Colour==null)return false;foreach(bool ready in hullReady)if(!ready)return false;return true;}
+    }
+    public static IEnumerator Prepare()
+    {
+        if(IsPrepared)yield break;
+        // Let the existing loading screen draw before the one-time bank load.
+        yield return null;
+        Create(out _,out _);
+        for(int shape=0;shape<hullReady.Length;shape++)
+            if(!hullReady[shape]){ShootHull(shape);yield return null;}
+    }
     public static void Create(out Texture2DArray colour,out Texture2DArray normals)
     {
         if(Colour==null)Generate();

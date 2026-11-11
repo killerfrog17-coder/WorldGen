@@ -34,6 +34,8 @@ public sealed partial class WorldGenRuntime
     {
         enteringTerrain=true;humanPlaying=false;
         while(humanStep!=null||terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
+        PrepareLocalTerrain();
+        yield return LocalTreeTextures.Prepare();
         enteringTerrain=false;ExploreTerrain();
     }
     void PrepareLocalTerrain()

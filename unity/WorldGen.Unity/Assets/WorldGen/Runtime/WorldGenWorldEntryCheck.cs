@@ -11,6 +11,7 @@ public sealed partial class WorldGenRuntime
     IEnumerator CheckWorldEntry()
     {
         string output=Argument("--worldgen-output","");Directory.CreateDirectory(output);AudioListener.volume=0;
+        Application.targetFrameRate=30;
         var report=new List<string>();
         void Check(bool ok,string text){if(!ok){Debug.LogError("ENTRY CHECK "+text);Application.Quit(1);throw new InvalidOperationException(text);}report.Add("PASS "+text);Debug.Log("ENTRY PASS "+text);}
         double deadline=Time.realtimeSinceStartupAsDouble+240;
@@ -22,7 +23,11 @@ public sealed partial class WorldGenRuntime
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline){if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;}
         Check(terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.CenterReady,"random-land entry loads actual ground");
         Check(play.Identity==null&&play.Mode==GameMode.Creative&&terrainExplorer.IsWalking==false,"random-land entry uses Creative flight and no NPC identity");
+        Check(LocalTreeTextures.IsPrepared,"shared tree bank and all leaf hulls are prepared before gameplay");
+        var warm=LocalTreeTextures.Prepare();Check(!warm.MoveNext(),"repeated tree preparation completes without waiting");
         terrainExplorer.Capture(Path.Combine(output,"creative-land.png"));
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-entry-creative-only"))
+        {File.WriteAllLines(Path.Combine(output,"checks.txt"),report);Application.Quit(0);yield break;}
         ReturnFromPlay("Simulation");while(terrainUnloading!=null&&!terrainUnloading.isDone)yield return null;
         ChooseWorldEntry();StartWorldEntry(true);Check(worldEntryWork!=null,"resident selection starts its background task");deadline=Time.realtimeSinceStartupAsDouble+240;
         while((worldEntryOpen||terrainExplorer==null||!terrainExplorer.Ready||!terrainExplorer.CenterReady)&&Time.realtimeSinceStartupAsDouble<deadline){if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;}
