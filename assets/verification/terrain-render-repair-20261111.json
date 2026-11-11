@@ -1,0 +1,560 @@
+{
+  "status": "active_unaccepted",
+  "branch": "work/terrain-render-repair-20261111",
+  "runtime": "FULL8fabdfe2+ScriptsOnly7ddf0527 BUILDING normalMonoNONDEV",
+  "selected_build": "B36fdb231 unchanged until replacement reviewed",
+  "baseline": "User images unsaved world; actual reproduction Canyon38841 in terrain-surfaces-20261107/playable.world, scale .1",
+  "fixes": [
+    "near terrain before optional work",
+    "explicit coarse-hierarchy fallback, separate material resolution, bounded horizon work units",
+    "host-aware maximum worker pool, Balanced2 unchanged",
+    "immutable-base river valley cut union removes actual station comb",
+    "cliff/bench LOD estimate corrected to actual narrow transitions",
+    "final rendered-triangle ground contact",
+    "physical-size individually grounded distant forest roots within380k planner budget",
+    "current-distance forest parent/leaf queue merge",
+    "common512m distant water chord cap, original near bound retained",
+    "far bank perimeter filtering follows shared-edge resolution",
+    "resident boundary GPU height fitting with matching CPU contact, replaces REJECTED transient-bridge trial",
+    "single opaque terrain surface; eligible distant dry unrooted leaf height geomorph; pinned final perimeter",
+    "grouped horizon fallbacks preserve old global lattice with fewer objects",
+    "shared upright forest grounding for staged and synchronous publication"
+  ],
+  "checks": {
+    "contact": 15,
+    "adaptive": 1382,
+    "far_boundary": {
+      "source": 126812,
+      "probes": 452,
+      "visible_gap_m": 3.1471556733997375e-05,
+      "passed": true,
+      "rejected_fixture_trial": "Initial far fixture used near-only sampling extent; corrected without relaxing assertion."
+    },
+    "cursor_zero": {
+      "compared": 14,
+      "wet": 4,
+      "dry": 10,
+      "geometry_equal": true,
+      "scope": "geometry andhydrology exact; addedmapCell/Landscape metadata excluded"
+    },
+    "far_mesh_component_0c450": {
+      "major_source": 126812,
+      "rows": [
+        {
+          "size_m": 3276.8,
+          "segments": 16,
+          "build_ms": 1364.9987
+        },
+        {
+          "size_m": 13107.2,
+          "segments": 8,
+          "build_ms": 6550.4225,
+          "channel_ms": 5609.3399,
+          "vertices": 24519
+        }
+      ],
+      "scope": "isolatedCoreCLRcomponent, notpairednativeFPS/fullstartup"
+    },
+    "far_transverse_trial": {
+      "passed": true,
+      "probes": 440,
+      "submerged": 201,
+      "visible_gap_m": 1.6806e-05,
+      "far_vertices_before": 24519,
+      "far_vertices_after": 18779,
+      "far_build_ms_before": 6550.4225,
+      "far_build_ms_after": 6038,
+      "scope": "isolated component; topology has fewer crossing knots; assertions unchanged; no nativeFPSclaim",
+      "accepted": false,
+      "reason": "RETIRED: edge-only controls missed actual wet-interior dry bridge; all transverse station cuts restored."
+    },
+    "final_far_mesh": {
+      "size_m": 13107.2,
+      "segments": 8,
+      "build_ms": 4111,
+      "vertices": 24519,
+      "wet_probes": 168,
+      "passed": true,
+      "scope": "isolated component, not nativeFPS"
+    },
+    "complete_coverage_equivalence": {
+      "ordered_outputs": 94,
+      "passed": true,
+      "scope": "old/new CompleteCoverage exact; four scales, negative coordinates, actual adaptive plans, empty/level0/mixed scale",
+      "existing_suite_failure": "Prior count bound failure fixed by grouped fallbacks; full unchanged streaming-plan-only suite now104883PASS."
+    },
+    "burst_near8e6": {
+      "passed": true,
+      "headings": 8,
+      "objects": 5692,
+      "specialists": 1555,
+      "mid": 2977,
+      "trees": 406,
+      "scope": "exact sequential/Burst model/matrix/tint/LOD fade/shadow multisets; throughput1s is not performance certification"
+    },
+    "coverage_shader8e6": {
+      "passed": false,
+      "reason": "Stale complementary half-fade expectation failed2304red/0green/0holes under intentional opaque fallback policy; new40c27 check validates lower solidfallback, upper visiblefade, finalendpoints/noholes and uploadedancestorstamps."
+    },
+    "coverage_shader40c27": {
+      "passed": true,
+      "path": "artifacts/terrain-repair-20261111/coverage-v11",
+      "scope": "productionshader lower/upperfade, final endpoints/noholes, uploadedancestorstamps, cache/retirement/hardupdates"
+    },
+    "geomorph_shader_v13_v14": {
+      "passed": false,
+      "actual_height_reference_lower_upper": [
+        75,
+        52,
+        75
+      ],
+      "diagnosis": "Synthetic Quad omitted TEXCOORD3 and aliased startY. Production full-layout fixture v15 passes; prior failures retained."
+    },
+    "geomorph_shader6f": {
+      "passed": true,
+      "path": "artifacts/terrain-repair-20261111/coverage-v15",
+      "scope": "productionvertexlayout,actualup/downheight,opaque/pinned400perspectivegroundprobes,near/hardguards,cache/retirement/ancestor/fallbackactualroot"
+    },
+    "streaming_plan_grouped": {
+      "passed": true,
+      "checks": 104883,
+      "assertions_unchanged": true,
+      "grouping": "16km32 -> up to64km128; sameworldheight/materialstep;nearunchanged",
+      "native_max_horizon_pending": true
+    },
+    "forest_staged6f": {
+      "passed": false,
+      "path": "artifacts/terrain-repair-20261111/forest-coverage-v15b",
+      "real_bug": "stagedslope/neighbourground/admissiondivergedfromsynchronousuprightrootprojection",
+      "fix": "03025a88 sharedprojector+futureowner+.01rootmargin+Paddingchange; sameactualproofpendingv16"
+    },
+    "forest_functional_v16": {
+      "numeric_pass": true,
+      "visual_accepted": false,
+      "reason": "Test cleanup restored an old terrain tile live without reclaiming cache ownership; later cache release destroyed that live mesh. Test-only lease repair awaits rebuild and native image check.",
+      "path": "artifacts/terrain-repair-20261111/forest-coverage-v16"
+    },
+    "flight_gc_v17": {
+      "path": "artifacts/terrain-repair-20261111/flight-gc-range-v17",
+      "workload": "1080p Medium6km Maximum12 workers200mps500m AGL cap240; Chrome video shared; actual dry Grassland cell38464, not dense forest",
+      "focused_only": true,
+      "rows": [
+        {
+          "case": "automatic",
+          "fps": 127.11351,
+          "p99_ms": 23.6548,
+          "max_ms": 41.9812
+        },
+        {
+          "case": "range_cache_trial",
+          "fps": 131.52086,
+          "p99_ms": 23.0554,
+          "max_ms": 50.569
+        },
+        {
+          "case": "manual_gc_REJECTED",
+          "fps": 95.22175,
+          "p99_ms": 52.7176,
+          "max_ms": 90.1698
+        },
+        {
+          "case": "automatic_repeat",
+          "fps": 126.27972,
+          "p99_ms": 24.9528,
+          "max_ms": 53.6787
+        }
+      ],
+      "decision": "Manual GC rejected; default unchanged. Range cache remains opt-in, tails not improved. Strict100FPSfloor unmet. NonGC stalls include planning23ms and resident edges28ms."
+    },
+    "horizon_opaque_v18": {
+      "source": "03025a88",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-horizon-opaque-v18",
+      "completed": true,
+      "view_m": 191130,
+      "flight_mps": 600,
+      "preparation_s": 13.760249,
+      "near_s": 1.391,
+      "combined600m_s": 12.615,
+      "complete_s": 45.255,
+      "perspective_audits": 8,
+      "gaps_each": 0,
+      "samples_each": 3072,
+      "inspected_images": [
+        0,
+        3,
+        6
+      ],
+      "max_mesh_apply_bind_ms": 11.18,
+      "performance_accepted": false,
+      "reason": "Paced60/readbacks; first-frame902ms and streaming315ms remain. Continuity pass is not smooth-FPS proof.",
+      "river_visual_issue": "Image3 river hardcap strongly matches missing requestedL3 tile ahead x10649.6 and residentCoverageOnlyL4 substitute that omits fullriverrefinement. Not geometricgroundgap. Largerpriority-onlyflightlookahead trial pending."
+    },
+    "forest_functional_v19_invalid": {
+      "path": "artifacts/terrain-repair-20261111/forest-coverage-v19",
+      "reason": "Root invocation incorrectly enabled Presented for offscreen image/pose verification; existing guard rejected before anycase. Rerunv19b removesflag; no runtimefix/waiver."
+    },
+    "forest_functional_v19b": {
+      "source": "22011b23",
+      "passed": true,
+      "path": "artifacts/terrain-repair-20261111/forest-coverage-v19b",
+      "numeric": "8452458 staged root/component comparisons,225future-ownerqueries,6202affectedroots,8preparation slices;48range/cache comparisons;8Burst/sequentialmultisets",
+      "visual": "All3afterPNGs inspected root+forestagent. Continuousforeground intact, upright grounded visible trunks. Priorv16cleanupholeabsent. Thin crown edges/repetitiveplants remain artlimits.",
+      "performance_claim": false
+    },
+    "flight_planning_v20": {
+      "source": "22011b23",
+      "path": "artifacts/terrain-repair-20261111/flight-planning-v20",
+      "rows": [
+        {
+          "fps": 127.32508,
+          "p99_ms": 23.9201,
+          "max_ms": 48.2496
+        },
+        {
+          "fps": 124.35081,
+          "p99_ms": 23.3948,
+          "max_ms": 56.617
+        }
+      ],
+      "decision": "No material FPS/tail gain demonstrated versusv17. Keep small semantically redundant-work elimination, do not claim measured speedup. Root stilladdressing edgework and fastflight priority.",
+      "focused_only": true
+    },
+    "coverage_v22": {
+      "source": "d793a0ea",
+      "passed": true,
+      "path": "artifacts/terrain-repair-20261111/coverage-v22",
+      "scope": "Existingactualproductionshader/morph/lifecycle cases plus81 coveredparent owner/height probes at negativecoordinate edges/corners; missingquadrant changesactualResidentTarget1000to2000 and cannotbeskipped."
+    },
+    "dense_v23": {
+      "source": "d793a0ea",
+      "path": "artifacts/terrain-repair-20261111/dense-travel-v23",
+      "settings": "1080pMedium6km/8mps180moutandback30srapidwhip/cap240/ChromevideoSharedPC; allfocused/settled",
+      "rows": [
+        {
+          "site": "dense-tropicalrainforest",
+          "cell": "89820",
+          "biome": "TropicalRainforest",
+          "fps": "169.28235",
+          "p99_ms": "14.58000",
+          "max_ms": "45.13400"
+        },
+        {
+          "site": "dense-temperateforest",
+          "cell": "41387",
+          "biome": "TemperateForest",
+          "fps": "170.18854",
+          "p99_ms": "14.42550",
+          "max_ms": "40.26440"
+        },
+        {
+          "site": "savanna-tall",
+          "cell": "80174",
+          "biome": "Savanna",
+          "fps": "216.43699",
+          "p99_ms": "9.92300",
+          "max_ms": "25.67680"
+        }
+      ],
+      "images_inspected": true,
+      "limits": "Jungleimagecameraapproachestrunk, notusedasreportart. Groundcontinuous/rootsupright; nooversizedcards. Thinleaves/repetitivegroundplants remain existingartlimits. Strict100floorUNMET.",
+      "measured_next_problem": "Synchronous forest_ground_ms22.97/24.11 explainsworst45.134/40.264msforestframes; branchfixbeingdeveloped."
+    },
+    "horizon_priority_v24": {
+      "source": "d793a0ea",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-horizon-priority-v24",
+      "passed_ground_coverage": true,
+      "audits": 8,
+      "gaps_each": 0,
+      "samples_each": 3072,
+      "preparation_s": 13.886728,
+      "near_s": 1.452,
+      "combined600m_s": 13.18,
+      "complete_s": 46.305,
+      "hidden_parent_skips": 70,
+      "image3_inspected": true,
+      "river_cap_resolved": false,
+      "reason": "Riverextendsfurtheraroundbend but stillcapped. ActualconcurrentBackdropbound47cf5pendingbuild toaddressknownworkerstarvation. Paced/readbacktimingsnotFPS."
+    },
+    "compile_2e67": {
+      "passed": false,
+      "error": "WorldGenSolidScatterCheck.cs44 CS0819 implicitly typed variables cannot have multipledeclarators",
+      "fixed_source": "d9d5e074 explicitVector3 endpoints",
+      "native_checks": "Pending, no failedbuildaccepted"
+    },
+    "coverage_v25": {
+      "source": "d9d5e074",
+      "path": "artifacts/terrain-repair-20261111/coverage-v25",
+      "passed": true,
+      "scope": "All existingopaqueproductiongeometry/shader/lifecycle/hiddenparent cases; exactpartial-vs-fullforestpositions/levels/upright/bounds; canonicalancestor eligibilityandsharedpacedwantedfallbackretirement."
+    },
+    "canyon_v26": {
+      "source": "d9d5e074",
+      "path": "artifacts/landscape-20261103/terrain-repair-final-v26-canyon",
+      "passed": false,
+      "reason": "Newactualcontrollerfixture180stepsdidnotreachadjacentbox; uphillmoveblocked. No collisionpassclaimed.",
+      "existing_terrain_support": "576steps/6steepstarts,0clearanceerror PASS",
+      "fixture_repair": "7ddf0527 contour/downhill approach withactualSides+exactboxcapsulecast, pendingnative"
+    },
+    "dense_v27": {
+      "source": "d9d5e074",
+      "path": "artifacts/terrain-repair-20261111/dense-partial-ground-v27",
+      "settings": "Samev23 1080Medium6km30s8mps180mlooprapidwhipcap240,ChromeSharedPC,allsettled/allfocused",
+      "rows": [
+        {
+          "site": "dense-tropicalrainforest",
+          "cell": "89820",
+          "biome": "TropicalRainforest",
+          "fps": "168.78582",
+          "p99_ms": "14.20390",
+          "max_ms": "37.36840"
+        },
+        {
+          "site": "dense-temperateforest",
+          "cell": "41387",
+          "biome": "TemperateForest",
+          "fps": "172.49326",
+          "p99_ms": "13.85140",
+          "max_ms": "23.53740"
+        },
+        {
+          "site": "dense-borealforest",
+          "cell": "95944",
+          "biome": "BorealForest",
+          "fps": "192.72066",
+          "p99_ms": "12.22800",
+          "max_ms": "20.32740"
+        },
+        {
+          "site": "savanna-tall",
+          "cell": "80174",
+          "biome": "Savanna",
+          "fps": "223.06735",
+          "p99_ms": "9.13740",
+          "max_ms": "27.79930"
+        }
+      ],
+      "specific_ground_max_before_after_ms": {
+        "tropical": [
+          22.97,
+          7.142
+        ],
+        "temperate": [
+          24.11,
+          5.341
+        ],
+        "savanna": [
+          14.99,
+          5.026
+        ]
+      },
+      "conclusion": "Specificgroundstallsreduced; no materialaverageFPSgainclaimed, strict100floorUNMET. Newjungleworstforest_ms20.25+late7.08; GCcounternotincrementingdoesnotruleoutincrementalGC withoutnativeobserver."
+    },
+    "canyon_v28": {
+      "source": "7ddf0527",
+      "path": "artifacts/landscape-20261103/terrain-repair-final-v28-canyon",
+      "passed": true,
+      "actual_player": "180steps,180capsule-cast-confirmedexactboxSidescontacts,0mminimumfoot/renderedclearance, bodyexcludedfromsolids",
+      "images_inspected": [
+        "landform-overview.png",
+        "cliff-wall-context.png"
+      ],
+      "art_limit": "No oldcomb/gaps, but existing~180m-period scalarcanyonformations remain conspicuouslyregularroundedbenches. Read-onlysourceanalysisattributes toCanyonValleys.Floor strata, notboundaryfitting; geographyretuningdeferreduntilcorefixes."
+    },
+    "canonical_horizon_v29": {
+      "source": "7ddf0527",
+      "path": "artifacts/chunk-loading-20261109/terrain-repair-canonical-horizon-v29",
+      "passed": false,
+      "failure": "Collectionmodified dictionary.Values enumerator inPrepareGroundPublication whileyielding. Rootsuspectszero-rootmetadatafieldchangesnotincrementingphysicaltopologyrevision. Reusablecollectionsnapshotfixinprogress; candidateUNSELECTED."
+    }
+  },
+  "native": {
+    "first_pass359c": "Waterfall34PASS; first60km/200mps nearpixel holes0, but full122.4s unacceptable",
+    "valley1e1": "Actual close comb removed; upper wall still LOD underfit. Numerical raster before/after and native photos inspected. New actual-camera review pending.",
+    "coarse1e1": {
+      "near_seconds": 1.267,
+      "radius600_seconds": 12.522,
+      "full_seconds": 89.34,
+      "roots": 328897,
+      "flight_speed_mps": 200,
+      "near_ground_missing_frames": 0,
+      "pixel_audits": 8,
+      "scope": "paced60FPS/sharedChrome; GPU readbacks create test spikes, not FPSbenchmark",
+      "stage_result": "fallback max262ms after coarse hierarchy vs prior37.1s exact121point tile; ordinary far river refinement still expensive"
+    },
+    "observer67ec": "Actual observer-streamed canyon25PASS; upper wall improved but hardflight slits prove resident edge mismatch; not accepted as complete.",
+    "hard67ec": {
+      "near_seconds": 1.557,
+      "radius600_seconds": 20.473,
+      "full_seconds": 26.112,
+      "view_m": 6000,
+      "effort": "Maximum12 lanes",
+      "flight_speed_mps": 200,
+      "near_ground_missing_frames": 0,
+      "pixel_audits": 8,
+      "observed_defect": "small visible terrain slits even without fades; wanted neighbour edge contracts differ from actual resident topology",
+      "scope": "paced60FPS/readbacks; not FPSbenchmark"
+    },
+    "support_ea8c": {
+      "steps": 576,
+      "steep_starts": 6,
+      "minimum_clearance_m": -8.88178419700125e-16,
+      "scope": "TerrainMotion terrain support using production PlayerSolidGround; not full CharacterController/bodycollision",
+      "passed": true
+    },
+    "fade_ea8c": "Canyon native EXIT0; close comb remains gone; upper overview still shows transition shading stipple and edge slits. Final acceptance pending resident-seam repair.",
+    "horizon_ea8c": {
+      "actual_view_m": 191130,
+      "near_seconds": 1.243,
+      "radius600_seconds": 12.337,
+      "full_ready_at_180s": false,
+      "flight_speed_mps": 600,
+      "scope": "shared Chrome/paced screenshots; noFPSclaim",
+      "defect": "requestedfar geometry/river processing remains expensive; cheapfallback~55ms versusordinary26km16median12.9s"
+    },
+    "fresh_ea8c": "REJECTED: null history in wind/debug on pure generated secondworld. Native terrain support576steps/2steep starts passed before crash; guards fixed0c450, visualrerun pending.",
+    "bridge_0c450": {
+      "accepted": false,
+      "near_seconds": 1.557,
+      "full_seconds": 26.681,
+      "flight_speed_mps": 200,
+      "seam_queue_at_36s": 1226,
+      "max_seam_cpu_ms": 9.92,
+      "reason": "actualplateauslitsremain, newupperwallfins, queuefallsbehind. Retiringtrial; replacewithactualsharededgeconformance."
+    },
+    "resident_edges379bc": "Hard6km native passed; selected plateau photos inspected. Superseded by467 actual knot union.",
+    "hard_horizon467": {
+      "near_s": 1.224,
+      "radius600_s": 37.419,
+      "full_s": 62.23,
+      "actual_view_m": 191130,
+      "flight_mps": 600,
+      "unions": 99,
+      "inserted_vertices": 1904,
+      "residuals": 0,
+      "perspective_gaps": 0,
+      "scope": "paced screenshots/readbacks, not FPS; photographs inspected"
+    },
+    "flight_performance467": {
+      "fps": 54.913,
+      "p99_ms": 35.851,
+      "max_ms": 53.039,
+      "unfocused": 0,
+      "seconds": 30,
+      "view_m": 6000,
+      "speed_mps": 200,
+      "altitude_m": 500,
+      "settings": "1080p Medium Maximum12 cap240",
+      "shared_workload": "Chrome video",
+      "accepted": false,
+      "path": "artifacts/terrain-repair-20261111/perf-canyon-flight-v9"
+    },
+    "flight_performance8e6": {
+      "fps": 102.8093,
+      "p99_ms": 24.7376,
+      "max_ms": 48.7697,
+      "focused_frames": 3085,
+      "unfocused_frames": 0,
+      "seconds": 30,
+      "coverage_mean_ms": 0.975,
+      "fog_mean_ms": 0.062,
+      "retirement_combined_mean_ms": 2.519,
+      "scope": "same1080pMedium6km200mps500mAGLMaximum12cap240;sharedChrome;still below strict100floor"
+    },
+    "smooth8e6": {
+      "exit": 0,
+      "near_s": 1.526,
+      "terrain_300_s": 2.242,
+      "terrain_600_s": 4.033,
+      "forest_600_s": 20.405,
+      "combined_600_s": 20.386,
+      "complete_s": 26.8,
+      "flight_mps": 200,
+      "player_missing_ground_frames": 0,
+      "visual_accepted": false,
+      "defect": "Thin dark stippled plateau slits in actual smooth screenshot3; outgoing boundary patch40c27 pending native review."
+    },
+    "smooth40c27": {
+      "exit": 0,
+      "current_refined_residuals": 0,
+      "outgoing_publications": 433,
+      "outgoing_max_draws": 32,
+      "worst_sampled_perspective_gap_pixels": 1,
+      "accepted": false,
+      "visual": "long plateau slits removed but45 deepbluepixels remain inview3 due oldparent interior childcut mismatch; local overlapping-parent completion next"
+    },
+    "fresh_waterfall40c27": {
+      "exit": 0,
+      "native_checks": 29,
+      "source_cell": 157736,
+      "world": "fresh-continents-84613",
+      "photos_inspected": [
+        "wide",
+        "fall-side"
+      ],
+      "result": "former paired bank tusks removed; no nullhistory crash; waterfall shape remains simple"
+    },
+    "flight_performance40c27": {
+      "fps": 100.48045,
+      "p99_ms": 24.6074,
+      "max_ms": 48.1347,
+      "focused_frames": 3015,
+      "unfocused_frames": 0,
+      "resident_edges_mean_ms": 2.565,
+      "retirement_search_mean_ms": 0.057,
+      "transitions_mean_ms": 0.158,
+      "scope": "same200mps500mAGL1080pMedium6kmMaximum12cap240sharedChrome;strictfloorUNMET"
+    },
+    "smooth1ed93075": {
+      "accepted": false,
+      "reason": "Overlapped-parent localcompletion did not eliminate projection holes; actualflight26/3072pixels andlongbluegap. Supersededbyoneopaquemeshgeometrymorph."
+    },
+    "opaque8fab": {
+      "exit": 0,
+      "flight_mps": 200,
+      "seconds": 40,
+      "audits": 8,
+      "perspective_empty_pixels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "missing_player_ground_frames": 0,
+      "current_residuals": 0,
+      "morphs_prepared": 685,
+      "morph_vertices": 1841453,
+      "outgoing_draws": 0,
+      "near_s": 1.556,
+      "combined_600_s": 8.796,
+      "full_s": 24.672,
+      "preparation_ms": 14211.576,
+      "scope": "paced60/readbacks NOTFPSbenchmark; actual view3 inspected no slits; physical/root/river/ancestor/coarsening updates snap, only eligiblefarleavesmorph"
+    },
+    "flight_performance_opaque8fab": {
+      "fps": 126.81556,
+      "p99_ms": 24.5588,
+      "max_ms": 49.0663,
+      "focused": 3805,
+      "unfocused": 0,
+      "seconds": 30,
+      "gc_cycles": 9,
+      "edge_mean_ms": 1.407,
+      "coverage_mean_ms": 0.308,
+      "fog_mean_ms": 0.055,
+      "morphs_window": 380,
+      "knot_unions_window": 13,
+      "scope": "same200mps500mAGL1080Medium6kmMaximum12cap240sharedChrome; strict100floorUNMET"
+    }
+  },
+  "remaining": [
+    "remainingGC/frame spikes pairedboundedcomparison",
+    "postopaque nonemptyforest functionalproof and visuals",
+    "newopaque191km+realchartlongflight",
+    "representative forest/plains travelperformance",
+    "final screenshotPDF,push,testednormalshortcut"
+  ]
+}
