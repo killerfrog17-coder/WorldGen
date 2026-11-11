@@ -3,11 +3,11 @@ using WorldGen.Presentation;
 
 static class RiverPlanformTests
 {
-    public static void World(string path,string output)
+    public static void World(string path,string output,int pinned=-1)
     {
         var world=WorldGen.Serialization.WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         var rows=new List<object>();int active=0,filters=0,bent=0,banks=0;
-        var candidates=terrain.Hydrology.Channels.Where(c=>c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).ToArray();
+        var candidates=terrain.Hydrology.Channels.Where(c=>(pinned<0||c.From==pinned)&&c.WidthM>12&&c.WidthM<150&&c.StartM>40&&c.StartM<1600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)<.008).ToArray();
         Console.WriteLine($"Metadata candidates {candidates.Length} / {terrain.Hydrology.Channels.Length}");
         foreach(var channel in candidates.OrderBy(c=>Rng.Mix(unchecked((uint)c.From^(uint)world.Recipe.Seed))).Take(160))
         {
@@ -19,7 +19,7 @@ static class RiverPlanformTests
             V center=(middle.A+middle.B).Unit,bank=(center+middle.SideA*((half*2+6)/(terrain.RadiusM*.1))).Unit;
             bool dry=false;
             if(sinuosity>1.03){var s=terrain.Patch(bank,10000).Sample(bank);dry=!s.Underwater;if(dry)banks++;}
-            rows.Add(new{channel.From,channel.WidthM,channel.StartM,Grade=(channel.StartM-channel.EndM)/channel.LengthM,Count=spans.Length,Sinuosity=sinuosity,DryBank=dry,Filter=filter});
+            rows.Add(new{channel.From,channel.WidthM,channel.StartM,Grade=(channel.StartM-channel.EndM)/channel.LengthM,Count=spans.Length,LengthM=length*terrain.RadiusM*.1,MinimumHalfWidth=spans.Min(s=>Math.Min(s.WidthA,s.WidthB)),MaximumHalfWidth=spans.Max(s=>Math.Max(s.WidthA,s.WidthB)),Sinuosity=sinuosity,DryBank=dry,Filter=filter});
         }
         File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(rows,new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine($"River selection: {active} active, {filters} channel filter, {bent} sinuous, {banks} dry banks");

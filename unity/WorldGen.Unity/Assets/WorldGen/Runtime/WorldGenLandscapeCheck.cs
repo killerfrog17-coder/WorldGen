@@ -236,6 +236,23 @@ public sealed partial class LocalTerrainExplorer
                     return new LandscapeReviewSite{Position=volcano.Center,Sample=s,Volcano=volcano};
                 }
             }
+            else if(kind=="RiverReach")
+            {
+                if(pinnedSource<0)throw new InvalidOperationException("RiverReach review requires an explicit source");
+                // Inspect a specific stream, lake inlet, confluence or sea
+                // outlet without relabelling it as a different landscape.
+                foreach(var span in model.Amplification.RiverReach(pinnedSource))
+                {
+                    double half=(span.WidthA+span.WidthB)*.5;if(half<.6)continue;
+                    V center=(span.A+span.B).Unit,side=(span.SideA+span.SideB).Unit;var patch=model.Patch(center,40000);
+                    var water=patch.Sample(center);if(!water.Underwater||!double.IsFinite(water.WaterSurfaceM))continue;
+                    foreach(double extra in new[]{3d,10,35,100,300})foreach(int sign in new[]{-1,1})
+                    {
+                        V bank=(center+side*(sign*(half+extra)/(model.RadiusM*.1))).Unit;var sample=patch.Sample(bank);if(sample.Underwater)continue;
+                        return new LandscapeReviewSite{Position=bank,Sample=sample,RiverCenter=center,RiverReach=pinnedSource,RiverWidth=half*2,CoastDirection=side*-sign};
+                    }
+                }
+            }
             else if(kind=="MajorRiver")
             {
                 foreach(var channel in model.Hydrology.Channels.Where(c=>pinnedSource<0||c.From==pinnedSource).OrderByDescending(c=>c.WidthM).ThenBy(c=>c.From).Take(250))
@@ -633,7 +650,7 @@ public sealed partial class LocalTerrainExplorer
         if(kind=="AlluvialRiver")width=(float)Math.Min(350,Math.Max(160,site.RiverWidth*3));
         Quaternion orientation=Quaternion.identity;
         if(site.WetlandPool!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
-        if(kind=="AlluvialRiver"||kind=="MajorRiver")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
+        if(kind=="AlluvialRiver"||kind=="MajorRiver"||kind=="RiverReach")orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Coast!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Dune!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.CoastDirection,owner.frame.East),0,(float)V.Dot(site.CoastDirection,owner.frame.North)));
         if(site.Outcrop!=null)orientation=Quaternion.LookRotation(new Vector3((float)V.Dot(site.Outcrop.Side,owner.frame.East),0,(float)V.Dot(site.Outcrop.Side,owner.frame.North)));

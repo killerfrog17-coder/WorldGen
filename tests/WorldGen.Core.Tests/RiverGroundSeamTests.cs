@@ -4,14 +4,20 @@ using WorldGen.Serialization;
 
 static class RiverGroundSeamTests
 {
-    public static void Run(string source)
+    public static void Run(string source,int sourceCell=-1)
     {
         var world=WorldFile.ReadFile(source);var terrain=new LocalTerrain(world,horizontalScale:.1);
         var at=TerrainMapViewport.FromDegrees(-17.625665274156873,.6638456954785965);
-        var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);int checkedMeshes=0,failures=0;
+        if(sourceCell>=0)
+        {
+            var spans=terrain.Amplification.RiverReach(sourceCell);if(spans.Length==0)throw new Exception("Explicit seam site has no actual river");
+            var s=spans[spans.Length/2];at=((s.A+s.B).Unit+(s.SideA+s.SideB).Unit*((s.WidthA+s.WidthB)*.5/(terrain.RadiusM*.1))).Unit;
+        }
+        var frame=new LocalTerrainFrame(at,terrain.RadiusM,0,.1);int checkedMeshes=0,failures=0,constrained=0;
         foreach(int segments in new[]{32,64,128})foreach(var tile in new[]{(x:-1,z:0,level:0),(x:-1,z:-1,level:0),(x:0,z:-1,level:0),(x:-3,z:-2,level:2),(x:2,z:0,level:1)})
         {
             double size=102.4*(1<<tile.level);var mesh=LocalTerrainMesh.Build(terrain,frame,tile.x*size,tile.z*size,size,segments);
+            if(mesh.WaterClipTriangles.Length>0)constrained++;
             var edges=new Dictionary<(int,int),int>();double projectedArea=0;int inverted=0;
             for(int i=0;i<mesh.Triangles.Length;i+=3)
             {
@@ -42,6 +48,7 @@ static class RiverGroundSeamTests
             if(open!=0||inverted!=0||Math.Abs(projectedArea-size*size)>size*size*1e-6)failures++;
         }
         if(failures!=0)throw new Exception($"River bank terrain triangulation failed in {failures}/{checkedMeshes} meshes");
+        if(sourceCell>=0&&constrained==0)throw new Exception("Explicit bank seam fixture did not exercise river refinement");
         Console.WriteLine($"PASS {checkedMeshes} river-bank ground meshes have no interior open edges");
     }
 }

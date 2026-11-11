@@ -1,6 +1,7 @@
 using WorldGen.Core;
 using WorldGen.Serialization;
 using WorldGen.Presentation;
+if(args.Contains("--river-lod-seam")){RiverLodSeamTests.Run(args[1],int.Parse(args[2]));return;}
 if(args.Contains("--river-scale-sites")){RiverScaleWorldTests.Run(args[1],args[2],args.Skip(3).Select(int.Parse).ToArray());return;}
 if(args.Contains("--river-tile-cost")){RiverMeshDiagnostic.Cost(args[1],int.Parse(args[2]),args[3],args.Length>4?args[4]:null);return;}
 if(args.Contains("--river-bank-sources-reference")){RiverColdPreparationAudit.Contact(args[1],args[2],args[3],args.Skip(4).Select(int.Parse).ToArray());return;}
@@ -109,7 +110,7 @@ if(args.Contains("--shore-platform-world")){CoastalTerrainTests.PlatformWorld(ar
 if(args.Contains("--volcanic-controls")){VolcanicTerrainTests.Controls();return;}
 if(args.Contains("--volcanic-world")){VolcanicTerrainTests.World(args[1],args[2]);return;}
 if(args.Contains("--river-planform")){RiverPlanformTests.Run();return;}
-if(args.Contains("--river-planform-world")){RiverPlanformTests.World(args[1],args[2]);return;}
+if(args.Contains("--river-planform-world")){RiverPlanformTests.World(args[1],args[2],args.Length>3?int.Parse(args[3]):-1);return;}
 if(args.Contains("--landscape-experience")){LandscapeExperienceAudit.Run(args[1],args[2],args[3]);return;}
 if(args.Contains("--landscape-regions")){LandscapeRegionTests.Run();return;}
 if(args.Contains("--landscape-world")){LandscapeRegionTests.World(args[1],args[2]);return;}
@@ -167,7 +168,7 @@ if(args.Contains("--bleeding-only")){BleedingTests.Run();return;}
 if(args.Contains("--effort-cover-only")){EffortCoverRevisionTests.Run();return;}
 if(args.Contains("--hunting-only")){HuntingTests.Run();return;}
 if(args.Contains("--survival-experience-only")){SurvivalExperienceTests.Run();return;}
-if(args.Contains("--river-ground-seams-world")){RiverGroundSeamTests.Run(args[1]);return;}
+if(args.Contains("--river-ground-seams-world")){RiverGroundSeamTests.Run(args[1],args.Length>2?int.Parse(args[2]):-1);return;}
 if(args.Contains("--backdrop-policy-only")){CampTerrainBench.CheckBackdropPolicy();return;}
 if(args.Contains("--camp-backdrop-bench")){CampTerrainBench.Backdrops(args[1],args[2]);return;}
 if(args.Contains("--camp-terrain-bench")){CampTerrainBench.Run(args[1],args[2]);return;}
