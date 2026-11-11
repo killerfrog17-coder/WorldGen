@@ -42,12 +42,12 @@ static class RiverColdPreparationAudit
         File.WriteAllText(output,JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true}));
         Console.WriteLine(JsonSerializer.Serialize(result));
     }
-    public static void Contact(string worldPath,string directory,string output)
+    public static void Contact(string worldPath,string directory,string output,int[] sources=null)
     {
         var context=new ModelContext(Path.GetFullPath(directory));
         var assembly=context.LoadFromAssemblyPath(typeof(RiverColdPreparationAudit).Assembly.Location);
         assembly.GetType("RiverBankContactAudit",true)!.GetMethod("Run",BindingFlags.Public|BindingFlags.Static)!
-            .Invoke(null,new object[]{worldPath,output});
+            .Invoke(null,new object[]{worldPath,output,sources!});
     }
     public static void Grades(string worldPath,string directory)
     {

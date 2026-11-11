@@ -6,7 +6,7 @@ using WorldGen.Serialization;
 
 static class RiverBankContactAudit
 {
-    public static void Run(string input,string output)
+    public static void Run(string input,string output,int[] sources=null)
     {
         var world=WorldFile.ReadFile(input);var timer=Stopwatch.StartNew();
         // Each audit receipt owns a disposable cache. An earlier unaccepted
@@ -21,7 +21,7 @@ static class RiverBankContactAudit
         foreach(var band in new[]{(name:"small",min:0d,max:16d),(name:"local-fit",min:16d,max:64d),(name:"broad",min:64d,max:250d),(name:"major",min:250d,max:2001d)})
         {
             int count=0,bandProbes=0,bandBad=0;
-            foreach(var channel in terrain.Hydrology.Channels.Where(c=>{double half=Math.Max(.6,Math.Min(2000,3*Math.Sqrt(Math.Max(0,Q(c.From)))));return half>=band.min&&half<band.max;}).OrderBy(c=>Rng.Mix((uint)c.From^73421u)))
+            foreach(var channel in terrain.Hydrology.Channels.Where(c=>{double half=Math.Max(.6,Math.Min(2000,3*Math.Sqrt(Math.Max(0,Q(c.From)))));return (sources==null||sources.Contains(c.From))&&half>=band.min&&half<band.max;}).OrderBy(c=>Rng.Mix((uint)c.From^73421u)))
             {
                 var spans=terrain.Amplification.RiverReach(channel.From);if(spans.Length==0)continue;
                 bool FanContains(V point,bool start)
@@ -43,11 +43,12 @@ static class RiverBankContactAudit
                     return true;
                 }
                 count++;
-                for(int station=0;station<=16;station++)
+                int stations=sources==null?16:spans.Length;
+                for(int station=0;station<=stations;station++)
                 {
-                    int index=Math.Min(spans.Length-1,station*spans.Length/16);var s=spans[index];
+                    int index=Math.Min(spans.Length-1,station*spans.Length/stations);var s=spans[index];
                     if(s.Primitive==RiverFlowPrimitive.Waterfall||s.LevelA<=0&&s.LevelB<=0)continue;
-                    double t=station==16?1:station%2==0?0:.5;
+                    double t=station==stations?1:station%2==0?0:.5;
                     double level=s.LevelA+(s.LevelB-s.LevelA)*t;
                     V at=(s.A*(1-t)+s.B*t).Unit;
                     double width=s.WidthA+(s.WidthB-s.WidthA)*t;if(width<.01)continue;

@@ -54,7 +54,7 @@ namespace WorldGen.Core
         public static V[] InsertJunctionCollars(V[] points,double radiusM,double startRadius,double endRadius)
         {
             if(points.Length<2||startRadius<=0&&endRadius<=0)return points;
-            var result=new List<V>(points.Length+2){points[0]};V start=points[0],end=points[points.Length-1];
+            var result=new List<V>(points.Length+2){points[0]};var cuts=new List<V>(2);V start=points[0],end=points[points.Length-1];
             double Crossing(V a,V b,V center,double r)
             {
                 if(r<=0)return -1;
@@ -69,9 +69,17 @@ namespace WorldGen.Core
             {
                 V a=points[i],b=points[i+1];double x=Crossing(a,b,start,startRadius),y=Crossing(a,b,end,endRadius);
                 if(y>=0&&(x<0||y<x)){double old=x;x=y;y=old;}
-                if(x>=0)result.Add((a*(1-x)+b*x).Unit);
-                if(y>=0&&Math.Abs(y-x)>1e-8)result.Add((a*(1-y)+b*y).Unit);
+                if(x>=0){V cut=(a*(1-x)+b*x).Unit;result.Add(cut);cuts.Add(cut);}
+                if(y>=0&&Math.Abs(y-x)>1e-8){V cut=(a*(1-y)+b*y).Unit;result.Add(cut);cuts.Add(cut);}
                 result.Add(b);
+            }
+            // An exact boundary a metre from an old sampling station must not
+            // create a metre-long artificial drop. Keep the boundary itself
+            // and graph endpoints; let the adjacent full section absorb it.
+            for(int i=result.Count-2;i>0;i--)
+            {
+                V p=result[i];if(cuts.Contains(p))continue;
+                foreach(V cut in cuts)if((p-cut).Length*radiusM<4){result.RemoveAt(i);break;}
             }
             return result.ToArray();
         }
@@ -207,6 +215,7 @@ namespace WorldGen.Core
             V at=rootNodes[node].Position;
             return RiverDot((at-rootNodes[riverPrevious[node]].Position).Unit,(rootNodes[riverReceivers[node]].Position-at).Unit)>-.65;
         }
+        bool RiverHasPool(int node)=>riverIncoming[node]>0&&!ThroughRiverNode(node)&&rootNodes[node].Type!=Kind.Lake&&rootNodes[node].Type!=Kind.Ocean&&lakeOutletOwners[node]<0&&!Fjords.OceanNode(node);
         V RiverNodeTangent(int node)
         {
             V at=rootNodes[node].Position;
@@ -267,10 +276,13 @@ namespace WorldGen.Core
                 var sourceNode=ActualRiverNode(source);var targetNode=ActualRiverNode(target);
                 double start=sourceNode.Level,end=targetNode.Level;
                 bool throughA=ThroughRiverNode(source),throughB=ThroughRiverNode(target);
-                bool poolA=!throughA&&riverIncoming[source]>0,poolB=!throughB&&riverIncoming[target]>0;
+                // A standing body already supplies the receiving surface.
+                // Extending a circular confluence collar outside its actual
+                // basin can suspend a flat lake-level ribbon over its outlet.
+                bool poolA=RiverHasPool(source),poolB=RiverHasPool(target);
                 double collarA=poolA?sourceNode.Radius:0,collarB=poolB?targetNode.Radius:0;
                 points=RiverscapeKernel.InsertJunctionCollars(points,radius*scale,collarA,collarB);n=points.Length-1;
-                var levels=new double[n+1];var widths=new double[n+1];var depths=new double[n+1];
+                var levels=new double[n+1];RiverDimensions(source,points,out var widths,out var depths);
                 var faceSet=new SortedSet<int>();
                 void Include(int node){for(int k=riverFaceOffsets[node];k<riverFaceOffsets[node+1];k++)faceSet.Add(riverFaces[k]*3);}
                 Include(source);Include(target);
@@ -284,18 +296,13 @@ namespace WorldGen.Core
                     // Fit the bounded water profile below BOTH prospective
                     // banks as well as the thalweg. A centre-only fit can leave
                     // an exposed lateral ribbon edge on sloping valley floors.
-                    double left=bare.Sample((points[i]+side*(width*1.25/(radius*scale))).Unit,true).Height;
-                    double right=bare.Sample((points[i]-side*(width*1.25/(radius*scale))).Unit,true).Height;
+                    double left=bare.Sample((points[i]+side*(widths[i]*1.25/(radius*scale))).Unit,true).Height;
+                    double right=bare.Sample((points[i]-side*(widths[i]*1.25/(radius*scale))).Unit,true).Height;
                     ground=Math.Min(ground,Math.Min(left,right));
                     // The final water profile is BELOW the sampled valley, not
                     // a sheet draped along the surrounding hill elevations.
                     double ceiling=ground-.15;
                     levels[i]=Math.Max(end,Math.Min(start,ceiling));
-                    double taper=Math.Min(1,Math.Min(i,n-i)/2d);
-                    widths[i]=width*taper+(i<n/2?riverNodeWidths[source]:riverNodeWidths[target])*(1-taper);
-                    double phase=Random(a.Key,917)*Math.PI*2;
-                    double pool=.90+.18*Math.Sin(t*Math.PI*4+phase)+.08*Math.Sin(t*Math.PI*10+phase*1.7);
-                    depths[i]=Math.Min(widths[i]*.75,RiverHydraulics.Depth(a.Flow,scale,width)*pool*taper+(i<n/2?riverNodeDepths[source]:riverNodeDepths[target])*(1-taper));
                 }
                 levels[0]=start;levels[n]=end;
                 // Downstream minimum propagation is graph-consistent. Pools
@@ -398,6 +405,7 @@ namespace WorldGen.Core
                         if(i>=lastOutside)s.LevelA=s.LevelB=end;else if(i==lastOutside-1)s.LevelB=end;result[i]=s;
                     }
                 }
+                RefreshRiverFlow(result,radius*scale,RiverHydraulics.Discharge(a.Flow,scale),a.Sediment);
                 result=WaterfallProfiles.Apply(result,radius*scale,a.Resistance,source,seed);
                 if(result.Length>0)
                 {

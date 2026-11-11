@@ -16,6 +16,9 @@ static class RiverNodeJoinTests
         Check(fitted.Any(p=>Math.Abs((p-points[0]).Length*radius-150)<.003),"Source collar ends at its actual radius instead of the next coarse station");
         Check(fitted.Any(p=>Math.Abs((p-points[^1]).Length*radius-180)<.003),"Receiving collar ends at its actual radius instead of the preceding coarse station");
         for(int i=1;i<fitted.Length;i++)Check(fitted[i].Y>fitted[i-1].Y,"Inserted collar stations remain in channel order");
+        var close=RiverscapeKernel.InsertJunctionCollars(new[]{P(0),P(149),P(400),P(1000)},radius,150,0);
+        Check(!close.Contains(P(149))&&close.Any(p=>Math.Abs((p-P(0)).Length*radius-150)<.003),"Near-coincident original sampling station retires while the exact collar remains");
+        Check(close[0].Equals(P(0))&&close[^1].Equals(P(1000)),"Collar cleanup cannot move either graph endpoint");
         foreach(double angle in new[]{15d,30,60,90,120,175,180})
         {
             double theta=angle*Math.PI/180,half=75,r=RiverscapeKernel.ConfluenceRadius(half,Math.Cos(theta));
@@ -37,11 +40,12 @@ static class RiverNodeJoinTests
     public static void World(string path,string cache)
     {
         var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1,directory:cache);
+        var through=typeof(HyperAmplification).GetMethod("ThroughRiverNode",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
         int nodes=0,checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
         foreach(var channel in terrain.Hydrology.Channels.OrderBy(c=>Rng.Mix((uint)c.From^9217u)))
         {
             var before=terrain.Amplification.RiverReach(channel.From);if(before.Length==0)continue;
-            var a=before[^1];if(a.To<0||a.PoolB)continue;
+            var a=before[^1];if(a.To<0||!(bool)through.Invoke(terrain.Amplification,new object[]{a.To})!)continue;
             var after=terrain.Amplification.RiverReach(a.To);Check(after.Length>0,"Ordinary endpoint has its actual downstream channel");var b=after[0];
             Check(!b.PoolA&&a.B.Equals(b.A)&&a.SideB.Equals(b.SideA),$"Join {channel.From}->{a.To}: pool={b.PoolA}, endpoint delta={(a.B-b.A).Length:R}, side delta={(a.SideB-b.SideA).Length:R}");
             Check(a.WidthB==b.WidthA&&a.DepthB==b.DepthA&&a.LevelB==b.LevelA,"Width, bed depth and water head agree exactly across an ordinary join");

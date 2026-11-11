@@ -56,17 +56,17 @@
     "Moving native performance and report before acceptance"
   ],
   "current_source": {
-    "local": "83",
-    "hyper": "71",
-    "status": "Unaccepted, native visual review next. Do not update shortcut.",
+    "local": "99",
+    "hyper": "86",
+    "source": "71fdc828",
+    "status": "Functional foundation passes sampled scalar banks and exact query-order controls; native build/check pending. Rivers remain UNACCEPTED.",
     "changes": [
-      "Source-globe discharge/width/depth, removed reach-length width cap",
-      "Ordinary graph nodes use exact shared endpoint/cross-sections instead of circular pools",
-      "True pool collars have exact radial boundary stations",
-      "Bank composition preserves nearby banks without raising uncut terrain; bounded stack storage and overflow pass",
-      "Global fits use full fine-resolution terrain at the actual pool perimeter; width-scaled dry-bank allowance .2..4m"
-    ],
-    "longitudinal_profile": "Unhooked;9604 pure controls pass, no in-game visual change yet."
+      "Explicit finite ribbons retained; rejected combined water renderer retired.",
+      "Actual confluence overlap fitting evaluated lazily on deterministic drainage dependencies; shared ordinary-node position, tangent and section.",
+      "Physical water footprints take priority over neighbouring dry valley cuts; dry-bank protection never erects land inside another channel.",
+      "Canonical dry shoreline constraints retained on render-tile perimeter.",
+      "Rejected local lake basins no longer survive as ghost fixed river stages; accepted spill controls protected from graph fitting."
+    ]
   },
   "experiments": {
     "original_cold": {
@@ -6281,5 +6281,211 @@
     },
     "selected_game": "A8388fa77 unchanged; B still older e456fc76 until next native candidate build.",
     "latest": "v93 direct hydro/geometry1413 exact pairs and200 section probes passed, but max-winner in same-reach overlapping sections introduced interior head jumps. v94/95 same-reach averaging reduced winner steps but exposed one0.266m cap discontinuity and nonconforming adaptive-mesh edges. v95 first coarse major tile153950water triangles/4.17s; boundary failed. Do not ship or waive."
+  },
+  "local_foundation_99": {
+    "old_world": {
+      "Version": "local-terrain-channel-domain-composition-99",
+      "PreparationSeconds": 29.7627589,
+      "FittingMs": 24580.6319,
+      "UsedCached": false,
+      "Probes": 5660,
+      "OpenEdgeProbes": 0,
+      "CoveredByOtherWaterOrFan": 577,
+      "Bands": [
+        {
+          "Band": "small",
+          "Reaches": 48,
+          "Probes": 1464,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "local-fit",
+          "Reaches": 48,
+          "Probes": 1496,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "broad",
+          "Reaches": 48,
+          "Probes": 1554,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "major",
+          "Reaches": 48,
+          "Probes": 1146,
+          "OpenEdgeProbes": 0
+        }
+      ],
+      "Failures": [],
+      "Scope": "Sampled actual scalar ground at paired outer render edges, excluding fragments removed inside rendered fans; native mesh/perimeter validation still required"
+    },
+    "fresh_world_98": {
+      "Version": "local-terrain-channel-domain-composition-98",
+      "PreparationSeconds": 21.394172,
+      "FittingMs": 17290.2102,
+      "UsedCached": false,
+      "Probes": 5362,
+      "OpenEdgeProbes": 0,
+      "CoveredByOtherWaterOrFan": 503,
+      "Bands": [
+        {
+          "Band": "small",
+          "Reaches": 48,
+          "Probes": 1314,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "local-fit",
+          "Reaches": 48,
+          "Probes": 1470,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "broad",
+          "Reaches": 48,
+          "Probes": 1462,
+          "OpenEdgeProbes": 0
+        },
+        {
+          "Band": "major",
+          "Reaches": 48,
+          "Probes": 1116,
+          "OpenEdgeProbes": 0
+        }
+      ],
+      "Failures": [],
+      "Scope": "Sampled actual scalar ground at paired outer render edges, excluding fragments removed inside rendered fans; native mesh/perimeter validation still required"
+    },
+    "order_controls": {
+      "Version": "local-terrain-channel-domain-composition-99",
+      "Checks": 121305,
+      "Sources": 24,
+      "Reduced": 21,
+      "Preparation": [
+        {
+          "source": 126812,
+          "Milliseconds": 295.9938,
+          "Spans": 18
+        },
+        {
+          "source": 127655,
+          "Milliseconds": 116.9479,
+          "Spans": 17
+        },
+        {
+          "source": 129629,
+          "Milliseconds": 181.897,
+          "Spans": 18
+        },
+        {
+          "source": 74799,
+          "Milliseconds": 57.5678,
+          "Spans": 379
+        },
+        {
+          "source": 46966,
+          "Milliseconds": 93.1445,
+          "Spans": 257
+        },
+        {
+          "source": 134628,
+          "Milliseconds": 192.017,
+          "Spans": 248
+        },
+        {
+          "source": 91811,
+          "Milliseconds": 77.3385,
+          "Spans": 54
+        },
+        {
+          "source": 104048,
+          "Milliseconds": 83.8744,
+          "Spans": 22
+        },
+        {
+          "source": 79776,
+          "Milliseconds": 37.045,
+          "Spans": 178
+        },
+        {
+          "source": 112740,
+          "Milliseconds": 23.9513,
+          "Spans": 77
+        },
+        {
+          "source": 76361,
+          "Milliseconds": 177.7769,
+          "Spans": 361
+        },
+        {
+          "source": 187067,
+          "Milliseconds": 43.0047,
+          "Spans": 172
+        },
+        {
+          "source": 36872,
+          "Milliseconds": 41.6513,
+          "Spans": 177
+        },
+        {
+          "source": 162700,
+          "Milliseconds": 39.9627,
+          "Spans": 218
+        },
+        {
+          "source": 66034,
+          "Milliseconds": 31.6989,
+          "Spans": 192
+        },
+        {
+          "source": 137420,
+          "Milliseconds": 61.3427,
+          "Spans": 43
+        },
+        {
+          "source": 66315,
+          "Milliseconds": 100.4591,
+          "Spans": 260
+        },
+        {
+          "source": 101729,
+          "Milliseconds": 61.7668,
+          "Spans": 408
+        },
+        {
+          "source": 89043,
+          "Milliseconds": 58.2927,
+          "Spans": 17
+        },
+        {
+          "source": 55773,
+          "Milliseconds": 94.5653,
+          "Spans": 117
+        },
+        {
+          "source": 79570,
+          "Milliseconds": 91.3664,
+          "Spans": 236
+        },
+        {
+          "source": 91883,
+          "Milliseconds": 91.2418,
+          "Spans": 166
+        },
+        {
+          "source": 189453,
+          "Milliseconds": 90.9166,
+          "Spans": 137
+        },
+        {
+          "source": 129210,
+          "Milliseconds": 107.7577,
+          "Spans": 269
+        }
+      ],
+      "Scope": "Exact public station data from forward/reverse preparation, with shared immutable broad datums; no native FPS claim"
+    },
+    "scope": "Functional audits ran concurrently; their timings are not isolated performance comparisons. Native visual/mixed-LOD/loading acceptance and longitudinal variation remain pending."
   }
 }

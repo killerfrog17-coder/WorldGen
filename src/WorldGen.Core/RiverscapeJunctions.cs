@@ -46,7 +46,7 @@ namespace WorldGen.Core
         {
             double level=riverDatums[node],width=riverNodeWidths[node],collar=RiverscapeKernel.JunctionRadius(width);
             bool through=ThroughRiverNode(node);
-            if(riverIncoming[node]>0&&!through)collar=ActualJunctionRadius(node);
+            if(RiverHasPool(node))collar=ActualJunctionRadius(node);
             bool fixedLevel=rootNodes[node].Type==Kind.Lake||rootNodes[node].Type==Kind.Ocean||lakeOutletOwners[node]>=0||Fjords.OceanNode(node);
             if(!fixedLevel&&riverIncoming[node]>0&&width>0)
             {
@@ -60,33 +60,36 @@ namespace WorldGen.Core
                     V at=rootNodes[node].Position,side=V.Cross(at,RiverNodeTangent(node)).Unit;
                     Bank((at+side*((width+2)/physical)).Unit);Bank((at-side*((width+2)/physical)).Unit);
                 }
-                else
-                {
+                if(!through)
                     for(int direction=0;direction<64;direction++)Bank(RiverscapeKernel.JunctionPoint(rootNodes[node].Position,RiverscapeKernel.JunctionRadius(width),direction*Math.PI/32,physical));
                     for(int incident=riverIncidentOffsets[node];incident<riverIncidentOffsets[node+1];incident++)
                     {
                         int other=riverIncidents[incident],source=riverReceivers[other]==node?other:node,target=riverReceivers[source];
+                        bool incoming=target==node;if(through&&!incoming)continue;
                         var points=RiverscapeKernel.InsertJunctionCollars(RiverPlanPoints(source),physical,source==node?collar:0,target==node?collar:0);
-                        int n=points.Length-1;double nominal=RiverscapeKernel.HalfWidth(rootNodes[source].Flow,scale);
-                        double Half(int station){double taper=Math.Min(1,Math.Min(station,n-station)/2d);return nominal*taper+(station<n/2?riverNodeWidths[source]:riverNodeWidths[target])*(1-taper);}
+                        int n=points.Length-1;RiverDimensions(source,points,out var widths,out _);
                         for(int j=0;j<n;j++)
                         {
                             double da=(points[j]-rootNodes[node].Position).Length*physical,db=(points[j+1]-rootNodes[node].Position).Length*physical;
-                            if(Math.Min(da,db)>collar+.01)continue;
+                            // A receiving stage cannot exceed a hollow farther
+                            // up its incoming channel either. Fitting only the
+                            // node collar left lake-like water suspended over
+                            // upstream low banks. Outgoing reaches can descend
+                            // freely, so only their true shared collar is fit.
+                            if(!incoming&&Math.Min(da,db)>collar+.01)continue;
                             V sideA=V.Cross(points[j],j==0&&ThroughRiverNode(source)?RiverNodeTangent(source):(points[Math.Min(n,j+1)]-points[Math.Max(0,j-1)]).Unit).Unit;
                             V sideB=V.Cross(points[j+1],j==n-1&&ThroughRiverNode(target)?RiverNodeTangent(target):(points[Math.Min(n,j+2)]-points[j]).Unit).Unit;
                             foreach(double t in new[]{0d,.25,.5,.75,1d})
                             {
-                                if(((points[j]*(1-t)+points[j+1]*t).Unit-rootNodes[node].Position).Length*physical>collar+.01)continue;
+                                if(!incoming&&((points[j]*(1-t)+points[j+1]*t).Unit-rootNodes[node].Position).Length*physical>collar+.01)continue;
                                 foreach(int sign in new[]{-1,1})
                                 {
-                                    V a=(points[j]+sideA*(sign*(Half(j)+2)/physical)).Unit,b=(points[j+1]+sideB*(sign*(Half(j+1)+2)/physical)).Unit;
+                                    V a=(points[j]+sideA*(sign*(widths[j]+2)/physical)).Unit,b=(points[j+1]+sideB*(sign*(widths[j+1]+2)/physical)).Unit;
                                     Bank((a*(1-t)+b*t).Unit);
                                 }
                             }
                         }
                     }
-                }
                 level=Math.Min(level,fitted);
             }
             return new RiverNodeStage(level,collar);
@@ -100,12 +103,11 @@ namespace WorldGen.Core
             for(int incident=riverIncidentOffsets[node];incident<riverIncidentOffsets[node+1];incident++)
             {
                 int other=riverIncidents[incident],source=riverReceivers[other]==node?other:node,target=riverReceivers[source];var points=RiverPlanPoints(source);int n=points.Length-1;
-                double nominal=RiverscapeKernel.HalfWidth(rootNodes[source].Flow,scale);
-                double Half(int i){double t=Math.Min(1,Math.Min(i,n-i)/2d);return Math.Max(width,nominal*t+(i<n/2?riverNodeWidths[source]:riverNodeWidths[target])*(1-t));}
+                RiverDimensions(source,points,out var widths,out _);
                 var segments=new JunctionSegment[n];
                 for(int i=0;i<n;i++)
                 {
-                    V a=points[i]-at,b=points[i+1]-at;double w=Math.Max(Half(i),Half(i+1))+2;
+                    V a=points[i]-at,b=points[i+1]-at;double w=Math.Max(width,Math.Max(widths[i],widths[i+1]))+2;
                     double ax=RiverDot(a,east)*physical,az=RiverDot(a,north)*physical,bx=RiverDot(b,east)*physical,bz=RiverDot(b,north)*physical;
                     segments[i]=new JunctionSegment{AX=ax,AZ=az,BX=bx,BZ=bz,Width=w,Bound=Math.Max(Math.Sqrt(ax*ax+az*az),Math.Sqrt(bx*bx+bz*bz))+w};
                 }
