@@ -10,6 +10,13 @@ namespace WorldGen.Presentation
     /// triangle clipping only hides submerged portions; it cannot bend water.</summary>
     public static class RiverscapeMesh
     {
+        // A nearby/intermediate coarse grid must still retain visible narrow
+        // rivers. Keep the horizon's existing width filter bounded separately.
+        public static double MinimumHalfWidth(LocalTerrainMesh mesh)
+        {
+            double step=mesh.SizeM/mesh.Segments;
+            return step<=32?0:mesh.SizeM<=4096?Math.Min(4,step*.1):step*.1;
+        }
         struct Point
         {
             public double X,Y,Z,U,V,T,H,W;
@@ -25,7 +32,7 @@ namespace WorldGen.Presentation
             // chord need not carry the millimetre tessellation of a near bank.
             // Use one common far cap so adjacent distant products agree.
             double chordLimit=step>256?512:Math.Min(128,Math.Max(4,Math.Sqrt(frame.RadiusM*.008)));
-            var spans=patch.RiverSpans(step>32?step*.1:0);if(spans.Length==0)return;
+            var spans=patch.RiverSpans(MinimumHalfWidth(mesh));if(spans.Length==0)return;
             var positions=new List<float>(mesh.WaterPositions);var colors=new List<float>(mesh.WaterColors);var indices=new List<int>(mesh.WaterTriangles);
             // Reusable Sutherland-Hodgman buffers: no per-pixel/vertex noise
             // raster, physics query or dynamic water simulation is involved.

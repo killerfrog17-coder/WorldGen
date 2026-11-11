@@ -28,6 +28,9 @@ static class RiverLodSeamTests
     }
     public static void Run(string path,int source,bool far=false)
     {
+        foreach(var c in new[]{(Size:3276.8,Segments:16,Minimum:4d),(Size:4096d,Segments:64,Minimum:4d),(Size:4096d,Segments:128,Minimum:0d),(Size:8192d,Segments:16,Minimum:51.2)})
+            if(RiverscapeMesh.MinimumHalfWidth(new LocalTerrainMesh{SizeM=c.Size,Segments=c.Segments})!=c.Minimum)
+                throw new Exception("River bank/water admission lost the bounded near-width cap or changed horizon filtering");
         var world=WorldFile.ReadFile(path);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
         var spans=terrain.Amplification.RiverReach(source);if(spans.Length==0)throw new Exception("Explicit mixed-LOD site is not an actual river");
         var s=spans[spans.Length/2];V at=((s.A+s.B).Unit+(s.SideA+s.SideB).Unit*((s.WidthA+s.WidthB)*.5/(terrain.RadiusM*.1))).Unit;

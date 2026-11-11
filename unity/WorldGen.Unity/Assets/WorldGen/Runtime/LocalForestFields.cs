@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -26,10 +27,10 @@ public sealed partial class LocalTerrainExplorer
     }
     sealed class ForestField
     {
-        public ForestPage Source;public int Id;public Bounds Bounds;public bool WasReady;public float RetireAfter;
+        public ForestPage Source;public int Id;public Bounds Bounds;public bool WasReady,Projecting;public float RetireAfter;
         public readonly Dictionary<ForestBatch,List<int>> Roots=new Dictionary<ForestBatch,List<int>>();
-        public bool Ready=>WasReady;
-        public bool EvaluateReady(){foreach(var batch in Roots.Keys)if(!batch.Model.TreeBaked)return false;return true;}
+        public bool Ready=>!Projecting&&WasReady;
+        public bool EvaluateReady(){if(Projecting)return false;foreach(var batch in Roots.Keys)if(!batch.Model.TreeBaked)return false;return true;}
     }
     sealed class ForestWork {public ForestPageKey Key;public Task<ForestPage> Task;public CancellationTokenSource Cancellation;}
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
@@ -65,6 +66,8 @@ public sealed partial class LocalTerrainExplorer
         }
         Array.Clear(batch.DirtyBlocks,0,batch.DirtyBlocks.Length);batch.Dirty=batch.AllDirty=false;batch.CullValid=false;
     }
+    ForestField forestInstalling;IEnumerator forestProjection;
+    long forestProjectionSlices;double forestProjectionMaxMs;
     readonly List<ForestWork> forestJobs=new List<ForestWork>();readonly HashSet<ForestPageKey> forestWanted=new HashSet<ForestPageKey>();
     Comparison<ForestWork> forestCompletionComparison;
     readonly Dictionary<ForestPageKey,bool> forestOwnership=new Dictionary<ForestPageKey,bool>();int forestOwnershipRevision=-1,forestOwnershipEpoch;
@@ -168,6 +171,7 @@ public sealed partial class LocalTerrainExplorer
             long phase=WorldGenPerformance.TraceBegin();
             // Reproject immutable planet-addressed payloads; never reseed a forest
             // because its terrain chart was replaced.
+            if(forestInstalling!=null)RemoveForestField(forestInstalling.Source.Key);
             forestFrame=frame;foreach(var batch in forestBatches.Values){batch.Data.Clear();batch.GroundLevels.Clear();batch.Free.Clear();DirtyAllForestRoots(batch);}
             forestRootCount=0;foreach(var field in forestFields.Values){field.Roots.Clear();ProjectForest(field);}forestRevision++;forestHashDirty=true;
             WorldGenPerformance.TraceEnd(58,phase);
@@ -183,6 +187,8 @@ public sealed partial class LocalTerrainExplorer
                 flightForestWanted.Clear();foreach(var key in flightForestPriority)flightForestWanted.Add(key);
                 forestCoveragePlanned=true;forestCoverageAt=forestPlanAt;forestCoverageRange=forestPlanRange;forestRevealBounds.Clear();fogCheckAt=0;
                 foreach(var work in forestJobs)if(!forestWanted.Contains(work.Key)&&!flightForestWanted.Contains(work.Key))work.Cancellation.Cancel();
+                if(forestInstalling!=null&&!forestWanted.Contains(forestInstalling.Source.Key)&&!flightForestWanted.Contains(forestInstalling.Source.Key))
+                {RemoveForestField(forestInstalling.Source.Key);forestNextRequest=flightForestNext=0;}
             }
             else if(forestPlan.IsFaulted)Debug.LogWarning("Forest plan: "+forestPlan.Exception.GetBaseException().Message);
             forestPlan=null;
@@ -208,6 +214,8 @@ public sealed partial class LocalTerrainExplorer
             forestCompletionComparison??=(a,b)=>ForestGapDistance(b.Key).CompareTo(ForestGapDistance(a.Key));
             forestJobs.Sort(forestCompletionComparison);
         }
+        bool projected=false;
+        if(forestProjection!=null&&CanInstall){AdvanceForestProjection();projected=true;}
         int emptyInstalls=0;
         for(int i=forestJobs.Count-1;i>=0;i--)
         {
@@ -216,17 +224,20 @@ public sealed partial class LocalTerrainExplorer
             // A completed zero-root page certifies an empty census. It does
             // not upload objects or correct ground, so terrain publication
             // must not block it and occupy both forest request slots.
-            if(job.Task.IsCompletedSuccessfully&&(forestWanted.Contains(job.Key)||flightForestWanted.Contains(job.Key))&&!metadataOnly&&!CanInstall)continue;
+            if(job.Task.IsCompletedSuccessfully&&(forestWanted.Contains(job.Key)||flightForestWanted.Contains(job.Key))&&!metadataOnly&&(!CanInstall||forestProjection!=null||projected))continue;
             forestJobs.RemoveAt(i);job.Cancellation.Dispose();
             if(job.Task.IsCanceled){forestNextRequest=flightForestNext=0;continue;} // Retry interrupted coverage after near-ground pressure ends.
             if(job.Task.IsFaulted){Debug.LogWarning("Forest page retained fallback: "+job.Task.Exception.GetBaseException().Message);forestNextRequest=flightForestNext=0;forestRetryAt=Time.realtimeSinceStartupAsDouble+2;continue;}
             if(!job.Task.IsCompletedSuccessfully||!forestWanted.Contains(job.Key)&&!flightForestWanted.Contains(job.Key))continue;
             if(forestFreeIds.Count==0&&forestNextId>=forestFlags.Length)break;
             long installTrace=WorldGenPerformance.TraceBegin();long installed=installTrace!=0?installTrace:System.Diagnostics.Stopwatch.GetTimestamp();
-            if(!metadataOnly)installationsThisFrame++;
-            var field=new ForestField{Source=job.Task.Result,Id=forestFreeIds.Count>0?forestFreeIds.Pop():forestNextId++};forestFields.Add(job.Key,field);ProjectForest(field);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;forestMaintenanceDirty=true;
+            var field=new ForestField{Source=job.Task.Result,Id=forestFreeIds.Count>0?forestFreeIds.Pop():forestNextId++,Projecting=!metadataOnly};
+            forestFlags[field.Id]=0;forestBirth[field.Id]=0;forestFields.Add(job.Key,field);forestHashDirty=true;
+            if(metadataOnly){ProjectForest(field);ForestProjectionChanged();}
+            else{forestInstalling=field;forestProjection=ProjectForestSteps(field);}
             WorldGenPerformance.TraceEnd(56,installTrace);
             frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            if(!metadataOnly){AdvanceForestProjection();projected=true;}
             // Empty pages only certify a tree-free part of the census. They
             // create no tree models, transforms or GPU roots; do not charge
             // an entire object-upload frame for each of thousands of them.
@@ -325,12 +336,38 @@ public sealed partial class LocalTerrainExplorer
         if(forestFields.TryGetValue(key,out var field)&&field.Ready)return true;if(key.Level==0)return false;
         for(int y=0;y<2;y++)for(int x=0;x<2;x++)if(!ForestReplacementReadyDescendants(new ForestPageKey(key.Face,key.X*2+x,key.Y*2+y,key.Level-1)))return false;return true;
     }
+    void ForestProjectionChanged()
+    {forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;forestMaintenanceDirty=true;}
+    void ClearForestProjection()
+    {
+        (forestProjection as IDisposable)?.Dispose();forestProjection=null;forestInstalling=null;
+    }
+    void AdvanceForestProjection()
+    {
+        long trace=WorldGenPerformance.TraceBegin(),started=System.Diagnostics.Stopwatch.GetTimestamp();
+        installationsThisFrame++;
+        try
+        {
+            if(!forestProjection.MoveNext()){ClearForestProjection();ForestProjectionChanged();}
+        }
+        catch{var key=forestInstalling.Source.Key;ClearForestProjection();RemoveForestField(key);throw;}
+        finally
+        {
+            double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            frameUploadMs+=elapsed;forestProjectionSlices++;forestProjectionMaxMs=Math.Max(forestProjectionMaxMs,elapsed);
+            WorldGenPerformance.TraceEnd(56,trace);
+        }
+    }
     void ProjectForest(ForestField field)
     {
-        bool first=true;var page=field.Source;
-        // Empty census certificates change coverage/ownership metadata, but
-        // cannot invalidate an in-progress correction of physical roots.
-        if(page.Roots.Length>0)forestRootTopologyRevision++;
+        var steps=ProjectForestSteps(field);
+        try{while(steps.MoveNext()){} }finally{(steps as IDisposable)?.Dispose();}
+    }
+    IEnumerator ProjectForestSteps(ForestField field)
+    {
+        field.Projecting=true;field.WasReady=false;
+        bool first=true;var page=field.Source;int added=0;
+        long started=System.Diagnostics.Stopwatch.GetTimestamp();
         foreach(var source in page.Roots)
         {
             var tree=source.Tree;bool macro=source.Population==0;int code=TreeFlora.RenderCode(tree.Variant),batchCode=code|(macro?int.MinValue:0);
@@ -363,9 +400,17 @@ public sealed partial class LocalTerrainExplorer
                 int slot;if(batch.Free.Count>0){slot=batch.Free.Pop();batch.Data[slot]=root;batch.GroundLevels[slot]=groundLevel;}else{slot=batch.Data.Count;batch.Data.Add(root);batch.GroundLevels.Add(groundLevel);}DirtyForestRoot(batch,slot);forestRootCount++;
                 if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
                 var bounds=ForestRootBounds(root);if(first){field.Bounds=bounds;first=false;}else field.Bounds.Encapsulate(bounds);
+                // A partial page remains physically represented for exact ground
+                // correction, but owns/draws nothing until its final root exists.
+                // Bump topology before every yield so staged ground plans cannot
+                // resume stale slot-list enumerators after this slice adds roots.
+                added++;
+                if(added%16==0&&(added>=4096||System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007))
+                {forestRootTopologyRevision++;added=0;yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
             }
         }
-        field.WasReady=field.EvaluateReady();
+        if(added>0)forestRootTopologyRevision++;
+        field.Projecting=false;field.WasReady=field.EvaluateReady();
         if(field.WasReady)MarkForestBirth(field);
     }
     void ProjectForestGround()
@@ -441,7 +486,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void RemoveForestField(ForestPageKey key)
     {
-        var field=forestFields[key];if(field.Roots.Count>0)forestRootTopologyRevision++;
+        var field=forestFields[key];if(ReferenceEquals(field,forestInstalling))ClearForestProjection();if(field.Roots.Count>0)forestRootTopologyRevision++;
         foreach(var pair in field.Roots)foreach(int slot in pair.Value){pair.Key.Data[slot]=default;pair.Key.Free.Push(slot);DirtyForestRoot(pair.Key,slot);forestRootCount--;}
         forestFlags[field.Id]=0;forestBirth[field.Id]=0;forestFreeIds.Push(field.Id);forestFields.Remove(key);forestHashDirty=true;forestRevision++;forestOwnershipEpoch++;scatterDirty=true;
     }
@@ -510,6 +555,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ResetForestFields()
     {
+        ClearForestProjection();
         flightForestPriority=Array.Empty<ForestPageKey>();flightForestWanted.Clear();flightForestNext=0;flightForestCoverage=false;
         residentForestReady=false;residentForestEpoch=-1;nextResidentForestCheck=0;
         foreach(var work in forestJobs){work.Cancellation.Cancel();var stop=work.Cancellation;work.Task.ContinueWith(_=>stop.Dispose(),TaskScheduler.Default);}forestJobs.Clear();

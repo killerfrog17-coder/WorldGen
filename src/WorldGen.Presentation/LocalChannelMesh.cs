@@ -44,7 +44,7 @@ namespace WorldGen.Presentation
                 // Every river wide enough to render at this LOD needs its bed
                 // in the same mesh. Otherwise coarse faces bridge the channel
                 // while the water is correctly drawn underneath solid ground.
-                foreach(var s in patch.RiverSpans(step>32?step*.1:0))
+                foreach(var s in patch.RiverSpans(RiverscapeMesh.MinimumHalfWidth(mesh)))
                 {
                     V al=(s.A+s.SideA*(s.WidthA/frame.RadiusM)).Unit,ar=(s.A-s.SideA*(s.WidthA/frame.RadiusM)).Unit;
                     V bl=(s.B+s.SideB*(s.WidthB/frame.RadiusM)).Unit,br=(s.B-s.SideB*(s.WidthB/frame.RadiusM)).Unit;

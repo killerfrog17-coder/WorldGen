@@ -145,13 +145,26 @@ public sealed partial class LocalTerrainExplorer
                 workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
                 workRows.Add("perspective bottom-third ground gaps="+perspectiveGaps+"/3072");
                 File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
-                var snapshot=new List<string>{"scope,x,z,level,scale,segments",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R}"};
-                void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries)
-                {foreach(var p in entries){var k=p.Key;snapshot.Add(string.Join(",",scope,k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value));}}
-                Save("wanted",wanted);Save("resident",tiles.Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
-                foreach(var p in tiles){var k=p.Key;snapshot.Add(string.Join(",","fade",k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeIn.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeOut.ToString("R",CultureInfo.InvariantCulture)));}
+                var snapshot=new List<string>{"scope,x,z,level,scale,segments,coverageOnly,hasWater,contact,waterBoundsKnown,waterMinWorldX,waterMinWorldZ,waterMaxWorldX,waterMaxWorldZ",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R},,,,,,,,"};
+                void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries,Dictionary<TerrainTileKey,Tile> residents=null)
+                {
+                    foreach(var p in entries)
+                    {
+                        var k=p.Key;string extra=",,,,,,,,";
+                        if(residents!=null&&residents.TryGetValue(k,out var tile))
+                        {
+                            extra=","+string.Join(",",tile.CoverageOnly,tile.HasWater,tile.Contact!=null,tile.WaterBoundsKnown);
+                            if(tile.HasWater&&tile.WaterBoundsKnown)
+                            {var b=tile.WaterBounds;double x=k.X*k.SizeM,z=k.Z*k.SizeM;extra+=","+string.Join(",",new[]{x+b.min.x,z+b.min.z,x+b.max.x,z+b.max.z}.Select(v=>v.ToString("R",CultureInfo.InvariantCulture)));}
+                            else extra+=",,,,";
+                        }
+                        snapshot.Add(string.Join(",",scope,k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value)+extra);
+                    }
+                }
+                Save("wanted",wanted);Save("resident",tiles.Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)),tiles);
+                foreach(var p in tiles){var k=p.Key;snapshot.Add(string.Join(",","fade",k.X,k.Z,k.Level,k.Scale.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeIn.ToString("R",CultureInfo.InvariantCulture),p.Value.FadeOut.ToString("R",CultureInfo.InvariantCulture))+",,,,,,,");}
                 if(preparedFrame!=null)
-                {var p=preparedFrame;snapshot.Add($"prepared-observer,{p.X:R},{p.Z:R},0,{HorizontalScale:R},{viewDistance:R}");Save("prepared-wanted",p.Wanted);Save("prepared-resident",p.Tiles.Select(t=>new KeyValuePair<TerrainTileKey,int>(t.Key,t.Value.Segments)));}
+                {var p=preparedFrame;snapshot.Add($"prepared-observer,{p.X:R},{p.Z:R},0,{HorizontalScale:R},{viewDistance:R},,,,,,,,");Save("prepared-wanted",p.Wanted);Save("prepared-resident",p.Tiles.Select(t=>new KeyValuePair<TerrainTileKey,int>(t.Key,t.Value.Segments)),p.Tiles);}
                 File.WriteAllLines(Path.Combine(output,"flight-snapshot-"+(audits-1)+".csv"),snapshot);
                 if(audits%4==0)
                 {

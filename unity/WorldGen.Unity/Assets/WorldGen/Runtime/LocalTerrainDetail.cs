@@ -168,9 +168,11 @@ public sealed partial class LocalTerrainExplorer
             var ancestor=new TerrainTileKey(key.X>>depth,key.Z>>depth,key.Level+depth,key.Scale);
             if(!tiles.TryGetValue(ancestor,out var tile)||tile.CoverageOnly||tile.Segments<=0||tile.Heights==null||
                 tile.Heights.Length!=(tile.Segments+1)*(tile.Segments+1)||tile.Root==null||!tile.Root.activeInHierarchy||tile.ResidentEdges?.Mesh==null)continue;
-            // Match LocalTerrainMesh's >256 m coarseGeometry threshold. A
-            // giant bare hierarchy grid is not a canonical feature surface.
-            if(ancestor.SizeM/tile.Segments<=256||tile.Contact!=null||tile.HasWater)return true;
+            // Reuse only a real water surface under this child, not unrelated
+            // water elsewhere in a huge ancestor or a dry coarse height grid.
+            if(!tile.HasWater||!tile.WaterBoundsKnown)continue;
+            var water=tile.WaterBounds;double x0=key.X*key.SizeM-ancestor.X*ancestor.SizeM,z0=key.Z*key.SizeM-ancestor.Z*ancestor.SizeM;
+            if(water.max.x>=x0&&water.min.x<=x0+key.SizeM&&water.max.z>=z0&&water.min.z<=z0+key.SizeM)return true;
         }
         return false;
     }

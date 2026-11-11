@@ -423,6 +423,61 @@ public sealed partial class LocalTerrainExplorer
         {var at=root.Tree.Position;double dot=V.Dot(at,alternate.Origin),x=V.Dot(at,alternate.East)*alternate.RadiusM/dot,z=V.Dot(at,alternate.North)*alternate.RadiusM/dot;double error=(alternate.Position(x,z)-at).Length*alternate.RadiusM;worst=Math.Max(worst,error);if(error>.02)throw new InvalidOperationException("Forest reanchor roundtrip exceeds quantized basis tolerance: "+error+"m");}
         return projection+"; shared forest permit and sent-socket cancellation checks pass; "+checkedRoots+" IL2CPP/worker exact tree identities; "+ownershipChecks+" exact ownership cache checks; "+empty+" empty ownership pages retained; alternate-chart max roundtrip "+worst+"m (Core V uses 1e-9 quantization)";
     }
+    public string PerformanceVerifyForestProjection()
+    {
+        // Use an actual worker page, the production generator and identical
+        // current ground. Temporary records never enter ownership/draw hashes.
+        var original=forestFields.Values.Where(f=>f.Ready&&f.Source.Roots.Length>0)
+            .OrderByDescending(f=>f.Roots.Sum(p=>p.Value.Count)).FirstOrDefault();
+        if(original==null)throw new InvalidOperationException("Sliced forest proof needs a nonempty actual resident page");
+        var immediate=new ForestField{Source=original.Source,Id=original.Id};
+        var sliced=new ForestField{Source=original.Source,Id=original.Id};
+        IEnumerator work=null;int slices=0,previous=0,checkedRoots=0;
+        void Release(ForestField field)
+        {
+            foreach(var pair in field.Roots)foreach(int slot in pair.Value)
+            {pair.Key.Data[slot]=default;pair.Key.Free.Push(slot);DirtyForestRoot(pair.Key,slot);forestRootCount--;}
+            if(field.Roots.Count>0)forestRootTopologyRevision++;
+            field.Roots.Clear();
+        }
+        try
+        {
+            ProjectForest(immediate);
+            var expected=new Dictionary<ForestBatch,ForestRoot[]>();var levels=new Dictionary<ForestBatch,int[]>();
+            foreach(var pair in immediate.Roots)
+            {expected.Add(pair.Key,pair.Value.Select(i=>pair.Key.Data[i]).ToArray());levels.Add(pair.Key,pair.Value.Select(i=>pair.Key.GroundLevels[i]).ToArray());}
+            var expectedBounds=immediate.Bounds;bool expectedReady=immediate.Ready;Release(immediate);
+            work=ProjectForestSteps(sliced);
+            while(work.MoveNext())
+            {
+                int count=sliced.Roots.Sum(p=>p.Value.Count);
+                if(!sliced.Projecting||sliced.Ready||sliced.EvaluateReady()||count<=previous)
+                    throw new InvalidOperationException("Incomplete forest projection became ready or stopped making root progress");
+                // Every already-added record uses the exact current resident
+                // ground, even while its page remains hidden and parent-owned.
+                foreach(var pair in sliced.Roots)foreach(int slot in pair.Value)
+                {
+                    if(pair.Key.GroundLevels[slot]>=17)continue; // No resident surface to certify yet; these roots remain hidden.
+                    var current=pair.Key.Data[slot];var grounded=current;ProjectForestRootGround(ref grounded,out int level);
+                    if(current.Position!=grounded.Position||current.Padding!=grounded.Padding||level!=pair.Key.GroundLevels[slot])
+                        throw new InvalidOperationException("Partial forest page root lost current ground agreement");
+                }
+                previous=count;slices++;
+            }
+            if(sliced.Projecting||sliced.Ready!=expectedReady||sliced.Bounds!=expectedBounds||sliced.Roots.Count!=expected.Count)
+                throw new InvalidOperationException("Completed sliced forest page differs in readiness, bounds or batches");
+            foreach(var pair in sliced.Roots)
+            {
+                var actual=pair.Value.Select(i=>pair.Key.Data[i]).ToArray();var ground=pair.Value.Select(i=>pair.Key.GroundLevels[i]).ToArray();
+                if(!expected.TryGetValue(pair.Key,out var roots)||!System.Runtime.InteropServices.MemoryMarshal.AsBytes(actual.AsSpan()).SequenceEqual(System.Runtime.InteropServices.MemoryMarshal.AsBytes(roots.AsSpan()))||!ground.SequenceEqual(levels[pair.Key]))
+                    throw new InvalidOperationException("Sliced forest projection changed exact root order/position/tint/identity or ground levels");
+                checkedRoots+=actual.Length;
+            }
+            if(checkedRoots>4096&&slices==0)throw new InvalidOperationException("Large sliced forest proof never exercised a projection yield");
+            return "PASS actual page immediate/sliced projection: "+checkedRoots+" byte-exact root records and exact ground levels/bounds across "+slices+" incomplete slices; no readiness before completion";
+        }
+        finally{(work as IDisposable)?.Dispose();Release(immediate);Release(sliced);}
+    }
     public int PerformanceVerifyEmptyCover()
     {
         int pages=0;var count=new uint[1];
@@ -821,7 +876,7 @@ public sealed partial class LocalTerrainExplorer
     public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
     public bool PerformanceSettled=>!GroundPublicationPending&&PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
     public string PerformanceStreamingWork=>StreamingWorkReceipt;
-    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}; readiness near={NearReady} all={AllReady} detail={DetailPlanning} jobs={jobs.Count} previous={previousTerrain.Count} retiring={retiringFrames.Count} fades={tiles.Values.Count(t=>!FadeComplete(t))} scatter={ScatterReady} scatterJobs={scatterJobs.Count} coverRequests={coverRequests.Count}";
+    public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, projection slices {forestProjectionSlices} max_ms {forestProjectionMaxMs:F3} active {forestProjection!=null}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}; readiness near={NearReady} all={AllReady} detail={DetailPlanning} jobs={jobs.Count} previous={previousTerrain.Count} retiring={retiringFrames.Count} fades={tiles.Values.Count(t=>!FadeComplete(t))} scatter={ScatterReady} scatterJobs={scatterJobs.Count} coverRequests={coverRequests.Count}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
     public void PerformanceFreezeDaylight(bool summer=false){TerrainDiagnostics.FreezeSun=false;sunPoseWritten=false;SetDaylight(12,summer?190000+(Position.Z<0?0:.5):skyYear);TerrainDiagnostics.FreezeSun=true;}
@@ -1564,7 +1619,7 @@ public sealed partial class WorldGenRuntime
                 if(item.Name=="human-output-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyHumanInputs(true)+"\n");
                 if(item.Name=="animal-pose-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyAnimalPoseMath()+"\n");
                 if(item.Name=="stutter-idle")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRenderCleanup()+"\n"+terrainExplorer.PerformanceVerifyVegetationScene()+"\n"+terrainExplorer.PerformanceVerifyGrassCullCache()+"\n");
-                if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}
+                if(item.Name=="forest-ready"){File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyForestIdentity()+"\n"+terrainExplorer.PerformanceVerifyForestProjection()+"\n"+terrainExplorer.PerformanceVerifyTreeAlpha()+"\n"+terrainExplorer.PerformanceVerifyTreeGroupAdmission()+"\n"+terrainExplorer.PerformanceVerifyTreeQueues(Path.Combine(output,site.Item1+"-queues"))+"\n");terrainExplorer.PerformanceCapture(Path.Combine(output,site.Item1+"-forest.png"));}
                 if(item.Name=="trees-efficient-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyTreeEfficiency(output)+"\n");
                 if(item.Name=="scatter-range-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyVisibility()+"\n");
                 if(item.Name=="scatter-guard-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyRotationGuard(Path.Combine(output,"rotation-guard"))+"\n");
