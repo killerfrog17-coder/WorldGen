@@ -7,21 +7,6 @@ float4 _TerrainSurfaceRanges, _TerrainSurfaceControls;
 float4 _TerrainGeologyDatum;
 float4 _TerrainBeddingOrigin;
 
-float SurfacePatchHash(float2 p)
-{float3 h=frac(float3(p.x,p.y,p.x)*.1031);h+=dot(h,h.yzx+33.33);return frac((h.x+h.y)*h.z);}
-float SurfaceMossPatch(float3 world,float amount,float detail)
-{
-    // Ecological cover is area, not translucent green paint over every pixel.
-    // Stable metre-scale cushions reveal litter between them. Analytic noise
-    // adds no material fetch, geometry, draw call or per-frame CPU work.
-    float2 p=float2(dot(world,TerrainEast().xyz),dot(world,TerrainNorth().xyz))/1.8;
-    float2 cell=floor(p),f=frac(p);f=f*f*(3-2*f);
-    float noise=lerp(lerp(SurfacePatchHash(cell),SurfacePatchHash(cell+float2(1,0)),f.x),lerp(SurfacePatchHash(cell+float2(0,1)),SurfacePatchHash(cell+1),f.x),f.y);
-    float width=max(.045,fwidth(noise)*1.5);
-    float patch=smoothstep(1-amount-width,1-amount+width,noise);
-    return lerp(amount,patch,detail);
-}
-
 float3 SurfaceAxes(float3 normal, float count, float extra)
 {
     float3 w=pow(abs(normal),4);
@@ -338,7 +323,8 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // here made each individual triangle a different grass/soil material.
     // Physical stems retain their separate geometric cliff/rooting test.
     mix.x*=smoothstep(.62,.86,abs(dot(normalize(i.normal),float3(0,1,0))));
-    if(mix.y>.001)mix.y=SurfaceMossPatch(world,saturate(mix.y),detail);
+    // Preserve the continuous ecological cover. Thresholding interpolated
+    // lattice noise here manufactured repeated, sharply outlined green islands.
     mix/=max(1,dot(mix,1));
     if(TerrainTest(TD_GRASS))mix.x=0;if(TerrainTest(TD_MOSS))mix.y=0;if(TerrainTest(TD_LICHEN))mix.z=0;
     float3 axes=SurfaceAxes(TerrainUp().xyz,TerrainTest(TD_AXIS)?1:_TerrainSurfaceControls.w,extra);
@@ -367,11 +353,9 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
         {
             float3 mat=.5;
             if(textures&&detail>.001)mat=lerp(mat,SurfaceMat(TEXTURE2D_ARGS(_MossField,sampler_MossField),world/.45,worldDx/.45,worldDy/.45,axes),detail);
-            // Reuse the photographed relief to break up the cushion boundary;
-            // smooth analytic contours alone looked like airbrushed green ovals.
-            // No extra texture read, and the other cover weights stay bounded.
-            float edge=smoothstep(.2,.8,mix.y+(mat.r-.5)*.8);
-            mix.y=lerp(mix.y,min(edge,max(0,1-mix.x-mix.z)),detail);
+            // Fine variation comes from the actual moss image, without turning
+            // a partial cover weight into a binary moss/soil contour.
+            mix.y*=lerp(1,saturate(.65+mat.r*.7),detail);
             float3 normal=normalize(n+float3(mat.g-.5,0,mat.b-.5)*1.3);
             vegetation+=moss*(mat.r*2)*SurfaceMatLight(normal,sun,canopyShade)*mix.y;
         }
