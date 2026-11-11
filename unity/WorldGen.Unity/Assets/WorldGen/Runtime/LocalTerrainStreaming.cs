@@ -21,7 +21,7 @@ public sealed partial class LocalTerrainExplorer
     double streamingWorkerMs;
     long detailAccepted,detailStale;double detailStarted,detailLongest;
     long requestMissing,requestResolution,requestEdges;
-    string StreamingWorkReceipt=>"completed="+streamingCompleted+", canceled="+streamingCanceled+", discarded key/detail/edges="+streamingDiscardKey+"/"+streamingDiscardDetail+"/"+streamingDiscardEdges+", uploaded="+streamingInstalled+", preemptions="+streamingPreempted+", useful worker ms="+streamingWorkerMs.ToString("F1")+"; requests missing/resolution/edges="+requestMissing+"/"+requestResolution+"/"+requestEdges+"; plans accepted/stale="+detailAccepted+"/"+detailStale+" max ms="+detailLongest.ToString("F1")+"; "+TestHandoffDiagnostics();
+    string StreamingWorkReceipt=>"completed="+streamingCompleted+", canceled="+streamingCanceled+", discarded key/detail/edges="+streamingDiscardKey+"/"+streamingDiscardDetail+"/"+streamingDiscardEdges+", uploaded="+streamingInstalled+", preemptions="+streamingPreempted+", useful worker ms="+streamingWorkerMs.ToString("F1")+"; requests missing/resolution/edges="+requestMissing+"/"+requestResolution+"/"+requestEdges+"; plans accepted/stale="+detailAccepted+"/"+detailStale+" max ms="+detailLongest.ToString("F1")+"; "+ResidentSeamReceipt+"; "+TestHandoffDiagnostics();
     public long CachedTerrainBytes=>terrainProducts?.Bytes??0;
     public void TestStreamingVelocity(double x,double z){streamingVX=x;streamingVZ=z;predictedX=double.NaN;predictionDue=0;RefreshStreamingPrediction();}
     TerrainLru<TerrainProductKey,Tile> TerrainProducts=>terrainProducts??(terrainProducts=new TerrainLru<TerrainProductKey,Tile>(96L*1024*1024,128,RetireCachedTile));
@@ -35,6 +35,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void CacheTerrain(TerrainTileKey key,Tile tile)
     {
+        ReleaseResidentSeam(tile);
         if(tile.CoverageOnly){DestroyTile(tile);coverageDirty=true;return;}
         ReleaseGroundCover(tile);
         tile.Root.SetActive(false);tile.CoverageNodes=null;
@@ -61,6 +62,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ResetStreamingReuse(bool cancelJobs)
     {
+        ClearResidentSeams();
         CancelGroundPublication();
         ClearTerrainTransitions();
         terrainProducts?.Clear();streamingVX=streamingVZ=0;predictedX=double.NaN;

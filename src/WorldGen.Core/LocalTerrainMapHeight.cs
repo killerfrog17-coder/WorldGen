@@ -16,7 +16,7 @@ namespace WorldGen.Core
             internal MapHeightCursor(LocalTerrain owner){this.owner=owner;}
             public LocalTerrainSample Sample(V point,double footprint)
             {
-                if(owner.Amplification==null||footprint<=128)
+                if(owner.Amplification==null)
                     return owner.MapPatch(point,Math.Min(250000,2048/owner.HorizontalScale)).SampleMap(point,footprint);
                 int cell=owner.NearestCell(point);
                 var key=(cell,footprint);

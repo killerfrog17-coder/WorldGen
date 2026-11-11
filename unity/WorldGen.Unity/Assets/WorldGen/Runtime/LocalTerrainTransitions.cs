@@ -13,6 +13,9 @@ public sealed partial class LocalTerrainExplorer
     bool FadeComplete(Tile tile)=>TerrainVideoOptions.HardChunkUpdates||tile.FadeOut==0&&(tile.FadeIn==0||Time.time-tile.FadeIn>=TerrainCoverage.FadeSeconds);
     void BeginTerrainReplacement(TerrainTileKey key,Tile next,Tile old)
     {
+        // A previous surface can crossfade, but its old neighbour bridge must
+        // not survive a changed resident edge ownership.
+        if(old!=null)RemoveResidentSeam(old);
         if(previousTerrain.TryGetValue(key,out var earlier)){CacheTerrain(key,earlier);previousTerrain.Remove(key);}
         if(old!=null){if(TerrainVideoOptions.HardChunkUpdates)CacheTerrain(key,old);else{old.FadeIn=old.FadeOut=0;previousTerrain[key]=old;}}
         bool parent=false;

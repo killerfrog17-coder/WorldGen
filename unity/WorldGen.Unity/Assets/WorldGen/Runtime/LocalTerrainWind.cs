@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
     {
         // Weather/rain keep their existing instantaneous sample. Vegetation
         // reads ONLY the broad heading; its original shader owns all animation.
-        double seconds=playState==null?weatherDays*86400:PlayCalendar.Seconds(playState,SimulationTime.Seconds(sourceWorld.Prehistory));
+        double seconds=playState==null?weatherDays*86400:PlayCalendar.Seconds(playState,sourceWorld.Prehistory==null?0:SimulationTime.Seconds(sourceWorld.Prehistory));
         CurrentWindMps=WeatherWind.Sample(CurrentWeather,sourceWorld.Recipe.Seed,Position,frame.RadiusM,seconds);
         var direction=WindToChart(new V(CurrentWeather.WindEastMps,CurrentWeather.WindNorthMps,0));direction.y=0;
         direction=direction.sqrMagnitude>.000001f?direction.normalized*Mathf.Sqrt(.8f):new Vector3(.8f,0,.4f);

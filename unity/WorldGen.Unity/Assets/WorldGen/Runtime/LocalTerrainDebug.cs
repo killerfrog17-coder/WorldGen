@@ -110,7 +110,7 @@ public sealed partial class LocalTerrainExplorer
         TerrainMapViewport.Degrees(Position,out double lat,out double lon);
         if(playState!=null)lon=playState.OfficialLongitude(lon);
         double bearing=ExplorerNavigation.Bearing(frame,Position,heading);
-        string date=playState==null?"":PlayCalendar.Date(PlayCalendar.Seconds(playState,sourceWorld==null?0:SimulationTime.Seconds(sourceWorld.Prehistory)));
+        string date=playState==null?"":PlayCalendar.Date(PlayCalendar.Seconds(playState,sourceWorld?.Prehistory==null?0:SimulationTime.Seconds(sourceWorld.Prehistory)));
         return fpsDisplay+" FPS\n"+lat.ToString("F6")+"°, "+lon.ToString("F6")+"°\n"+
             "Facing "+ExplorerNavigation.Compass(bearing)+" · "+bearing.ToString("F1")+"°\n"+
             "Elevation "+debugElevation.ToString("F1")+" m · clearance "+debugGroundClearance.ToString("F2")+" m\n"+

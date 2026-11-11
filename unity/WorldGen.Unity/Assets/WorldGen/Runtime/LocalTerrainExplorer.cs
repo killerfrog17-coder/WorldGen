@@ -313,7 +313,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         }
         WorldGenPerformance.TraceEnd(35,installTrace);
         long retirementTrace=WorldGenPerformance.TraceBegin();
-        UpdateTerrainTransitions();RetireObsoleteTerrain();
+        UpdateTerrainTransitions();RetireObsoleteTerrain();UpdateResidentSeams();
         WorldGenPerformance.TraceEnd(36,retirementTrace);
         long scatterTrace=WorldGenPerformance.TraceBegin(),scatterStarted=WorldGenPerformance.Begin();UpdateScatter();WorldGenPerformance.End(0,scatterStarted);WorldGenPerformance.TraceEnd(2,scatterTrace);
         componentTrace=WorldGenPerformance.TraceBegin();UpdateAnimalFauna();WorldGenPerformance.TraceEnd(21,componentTrace);
@@ -347,9 +347,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             // Fill missing outward coverage before upgrading already visible
             // land. Only after that do forest/prediction use spare workers.
+            ScheduleBackdrop();
             if(forestRevealRadius<Math.Min(terrainRevealRadius,Math.Max(600,detailOptions.FullRadius(HorizontalScale))))
                 ScheduleForestWork();
-            ScheduleBackdrop();
             ScheduleCurrentTerrain(missingOnly:true);
             ScheduleCurrentTerrain();
             SchedulePreparedWork(false);
@@ -455,7 +455,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var filter in scratch)if(filter.sharedMesh!=null){var mesh=filter.sharedMesh;filter.sharedMesh=null;if(pool==null||!pool.Release(mesh))UnityEngine.Object.Destroy(mesh);count++;}
         scratch.Clear();return count;
     }
-    void DestroyTile(Tile tile){ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch,terrainMeshPool);Destroy(tile.Root);}
+    void DestroyTile(Tile tile){ReleaseResidentSeam(tile);ReleaseGroundCover(tile);if(tile.CoverBuffers!=null){tile.CoverBuffers.Dispose();tile.CoverBuffers=null;tile.Cover=tile.MidCover=tile.ForestCover=default;}if(tile.FloraSurface!=null)Destroy(tile.FloraSurface);if(tile.MidSurface!=null)Destroy(tile.MidSurface);if(tile.ForestSurface!=null)Destroy(tile.ForestSurface);if(tile.ForestFloor!=null)Destroy(tile.ForestFloor);if(tile.Coverage!=null)Destroy(tile.Coverage);if(tile.CoverageTimes!=null)Destroy(tile.CoverageTimes);if(tile.Materials!=null){foreach(var material in tile.Materials)if(material!=null)Destroy(material);tile.Materials=null;tile.Renderers=null;tile.MaterialBinding=null;}if(tile.Root==null)return;tile.Root.SetActive(false);ReleaseTerrainMeshes(tile.Root,terrainMeshReleaseScratch,terrainMeshPool);Destroy(tile.Root);}
     public string[] Probes()
     {
         var patch=terrain.Patch(frame.Origin,6000);var result=new List<string>();var culture=System.Globalization.CultureInfo.InvariantCulture;

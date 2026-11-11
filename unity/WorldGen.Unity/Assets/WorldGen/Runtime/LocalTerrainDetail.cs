@@ -183,11 +183,16 @@ public sealed partial class LocalTerrainExplorer
             if(backdropComparison==null)backdropComparison=CompareBackdrop;
             backdropOrder.Sort(backdropComparison);sortedBackdropRevision=backdropRevision;sortedBackdropX=motion.X;sortedBackdropZ=motion.Z;
         }
+        // Reserve at most half the lanes for cheap outward coverage. A single
+        // request after forest scheduling could be starved by long forest/fine
+        // jobs; filling every lane would delay the nearby forest in large views.
+        int requested=0,allowance=Math.Max(1,WorkerLimit/2);
         foreach(var p in backdropOrder)
         {
             if(ActiveWorkerCount>=WorkerLimit)return;
             if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key))continue;
-            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);return;
+            RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);
+            if(++requested>=allowance)return;
         }
     }
     int CompareBackdrop(BackdropEntry a,BackdropEntry b)

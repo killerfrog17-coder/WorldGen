@@ -50,7 +50,7 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllLines(Path.Combine(output,"chunk-loading.csv"),rows);
         frames.Sort();double Percentile(double p)=>frames.Count==0?0:frames[Math.Min(frames.Count-1,(int)(frames.Count*p))];
         var report=new List<string>{"Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.",
-            "Shared PC: MapleLegends and YouTube. Frame figures include 60 FPS pacing, not an FPS benchmark.",
+            "Shared PC; concurrent owner workload recorded separately. Frame figures include 60 FPS pacing, not an FPS benchmark.",
             "Preparation ms: "+preparationMs.ToString("F3"),"Detail: "+detailOptions.Quality+"; effort: "+detailOptions.Effort+"; view: "+viewDistance,
             "Legacy scheduler: "+Environment.GetCommandLineArgs().Contains("--worldgen-loader-legacy"),
             "Hard chunk updates: "+TerrainVideoOptions.HardChunkUpdates,

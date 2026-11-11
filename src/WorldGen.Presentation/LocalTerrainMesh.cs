@@ -81,6 +81,7 @@ namespace WorldGen.Presentation
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
+            bool distant=terrain.Amplification!=null&&step>=128;
             double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
             var patch = !coverageOnly&&extent<=250000?terrain.Patch(frame.Position(eastM + sizeM / 2, northM + sizeM / 2),extent):null;
             // The same index was previously prepared only by channel refinement,
@@ -93,8 +94,8 @@ namespace WorldGen.Presentation
             if(!coverageOnly&&(segments>=32||sizeM<=4096))patch?.RiverSpans();
             timing?.Mark(0);
             var patchCache=new System.Collections.Generic.Dictionary<(int,int),LocalTerrain.LocalTerrainPatch>();
-            var horizon=coverageOnly?terrain.CreateMapHeightCursor():null;
-            var horizonMaterials=coverageOnly?new System.Collections.Generic.List<int>():null;
+            var horizon=coverageOnly||distant?terrain.CreateMapHeightCursor():null;
+            var horizonMaterials=coverageOnly||distant?new System.Collections.Generic.List<int>():null;
             LocalTerrainSample Sample(double x,double z,V p,bool geometryOnly=false,LocalTerrainSample? knownGeometry=null)
             {
                 // Coverage is an explicitly approximate distant product, never
@@ -110,6 +111,15 @@ namespace WorldGen.Presentation
                 }
                 if(sampleCache!=null&&(geometryOnly?sampleCache.TryGetGeometry(p,out var cachedSample):sampleCache.TryGet(p,out cachedSample)))return cachedSample;
                 if(timing!=null){if(geometryOnly)timing.GeometryQueries++;else timing.FullSurfaceQueries++;}
+                if(distant)
+                {
+                    // Zero footprint retains canonical height and hydrology.
+                    // Reuse bounded local face stars instead of constructing
+                    // many full ecology patches across a distant work unit.
+                    var value=horizon!.Sample(p,0);sampleCache?.StoreGeometry(p,value);
+                    if(!geometryOnly)terrain.FillMapMaterials(p,ref value,horizonMaterials!);
+                    return value;
+                }
                 // LOD changes tessellation, never the value of a shared point.
                 // Stopping the height hierarchy at a tile-dependent depth made
                 // adjacent detail levels disagree and exposed their skirts.
@@ -126,24 +136,26 @@ namespace WorldGen.Presentation
             }
             // Material resolution is independent of tessellation. This chart-
             // anchored grid is shared by adjacent tiles, not restarted per tile.
-            double materialStep=coverageOnly?Math.Max(128,sizeM/8):32;
-            bool sparseMaterials=terrain.Amplification!=null&&(coverageOnly||step<16);
+            double materialStep=coverageOnly?Math.Max(128,sizeM/8):distant?step*2:32;
+            bool sparseMaterials=terrain.Amplification!=null&&(coverageOnly||distant||step<16);
             var materials=new System.Collections.Generic.Dictionary<(int,int),LocalTerrainSample>();
             LocalTerrainSample MaterialNode(int x,int z)
             {
                 if(materials.TryGetValue((x,z),out var found))return found;
-                double xx=x*materialStep,zz=z*materialStep;var value=Sample(xx,zz,frame.Position(xx,zz));
+                double xx=x*materialStep,zz=z*materialStep;var point=frame.Position(xx,zz);
+                var value=distant?horizon!.Sample(point,Math.Max(256,materialStep)):Sample(xx,zz,point);
+                if(distant)terrain.FillMapMaterials(point,ref value,horizonMaterials!);
                 materials.Add((x,z),value);return value;
             }
             LocalTerrainSample SurfaceSample(double x,double z,LocalTerrainSample geometry)
             {
                 // Narrow channels and wet boundaries retain full local material
                 // queries; do not blur river gravel or a shoreline across land.
-                if(!sparseMaterials||geometry.Underwater||geometry.WaterKind==LocalWaterKind.River&&geometry.WaterFootprintM> -materialStep)
+                if(!sparseMaterials||!distant&&(geometry.Underwater||geometry.WaterKind==LocalWaterKind.River&&geometry.WaterFootprintM> -materialStep))
                 {if(timing!=null)timing.SurfaceFallbacks++;return Sample(x,z,frame.Position(x,z),knownGeometry:geometry);}
                 int ix=(int)Math.Floor(x/materialStep),iz=(int)Math.Floor(z/materialStep);
                 var a=MaterialNode(ix,iz);var b=MaterialNode(ix+1,iz);var c=MaterialNode(ix,iz+1);var d=MaterialNode(ix+1,iz+1);
-                if(a.Biome!=b.Biome||a.Biome!=c.Biome||a.Biome!=d.Biome||a.Underwater||b.Underwater||c.Underwater||d.Underwater)
+                if(!distant&&(a.Biome!=b.Biome||a.Biome!=c.Biome||a.Biome!=d.Biome||a.Underwater||b.Underwater||c.Underwater||d.Underwater))
                 {if(timing!=null)timing.SurfaceFallbacks++;return Sample(x,z,frame.Position(x,z),knownGeometry:geometry);}
                 return LocalTerrain.LocalTerrainPatch.BlendEcology(a,b,c,d,x/materialStep-ix,z/materialStep-iz,geometry);
             }

@@ -5,6 +5,49 @@ using WorldGen.Serialization;
 
 static class TerrainQueryCostTests
 {
+    public static void CursorZero(string input,string output)
+    {
+        var watch=Stopwatch.StartNew();var world=WorldFile.ReadPlanetaryFile(input);
+        var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
+        Console.WriteLine($"Prepared actual world in {watch.Elapsed.TotalSeconds:F2}s");
+        var cursor=terrain.CreateMapHeightCursor();var results=new List<object>();int checks=0,wet=0,dry=0;
+        foreach(int source in new[]{38841,126812})
+        {
+            var spans=terrain.Amplification.RiverReach(source);
+            if(spans.Length==0)throw new Exception("No actual river spans for "+source);
+            var span=spans[spans.Length/2];V center=(span.A+span.B).Unit,side=(span.SideA+span.SideB).Unit;
+            double half=(span.WidthA+span.WidthB)*.5;
+            var patch=terrain.Patch(center,Math.Min(250000,(half*3+200)/.1));
+            var points=new[]{-2.5,-1.05,-.85,0,.85,1.05,2.5}.Select(offset=>(center+side*(offset*(half+10)/(terrain.RadiusM*.1))).Unit).ToArray();
+            var expected=new LocalTerrainSample[points.Length];
+            for(int i=0;i<points.Length;i++)
+            {
+                expected[i]=patch.Geometry(points[i]);var actual=cursor.Sample(points[i],0);
+                // The cursor supplies a map cell/landscape label in addition to
+                // geometry; neither exists on the height-only patch contract.
+                actual.Cell=expected[i].Cell;actual.Landscape=expected[i].Landscape;
+                if(!actual.Equals(expected[i]))
+                {
+                    var type=typeof(LocalTerrainSample);
+                    string fields=string.Join(", ",type.GetFields().Where(f=>!Equals(f.GetValue(actual),f.GetValue(expected[i]))).Select(f=>$"{f.Name}: {f.GetValue(expected[i])} -> {f.GetValue(actual)}"));
+                    throw new Exception($"Canonical cursor changed {source} offset {i}: {fields}");
+                }
+                checks++;if(actual.Underwater)wet++;else dry++;
+            }
+            // Both paths are warmed by the same real-point comparison above.
+            // This is a component batch, not a whole-tile or gameplay result.
+            watch.Restart();for(int repeat=0;repeat<8;repeat++)foreach(var point in points)patch.Geometry(point);
+            double patchMs=watch.Elapsed.TotalMilliseconds;
+            watch.Restart();for(int repeat=0;repeat<8;repeat++)foreach(var point in points)cursor.Sample(point,0);
+            double cursorMs=watch.Elapsed.TotalMilliseconds;
+            results.Add(new{Source=source,Points=points.Length,Repeats=8,PatchGeometryMs=patchMs,CursorZeroMs=cursorMs,WidthM=half*2});
+            Console.WriteLine($"{source}: {points.Length} identical points; warm patch {patchMs:F3}ms / cursor0 {cursorMs:F3}ms");
+        }
+        if(wet==0||dry==0)throw new Exception("Missing actual wet/dry comparison");
+        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(output))!);
+        System.IO.File.WriteAllText(output,System.Text.Json.JsonSerializer.Serialize(new{Passed=checks,Wet=wet,Dry=dry,Results=results},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        Console.WriteLine($"PASS {checks} actual canyon/major-river dry, bank and wet canonical cursor controls");
+    }
     public static void VerifyWorld(string input)
     {
         var world=WorldFile.ReadFile(input);var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);

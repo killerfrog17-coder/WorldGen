@@ -115,7 +115,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="Fjord"||kind=="FjordMouth"||kind=="FjordWoodland")
             {
-                var inlets=model.Amplification.Fjords.Inlets.OrderByDescending(f=>kind=="FjordWoodland"?model.Profile(f.Mouth).Forest.Coverage/(1+f.Relief/900):f.LengthM*f.Relief);
+                var inlets=model.Amplification.Fjords.Inlets.Where(f=>pinnedSource<0||f.Head==pinnedSource).OrderByDescending(f=>kind=="FjordWoodland"?model.Profile(f.Mouth).Forest.Coverage/(1+f.Relief/900):f.LengthM*f.Relief);
                 foreach(var inlet in inlets)
                 {
                     int sectionIndex=inlet.First+(kind=="FjordMouth"?inlet.Count*4/5:inlet.Count/2);
@@ -126,7 +126,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="GlacialTrough")
             {
-                foreach(var reach in model.Amplification.Glaciers.Reaches.OrderByDescending(r=>r.Strength*r.Relief).Take(80))
+                foreach(var reach in model.Amplification.Glaciers.Reaches.Where(r=>pinnedSource<0||r.Source==pinnedSource).OrderByDescending(r=>r.Strength*r.Relief).Take(80))
                 {
                     var spans=model.Amplification.RiverReach(reach.Source);if(spans.Length<4)continue;
                     var middle=spans[spans.Length/2];V center=(middle.A+middle.B).Unit,coarse=(reach.A+reach.B).Unit,side=V.Cross(coarse,reach.B-reach.A).Unit;
@@ -153,7 +153,7 @@ public sealed partial class LocalTerrainExplorer
             }
             else if(kind=="Waterfall")
             {
-                foreach(var channel in model.Hydrology.Channels.Where(c=>WaterfallProfiles.CanHost(c.From,world.Recipe.Seed)&&c.WidthM>4&&c.WidthM<600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)>.02)
+                foreach(var channel in model.Hydrology.Channels.Where(c=>(pinnedSource<0||c.From==pinnedSource)&&WaterfallProfiles.CanHost(c.From,world.Recipe.Seed)&&c.WidthM>4&&c.WidthM<600&&(c.StartM-c.EndM)/Math.Max(1,c.LengthM)>.02)
                     .GroupBy(c=>c.From).Select(g=>g.First()).OrderBy(c=>Rng.Mix(unchecked((uint)c.From^0x45bca1u))).Take(128))
                 {
                     if(world.Ecology.Habitat[channel.From].WarmTenthsC<100)continue;
@@ -399,11 +399,12 @@ public sealed partial class LocalTerrainExplorer
         Check(owner.Ready&&owner.NearReady&&owner.Error=="","Actual worker terrain neighbourhood is uploaded without errors");double loadSeconds=timer.Elapsed.TotalSeconds;
         if(kind=="Canyon"||kind=="Waterfall")
         {
-            int supportSteps=0,steepStarts=0;double minimumClearance=double.PositiveInfinity;
+            int supportSteps=0,steepStarts=0;double minimumClearance=double.PositiveInfinity,maximumAnalyticDifference=0;
             foreach(double radius in new[]{16d,32,64})for(int direction=0;direction<8;direction++)
             {
                 double angle=direction*Math.PI/4,x=Math.Cos(angle)*radius,z=Math.Sin(angle)*radius;
                 double drawn=owner.VisibleGround(x,z,double.NaN);if(!double.IsFinite(drawn))continue;
+                maximumAnalyticDifference=Math.Max(maximumAnalyticDifference,Math.Abs(drawn-owner.Ground(x,z)));
                 double dx=owner.VisibleGround(x+.5,z,drawn)-owner.VisibleGround(x-.5,z,drawn),dz=owner.VisibleGround(x,z+.5,drawn)-owner.VisibleGround(x,z-.5,drawn);
                 if(dx*dx+dz*dz>1)steepStarts++;
                 var walker=new TerrainMotion();walker.Place(x,z,owner.PlayerSolidGround(x,z));
@@ -416,8 +417,8 @@ public sealed partial class LocalTerrainExplorer
                 }
                 yield return null;
             }
-            File.WriteAllText(Path.Combine(output,"player-ground-contact.txt"),"Actual production terrain motor/support; steps="+supportSteps+"; steep starts="+steepStarts+"; minimum foot/drawn-triangle clearance="+minimumClearance+"m");
-            Check(supportSteps>0&&steepStarts>0&&minimumClearance>=-.025,"Production walking motor remains above actual steep rendered terrain");
+            File.WriteAllText(Path.Combine(output,"player-ground-contact.txt"),"Native terrain movement support; steps="+supportSteps+"; steep starts="+steepStarts+"; minimum foot/drawn-triangle clearance="+minimumClearance+"m; maximum drawn/analytic difference="+maximumAnalyticDifference+"m");
+            Check(supportSteps>0&&steepStarts>0&&minimumClearance>=-.025,"Terrain movement support remains above actual steep rendered terrain");
         }
         owner.TestView(3);owner.TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,reviewRange*1.5),2,1,3,0);owner.SetDaylight(12,190000.5);
         var keys=new[]{site.Position,owner.frame.Position(-80,0),owner.frame.Position(80,0)}.Select(p=>owner.scatter.Address(p)).Distinct().ToArray();deadline=Time.realtimeSinceStartupAsDouble+90;
