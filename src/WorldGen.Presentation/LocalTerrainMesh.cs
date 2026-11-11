@@ -257,8 +257,6 @@ namespace WorldGen.Presentation
             // boundaries, making manufactured cliffs through loaded terrain.
             // Keep the sampled land surface; never extrude those opaque walls.
             var waterSamples=coverageOnly&&!nearCoverage?samples:LocalChannelMesh.Refine(mesh,terrain,frame,patch,samples,token,timing,edgeSteps);
-            if(!coverageOnly||nearCoverage)waterSamples=TerrainCliffMesh.Refine(mesh,waterSamples,Height,
-                (x,z)=>Sample(x,z,frame.Position(x,z),true),token);
             timing?.Mark(4);
             LocalWaterMesh.Build(mesh,frame,waterSamples,terrain.Amplification!=null,patch==null?null:new Func<ulong,V,SmallLake>(patch.LocalLakeAt));
             if((!coverageOnly||nearCoverage)&&terrain.Amplification!=null)RiverscapeMesh.Append(mesh,frame,patch,waterSamples,token);
