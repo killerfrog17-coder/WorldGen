@@ -105,6 +105,27 @@ public sealed partial class LocalTerrainExplorer
                         DestroyImmediate(baked);
                     }
                     for(int step=0;step<20;step++)Pose(0,false);
+                    yield return null;
+                    var bodyContact=owner.PosedHuman(body);var bodyBounds=new Bounds(bodyContact.Vertices[0],Vector3.zero);foreach(var point in bodyContact.Vertices)bodyBounds.Encapsulate(point);
+                    bool cosmeticProbe=false;owner.humanNpcs.Add(actor);
+                    try
+                    {
+                        foreach(var hair in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r=>r.name.StartsWith("hair groom_")))
+                        {
+                            var surface=owner.PosedHuman(hair);
+                            for(int t=0;t<surface.Triangles.Length;t+=51)
+                            {
+                                var a=surface.Vertices[surface.Triangles[t]];var b=surface.Vertices[surface.Triangles[t+1]];var c=surface.Vertices[surface.Triangles[t+2]];var point=(a+b+c)/3;
+                                if(bodyBounds.SqrDistance(point)<.0016f)continue;
+                                var normal=Vector3.Cross(b-a,c-a).normalized;if(normal.sqrMagnitude<.9f)continue;
+                                var ray=new Ray(point+normal*.015f,-normal);
+                                if(!FaunaCollisionSurface.RayTriangle(ray,a,b,c,.016f,out _,out _,out _))continue;
+                                Check(owner.TraceLiving(ray,.016f)==null,"resident"+index+" actual loose hair geometry outside the body cannot take health damage");cosmeticProbe=true;break;
+                            }
+                            if(cosmeticProbe)break;
+                        }
+                    }
+                    finally{owner.humanNpcs.Remove(actor);}
                     foreach(var hair in actor.Root.GetComponentsInChildren<SkinnedMeshRenderer>().Where(r=>r.name.StartsWith("hair groom_")))
                     {
                         var mesh=new Mesh();hair.BakeMesh(mesh,true);var positions=mesh.vertices.Select(v=>hair.transform.TransformPoint(v)).ToArray();var hb=new Bounds(positions[0],Vector3.zero);foreach(var p in positions)hb.Encapsulate(p);

@@ -52,6 +52,9 @@ public sealed partial class LocalTerrainExplorer
             if(human==humanPlayer?DeathVisible:human.Health<=0)continue;
             foreach(var renderer in human.Root.GetComponentsInChildren<SkinnedMeshRenderer>())
             {
+                // Fitted hairstyles and beard cards are cosmetic. Their loose
+                // tails/alpha planes must not enlarge a person's damage surface.
+                if(renderer.name.StartsWith("hair ",StringComparison.Ordinal))continue;
                 var bounds=renderer.bounds;bounds.Expand(.12f);
                 if(!bounds.Contains(ray.origin)&&(!bounds.IntersectRay(ray,out float entry)||entry>closest))continue;var surface=PosedHuman(renderer);
                 for(int t=0;t<surface.Triangles.Length;t+=3)
