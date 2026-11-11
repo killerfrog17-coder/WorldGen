@@ -156,10 +156,26 @@ namespace WorldGen.Presentation
                         if(Perimeter(p)&&Bank(p)){V bankPoint=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);positions[found*3+1]=(float)frame.SurfaceY(bankPoint,patch.Elevation(bankPoint));}
                         return found;
                     }
-                V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);var s=patch.Sample(at);
-                double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Elevation(v));}
-                double here=frame.SurfaceY(at,s.ElevationM);
-                double nx=(here-Height(p.X+1,p.Z)),nz=(here-Height(p.X,p.Z+1));
+                V at=frame.Position(mesh.EastM+p.X,mesh.NorthM+p.Z);LocalTerrainSample s;double nx,nz;
+                if(step>256)
+                {
+                    // Keep river heights/water exact, while distant soil,
+                    // vegetation and shading use the existing material grid.
+                    // Tens of thousands of bank intersections do not each need
+                    // a full ecological query plus two metre-scale normals.
+                    int x=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.X/step))),z=Math.Max(0,Math.Min(mesh.Segments-1,(int)Math.Floor(p.Z/step)));
+                    double tx=D.Clamp(p.X/step-x),tz=D.Clamp(p.Z/step-z);int a=z*side+x,b=a+1,c=a+side,d=c+1;
+                    s=LocalTerrain.LocalTerrainPatch.BlendEcology(original[a],original[b],original[c],original[d],tx,tz,patch.Geometry(at));
+                    RiverAlluvium.Ground(s.RiverSand,s.RiverGravel,ref s.Ground,ref s.Cover,ref s.MidCover,ref s.Forest);
+                    double Normal(int component)=>normals[a*3+component]*(1-tx)*(1-tz)+normals[b*3+component]*tx*(1-tz)+normals[c*3+component]*(1-tx)*tz+normals[d*3+component]*tx*tz;
+                    double y=Math.Max(.02,Normal(1));nx=Normal(0)/y;nz=Normal(2)/y;
+                }
+                else
+                {
+                    s=patch.Sample(at);
+                    double Height(double x,double z){var v=frame.Position(mesh.EastM+x,mesh.NorthM+z);return frame.SurfaceY(v,patch.Elevation(v));}
+                    double here=frame.SurfaceY(at,s.ElevationM);nx=here-Height(p.X+1,p.Z);nz=here-Height(p.X,p.Z+1);
+                }
                 double length=Math.Sqrt(nx*nx+1+nz*nz),up=1/length;
                 var surface=LocalGeology.Surface(s.Ground,at,terrain.SourceSeed,s.ElevationM,up,s.OceanInfluence,s.Biome==Biome.Ice?D.Clamp((up-.55)/.4):0,terrain.RadiusM*frame.HorizontalScale,
                     s.Province.ExposedRock*(1-D.Clamp(s.RiverSand+s.RiverGravel)));
@@ -190,6 +206,33 @@ namespace WorldGen.Presentation
             void Triangle(int a,int b,int c,List<int> relevant)
             {
                 if(relevant==null){indices.Add(a);indices.Add(b);indices.Add(c);return;}
+                // A far grid cell may contain many short bank pieces. Applying
+                // every supporting line to one enormous triangle creates a
+                // dense arrangement of intersections far beyond those finite
+                // pieces. Partition only overloaded triangles first, then keep
+                // the exact same bank constraints in their local children.
+                if(step>256&&relevant.Count>8)
+                {
+                    double ax=positions[a*3],az=positions[a*3+2],bx=positions[b*3],bz=positions[b*3+2],cx=positions[c*3],cz=positions[c*3+2];
+                    double minX=Math.Min(ax,Math.Min(bx,cx)),maxX=Math.Max(ax,Math.Max(bx,cx)),minZ=Math.Min(az,Math.Min(bz,cz)),maxZ=Math.Max(az,Math.Max(bz,cz));
+                    var local=new List<int>();
+                    foreach(int id in relevant)
+                    {
+                        var cut=cuts[id];double ex=cut.X+cut.DX*cut.Length,ez=cut.Z+cut.DZ*cut.Length,pad=cut.Half+.01;
+                        if(Math.Max(cut.X,ex)+pad<minX||Math.Min(cut.X,ex)-pad>maxX||Math.Max(cut.Z,ez)+pad<minZ||Math.Min(cut.Z,ez)-pad>maxZ)continue;
+                        double sa=(ax-cut.X)*(-cut.DZ)+(az-cut.Z)*cut.DX,sb=(bx-cut.X)*(-cut.DZ)+(bz-cut.Z)*cut.DX,sc=(cx-cut.X)*(-cut.DZ)+(cz-cut.Z)*cut.DX;
+                        if(Math.Min(sa,Math.Min(sb,sc))>pad||Math.Max(sa,Math.Max(sb,sc))< -pad)continue;
+                        local.Add(id);
+                    }
+                    if(local.Count==0){indices.Add(a);indices.Add(b);indices.Add(c);return;}
+                    relevant=local;
+                    double ab=(bx-ax)*(bx-ax)+(bz-az)*(bz-az),bc=(cx-bx)*(cx-bx)+(cz-bz)*(cz-bz),ca=(ax-cx)*(ax-cx)+(az-cz)*(az-cz);
+                    if(local.Count>8&&Math.Max(ab,Math.Max(bc,ca))>256*256)
+                    {
+                        int abm=Vertex(new Point((ax+bx)*.5,(az+bz)*.5)),bcm=Vertex(new Point((bx+cx)*.5,(bz+cz)*.5)),cam=Vertex(new Point((cx+ax)*.5,(cz+az)*.5));
+                        Triangle(a,abm,cam,relevant);Triangle(abm,b,bcm,relevant);Triangle(cam,bcm,c,relevant);Triangle(abm,bcm,cam,relevant);return;
+                    }
+                }
                 var polygons=new List<List<Point>>{new List<Point>{new Point(positions[a*3],positions[a*3+2]),new Point(positions[b*3],positions[b*3+2]),new Point(positions[c*3],positions[c*3+2])}};
                 foreach(int id in relevant)
                 {
