@@ -63,6 +63,20 @@ static class TerrainWorkerTests
                 if(!actual.Roots.SequenceEqual(expected.Roots)||actual.Probes!=expected.Probes)throw new Exception("Buffered worker changed forest root metadata/payload.");
                 count+=actual.Roots.Length;Console.WriteLine("Exact buffered forest "+key.Level+": "+actual.Roots.Length+" roots");
             }
+            // A computation failure must reply on the original live stream,
+            // not disappear as an unexplained EOF. The valid request below also
+            // proves the worker remains usable after this failed request.
+            using(var client=new TcpClient{NoDelay=true})
+            {
+                client.ReceiveTimeout=15000;client.Connect(IPAddress.Loopback,port);
+                using var stream=client.GetStream();using var incoming=new TerrainReadStream(stream);using var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true);using var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true);
+                var frame=new LocalTerrainFrame(dryPoint,terrain.RadiusM,0,.1);
+                w.Write(secret);w.Write((byte)0);TerrainMeshWire.WriteRequest(w,frame,123,-456,204.8,3,null);
+                if(r.ReadBoolean())throw new Exception("Malformed terrain request unexpectedly succeeded.");
+                string failure=r.ReadString();
+                if(!failure.Contains("terrain east=123 north=-456 size=204.8 segments=3",StringComparison.Ordinal)||!failure.Contains("ArgumentOutOfRangeException",StringComparison.Ordinal))
+                    throw new Exception("Worker computation error lost its exception/request parameters: "+failure);
+            }
             // A disconnected request must not poison the next connection.
             using(var client=new TcpClient())
             {client.Connect(IPAddress.Loopback,port);using var w=new BinaryWriter(client.GetStream());w.Write(secret);w.Write((byte)0);var frame=new LocalTerrainFrame(TerrainMapViewport.FromDegrees(27.98,86.92),terrain.RadiusM,0,.1);TerrainMeshWire.WriteRequest(w,frame,10000,10000,3276.8,128,null);w.Write((byte)1);w.Flush();}

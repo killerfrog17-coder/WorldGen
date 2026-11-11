@@ -108,10 +108,16 @@ public sealed class TerrainMeshProcess : IDisposable
                 using(var stream=client.GetStream())using(var incoming=new TerrainReadStream(stream))using(var r=new BinaryReader(incoming,System.Text.Encoding.UTF8,true))using(var w=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))
                 {
                     w.Write(connection.Token);w.Write((byte)(coverageOnly?5:0));TerrainMeshWire.WriteRequest(w,frame,east,north,size,segments,edges);
-                    LocalTerrainMesh mesh=null;try
+                    LocalTerrainMesh mesh=null;bool receivedHeader=false;try
                     {
                         if(!r.ReadBoolean())throw new InvalidOperationException("Terrain worker: "+r.ReadString());
+                        receivedHeader=true;
                         mesh=TerrainMeshWire.ReadMesh(r,WorldGenPerformance.NoTerrainBufferReuse?null:uploadBuffers,WorldGenPerformance.ResidentCoverReuse?coverBuffers:null);linked.Token.ThrowIfCancellationRequested();w.Write((byte)0);w.Flush();return mesh;
+                    }
+                    catch(EndOfStreamException error)
+                    {
+                        mesh?.ReleaseUploadBuffers();linked.Token.ThrowIfCancellationRequested();
+                        throw new EndOfStreamException(FormattableString.Invariant($"Terrain worker ended during {(receivedHeader?"mesh payload":"response header")}: kind={(coverageOnly?"coverage":"terrain")} east={east:R} north={north:R} size={size:R} segments={segments} origin=({frame.Origin.X:R},{frame.Origin.Y:R},{frame.Origin.Z:R})"),error);
                     }
                     catch{mesh?.ReleaseUploadBuffers();linked.Token.ThrowIfCancellationRequested();throw;}
                 }

@@ -75,10 +75,12 @@ public sealed partial class LocalTerrainExplorer
         long npcVisualStart=System.Diagnostics.Stopwatch.GetTimestamp();int npcVisualsAdded=0;
         foreach(var c in Camp.Objects)
         {
+            bool near=(Position-c.Position).Length*frame.RadiusM<(c.NpcGroup!=0&&c.Kind==CampKind.Blueprint?1100:250)&&V.Dot(c.Position,frame.Origin)>0;
+            // Persistent camps outside the local scene are not current-chart
+            // geometry. Preserve their clock for elapsed catch-up on return.
+            if(!near){InvalidateCampVisual(c);continue;}
             double elapsed=Math.Max(0,Camp.SimulatedSeconds-c.LastSimulatedSeconds);c.LastSimulatedSeconds=Camp.SimulatedSeconds;
             if(!paused){var shelter=BlueprintProtectionAt(c.Position);CampRules.Advance(c,elapsed,CurrentWeather.RainMmPerHour*(1-shelter.Rain),CurrentWeather.Humidity,Math.Sqrt(CurrentWeather.WindEastMps*CurrentWeather.WindEastMps+CurrentWeather.WindNorthMps*CurrentWeather.WindNorthMps)*(1-shelter.Wind),SkyFrame?.Daylight??0);if(IsBlueprint(c))UpdateBlueprintContents(c,elapsed);}
-            bool near=(Position-c.Position).Length*frame.RadiusM<(c.NpcGroup!=0&&c.Kind==CampKind.Blueprint?1100:250);
-            if(!near){InvalidateCampVisual(c);continue;}
             int foodState=IsBlueprint(c)?BlueprintContentsState(c):CampFoodState(c);
             if(campVisuals.TryGetValue(c.Id,out var old)&&(Math.Abs(old.Mass-c.MassKg)>.08||old.Burning!=c.Burning||old.Glowing!=(c.EmberSeconds>0)||old.Embed!=c.EmbedM||old.FoodState!=foodState)){InvalidateCampVisual(c);}
             if(!campVisuals.TryGetValue(c.Id,out var v))

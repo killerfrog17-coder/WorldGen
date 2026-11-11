@@ -163,7 +163,16 @@ public sealed partial class LocalTerrainExplorer
             humanFrame=frame;humanLastX=motion.X;humanLastZ=motion.Z;humanCameraProbeAt=0;
             for(int i=humanNpcs.Count-1;i>=0;i--)
             {
-                var npc=humanNpcs[i];if(npc.ResidentId==0&&(npc.Planet-Position).Length*frame.RadiusM>400){DestroyHuman(npc);humanNpcs.RemoveAt(i);continue;}
+                var npc=humanNpcs[i];
+                // A teleport can move persistent residents beyond this chart.
+                // Use the ordinary local-life retirement range before projection;
+                // their saved identity/belongings remain available on return.
+                bool distant=npc.ResidentId==0?(npc.Planet-Position).Length*frame.RadiusM>400:HumanDistance(npc.Planet,Position)>=1100;
+                if(distant||V.Dot(npc.Planet,frame.Origin)<=0)
+                {
+                    if(npc.ResidentId!=0){CaptureLivingPerson(npc);livingPeople.Remove(npc.ResidentId);}
+                    DestroyHuman(npc);humanNpcs.RemoveAt(i);continue;
+                }
                 TerrainHandoff.Coordinates(frame,npc.Planet,out double x,out double z);npc.Motor.Place(x,z,npc.ResidentId==0?Ground(x,z):VisibleGround(x,z,npc.Motor.Y-TerrainMotion.EyeHeightM));
             }
         }

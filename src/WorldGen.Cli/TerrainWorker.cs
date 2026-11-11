@@ -46,6 +46,9 @@ static class TerrainWorker
                     // Keep cancellation's duplex reader on the raw stream.
                     using var stream=client.GetStream();using var r=new BinaryReader(stream);
                     using var response=new BufferedStream(stream,65536);using var w=new BinaryWriter(response,System.Text.Encoding.UTF8,true);
+                    bool responseStarted=false,requestRead=false;string request="terrain request header";
+                    try
+                    {
                     if(r.ReadString()!=token)throw new InvalidDataException("Invalid terrain session token.");
                     byte command=r.ReadByte();if(command>5)throw new InvalidDataException("Unknown terrain worker command.");
                     double east=0,north=0,size=0;int segments=0;double[] edges=null;LocalTerrainFrame frame=null;ScatterKey key=default;
@@ -55,6 +58,12 @@ static class TerrainWorker
                     else if(command==1||command==4)key=TerrainMeshWire.ReadScatterKey(r);
                     else if(command==2)mapView=TerrainMapWire.ReadRequest(r,out revision,out mapLayer,out mapWidth);
                     else forest=TerrainMeshWire.ReadForestKey(r);
+                    request=command==0||command==5
+                        ?FormattableString.Invariant($"{(command==5?"coverage":"terrain")} east={east:R} north={north:R} size={size:R} segments={segments} origin=({frame.Origin.X:R},{frame.Origin.Y:R},{frame.Origin.Z:R})")
+                        :command==1||command==4?$"scatter face={key.Face} x={key.X} y={key.Y} trees={command==1}"
+                        :command==2?$"map revision={revision} width={mapWidth} layer={mapLayer}"
+                        :$"forest face={forest.Face} x={forest.X} y={forest.Y} level={forest.Level}";
+                    requestRead=true;
                     // One connection per request. Closing/cancelling it also
                     // cancels queued or active Core work, preserving near-first
                     // scheduling rather than leaving abandoned CPU jobs running.
@@ -67,7 +76,7 @@ static class TerrainWorker
                             // Map-open scheduling yields new terrain work. Reserve
                             // the same worker lanes, not additional CPU workers.
                             for(;acquired<workerCapacity;acquired++)await slots.WaitAsync(cancellation.Token);
-                            maps.Begin(revision,mapView,mapLayer,mapWidth);w.Write(true);w.Flush();
+                            maps.Begin(revision,mapView,mapLayer,mapWidth);responseStarted=true;w.Write(true);w.Flush();
                             while(true)
                             {
                                 cancellation.Token.ThrowIfCancellationRequested();
@@ -93,16 +102,28 @@ static class TerrainWorker
                                 var entry=new{East=east,North=north,Size=size,Segments=segments,mesh.BuildMilliseconds,timing.GeometrySamples,timing.FullSurfaceQueries,timing.GeometryQueries,timing.SurfaceFallbacks,Stages=timing.Milliseconds};
                                 lock(profileGate)File.AppendAllText(profilePath,System.Text.Json.JsonSerializer.Serialize(entry)+Environment.NewLine);
                             }
-                            w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);
+                            responseStarted=true;w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);
                         }
-                        else if(command==1||command==4){var patch=scatter.Build(key,cancellation.Token,includeTrees:command==1);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
-                        else{var page=scatter.BuildForest(forest,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();w.Write(true);TerrainMeshWire.WriteForest(w,page);}
+                        else if(command==1||command==4){var patch=scatter.Build(key,cancellation.Token,includeTrees:command==1);cancellation.Token.ThrowIfCancellationRequested();responseStarted=true;w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
+                        else{var page=scatter.BuildForest(forest,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();responseStarted=true;w.Write(true);TerrainMeshWire.WriteForest(w,page);}
                     }
                     finally{slots.Release();}
+                    }
+                    catch(OperationCanceledException){}
+                    catch(IOException) when(!requestRead||responseStarted||cancellation.IsCancellationRequested){}
+                    catch(Exception error)
+                    {
+                        if(cancellation.IsCancellationRequested)return;
+                        // Report a computation failure while the original response
+                        // stream is still open. A success header commits the wire
+                        // format: never append a second header to a partial payload.
+                        if(!responseStarted)
+                        {try{w.Write(false);w.Write(request+": "+error);w.Flush();}catch(IOException){}catch(ObjectDisposedException){}}
+                        Console.Error.WriteLine(request+": "+error);
+                    }
                 }
                 catch(OperationCanceledException){}
                 catch(IOException){}
-                catch(Exception error){try{using var w=new BinaryWriter(client.GetStream());w.Write(false);w.Write(error.Message);w.Flush();}catch{}Console.Error.WriteLine(error);}
             });
         }
     }

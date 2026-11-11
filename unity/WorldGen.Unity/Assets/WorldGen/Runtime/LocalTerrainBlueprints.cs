@@ -239,10 +239,11 @@ public sealed partial class LocalTerrainExplorer
     }
     CampProtection BlueprintProtectionAt(V at)
     {
+        if(frame==null||V.Dot(at,frame.Origin)<=0)return default;
         TerrainHandoff.Coordinates(frame,at,out double x,out double z);double rain=0,wind=0,shade=0;
         foreach(var c in Camp.Objects.Where(IsBlueprint))
         {
-            if((c.Position-at).Length*frame.RadiusM>20)continue;TerrainHandoff.Coordinates(frame,c.Position,out double cx,out double cz);var r=Quaternion.Inverse(Quaternion.Euler(0,(float)c.Heading,0));var local=r*new Vector3((float)(x-cx),0,(float)(z-cz));var airflow=r*new Vector3((float)CurrentWeather.WindEastMps,0,(float)CurrentWeather.WindNorthMps);
+            if((c.Position-at).Length*frame.RadiusM>20||V.Dot(c.Position,frame.Origin)<=0)continue;TerrainHandoff.Coordinates(frame,c.Position,out double cx,out double cz);var r=Quaternion.Inverse(Quaternion.Euler(0,(float)c.Heading,0));var local=r*new Vector3((float)(x-cx),0,(float)(z-cz));var airflow=r*new Vector3((float)CurrentWeather.WindEastMps,0,(float)CurrentWeather.WindNorthMps);
             if(!blueprintProtectionCache.TryGetValue(c.Id,out var cached)||cached.Plan!=c.Blueprint||cached.Revision!=c.Blueprint.Revision){cached=(c.Blueprint,c.Blueprint.Revision,CampBlueprints.CoverFraction(c.Blueprint));blueprintProtectionCache[c.Id]=cached;}
             var protect=CampBlueprints.Protection(c.Blueprint,local.x,local.z,airflow.x,airflow.z,cached.Cover);rain=Math.Max(rain,protect.Rain);wind=Math.Max(wind,protect.Wind);shade=Math.Max(shade,protect.Shade);
         }
