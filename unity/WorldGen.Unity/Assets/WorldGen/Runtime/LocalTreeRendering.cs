@@ -17,6 +17,7 @@ public sealed partial class LocalTerrainExplorer
     public long TreeBakeBytes=>(BakedTreeModels+BakedForestModels)*(long)LocalTreeImpostor.Size*LocalTreeImpostor.Size*LocalTreeImpostor.Views*8*4/3;
     ArtModel CreateRebuiltTree(long key,int code,int lod)
     {
+        long modelStarted=WorldGenPerformance.TraceEnabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
         if(rebuiltLeaves==null)LocalTreeTextures.Create(out rebuiltLeaves,out rebuiltLeafNormals);
         // Keep a complete middle mesh until its shared-tree bake is ready. Never
         // show a blank card, and never fade the incoming model in over time.
@@ -41,7 +42,13 @@ public sealed partial class LocalTerrainExplorer
             material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);treeMaterials.Add(materialKey,material);
         }
         var model=new ArtModel{Parts=new[]{new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity}},Scale=Matrix4x4.identity,IdentityScale=true,Fades=true,Generated=true,LastUsed=Time.realtimeSinceStartupAsDouble,TreeCode=code,TreeBake=lod==2};
-        scatterArt.Add(key,model);return model;
+        scatterArt.Add(key,model);
+        if(modelStarted!=0)
+        {
+            double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-modelStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            if(elapsed>=8)Debug.Log("TREE MODEL CREATE code="+code+" lod="+lod+" ms="+elapsed.ToString("F3",System.Globalization.CultureInfo.InvariantCulture)+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
+        }
+        return model;
     }
     void UpdateTreeImpostors()
     {
