@@ -23,6 +23,7 @@ public sealed partial class LocalTerrainExplorer
     struct BackdropEntry{public TerrainTileKey Key;public double[] Value;public int Order;}
     readonly List<BackdropEntry> backdropOrder=new List<BackdropEntry>();Comparison<BackdropEntry> backdropComparison;
     int backdropRevision,sortedBackdropRevision=-1;double sortedBackdropX=double.NaN,sortedBackdropZ=double.NaN;
+    double backdropHorizonLead;int backdropHorizonLevel;
     public double StreamingFogDistance=>streamedFog;
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
     bool ImmediateTerrain(TerrainTileKey key)=>detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2);
@@ -147,8 +148,16 @@ public sealed partial class LocalTerrainExplorer
     void PlanBackdrop()
     {
         backdrops.Clear();backdropRevision++;
-        foreach(var pair in TerrainStreamingPlan.Coverage(motion.X,motion.Z,HorizontalScale,viewDistance))
-        {double step=pair.Key.SizeM/pair.Value;backdrops.Add(pair.Key,new[]{step,step,step,step});}
+        // Cover the next two seconds of flight before its horizon enters view.
+        // Only coarse coverage grows; detailed terrain and forest ranges do not.
+        double speed=Math.Sqrt(streamingVX*streamingVX+streamingVZ*streamingVZ);
+        backdropHorizonLead=motion.Flying&&plannedAltitude>80?Math.Min(2048,speed*2):0;
+        backdropHorizonLevel=0;
+        foreach(var pair in TerrainStreamingPlan.Coverage(motion.X,motion.Z,HorizontalScale,viewDistance,backdropHorizonLead))
+        {
+            double step=pair.Key.SizeM/pair.Value;backdrops.Add(pair.Key,new[]{step,step,step,step});
+            backdropHorizonLevel=Math.Max(backdropHorizonLevel,pair.Key.Level);
+        }
     }
     bool BackdropNeeded(TerrainTileKey key,bool absentOnly=false)
     {
@@ -158,7 +167,9 @@ public sealed partial class LocalTerrainExplorer
             if(tiles.TryGetValue(p.Key,out var exact)&&!exact.CoverageOnly&&exact.Segments==p.Value)continue;
             if(!HasResidentCoverage(p.Key,absentOnly?double.PositiveInfinity:spacing))return true;
         }
-        return false;
+        double range=viewDistance+backdropHorizonLead;
+        return motion.Flying&&backdropHorizonLead>0&&key.Level==backdropHorizonLevel&&
+            TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=range*range&&!HasResidentCoverage(key);
     }
     bool HasResidentCoverage(TerrainTileKey key,double maximumSpacing=double.PositiveInfinity)
     {

@@ -438,7 +438,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         wanted=bootstrap?fallback:TerrainStreamingPlan.CompleteCoverage(TerrainStreamingPlan.ProtectNear(wanted,motion.X,motion.Z,HorizontalScale,detailOptions.ProtectedRadius(HorizontalScale,plannedAltitude),detailOptions.FinestSegments,Math.Max(1000,viewDistance)),fallback);
         priority.Clear();priority.AddRange(wanted.Keys);PlanBackdrop();
         wantedEdges.Clear();foreach(var pair in terrainEdgeWorkspace.Build(wanted))wantedEdges.Add(pair.Key,pair.Value);
-        refreshRetiredTerrain.Clear();foreach(var key in tiles.Keys)if(!HasWantedTerrainOverlap(key))refreshRetiredTerrain.Add(key);
+        refreshRetiredTerrain.Clear();foreach(var key in tiles.Keys)if(!HasWantedTerrainOverlap(key)&&!backdrops.ContainsKey(key))refreshRetiredTerrain.Add(key);
         foreach(var key in refreshRetiredTerrain){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
         foreach(var job in jobs)
             if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();

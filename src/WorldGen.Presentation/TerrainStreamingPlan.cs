@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// synchronously; movement cannot replace known relief with a flat guess.</summary>
     public static class TerrainStreamingPlan
     {
-        public static Dictionary<TerrainTileKey,int> Coverage(double x,double z,double scale,double range)
+        public static Dictionary<TerrainTileKey,int> Coverage(double x,double z,double scale,double range,double horizonLead=0)
         {
             var result=new Dictionary<TerrainTileKey,int>();
             void Add(int level,double radius,int segments)
@@ -26,7 +26,7 @@ namespace WorldGen.Presentation
             // rather than trading the mountain silhouette for a coarser grid.
             int horizon=Math.Min(oldHorizon+2,Math.Min(backdrop,Math.Max(0,(int)Math.Floor(Math.Log(65536/(TerrainLod.BaseSizeM*scale),2)))));
             int horizonSegments=Math.Min(128,32<<(horizon-oldHorizon));
-            Add(horizon,range,horizonSegments);
+            Add(horizon,range+Math.Max(0,horizonLead),horizonSegments);
             // Bound the fine fallback disk independently of an enormous view
             // distance. At most a few hundred work units, including on small
             // planets, rather than a uniform 2km grid over a 250km horizon.
