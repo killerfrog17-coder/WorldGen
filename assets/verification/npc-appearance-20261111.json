@@ -210,7 +210,7 @@
     "full_base": "e6d439ff",
     "backend": "Mono",
     "development": false,
-    "selected_A_8388fa77_and_root_shortcut": "protected and unchanged",
+    "selected_A_8388fa77_and_root_shortcut": "Historical protection ended by owner request on 11 Nov; A8388fa77 intact, normal root shortcut now selects tested B36fdb231.",
     "own_running_players_or_editors": 0
   },
   "limits": [
@@ -236,5 +236,12 @@
     "lock_sha256": "848de514d64d9439e8a3a36ff0a412f66e86c9fdfcc819166ee91d073c76022d",
     "remote_packs_downloaded_and_hashed": true
   },
-  "report": "docs/reports/WorldGen - Inherited NPC Appearance.pdf"
+  "report": "docs/reports/WorldGen - Inherited NPC Appearance.pdf",
+  "delivery": {
+    "normal_shortcut": "WorldGen.exe - Shortcut.lnk",
+    "target": "builds/slot-b/WorldGen.exe",
+    "reason": "Owner reports stale shortcut and requests normal playable-update delivery",
+    "target_read_back_verified": true,
+    "new_build_required": false
+  }
 }
