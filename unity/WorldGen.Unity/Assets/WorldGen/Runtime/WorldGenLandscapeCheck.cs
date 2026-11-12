@@ -1015,6 +1015,8 @@ public sealed partial class LocalTerrainExplorer
             owner.heading=angles.y;owner.pitch=angles.x>180?angles.x-360:angles.x;
             owner.landscapeReviewCamera=null;owner.view.targetTexture=null;owner.view.enabled=true;
             Destroy(owner.GetComponent<WorldGenLandscapePresenter>());target.Release();Destroy(target);
+            if(arguments.Contains("--worldgen-forest-overlook-check"))
+            {owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+500;owner.heading=90;owner.pitch=12;}
             owner.RefreshWanted();owner.UpdateCamera();if(Application.isFocused)owner.CaptureMouse();
             File.WriteAllText(Path.Combine(output,"interactive-ready.txt"),"Actual spectator controls active. No performance measurement. Close this review normally before rebuilding its slot.");
             while(owner!=null)yield return null;
