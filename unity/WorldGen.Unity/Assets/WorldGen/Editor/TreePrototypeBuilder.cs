@@ -43,9 +43,13 @@ public static class TreePrototypeBuilder
             asset.Near=Publish(source.Near,asset.Near,asset,"Near");asset.Middle=Publish(source.Middle,asset.Middle,asset,"Middle");
             asset.Colour=Publish(Compress(source.Colours,false),asset.Colour,asset,"Billboard colour");
             asset.Normal=Publish(Compress(source.Normals,true),asset.Normal,asset,"Billboard normal and depth");
+            asset.StandCenter=source.StandCenter;asset.StandExtents=source.StandExtents;asset.StandRadius=source.StandRadius;
+            asset.StandColour=Publish(Compress(source.StandColours,false),asset.StandColour,asset,"Stand billboard colour");
+            asset.StandNormal=Publish(Compress(source.StandNormals,true),asset.StandNormal,asset,"Stand billboard normal and depth");
             ContactSheet(source.Colours,Path.Combine(review,code.ToString("X8")+"-views.png"));
+            ContactSheet(source.StandColours,Path.Combine(review,code.ToString("X8")+"-stand-views.png"));
             EditorUtility.SetDirty(asset);AssetDatabase.SaveAssets();
-            string line=code.ToString("X8")+" near="+asset.Near.triangles.Length/3+" middle="+asset.Middle.triangles.Length/3+" views="+asset.Colour.depth+" format="+asset.Colour.format+" ms="+timer.Elapsed.TotalMilliseconds.ToString("F1",System.Globalization.CultureInfo.InvariantCulture);
+            string line=code.ToString("X8")+" near="+asset.Near.triangles.Length/3+" middle="+asset.Middle.triangles.Length/3+" views="+asset.Colour.depth+" format="+asset.Colour.format+" standTrees=36 standSpan="+LocalTreePrototype.StandSpan+" standValid="+asset.StandValid+" ms="+timer.Elapsed.TotalMilliseconds.ToString("F1",System.Globalization.CultureInfo.InvariantCulture);
             lines.Add(line);Debug.Log("TREE PROTOTYPE EXPORTED "+line);
         }
         File.WriteAllLines(Path.Combine(review,"export.txt"),lines);AssetDatabase.SaveAssets();AssetDatabase.Refresh();

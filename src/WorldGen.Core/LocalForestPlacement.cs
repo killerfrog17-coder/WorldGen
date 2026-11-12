@@ -34,6 +34,9 @@ namespace WorldGen.Core
     {
         public const int ForestPageSide=32;
         public const int ForestCanopyTrees=16;
+        // A coarse anchor can retain an inactive single-tree fallback beside
+        // its stand record. Only one is visible, but both consume root storage.
+        public const int MaximumForestRepresentationsPerAnchor=2;
         public const int MaximumForestRoots=1048576;
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
@@ -79,13 +82,13 @@ namespace WorldGen.Core
                     else result.Add(key);
                 }
                 for(int face=0;face<6;face++)Visit(new ForestPageKey(face,0,0,top));
-                // Budget the expected LIVE representation, not just page count.
+                // Budget resident representation records, not just page count.
                 // Dense forests otherwise exhaust the root pool before reaching
                 // the horizon. Leave capacity for ready fallback/replacements.
                 double expected=0,exactExpected=0;
                 foreach(var key in result)
                 {
-                    if(key.Level>0){expected+=64*ForestCanopyTrees;continue;}
+                    if(key.Level>0){expected+=64*ForestCanopyTrees*MaximumForestRepresentationsPerAnchor;continue;}
                     ForestBounds(key,out V center,out double radius);var forest=terrain.Profile(terrain.NearestCell(center)).Forest;double support=forest.Coverage;
                     Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(center,normal),u=V.Dot(center,a)/dot,v=V.Dot(center,b)/dot;
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);

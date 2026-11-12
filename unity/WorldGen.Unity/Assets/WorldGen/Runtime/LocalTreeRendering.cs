@@ -14,27 +14,33 @@ public sealed partial class LocalTerrainExplorer
     {
         public Texture2DArray Colour,Normal;public Vector3 Center,Extents;public float Radius;public int References;public bool Borrowed;
     }
-    readonly Dictionary<int,SharedTreeBake> sharedTreeBakes=new Dictionary<int,SharedTreeBake>();
+    readonly Dictionary<(int Code,bool Cluster),SharedTreeBake> sharedTreeBakes=new Dictionary<(int,bool),SharedTreeBake>();
     readonly HashSet<int> missingTreePrototypes=new HashSet<int>();
     const int TreeBakeLimit=96;
     public int BakedTreeModels=>scatterArt.Values.Count(m=>m.TreeBaked&&!m.TreeStand);
     public int BakedForestModels=>scatterArt.Values.Count(m=>m.TreeBaked&&m.TreeStand&&m.TreeColour!=null);
     public int PendingTreeModels=>scatterArt.Values.Count(m=>m.TreeBake&&!m.TreeBaked);
     public long TreeBakeBytes=>sharedTreeBakes.Values.Sum(b=>(long)LocalTreeImpostor.Size*LocalTreeImpostor.Size*LocalTreeImpostor.Views*(b.Borrowed?2:8)*4/3);
-    ArtModel CreateRebuiltTree(long key,int code,int lod,bool stand=false)
+    ArtModel CreateRebuiltTree(long key,int code,int lod,bool stand=false,bool cluster=false)
     {
         long modelStarted=WorldGenPerformance.TraceEnabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
         if(rebuiltLeaves==null)LocalTreeTextures.Create(out rebuiltLeaves,out rebuiltLeafNormals);
         var prototype=LocalTreePrototype.Load(code);
         if(prototype==null&&missingTreePrototypes.Add(code))Debug.LogWarning("Prepared tree prototype missing: "+LocalTreePrototype.ResourcePath(code)+"; using temporary procedural fallback.");
-        if(lod==2&&prototype!=null&&!sharedTreeBakes.ContainsKey(code))
-            sharedTreeBakes.Add(code,new SharedTreeBake{Colour=prototype.Colour,Normal=prototype.Normal,Center=prototype.Center,Extents=prototype.Extents,Radius=prototype.Radius,Borrowed=true});
+        // An unexported stand may use the ordinary prepared prototype, never
+        // a runtime-generated grove. Callers inspect StandValid before giving
+        // an instance the wider stand footprint.
+        cluster=stand&&cluster&&prototype!=null&&prototype.StandValid;
+        var bakeKey=(code,cluster);
+        if(lod==2&&prototype!=null&&!sharedTreeBakes.ContainsKey(bakeKey))
+            sharedTreeBakes.Add(bakeKey,new SharedTreeBake{Colour=cluster?prototype.StandColour:prototype.Colour,Normal=cluster?prototype.StandNormal:prototype.Normal,
+                Center=cluster?prototype.StandCenter:prototype.Center,Extents=cluster?prototype.StandExtents:prototype.Extents,Radius=cluster?prototype.StandRadius:prototype.Radius,Borrowed=true});
         // Keep a complete middle mesh until its shared-tree bake is ready. Never
         // show a blank card, and never fade the incoming model in over time.
         // Forest pages are hidden until their shared prototype is prepared.
         // They need no second procedural fallback mesh while the same code is
         // being prepared for the individual-tree renderer.
-        bool prepared=lod==2&&sharedTreeBakes.ContainsKey(code);
+        bool prepared=lod==2&&sharedTreeBakes.ContainsKey(bakeKey);
         Mesh mesh=null;
         if(!stand&&!prepared)
         {
@@ -60,9 +66,9 @@ public sealed partial class LocalTerrainExplorer
             material.SetColor("_AmbientTint",landMaterial.GetColor("_AmbientTint"));material.SetColor("_FogColor",landMaterial.GetColor("_FogColor"));
             material.SetFloat("_FogDistance",landMaterial.GetFloat("_FogDistance"));RegisterScatterMaterial(material);treeMaterials.Add(materialKey,material);
         }
-        var model=new ArtModel{Parts=new[]{new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity}},Scale=Matrix4x4.identity,IdentityScale=true,Fades=true,Generated=true,LastUsed=Time.realtimeSinceStartupAsDouble,TreeCode=code,TreeBake=lod==2,TreeStand=stand};
+        var model=new ArtModel{Parts=new[]{new ArtPart{Mesh=mesh,Material=material,Submesh=0,Local=Matrix4x4.identity}},Scale=Matrix4x4.identity,IdentityScale=true,Fades=true,Generated=true,LastUsed=Time.realtimeSinceStartupAsDouble,TreeCode=code,TreeBake=lod==2,TreeStand=stand,TreeCluster=cluster};
         scatterArt.Add(key,model);
-        if(prepared)InstallTreeBake(model,sharedTreeBakes[code]);
+        if(prepared)InstallTreeBake(model,sharedTreeBakes[bakeKey]);
         if(modelStarted!=0)
         {
             double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-modelStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
@@ -102,11 +108,11 @@ public sealed partial class LocalTerrainExplorer
                 var data=treeBakeTask.Result;
                 var shared=new SharedTreeBake{Center=data.Center,Extents=data.Extents,Radius=data.Radius};
                 LocalTreeTextures.Upload(data.Prepared,LocalTreeImpostor.Size,"Tree "+owner.TreeCode+" views",out shared.Colour,out shared.Normal);
-                sharedTreeBakes.Add(owner.TreeCode,shared);
+                sharedTreeBakes.Add((owner.TreeCode,owner.TreeCluster),shared);
                 // Local and indirect forest rendering have different shaders,
                 // but consume one bake of the same physical prototype.
                 foreach(var model in scatterArt.Values)
-                    if(model.TreeBake&&!model.TreeBaked&&model.TreeCode==owner.TreeCode)InstallTreeBake(model,shared);
+                    if(model.TreeBake&&!model.TreeBaked&&model.TreeCode==owner.TreeCode&&model.TreeCluster==owner.TreeCluster)InstallTreeBake(model,shared);
                 installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             }
             else if(treeBakeTask.IsFaulted)
@@ -168,10 +174,11 @@ public sealed partial class LocalTerrainExplorer
     }
     void ReleaseTreeTextures(ArtModel model)
     {
-        if(model.TreeBaked&&sharedTreeBakes.TryGetValue(model.TreeCode,out var shared)&&--shared.References==0)
+        var key=(model.TreeCode,model.TreeCluster);
+        if(model.TreeBaked&&sharedTreeBakes.TryGetValue(key,out var shared)&&--shared.References==0)
         {
             if(!shared.Borrowed){if(shared.Colour!=null)Destroy(shared.Colour);if(shared.Normal!=null)Destroy(shared.Normal);}
-            sharedTreeBakes.Remove(model.TreeCode);
+            sharedTreeBakes.Remove(key);
         }
         model.TreeColour=model.TreeNormal=null;model.TreeBaked=false;
     }

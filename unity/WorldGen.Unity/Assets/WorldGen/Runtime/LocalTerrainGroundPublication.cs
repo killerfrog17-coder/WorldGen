@@ -65,6 +65,14 @@ public sealed partial class LocalTerrainExplorer
     void RestartGroundPublication()
     {
         var plan=groundPublication;if(plan.Work!=null)groundPublicationRestarts++;plan.ClearEdits();plan.Frame=frame;plan.OriginX=originX;plan.OriginZ=originZ;
+        if(!plan.Retiring)
+        {
+            // An incoming coarse product must know which finer surfaces are
+            // already visible before testing the footprint of a forest stand.
+            if(plan.Product.CoverageChildren==null)plan.Product.CoverageChildren=new List<TerrainTileKey>();
+            else plan.Product.CoverageChildren.Clear();
+            if(coverageDescendants.TryGetValue(plan.Key,out var children))foreach(var child in children)plan.Product.CoverageChildren.Add(child);
+        }
         plan.Resident=residentRevision;plan.ResidentCount=tiles.Count;plan.Canopy=canopySourceRevision;plan.Forest=forestRootTopologyRevision;
         tiles.TryGetValue(plan.Key,out var old);if(plan.Retiring)plan.Changes.Add(plan.Key);else plan.Changes.Add(plan.Key,old,plan.Product);
         plan.Work=PrepareGroundPublication(plan);
@@ -231,10 +239,12 @@ public sealed partial class LocalTerrainExplorer
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {
                 var root=pair.Key.Data[slot];
-                if(PublicationChanges(plan,root.Position.x,root.Position.z,.01,pair.Key.GroundLevels[slot]))
+                if(PublicationChanges(plan,root.Position.x,root.Position.z,ForestGroundMargin(root),pair.Key.GroundLevels[slot]))
                 {
                     var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level,out Tile owner,out TerrainTileKey ownerKey);
-                    ApplyForestRootGround(ref root,y,level,owner,ownerKey);
+                    ApplyForestRootGround(ref root,y,level,owner,ownerKey,
+                        blockedStand:!plan.Retiring&&ownerKey.Level>plan.Key.Level&&ForestStandTouches(root,plan.Key),
+                        retiringStandChild:plan.Retiring?(TerrainTileKey?)plan.Key:null);
                     bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding;
                     plan.Roots.Add(new ForestGroundEdit{Batch=pair.Key,Slot=slot,Level=level,Root=root,Changed=moved});
                     if(moved){bounds.Encapsulate(ForestRootBounds(root));changed=true;}

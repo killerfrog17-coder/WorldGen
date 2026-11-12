@@ -18,7 +18,7 @@ public sealed partial class LocalTerrainExplorer
     struct ScatterCounts {public int Objects,Specialists,Mid,Trees,Frustum,Terrain,Shadow;}
     sealed class ScatterChunk { public readonly List<ScatterAdmission> Admissions=new List<ScatterAdmission>();public ScatterCounts AdmissionCounts;public readonly List<ScatterGroup> RangeGroups=new List<ScatterGroup>();public Vector3 RangeEye;public int RangeStamp,RangeOmitted,RootRevision;public bool RangeValid,TreesIncluded;public BurstChunk Burst;public ScatterPatch Source;public Matrix4x4[] Matrices;public Vector3[] Roots;public int[] GroundLevels;public Bounds[] Bounds;public Bounds AllBounds;public ScatterGroup[] Groups;public LocalTerrainFrame GroupsFrame; public float Born; }
     sealed class ArtPart { public Mesh Mesh;public Material Material;public int Submesh;public Matrix4x4 Local; }
-    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand;public Texture2DArray TreeColour,TreeNormal; }
+    sealed class ArtModel { public ArtPart[] Parts;public Matrix4x4 Scale; public bool IdentityScale,Fades;public double LastUsed;public bool Generated;public int TreeCode;public bool TreeBake,TreeQueued,TreeBaked,TreeStand,TreeCluster;public Texture2DArray TreeColour,TreeNormal; }
     sealed class DrawBatch
     {
         // Nonuniform scale needs both transform and inverse; stay below the platform's 511-instance limit.

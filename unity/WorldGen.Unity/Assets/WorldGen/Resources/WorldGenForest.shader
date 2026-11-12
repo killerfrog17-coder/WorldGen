@@ -53,12 +53,15 @@ Shader "WorldGen/ForestPackets"
                 O o=(O)0;uint index=_Visible[instanceID];Root root=_Roots[index];float3 origin=root.position-_ForestChart.xyz;
                 float width=root.width,height=root.height;
                 float3 scale=float3(width,height,width);o.renderScale=float2(width,height);
-                float3 eye=Rotate(_WorldSpaceCameraPos-origin,-root.yaw)/scale;
+                float3 eyeRelative=_WorldSpaceCameraPos-origin;
+                if(_ForestMacro>1.5)eyeRelative.y-=eyeRelative.x*root.slopeX+eyeRelative.z*root.slopeZ;
+                float3 eye=Rotate(eyeRelative,-root.yaw)/scale;
                 float3 direction=normalize(eye-_ImpostorBounds.xyz),r,u;WorldGenTreeViewBasis(direction,r,u);
                 const float2 corners[6]={float2(-1,-1),float2(-1,1),float2(1,-1),float2(1,-1),float2(-1,1),float2(1,1)};
                 float2 uv=corners[vertexID%6u],halfSize=WorldGenTreeQuadHalfSize(r,u,_ImpostorExtents,_ImpostorBounds.w,_TreeTightQuad);
                 float3 p=_ImpostorBounds.xyz+r*uv.x*halfSize.x+u*uv.y*halfSize.y;
                 float3 relative=Rotate(p*scale,root.yaw);
+                if(_ForestMacro>1.5)relative.y+=relative.x*root.slopeX+relative.z*root.slopeZ;
                 o.world=origin+relative;o.positionCS=TransformWorldToHClip(o.world);o.local=p-_ImpostorBounds.xyz;o.direction=direction;o.root=index;o.viewLod=WorldGenTreeViewLod(length(origin-_WorldSpaceCameraPos),_ImpostorBounds.w*max(width,height));
                 #if defined(WORLDGEN_TREE_EFFICIENT)
                 WorldGenPreparedTreeViews prepared=WorldGenPrepareTreeViews(o.local,o.direction,_ImpostorBounds.w,o.viewLod);
@@ -84,7 +87,9 @@ Shader "WorldGen/ForestPackets"
                 float fade=ForestFade(root),dither=WorldGenDither(i.positionCS.xy+float2(17,31));clip(root.padding>1.5?dither-(1-fade):fade-dither);
                 half4 color;half3 objectNormal;ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-_TreeViewCutoff);
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
-                float3 normal=normalize(Rotate(objectNormal/float3(i.renderScale.x,i.renderScale.y,i.renderScale.x),root.yaw));
+                float3 normal=Rotate(objectNormal/float3(i.renderScale.x,i.renderScale.y,i.renderScale.x),root.yaw);
+                if(_ForestMacro>1.5){normal.x-=root.slopeX*normal.y;normal.z-=root.slopeZ*normal.y;}
+                normal=normalize(normal);
                 half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
                 return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);

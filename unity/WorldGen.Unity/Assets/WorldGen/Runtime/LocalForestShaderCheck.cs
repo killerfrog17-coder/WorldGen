@@ -9,6 +9,36 @@ using WorldGen.Core;
 
 public sealed partial class LocalTerrainExplorer
 {
+    static string CheckForestStandSupport()
+    {
+        int checks=0;
+        void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("Forest stand support: "+text);checks++;}
+        var key=new WorldGen.Presentation.TerrainTileKey(0,0,1,.5);const int n=16,side=n+1;
+        var tile=new Tile{Segments=n,Heights=new float[side*side],ForestCover=new Unity.Collections.NativeArray<float>(side*side*8,Unity.Collections.Allocator.Temp)};
+        try
+        {
+            void Plane(float sx=0,float sz=0)
+            {for(int z=0;z<side;z++)for(int x=0;x<side;x++){tile.Heights[z*side+x]=(float)(10+sx*x*key.SizeM/n+sz*z*key.SizeM/n);tile.ForestCover[(z*side+x)*8+3]=1;}}
+            ForestRoot Root(bool stand,float x=512,float z=512)=>new ForestRoot{Position=new Vector3(x,0,z),Width=stand?33:33/LocalTreePrototype.StandSpan,Height=15,Padding=stand?3:2,Face=8};
+            void Pair(bool supported,double y,bool blocked=false,WorldGen.Presentation.TerrainTileKey? retiring=null,float x=512,float z=512)
+            {
+                var stand=Root(true,x,z);var single=Root(false,x,z);
+                ApplyForestRootGround(ref stand,y,key.Level,tile,key,blocked,retiring);ApplyForestRootGround(ref single,y,key.Level,tile,key,blocked,retiring);
+                Check((stand.Padding>0)==supported,"stand selection");Check((single.Padding>0)!=supported,"exactly one prepared representation draws");
+            }
+            Plane();Pair(true,10);
+            Plane(.15f,-.07f);Pair(true,10+(.15-.07)*512);
+            var inclined=Root(true);ApplyForestRootGround(ref inclined,10+(.15-.07)*512,key.Level,tile,key);
+            Check(Math.Abs(inclined.SlopeX-.15)<.0001&&Math.Abs(inclined.SlopeZ+.07)<.0001,"stand follows the supporting plane");
+            Plane();tile.Heights[8*side+8]=18;Pair(false,18);
+            Plane();Pair(false,10,x:5);
+            tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(522,10,512),new Vector3(2,1,40));Pair(false,10);tile.HasWater=false;
+            var child=new WorldGen.Presentation.TerrainTileKey(1,0,0,.5);tile.CoverageChildren=new System.Collections.Generic.List<WorldGen.Presentation.TerrainTileKey>{child};
+            Pair(false,10);Pair(true,10,retiring:child);tile.CoverageChildren.Clear();Pair(false,10,blocked:true);
+            return checks+" flat/inclined/curved/edge/water/finer-owner/retirement stand controls pass\n";
+        }
+        finally{tile.ForestCover.Dispose();}
+    }
     public static IEnumerator CheckForestShader(string output)
     {
         Directory.CreateDirectory(output);
@@ -21,22 +51,25 @@ public sealed partial class LocalTerrainExplorer
         var sunRoot=new GameObject("Forest fixture sun");var sun=sunRoot.AddComponent<Light>();sun.type=LightType.Directional;sun.intensity=2.3f;sun.cullingMask=1<<30;sun.transform.rotation=Quaternion.Euler(48,-35,0);RenderSettings.sun=sun;
         Shader.SetGlobalVector("_AirGeometry",new Vector4(6371000,0,0,0));Shader.SetGlobalFloat("_AirObserverM",0);Shader.SetGlobalFloat("_AirHaze",0);
         var compute=Resources.Load<ComputeShader>("WorldGenForestCull");var material=new Material(Resources.Load<Shader>("WorldGenForest"));LocalTreeTextures.BindViews(material);material.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));material.SetFloat("_FogDistance",10000);
+        string supportReport=CheckForestStandSupport();
         var roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,2,64);var visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,2,4);var args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});
         var flags=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,4);flags.SetData(new[]{1});var hash=new GraphicsBuffer(GraphicsBuffer.Target.Structured,16,16);hash.SetData(new ForestHash[16]);
+        var birth=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,4);birth.SetData(new[]{0f});compute.SetBuffer(0,"_ForestBirth",birth);
         var data=new[]{new ForestRoot{Position=new Vector3(-.58f,0,0),Width=.35f,Height=1,Yaw=0,Tint=Vector3.one},new ForestRoot{Position=new Vector3(.58f,0,0),Width=.35f,Height=1,Yaw=.7f,Tint=Vector3.one}};roots.SetData(data);
         var planes=GeometryUtility.CalculateFrustumPlanes(camera);var planeVectors=new Vector4[6];for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
         compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Chart",new Vector4(0,0,0,1));compute.SetVector("_Ranges",new Vector4(0,1,100,15));compute.SetInt("_RootCount",2);compute.SetBuffer(0,"_Roots",roots);compute.SetBuffer(0,"_Visible",visible);compute.SetBuffer(0,"_Fields",flags);compute.SetBuffer(0,"_Tiles",hash);
         uint Count(){visible.SetCounterValue(0);compute.Dispatch(0,1,1,1);GraphicsBuffer.CopyCount(visible,args,4);var counts=new GraphicsBuffer.IndirectDrawArgs[1];args.GetData(counts);return counts[0].instanceCount;}
         if(Count()!=2)throw new Exception("Forest GPU culler missed visible roots");
         flags.SetData(new[]{0});if(Count()!=0)throw new Exception("Disabled forest fields draw");flags.SetData(new[]{1});
-        compute.SetVector("_Ranges",new Vector4(10,11,100,15));if(Count()!=0)throw new Exception("Near forest rejection failed");compute.SetVector("_Ranges",new Vector4(0,1,100,15));
-        var table=new ForestHash[16];for(int x=-1;x<=0;x++){int slot=(int)(ForestKeyHash(x,0,0)&15);while(table[slot].State!=0)slot=(slot+1)&15;table[slot]=new ForestHash{X=x,Z=0,Level=0,State=1};}hash.SetData(table);
+        compute.SetVector("_Ranges",new Vector4(10,11,100,15));if(Count()!=0)throw new Exception("Near forest rejection failed");
+        flags.SetData(new[]{3});if(Count()!=2)throw new Exception("Prepared forest fallback disappeared before local detail was ready");flags.SetData(new[]{1});compute.SetVector("_Ranges",new Vector4(0,1,100,15));
+        var table=new ForestHash[16];for(int x=-1;x<=0;x++){int slot=(int)(ForestKeyHash(x,0,0)&15);while(table[slot].State!=0)slot=(slot+1)&15;table[slot]=new ForestHash{X=x,Z=0,Level=0,State=9};}hash.SetData(table);
         data[0].Field=data[1].Field=1u<<16;roots.SetData(data);if(Count()!=0)throw new Exception("Coarse forest not suppressed by ready finer fields");
         data[0].Face=data[1].Face=1;roots.SetData(data);if(Count()!=2)throw new Exception("Different cube face incorrectly owns these trees");
         hash.SetData(new ForestHash[16]);data[0].Field=data[1].Field=0;data[0].Face=data[1].Face=0;roots.SetData(data);
         compute.SetVector("_Chart",Vector4.zero);if(Count()!=0)throw new Exception("Zero tree density must suppress distant trees too");compute.SetVector("_Chart",new Vector4(0,0,0,1));
-        var props=new MaterialPropertyBlock();props.SetBuffer("_Roots",roots);props.SetBuffer("_Visible",visible);props.SetVector("_ForestChart",Vector4.zero);props.SetVector("_ForestRange",new Vector4(0,1,0,0));
-        string report="GPU admission/disable/near-range/finer-field ownership pass\n";
+        var props=new MaterialPropertyBlock();props.SetBuffer("_Roots",roots);props.SetBuffer("_Visible",visible);props.SetBuffer("_Fields",flags);props.SetBuffer("_ForestBirth",birth);props.SetBuffer("_Tiles",hash);props.SetInt("_ForestHashMask",15);props.SetVector("_ForestChart",Vector4.zero);props.SetVector("_ForestRange",new Vector4(0,1,0,0));
+        string report=supportReport+"GPU admission/disable/near-range/finer-field ownership pass\n";
         foreach(int code in new[]{0x02345600,0x12345600})
         {
             var morphology=new TreeMorphology(code);
@@ -57,6 +90,6 @@ public sealed partial class LocalTerrainExplorer
             report+="tight quad max RGB delta "+quadDelta+", significant="+significant+", mean="+mean+"\n";material.SetFloat("_TreeTightQuad",1);
             report+=code+" pixels="+left+"/"+right+"\n";Destroy(image);Destroy(mesh);Destroy(colour);Destroy(normals);yield return null;
         }
-        roots.Dispose();visible.Dispose();args.Dispose();flags.Dispose();hash.Dispose();File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED FOREST SHADER PASS "+report);Application.Quit(0);
+        roots.Dispose();visible.Dispose();args.Dispose();flags.Dispose();hash.Dispose();birth.Dispose();File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED FOREST SHADER PASS "+report);Application.Quit(0);
     }
 }

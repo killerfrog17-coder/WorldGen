@@ -7,13 +7,18 @@ using WorldGen.Core;
 // ecological properties and pigments while reusing one prepared tree shape.
 public sealed class LocalTreePrototype : ScriptableObject
 {
-    public const int BankVersion=1;
+    public const int BankVersion=2;
+    public const float StandSpan=6.6f;
     public int Version=BankVersion,Code;
     public Mesh Near,Middle;
     public Texture2DArray Colour,Normal;
     public Vector3 Center,Extents;
     public float Radius;
+    public Texture2DArray StandColour,StandNormal;
+    public Vector3 StandCenter,StandExtents;
+    public float StandRadius;
     public bool Valid=>Version==BankVersion&&Near!=null&&Middle!=null&&Colour!=null&&Normal!=null&&Radius>0;
+    public bool StandValid=>Valid&&StandColour!=null&&StandNormal!=null&&StandRadius>0;
     public static string ResourcePath(int code)=>"TreePrototypesV1/"+code.ToString("X8");
 
     static readonly int[] codes=CreateCodes();
@@ -87,6 +92,8 @@ public sealed class LocalTreePrototype : ScriptableObject
     {
         public Mesh Near,Middle;public Vector3 Center,Extents;public float Radius;
         public Color32[][][] Colours,Normals;
+        public Vector3 StandCenter,StandExtents;public float StandRadius;
+        public Color32[][][] StandColours,StandNormals;
     }
     public static ExportData PrepareExport(int code)
     {
@@ -98,8 +105,34 @@ public sealed class LocalTreePrototype : ScriptableObject
             var middle=LocalScatterMeshes.Build(ScatterKind.GeneratedTree,1,code);
             var result=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(near,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology)),default);
             var prepared=LocalTreeTextures.Prepare(result.Colours,result.Normals,LocalTreeImpostor.Size);
-            return new ExportData{Near=near,Middle=middle,Center=result.Center,Extents=result.Extents,Radius=result.Radius,Colours=prepared.Colours,Normals=prepared.Normals};
+            Mesh combined=null;
+            try
+            {
+                combined=StandMesh(middle,code);
+                var stand=LocalTreeImpostor.Bake(new LocalTreeImpostor.Source(combined,(int)morphology.LeafShape,LocalTreeTextures.BarkLayer(morphology)),default);
+                var standPrepared=LocalTreeTextures.Prepare(stand.Colours,stand.Normals,LocalTreeImpostor.Size);
+                return new ExportData{Near=near,Middle=middle,Center=result.Center,Extents=result.Extents,Radius=result.Radius,Colours=prepared.Colours,Normals=prepared.Normals,
+                    StandCenter=stand.Center,StandExtents=stand.Extents,StandRadius=stand.Radius,StandColours=standPrepared.Colours,StandNormals=standPrepared.Normals};
+            }
+            finally{if(combined!=null)UnityEngine.Object.DestroyImmediate(combined);}
         }
         finally{TerrainVideoOptions.TreeRebuild=rebuilt;}
+    }
+    static Mesh StandMesh(Mesh tree,int code)
+    {
+        // A far packet represents a grove, not one enlarged tree. Only the
+        // atlas survives export; the 36 source trees never become runtime
+        // scene objects or additional per-frame draw records.
+        var random=new Rng(code,"prepared-tree-stand-1");var parts=new CombineInstance[36];
+        for(int z=0;z<6;z++)for(int x=0;x<6;x++)
+        {
+            float px=(float)(x-2.5+(random.Unit()-.5)*.9)/StandSpan;
+            float pz=(float)(z-2.5+(random.Unit()-.5)*.9)/StandSpan;
+            float cohort=(float)(.55+.45*random.Unit()),width=cohort*(float)(.93+.14*random.Unit());
+            parts[z*6+x]=new CombineInstance{mesh=tree,transform=Matrix4x4.TRS(new Vector3(px,0,pz),Quaternion.Euler(0,(float)(random.Unit()*360),0),new Vector3(width/StandSpan,cohort,width/StandSpan))};
+        }
+        var mesh=new Mesh{name="Temporary prepared tree stand",indexFormat=UnityEngine.Rendering.IndexFormat.UInt32};
+        try{mesh.CombineMeshes(parts,true,true,false);mesh.RecalculateBounds();return mesh;}
+        catch{UnityEngine.Object.DestroyImmediate(mesh);throw;}
     }
 }
