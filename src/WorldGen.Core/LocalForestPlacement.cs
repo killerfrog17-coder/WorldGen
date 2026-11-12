@@ -36,9 +36,9 @@ namespace WorldGen.Core
     {
         public const int ForestPageSide=32;
         public const int ForestStandTreeCount=36;
-        // A coarse anchor can retain an inactive single-tree fallback beside
-        // its stand record. Only one is visible, but both consume root storage.
-        public const int MaximumForestRepresentationsPerAnchor=2;
+        // One coarse anchor expands its prepared tree billboards on the GPU;
+        // it does not retain a duplicate hidden fallback record.
+        public const int MaximumForestRepresentationsPerAnchor=1;
         public const int MaximumForestRoots=1048576;
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
@@ -102,8 +102,8 @@ namespace WorldGen.Core
                             int span=ForestPageSide*(1<<key.Level),left=key.X*span,bottom=key.Y*span,probes=0;
                             var patches=new Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch>();
                             double trees=CanopyTreeEstimate(key.Face,left,bottom,Math.Min(span,TreeLatticeCount-left),Math.Min(span,TreeLatticeCount-bottom),patches,ref probes,default,out _);
-                            // Each of 64 packets needs at most 36 single-crown
-                            // records, or two records per 36-tree stand.
+                            // Each packet needs at most 36 single-crown records,
+                            // or one record per 36-tree GPU group.
                             cost=trees/(ForestStandTreeCount/(double)MaximumForestRepresentationsPerAnchor)+64*ForestStandTreeCount;
                             coarseCosts.Add(key,cost);
                         }

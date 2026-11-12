@@ -1,6 +1,8 @@
 #pragma kernel Cull
 struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
+struct Ground {float4 a,b,c;};
 StructuredBuffer<Root> _Roots;
+StructuredBuffer<Ground> _Ground;
 StructuredBuffer<int> _Fields;
 StructuredBuffer<int4> _Tiles;
 StructuredBuffer<float> _ForestBirth;float _ForestClock;
@@ -22,6 +24,7 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     float3 p=root.position-_Chart.xyz+float3(0,root.height*.5,0);
     float span=max(root.width,abs(root.padding));
     float radius=max(span,root.height)*1.8+span*length(float2(root.slopeX,root.slopeZ))*1.5;
+    if(root.padding>2.5)radius+=_Ground[at].c.w;
     // Exact prepared trees cover the near view until its local mesh census is
     // installed. The terrain must never appear with an empty inner forest ring.
     float distance=length(p-_Eye);if(((fieldFlags&2)==0&&distance+radius<_Ranges.x)||distance-radius>_Ranges.z)return;
@@ -29,7 +32,10 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     uint level=root.field>>16;
     // Finest READY forest field owns each root, independently of terrain
     // completion. Parent packets remain until replacement bakes are available.
-    [loop]for(uint fine=0;fine<level;fine++)
-    {int size=32*(1<<fine);int id=Present(root.cellX/size,root.cellY/size,(int)fine,root.face&7u);if(id>=0){float born=_ForestBirth[id];if(root.padding>1.5&&fine==0&&born>0&&_ForestClock-born<.7)continue;return;}}
+    if(root.padding<2.5)
+    {
+        [loop]for(uint fine=0;fine<level;fine++)
+        {int size=32*(1<<fine);int id=Present(root.cellX/size,root.cellY/size,(int)fine,root.face&7u);if(id>=0){float born=_ForestBirth[id];if(root.padding>1.5&&fine==0&&born>0&&_ForestClock-born<.7)continue;return;}}
+    }
     _Visible.Append(at);
 }

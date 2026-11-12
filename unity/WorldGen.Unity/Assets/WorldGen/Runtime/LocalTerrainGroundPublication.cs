@@ -27,7 +27,7 @@ public sealed partial class LocalTerrainExplorer
     struct ScatterGroundEdit {public ScatterChunk Chunk;public int Index,Level;public float Y;}
     struct ScatterGroupEdit {public ScatterGroup Group;public Bounds Bounds,RootBounds;public int MaximumGroundLevel;}
     struct ScatterChunkEdit {public ScatterChunk Chunk;public Bounds Bounds;}
-    struct ForestGroundEdit {public ForestBatch Batch;public int Slot,Level;public ForestRoot Root;public bool Changed;}
+    struct ForestGroundEdit {public ForestField Field;public ForestBatch Batch;public int Slot,Level;public ForestRoot Root;public ForestGroundGrid Grid;public bool Changed;}
     struct ForestFieldEdit {public ForestField Field;public Bounds Bounds;}
     readonly GroundPublication groundPublication=new GroundPublication();
     bool GroundPublicationPending=>groundPublication.Product!=null;
@@ -135,7 +135,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var edit in plan.Groups){edit.Group.Bounds=edit.Bounds;edit.Group.RootBounds=edit.RootBounds;edit.Group.MaximumGroundLevel=edit.MaximumGroundLevel;}
         foreach(var edit in plan.Chunks){edit.Chunk.AllBounds=edit.Bounds;edit.Chunk.RootRevision++;edit.Chunk.RangeValid=false;canopySourceRevision++;}
         foreach(var edit in plan.Roots)
-        {edit.Batch.GroundLevels[edit.Slot]=edit.Level;if(edit.Changed){edit.Batch.Data[edit.Slot]=edit.Root;DirtyForestRoot(edit.Batch,edit.Slot);}}
+        {SetForestGroundLevel(edit.Field,edit.Batch,edit.Slot,edit.Level);if(edit.Changed){edit.Batch.Data[edit.Slot]=edit.Root;if(edit.Batch.Model?.TreeCluster==true)edit.Batch.GroundData[edit.Slot]=edit.Grid;DirtyForestRoot(edit.Batch,edit.Slot);}}
         foreach(var edit in plan.Fields)edit.Field.Bounds=edit.Bounds;
     }
     bool PublicationChanges(GroundPublication plan,double x,double z,double margin,int level)
@@ -242,9 +242,9 @@ public sealed partial class LocalTerrainExplorer
                 if(PublicationChanges(plan,root.Position.x,root.Position.z,ForestGroundMargin(root),pair.Key.GroundLevels[slot]))
                 {
                     var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level,out Tile owner,out TerrainTileKey ownerKey);
-                    level=ApplyForestRootGround(ref root,y,level,owner,ownerKey,this,plan);
-                    bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding;
-                    plan.Roots.Add(new ForestGroundEdit{Batch=pair.Key,Slot=slot,Level=level,Root=root,Changed=moved});
+                    level=ApplyForestRootGround(ref root,y,level,owner,ownerKey,out var grid,this,plan);
+                    bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding||pair.Key.Model?.TreeCluster==true&&!pair.Key.GroundData[slot].Equals(grid);
+                    plan.Roots.Add(new ForestGroundEdit{Field=field,Batch=pair.Key,Slot=slot,Level=level,Root=root,Grid=grid,Changed=moved});
                     if(moved){bounds.Encapsulate(ForestRootBounds(root));changed=true;}
                 }
                 if(Due()){yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}

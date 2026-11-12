@@ -27,14 +27,13 @@ public sealed partial class LocalTerrainExplorer
         if(rebuiltLeaves==null)LocalTreeTextures.Create(out rebuiltLeaves,out rebuiltLeafNormals);
         var prototype=LocalTreePrototype.Load(code);
         if(prototype==null&&missingTreePrototypes.Add(code))Debug.LogWarning("Prepared tree prototype missing: "+LocalTreePrototype.ResourcePath(code)+"; using temporary procedural fallback.");
-        // An unexported stand may use the ordinary prepared prototype, never
-        // a runtime-generated grove. Callers inspect StandValid before giving
-        // an instance the wider stand footprint.
-        cluster=stand&&cluster&&prototype!=null&&prototype.StandValid;
-        var bakeKey=(code,cluster);
+        // Grouped packets expand ordinary prepared trees on the GPU. Share
+        // their exact atlas and dimensions with individual forest trees.
+        cluster=stand&&cluster&&prototype!=null&&prototype.Valid;
+        var bakeKey=(code,false);
         if(lod==2&&prototype!=null&&!sharedTreeBakes.ContainsKey(bakeKey))
-            sharedTreeBakes.Add(bakeKey,new SharedTreeBake{Colour=cluster?prototype.StandColour:prototype.Colour,Normal=cluster?prototype.StandNormal:prototype.Normal,
-                Center=cluster?prototype.StandCenter:prototype.Center,Extents=cluster?prototype.StandExtents:prototype.Extents,Radius=cluster?prototype.StandRadius:prototype.Radius,Borrowed=true});
+            sharedTreeBakes.Add(bakeKey,new SharedTreeBake{Colour=prototype.Colour,Normal=prototype.Normal,
+                Center=prototype.Center,Extents=prototype.Extents,Radius=prototype.Radius,Borrowed=true});
         // Keep a complete middle mesh until its shared-tree bake is ready. Never
         // show a blank card, and never fade the incoming model in over time.
         // Forest pages are hidden until their shared prototype is prepared.
@@ -108,11 +107,11 @@ public sealed partial class LocalTerrainExplorer
                 var data=treeBakeTask.Result;
                 var shared=new SharedTreeBake{Center=data.Center,Extents=data.Extents,Radius=data.Radius};
                 LocalTreeTextures.Upload(data.Prepared,LocalTreeImpostor.Size,"Tree "+owner.TreeCode+" views",out shared.Colour,out shared.Normal);
-                sharedTreeBakes.Add((owner.TreeCode,owner.TreeCluster),shared);
+                sharedTreeBakes.Add((owner.TreeCode,false),shared);
                 // Local and indirect forest rendering have different shaders,
                 // but consume one bake of the same physical prototype.
                 foreach(var model in scatterArt.Values)
-                    if(model.TreeBake&&!model.TreeBaked&&model.TreeCode==owner.TreeCode&&model.TreeCluster==owner.TreeCluster)InstallTreeBake(model,shared);
+                    if(model.TreeBake&&!model.TreeBaked&&model.TreeCode==owner.TreeCode)InstallTreeBake(model,shared);
                 installationsThisFrame++;frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
             }
             else if(treeBakeTask.IsFaulted)
@@ -174,7 +173,7 @@ public sealed partial class LocalTerrainExplorer
     }
     void ReleaseTreeTextures(ArtModel model)
     {
-        var key=(model.TreeCode,model.TreeCluster);
+        var key=(model.TreeCode,false);
         if(model.TreeBaked&&sharedTreeBakes.TryGetValue(key,out var shared)&&--shared.References==0)
         {
             if(!shared.Borrowed){if(shared.Colour!=null)Destroy(shared.Colour);if(shared.Normal!=null)Destroy(shared.Normal);}
