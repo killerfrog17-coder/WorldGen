@@ -93,9 +93,10 @@ public sealed partial class LocalTerrainExplorer
         TerrainVideoOptions.Current.ViewDistanceM=reviewRange;
         var read=Task.Run(()=>WorldFile.ReadFile(path));while(!read.IsCompleted)yield return null;var world=read.GetAwaiter().GetResult();string history=world.Prehistory?.Hash;
         string workerPath=Path.GetFullPath(Path.Combine(Application.dataPath,"../TerrainWorker/WorldGen.Cli.exe"));
-        var worker=new TerrainMeshProcess(workerPath,world,.1,Path.GetFullPath(path));
+        var worker=new TerrainMeshProcess(workerPath,world,.1,arguments.Contains("--worldgen-terrain-regenerate")?null:Path.GetFullPath(path));
         var timer=System.Diagnostics.Stopwatch.StartNew();var setup=Task.Run(()=>{worker.Prepare(default);return LocalTerrainDerivationCache.Create(world,horizontalScale:.1);});
         while(!setup.IsCompleted)yield return null;var model=setup.GetAwaiter().GetResult();double preparation=timer.Elapsed.TotalMilliseconds;
+        File.WriteAllText(Path.Combine(output,"worker-ready.txt"),worker.Diagnostics);
         var choose=Task.Run(()=>
         {
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
