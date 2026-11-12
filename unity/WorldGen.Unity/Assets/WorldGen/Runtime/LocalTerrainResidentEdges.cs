@@ -315,6 +315,25 @@ public sealed partial class LocalTerrainExplorer
         for(int side=0;side<4;side++)
         {
             bool vertical=side<2;var line=data.Sides[side];double fixedAt=(vertical?ox:oz)+(side==1||side==3?size:0),direction=side==0||side==2?-1:1;
+            if(line.Length<2)continue;
+            double unit=TerrainLod.BaseSizeM*HorizontalScale,origin=vertical?oz:ox;
+            var startPoint=data.Points[line[0]].Position;var endPoint=data.Points[line[line.Length-1]].Position;
+            int firstCell=(int)Math.Floor((origin+(vertical?startPoint.z:startPoint.x))/unit),lastCell=(int)Math.Floor((origin+(vertical?endPoint.z:endPoint.x))/unit);
+            if((long)lastCell-firstCell+1<line.Length-1)
+            {
+                // A base cell has one resident owner. If none outside this
+                // entire side has refined contact, no segment can need knots.
+                // Include endpoint cells conservatively; coarse sparse sides
+                // keep the original loop when this survey would cost more.
+                bool refined=false;double outside=fixedAt+direction*epsilon;
+                for(int cell=firstCell;cell<=lastCell;cell++)
+                {
+                    double along=(cell+.5)*unit;
+                    var other=ResidentOwner(vertical?outside:along,vertical?along:outside,out _);
+                    if(other!=null&&other.Contact!=null){refined=true;break;}
+                }
+                if(!refined)continue;
+            }
             for(int i=1;i<line.Length;i++)
             {
                 int a=line[i-1],b=line[i];var pa=data.Points[a].Position;var pb=data.Points[b].Position;
