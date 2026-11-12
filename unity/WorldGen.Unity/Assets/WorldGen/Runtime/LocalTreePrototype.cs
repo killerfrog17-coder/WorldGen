@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using WorldGen.Core;
@@ -82,6 +83,20 @@ public sealed class LocalTreePrototype : ScriptableObject
     {
         if(loaded.TryGetValue(code,out var prototype))return prototype;
         prototype=Resources.Load<LocalTreePrototype>(ResourcePath(code));
+        return Remember(code,prototype);
+    }
+    public static bool IsPrepared(int code)=>loaded.ContainsKey(code);
+    public static IEnumerator Prepare(int code)
+    {
+        if(loaded.ContainsKey(code))yield break;
+        var request=Resources.LoadAsync<LocalTreePrototype>(ResourcePath(code));
+        // Forest projection has a manual frame-budget iterator, so poll here
+        // rather than relying on Unity to interpret a yielded ResourceRequest.
+        while(!request.isDone)yield return null;
+        if(!loaded.ContainsKey(code))Remember(code,request.asset as LocalTreePrototype);
+    }
+    static LocalTreePrototype Remember(int code,LocalTreePrototype prototype)
+    {
         if(prototype!=null&&(!prototype.Valid||prototype.Code!=code))throw new InvalidOperationException("Invalid prepared tree prototype "+code.ToString("X8"));
         loaded.Add(code,prototype);return prototype;
     }

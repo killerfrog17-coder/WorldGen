@@ -480,7 +480,9 @@ public sealed partial class LocalTerrainExplorer
     }
     void ProjectForest(ForestField field)
     {
-        var steps=ProjectForestSteps(field);
+        // Reanchor already-loaded art and empty census certificates immediately;
+        // this synchronous path must not spin waiting for an async frame.
+        var steps=ProjectForestSteps(field,false);
         try{while(steps.MoveNext()){} }finally{(steps as IDisposable)?.Dispose();}
     }
     ForestBatch ForestBatchFor(int code,bool macro,bool cluster=false)
@@ -525,7 +527,7 @@ public sealed partial class LocalTerrainExplorer
         if(!field.Roots.TryGetValue(batch,out var slots)){slots=new List<int>();field.Roots.Add(batch,slots);}slots.Add(slot);
         var bounds=ForestRootBounds(root);if(first){field.Bounds=bounds;first=false;}else field.Bounds.Encapsulate(bounds);
     }
-    IEnumerator ProjectForestSteps(ForestField field)
+    IEnumerator ProjectForestSteps(ForestField field,bool prepareAsynchronously=true)
     {
         field.Projecting=true;field.WasReady=false;field.UnknownGroundRoots=0;
         bool first=true;var page=field.Source;int added=0;
@@ -533,12 +535,25 @@ public sealed partial class LocalTerrainExplorer
         foreach(var source in page.Roots)
         {
             var tree=source.Tree;bool macro=source.Population==0;int code=LocalTreePrototype.PrototypeCode(tree.Variant);
+            if(prepareAsynchronously&&!LocalTreePrototype.IsPrepared(code))
+            {
+                var preparation=LocalTreePrototype.Prepare(code);
+                while(preparation.MoveNext())
+                {
+                    if(added>0){forestRootTopologyRevision++;added=0;}
+                    yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();
+                }
+            }
             var batch=ForestBatchFor(code,macro);
+            if(prepareAsynchronously&&System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007)
+            {if(added>0){forestRootTopologyRevision++;added=0;}yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
             // Preserve the source forest's expected tree density as pages get
             // larger. A fixed sixteen crowns per packet made each successive
             // distance level four times sparser.
             bool paired=macro&&LocalScatter.ForestCanopyUsesStand(source)&&LocalTreePrototype.Load(code)?.Valid==true;
             var standBatch=paired?ForestBatchFor(code,true,true):null;
+            if(prepareAsynchronously&&System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007)
+            {if(added>0){forestRootTopologyRevision++;added=0;}yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
             double dot=Math.Max(.1,V.Dot(tree.Position,frame.Origin)),px=V.Dot(tree.Position,frame.East)*frame.RadiusM/dot,pz=V.Dot(tree.Position,frame.North)*frame.RadiusM/dot;
             float height=(float)frame.SurfaceY(tree.Position,tree.GroundM);
             var pigment=TreePigment(tree.Variant);var shared=batch.Pigment;
