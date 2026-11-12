@@ -88,6 +88,8 @@ public sealed partial class LocalTerrainExplorer
             "Frames >50ms / >100ms: "+frames.Count(f=>f>50)+" / "+frames.Count(f=>f>100),EndLoadingProfile(),Diagnostics,PerformanceForestState};
         report.AddRange(milestones.Select(p=>p.Key+" seconds: "+p.Value.ToString("F3")));
         File.WriteAllLines(Path.Combine(output,"chunk-loading.txt"),report);
+        if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry"))
+            throw new InvalidOperationException("Production terrain/forest entry did not become playable in 180 seconds");
         if(!milestones.ContainsKey("radius600"))throw new InvalidOperationException("600m all-direction terrain/forest footprint not loaded in 180 seconds");
         Capture(Path.Combine(output,"chunk-loaded.png"));
         if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-motion"))yield return CheckChunkPlanMotion(output);

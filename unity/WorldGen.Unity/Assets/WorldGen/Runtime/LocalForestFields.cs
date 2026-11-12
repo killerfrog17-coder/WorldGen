@@ -150,7 +150,10 @@ public sealed partial class LocalTerrainExplorer
             // terrain is hidden. Ungrounded records have negative Padding and
             // cannot draw. Terrain publication grounds them before this frame's
             // vegetation submission, so no barren intermediate frame is needed.
-            if(forestFields.TryGetValue(page,out var field)&&field.Ready)continue;
+            // A published finer census already replaces this coarse page.
+            // Retirement and terrain admission must agree, otherwise the
+            // required parent is rebuilt and retired forever before admission.
+            if(forestFields.TryGetValue(page,out var field)&&field.Ready||ForestReplacementReady(page))continue;
             terrainForestRequired.Add(page);ready=false;
         }
         return ready;
@@ -346,12 +349,12 @@ public sealed partial class LocalTerrainExplorer
         if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||ActiveForestWorkers>=Math.Min(2,WorkerLimit)||forestJobs.Count>=32||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
         foreach(var required in flightForestPriority)
         {
-            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
+            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required))||ForestReplacementReady(required))continue;
             RequestForest(required);return true;
         }
         foreach(var required in forestPriority)
         {
-            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
+            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required))||ForestReplacementReady(required))continue;
             RequestForest(required);return true;
         }
         while(flightForestNext<flightForestPriority.Length||forestNextRequest<forestPriority.Length)
