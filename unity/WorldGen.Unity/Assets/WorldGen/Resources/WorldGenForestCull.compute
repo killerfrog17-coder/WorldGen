@@ -23,8 +23,11 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     if(_Chart.w<1&&(root.face>>8)/16777216.0>=_Chart.w)return;
     float3 p=root.position-_Chart.xyz+float3(0,root.height*.5,0);
     float span=max(root.width,abs(root.padding));
-    float radius=max(span,root.height)*1.8+span*length(float2(root.slopeX,root.slopeZ))*1.5;
+    float radius=max(span,root.height)*1.8;
+    // Group support already supplies its absolute vertical deviation. Applying
+    // a second slope expansion scales that deviation by footprint/tree width.
     if(root.padding>2.5)radius+=_Ground[at].c.w;
+    else radius+=span*length(float2(root.slopeX,root.slopeZ))*1.5;
     // Exact prepared trees cover the near view until its local mesh census is
     // installed. The terrain must never appear with an empty inner forest ring.
     float distance=length(p-_Eye);if(((fieldFlags&2)==0&&distance+radius<_Ranges.x)||distance-radius>_Ranges.z)return;

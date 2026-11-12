@@ -713,7 +713,7 @@ public sealed partial class LocalTerrainExplorer
             // the legacy width-sized group used by the focused shader fixture.
             double supportSpan=root.Padding>=4?root.Padding:root.Width;
             groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,supportSpan,out grid,terrain,publication);
-            root.SlopeX=root.SlopeZ=grid.C.w/Math.Max(1,root.Width);
+            root.SlopeX=root.SlopeZ=grid.C.w/(float)Math.Max(1,supportSpan);
             return groundLevel;
         }
         bool macro=Math.Abs(root.Padding)>1.5f;
