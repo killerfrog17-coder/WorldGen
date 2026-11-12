@@ -8,6 +8,51 @@ namespace WorldGen.Core
     {
         sealed class CachedTrees {public ScatterInstance[] Trees;public long Used;}
         readonly object treeCacheGate=new object();readonly Dictionary<ScatterKey,CachedTrees> treeCache=new Dictionary<ScatterKey,CachedTrees>();long treeCacheClock,treeCacheBytes;
+        // Habitat varies over metres/tens of metres, rather than independently
+        // for every four-metre candidate. Both local and forest-page planting
+        // read these same planet-addressed nodes. Exact root water/height still
+        // comes from Geometry; this memo never owns rendering or tree identity.
+        const int TreeHabitatStep=8,TreeHabitatLimit=8192;
+        readonly object treeHabitatGate=new object();
+        readonly Dictionary<(int Face,int X,int Y),LocalTerrainSample> treeHabitat=new Dictionary<(int,int,int),LocalTerrainSample>();
+        readonly Queue<(int Face,int X,int Y)> treeHabitatOrder=new Queue<(int,int,int)>();
+        LocalTerrainSample TreeHabitatNode(int face,int x,int y,LocalTerrain.LocalTerrainPatch patch)
+        {
+            var key=(face,x,y);LocalTerrainSample cached;
+            lock(treeHabitatGate)if(treeHabitat.TryGetValue(key,out cached))return cached;
+            int count=TreeLatticeCount;
+            var sample=patch.Sample(ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep)));
+            lock(treeHabitatGate)
+            {
+                if(treeHabitat.TryGetValue(key,out cached))return cached;
+                while(treeHabitat.Count>=TreeHabitatLimit)treeHabitat.Remove(treeHabitatOrder.Dequeue());
+                treeHabitat.Add(key,sample);treeHabitatOrder.Enqueue(key);
+            }
+            return sample;
+        }
+        LocalTerrainSample TreeHabitatAt(ScatterKey key,V at,LocalTerrain.LocalTerrainPatch patch,LocalTerrainSample geometry,out double sx,out double sz,out bool preciseSlope)
+        {
+            // Jitter belongs to the original candidate RNG; derive the exact
+            // fractional lattice coordinate from that point, never a page LOD.
+            Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(at,normal),count=TreeLatticeCount;
+            double gx=(V.Dot(at,a)/dot+1)*.5*count/TreeHabitatStep,gy=(V.Dot(at,b)/dot+1)*.5*count/TreeHabitatStep;
+            int ix=(int)Math.Floor(gx),iy=(int)Math.Floor(gy);double u=gx-ix,v=gy-iy;
+            var aa=TreeHabitatNode(key.Face,ix,iy,patch);var ab=TreeHabitatNode(key.Face,ix+1,iy,patch);
+            var ba=TreeHabitatNode(key.Face,ix,iy+1,patch);var bb=TreeHabitatNode(key.Face,ix+1,iy+1,patch);
+            double side=TreeHabitatStep*TreeLatticeStep;
+            double du=((ab.ElevationM-aa.ElevationM)*(1-v)+(bb.ElevationM-ba.ElevationM)*v)/side;
+            double dv=((ba.ElevationM-aa.ElevationM)*(1-u)+(bb.ElevationM-ab.ElevationM)*u)/side;
+            // Cube-face grid directions are neither unit nor orthogonal away
+            // from a face centre. Convert that derivative into the root's
+            // physical tangent basis instead of inventing a slope at seams.
+            V xu=(a-at*V.Dot(at,a))*dot,yv=(b-at*V.Dot(at,b))*dot;
+            V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
+            double ax=V.Dot(xu,east),az=V.Dot(xu,north),bx=V.Dot(yv,east),bz=V.Dot(yv,north),det=ax*bz-az*bx;
+            sx=(du*bz-dv*az)/det;sz=(dv*ax-du*bx)/det;
+            double coarse=(aa.ElevationM*(1-u)+ab.ElevationM*u)*(1-v)+(ba.ElevationM*(1-u)+bb.ElevationM*u)*v;
+            preciseSlope=1/Math.Sqrt(1+sx*sx+sz*sz)<.9||Math.Abs(geometry.ElevationM-coarse)>1;
+            return LocalTerrain.LocalTerrainPatch.BlendEcology(aa,ab,ba,bb,u,v,geometry);
+        }
         bool CachedTree(ScatterKey key,int slot,out ScatterInstance tree,out bool known)
         {
             CachedTrees cached;lock(treeCacheGate){known=treeCache.TryGetValue(key,out cached);if(known)cached.Used=++treeCacheClock;}
@@ -71,7 +116,12 @@ namespace WorldGen.Core
                 if(r.Unit()>densityCap)return false;
                 var forest=patch.ForestProfile(at);double potential=forest.Coverage,stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
                 if(admission>potential*stand*TreeFlora.Stocking(forest))return false;
-                var sample=patch.Sample(at);var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
+                // One exact physical query protects channels, lakes and coasts.
+                // Species/soil and smooth slope share a roughly 32m grid rather
+                // than five full terrain evaluations for every admitted root.
+                var geometry=patch.Geometry(at);
+                var sample=TreeHabitatAt(key,at,patch,geometry,out double sx,out double sz,out bool preciseSlope);
+                var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
                 if(!TreeFlora.Rooting(sample.Forest,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome))return false;
                 // The raw forest profile is only an upper admission bound.
                 // Final substrate/wetland exclusions own actual near/far trees.
@@ -89,9 +139,15 @@ namespace WorldGen.Core
                 if(sum<.001)return false;
                 double pick=r.Unit()*sum;int chosen=species.Length-1;for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
                 var s=species[chosen];V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
-                double delta=1.5/(terrain.RadiusM*scale);
-                double sx=(patch.Elevation((at+east*delta).Unit)-patch.Elevation((at-east*delta).Unit))/3;
-                double sz=(patch.Elevation((at+north*delta).Unit)-patch.Elevation((at-north*delta).Unit))/3;
+                // Retain precise local exposure on steep ground. Broad smooth
+                // hills use the shared gradient; cliffs must not gain trees
+                // merely because their habitat-grid corners average together.
+                if(preciseSlope)
+                {
+                    double delta=1.5/(terrain.RadiusM*scale);
+                    sx=(patch.Elevation((at+east*delta).Unit)-patch.Elevation((at-east*delta).Unit))/3;
+                    sz=(patch.Elevation((at+north*delta).Unit)-patch.Elevation((at-north*delta).Unit))/3;
+                }
                 double up=1/Math.Sqrt(1+sx*sx+sz*sz);
                 if(r.Unit()>TreeFlora.SlopeAdmission(up))return false;
                 // Static size cohorts, not simulated ages. Saplings keep their adult lineage.

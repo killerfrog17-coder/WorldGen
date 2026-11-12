@@ -46,6 +46,21 @@ static class ForestPlacementTests
                 using var reader=new BinaryReader(stream);var roundtrip=TerrainMeshWire.ReadForest(reader,page.Key);Check(page.Roots.SequenceEqual(roundtrip.Roots),"Forest transport exact payload");
             }
             Check(near.Count==distant.Count,"Near/far exact census count");foreach(var tree in near)Check(distant.TryGetValue(tree.Key,out var far)&&tree.Value.Equals(far),"Same root, anatomy, dimensions, ground, tint and yaw");
+            // Reversing page completion also reverses which caller first fills
+            // the shared habitat nodes. It must not alter any physical tree.
+            var reverse=new LocalScatter(terrain,.1);
+            for(int y=3;y>=0;y--)for(int x=3;x>=0;x--)
+            {
+                var page=reverse.BuildForest(new ForestPageKey(key.Face,key.X*4+x,key.Y*4+y,0));
+                foreach(var root in page.Roots)Check(distant.TryGetValue(root.Tree.Id,out var prior)&&prior.Equals(root.Tree),"Habitat-node fill order preserves canonical trees");
+            }
+            var rootPatch=terrain.Patch(scatter.Position(key),840/.1);
+            foreach(var tree in near.Values.Take(64))
+            {
+                var geometry=rootPatch.Geometry(tree.Position);
+                Check(tree.GroundM==geometry.ElevationM,"Shared habitat retains exact root elevation");
+                Check(!geometry.Underwater||TreeFlora.TidalCode(tree.Variant),"Ordinary tree cannot gain an underwater collidable root");
+            }
             var cachePatch=terrain.Patch(scatter.Position(key),840/.1);
             for(int y=0;y<LocalScatter.TreeCandidateSide;y++)for(int x=0;x<LocalScatter.TreeCandidateSide;x++)
             {bool cached=scatter.TryTree(key,x,y,cachePatch,out var a),fresh=independent.TryTree(key,x,y,cachePatch,out var b);Check(cached==fresh&&(!cached||a.Equals(b)),"Exact positive AND negative tree cache equivalence");}
@@ -60,6 +75,12 @@ static class ForestPlacementTests
             foreach(var point in new[]{at,new V(1,1,0).Unit,new V(0,0,1),new V(-1,0,0)})
             {
                 var plan=scatter.PlanForest(point,10000,1600);Check(plan.Length<=4096,"Bounded forest page plan "+plan.Length);var keys=new HashSet<ForestPageKey>(plan);Check(keys.Count==plan.Length,"No duplicate planned pages");
+                foreach(var page in plan)
+                {
+                    scatter.ForestBounds(page,out var center,out var radius);
+                    double gap=Math.Max(0,(center-point).Length*terrain.RadiusM*.1-radius);
+                    Check(page.Level==0||gap>=LocalScatter.ForestIdentityDistanceM,"Recognisable forest keeps canonical exact placement out to two kilometres");
+                }
                 foreach(var page in plan){var parent=page.Parent;for(int l=page.Level+1;l<=24;l++,parent=parent.Parent)Check(!keys.Contains(parent),"Plan partitions coverage without overlapping ancestors");}
                 Check(plan.SequenceEqual(scatter.PlanForest(point,10000,1600)),"Stable plan at unchanged point");
                 var frame=new LocalTerrainFrame(point,terrain.RadiusM,250,.1);var alternate=new LocalTerrainFrame((point+frame.East*(120/frame.RadiusM)).Unit,terrain.RadiusM,250,.1);double worst=0;

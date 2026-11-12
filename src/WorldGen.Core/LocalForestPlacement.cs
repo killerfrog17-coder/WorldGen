@@ -33,6 +33,7 @@ namespace WorldGen.Core
     {
         public const int ForestPageSide=32;
         public const int ForestCanopyTrees=16;
+        public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
         public void ForestCoordinates(V position,out int face,out int x,out int y)
@@ -55,6 +56,10 @@ namespace WorldGen.Core
         public ForestPageKey[] PlanForest(V eye,double range,double exactRange=1600,int maximumPages=4096,double innerRange=0,double altitudeM=0)
         {
             if(range<0||range>500000||double.IsNaN(range)||maximumPages<16)throw new ArgumentOutOfRangeException();
+            // A recognisable tree is the same candidate at every representation.
+            // Statistical regional canopy belongs beyond this band, never in
+            // place of the forest through which the player is approaching.
+            exactRange=Math.Max(exactRange,Math.Min(range,ForestIdentityDistanceM));
             int top=0;while((long)ForestPageSide*(1L<<top)<TreeLatticeCount)top++;
             var result=new List<ForestPageKey>();double error=.04;
             for(int attempt=0;attempt<14;attempt++)
@@ -94,7 +99,7 @@ namespace WorldGen.Core
         public ForestPage BuildForest(ForestPageKey key,CancellationToken token=default)
         {
             if(key.Face<0||key.Face>5||key.X<0||key.Y<0||key.Level<0||key.Level>15)throw new ArgumentOutOfRangeException(nameof(key));
-            var result=new List<ForestRepresentative>();int stride=1<<key.Level,span=checked(ForestPageSide*stride),x0=checked(key.X*span),y0=checked(key.Y*span),count=TreeLatticeCount,probes=0;
+            var result=new List<ForestRepresentative>();int span=checked(ForestPageSide*(1<<key.Level)),x0=checked(key.X*span),y0=checked(key.Y*span),count=TreeLatticeCount,probes=0;
             if(x0>=count||y0>=count)throw new ArgumentOutOfRangeException(nameof(key));
             if(key.Level>0)return BuildCanopy(key,x0,y0,span,count,token);
             var patches=new Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch>();
@@ -103,47 +108,13 @@ namespace WorldGen.Core
                 if(!patches.TryGetValue(address,out var patch))
                 {if(patches.Count>=64)patches.Clear();patch=terrain.Patch(Position(address),840/scale);patches.Add(address,patch);}return patch;
             }
-            for(int y=0;y<ForestPageSide&&y0+y*stride<count;y++)for(int x=0;x<ForestPageSide&&x0+x*stride<count;x++)
+            for(int y=0;y<ForestPageSide&&y0+y<count;y++)for(int x=0;x<ForestPageSide&&x0+x<count;x++)
             {
-                token.ThrowIfCancellationRequested();int left=x0+x*stride,bottom=y0+y*stride;
-                int nx=Math.Min(stride,count-left),ny=Math.Min(stride,count-bottom),area=checked(nx*ny);
-                // Exact census through 4x4; sparse nodes stay exact through 16x16.
-                var middle=new ScatterKey(key.Face,Math.Min(Divisions(false)-1,(left+nx/2)/TreeCandidateSide),Math.Min(Divisions(false)-1,(bottom+ny/2)/TreeCandidateSide));
-                var middlePatch=Patch(middle);var midpoint=ForestPosition(key.Face,left+nx*.5,bottom+ny*.5);
-                // Normalising a cube-face point is 1-Lipschitz here. This
-                // conservative L1 reach includes every jittered candidate in
-                // the node. Prune only if the WHOLE node is inside a patch
-                // whose supporting forest profiles are exactly zero.
-                if(middlePatch.MaximumForestCoverage<=0&&
-                    (midpoint-middlePatch.Center).Length*terrain.RadiusM*scale+TreeLatticeStep*(nx+ny)+1<=middlePatch.HalfExtentM*scale)continue;
-                double support=middlePatch.ForestPotential(midpoint);
-                int budget=area<=16||support<.08&&area<=256?area:Math.Min(support>=.15?8:32,area);
-                int admitted=0,minX=int.MaxValue,minY=int.MaxValue,maxX=int.MinValue,maxY=int.MinValue;ScatterInstance representative=default;double best=double.PositiveInfinity;
-                // Odd multiplier gives a permutation of power-of-two squares;
-                // clipped cube edges use a coprime stride instead (no duplicates).
-                ulong hash=Rng.Mix(unchecked((uint)left*73856093u^(uint)bottom*19349663u^(uint)key.Face*83492791u));
-                int offset=(int)(hash%(uint)area),increment=(int)((hash>>8)%(uint)area)|1;
-                int Gcd(int a,int b){while(b!=0){int t=a%b;a=b;b=t;}return a;}
-                while(Gcd(increment,area)!=1)increment+=2;
-                for(int i=0;i<budget;i++)
-                {
-                    int at=(int)(((long)offset+(long)i*increment)%area),gx=left+at%nx,gy=bottom+at/nx;
-                    var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);
-                    probes++;if(!TryTree(address,gx%TreeCandidateSide,gy%TreeCandidateSide,Patch(address),out var tree))continue;
-                    admitted++;minX=Math.Min(minX,gx);maxX=Math.Max(maxX,gx);minY=Math.Min(minY,gy);maxY=Math.Max(maxY,gy);
-                    uint rank=Rng.Mix((uint)tree.Id^(uint)(tree.Id>>32));
-                    // Projected crown area, not stem count: distant canopy must
-                    // not collapse to the numerous small understory individuals.
-                    double priority=(rank+.5)/Math.Max(1,tree.WidthM*tree.HeightM);
-                    if(priority<best){representative=tree;best=priority;}
-                }
-                if(admitted==0)continue;
-                int population=Math.Max(admitted,(int)Math.Round(admitted*(double)area/budget));
-                // Only small projected nodes aggregate. Keep the chosen REAL
-                // root/height/yaw; widen crown coverage, never invent a new root.
-                double spread=TreeLatticeStep*Math.Max(maxX-minX+1,maxY-minY+1);
-                double crown=Math.Max(1,Math.Min(Math.Sqrt(population),Math.Min(spread,TreeLatticeStep*stride*.95)/Math.Max(1,representative.WidthM)));
-                result.Add(new ForestRepresentative{Tree=representative,CellX=left,CellY=bottom,CrownScale=crown,Population=population});
+                token.ThrowIfCancellationRequested();int gx=x0+x,gy=y0+y;
+                var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);
+                var patch=Patch(address);if(patch.MaximumForestCoverage<=0)continue;
+                probes++;if(!TryTree(address,gx%TreeCandidateSide,gy%TreeCandidateSide,patch,out var tree))continue;
+                result.Add(new ForestRepresentative{Tree=tree,CellX=gx,CellY=gy,CrownScale=1,Population=1});
             }
             return new ForestPage{Key=key,Roots=result.ToArray(),Probes=probes};
         }
