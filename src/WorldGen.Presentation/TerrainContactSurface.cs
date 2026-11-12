@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 namespace WorldGen.Presentation
@@ -20,18 +21,26 @@ namespace WorldGen.Presentation
             segments=mesh.Segments;size=mesh.SizeM;step=size/segments;
             positions=(float[])mesh.Positions.Clone();triangles=(int[])mesh.Triangles.Clone();
             offsets=new int[segments*segments+1];
-            for(int i=0;i<triangles.Length;i+=3)
+            // Both CSR passes use the exact same triangle-cell bounds. Keep
+            // them only during construction instead of recalculating them.
+            var bounds=ArrayPool<int>.Shared.Rent(checked(triangles.Length/3*4));
+            try
             {
-                Bounds(i,out int x0,out int z0,out int x1,out int z1);
-                for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)offsets[z*segments+x+1]++;
+                for(int i=0,at=0;i<triangles.Length;i+=3,at+=4)
+                {
+                    Bounds(i,out int x0,out int z0,out int x1,out int z1);
+                    bounds[at]=x0;bounds[at+1]=z0;bounds[at+2]=x1;bounds[at+3]=z1;
+                    for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)offsets[z*segments+x+1]++;
+                }
+                for(int i=1;i<offsets.Length;i++)offsets[i]+=offsets[i-1];
+                entries=new int[offsets[offsets.Length-1]];var cursor=(int[])offsets.Clone();
+                for(int i=0,at=0;i<triangles.Length;i+=3,at+=4)
+                {
+                    int x0=bounds[at],z0=bounds[at+1],x1=bounds[at+2],z1=bounds[at+3];
+                    for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)entries[cursor[z*segments+x]++]=i;
+                }
             }
-            for(int i=1;i<offsets.Length;i++)offsets[i]+=offsets[i-1];
-            entries=new int[offsets[offsets.Length-1]];var cursor=(int[])offsets.Clone();
-            for(int i=0;i<triangles.Length;i+=3)
-            {
-                Bounds(i,out int x0,out int z0,out int x1,out int z1);
-                for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++)entries[cursor[z*segments+x]++]=i;
-            }
+            finally{ArrayPool<int>.Shared.Return(bounds);}
         }
 
         /// <summary>Ordinary grids already have exact interpolation. Refined
