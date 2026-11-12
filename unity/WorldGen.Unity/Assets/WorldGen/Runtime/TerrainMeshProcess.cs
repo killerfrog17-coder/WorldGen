@@ -47,9 +47,21 @@ public sealed class TerrainMeshProcess : IDisposable
         string expectedAssembly=typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"";
         ready=Task.Run(()=>
         {
-            var watch=Stopwatch.StartNew();string secret=Guid.NewGuid().ToString("N");
+            var watch=Stopwatch.StartNew();string secret=Guid.NewGuid().ToString("N"),ownedSnapshot=null;
             try
             {
+                string input=sourcePath;
+                if(string.IsNullOrEmpty(input))
+                {
+                    // The parent already owns the completed immutable planet.
+                    // Stream it off-thread instead of generating it all again in
+                    // the worker or allocating two large compressed byte arrays.
+                    string folder=Path.Combine(Path.GetTempPath(),"WorldGen");Directory.CreateDirectory(folder);
+                    ownedSnapshot=Path.Combine(folder,"terrain-"+secret+".world");
+                    using(var snapshot=new FileStream(ownedSnapshot,FileMode.CreateNew,FileAccess.Write,FileShare.None,65536))
+                        WorldFile.WritePlanetary(world,snapshot,lifetime.Token);
+                    lifetime.Token.ThrowIfCancellationRequested();input=ownedSnapshot;
+                }
                 bootstrap=new TcpListener(IPAddress.Loopback,0);bootstrap.Start();int port=((IPEndPoint)bootstrap.LocalEndpoint).Port;
                 lock(gate)
                 {
@@ -71,11 +83,10 @@ public sealed class TerrainMeshProcess : IDisposable
                 {
                     accepted.NoDelay=true;accepted.ReceiveTimeout=120000;accepted.SendTimeout=120000;
                     if(r.ReadString()!=secret)throw new InvalidDataException("Terrain worker session mismatch.");
-                    // Fresh worlds are reproducible from a tiny recipe. Avoid
-                    // serializing the entire Unity world heap during play.
-                    // Loaded worlds instead use their literal existing snapshot.
-                    w.Write(world.Stages.Last().Hash);w.Write(sourcePath??"@recipe");w.Write(scale);
-                    if(string.IsNullOrEmpty(sourcePath))w.Write(WorldJson.Write(world.Recipe));
+                    // Both loaded and freshly generated worlds now enter through
+                    // the same exact planetary snapshot path. The worker has
+                    // finished reading it before acknowledging readiness.
+                    w.Write(world.Stages.Last().Hash);w.Write(input);w.Write(scale);
                     w.Flush();int version=r.ReadInt32();string assembly=r.ReadString(),surface=r.ReadString();int endpoint=r.ReadInt32();
                     if(version!=TerrainMeshWire.Version||surface!=LocalTerrain.Version||expectedAssembly!=""&&assembly!=expectedAssembly)throw new InvalidDataException("Terrain worker and player assemblies differ; rebuild the packaged worker.");
                     Diagnostics="CoreCLR terrain worker ready in "+watch.Elapsed.TotalSeconds.ToString("F2")+"s; "+assembly;
@@ -83,7 +94,12 @@ public sealed class TerrainMeshProcess : IDisposable
                 }
             }
             catch{DisposeHost();throw;}
-            finally{bootstrap?.Stop();bootstrap=null;}
+            finally
+            {
+                bootstrap?.Stop();bootstrap=null;
+                if(ownedSnapshot!=null)
+                    try{File.Delete(ownedSnapshot);}catch(IOException error){UnityEngine.Debug.LogWarning("Temporary terrain snapshot retained: "+error.Message);}catch(UnauthorizedAccessException error){UnityEngine.Debug.LogWarning("Temporary terrain snapshot retained: "+error.Message);}
+            }
         },lifetime.Token);
     }
     public void Prepare(CancellationToken token)

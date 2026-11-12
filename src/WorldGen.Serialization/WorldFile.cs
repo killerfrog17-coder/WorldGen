@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using System.Reflection;
 using System.Threading;
 using System.Xml;
 using WorldGen.Core;
@@ -23,23 +24,42 @@ namespace WorldGen.Serialization
         }
         public static byte[] Write(World world, CancellationToken cancellation = default,CompressionLevel compression=CompressionLevel.Optimal)
         {
-            cancellation.ThrowIfCancellationRequested();
             using (var memory = new MemoryStream())
+            {
+                Write(world,memory,cancellation,compression);
+                return memory.ToArray();
+            }
+        }
+        /// <summary>Write the same lossless snapshot directly to a caller-owned
+        /// stream, without retaining a second compressed snapshot in memory.</summary>
+        public static void Write(World world,Stream destination,CancellationToken cancellation=default,CompressionLevel compression=CompressionLevel.Optimal)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            if(destination==null||!destination.CanWrite)throw new ArgumentException("Writable snapshot destination required.",nameof(destination));
+            using(var compressed=new GuardedStream(destination,cancellation,true))
             using (var transport=new BinaryWorldTransport(cancellation,world.Prehistory?.Foragers!=null?3:1))
             {
-                memory.Write(world.Prehistory?.Foragers!=null?PackedMagic:Magic, 0, Magic.Length);
+                compressed.Write(world.Prehistory?.Foragers!=null?PackedMagic:Magic, 0, Magic.Length);
                 // Old worlds retain version1. New forager worlds use version3
                 // with bit-exact numeric and record packing; gzip and integrity checks still
                 // cover the whole record. No historical records are discarded.
-                using (var gzip = new GZipStream(memory, compression, true))
+                using (var gzip = new GZipStream(compressed, compression, true))
                 using (var guarded = new GuardedStream(gzip, cancellation))
                 using (var buffered = new BufferedStream(guarded, 65536))
                 using (var writer = XmlDictionaryWriter.CreateBinaryWriter(buffered, null, null, false))
                     Serializer(transport).WriteObject(writer, world);
                 cancellation.ThrowIfCancellationRequested();
-                if (memory.Length > MaximumFileBytes) throw new ArgumentException("This snapshot exceeds the supported compressed world-file size.");
-                return memory.ToArray();
             }
+        }
+        /// <summary>Existing immutable planetary fields, with the separately
+        /// simulated history omitted. Arrays are borrowed, never cloned.</summary>
+        public static void WritePlanetary(World world,Stream destination,CancellationToken cancellation=default,CompressionLevel compression=CompressionLevel.Fastest)
+        {
+            if(world==null)throw new ArgumentNullException(nameof(world));
+            var planet=new World();
+            foreach(var field in typeof(World).GetFields(BindingFlags.Public|BindingFlags.Instance))field.SetValue(planet,field.GetValue(world));
+            planet.Prehistory=null;
+            Write(planet,destination,cancellation,compression);
         }
         public static World Read(byte[] bytes, CancellationToken cancellation = default, Action<string> status = null)
             =>ReadSnapshot(bytes,cancellation,status,false);
@@ -75,9 +95,14 @@ namespace WorldGen.Serialization
         }
         sealed class GuardedStream : Stream
         {
-            readonly Stream inner; readonly CancellationToken token; long bytes;
-            public GuardedStream(Stream inner, CancellationToken token) { this.inner = inner; this.token = token; }
-            void Count(int count) { token.ThrowIfCancellationRequested(); bytes += count; if (bytes > 4000000000L) throw new InvalidDataException("World snapshot exceeds the decoded-size limit."); }
+            readonly Stream inner; readonly CancellationToken token;readonly bool compressed; long bytes;
+            public GuardedStream(Stream inner, CancellationToken token,bool compressed=false) { this.inner = inner; this.token = token;this.compressed=compressed; }
+            void Count(int count)
+            {
+                token.ThrowIfCancellationRequested();bytes+=count;
+                if(compressed&&bytes>MaximumFileBytes)throw new ArgumentException("This snapshot exceeds the supported compressed world-file size.");
+                if(!compressed&&bytes>4000000000L)throw new InvalidDataException("World snapshot exceeds the decoded-size limit.");
+            }
             public override int Read(byte[] buffer, int offset, int count) { token.ThrowIfCancellationRequested(); int read = inner.Read(buffer, offset, count); Count(read); return read; }
             public override void Write(byte[] buffer, int offset, int count) { Count(count); inner.Write(buffer, offset, count); }
             public override void Flush() { token.ThrowIfCancellationRequested(); inner.Flush(); }

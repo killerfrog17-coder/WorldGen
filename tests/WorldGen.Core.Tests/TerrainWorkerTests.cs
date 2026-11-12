@@ -7,6 +7,60 @@ using WorldGen.Serialization;
 
 static class TerrainWorkerTests
 {
+    public static void BootstrapReuse(string path,string executable,string output)
+    {
+        Directory.CreateDirectory(output);var world=WorldFile.ReadPlanetaryFile(path);string history=world.Prehistory?.Hash;
+        string temporary=Path.Combine(Path.GetTempPath(),"WorldGen-bootstrap-"+Guid.NewGuid().ToString("N")+".world");
+        var write=Stopwatch.StartNew();
+        try
+        {
+            using(var file=new FileStream(temporary,FileMode.CreateNew,FileAccess.Write,FileShare.None,65536))WorldFile.WritePlanetary(world,file);
+            write.Stop();long bytes=new FileInfo(temporary).Length;
+            int cell=Array.FindIndex(world.ElevationM,h=>h>100&&h<900);if(cell<0)throw new Exception("Bootstrap fixture requires ordinary dry land");
+            var frame=new LocalTerrainFrame(world.Surface.Cells[cell].Position,world.Recipe.RadiusKm*1000,0,.1);
+            (double Seconds,double CpuSeconds,string Payload) Boot(bool recipe)
+            {
+                string secret=Guid.NewGuid().ToString("N");var listener=new TcpListener(IPAddress.Loopback,0);listener.Start();var timer=Stopwatch.StartNew();
+                using var child=Process.Start(new ProcessStartInfo{FileName=Path.GetFullPath(executable),Arguments=$"--terrain-worker {((IPEndPoint)listener.LocalEndpoint).Port} --parent {Environment.ProcessId} --terrain-token {secret}",UseShellExecute=false,CreateNoWindow=true,WindowStyle=ProcessWindowStyle.Hidden})!;
+                try
+                {
+                    int port;var accept=listener.AcceptTcpClientAsync();if(!accept.Wait(30000))throw new Exception("Bootstrap worker failed to connect");
+                    using(var client=accept.Result)using(var stream=client.GetStream())using(var reader=new BinaryReader(stream))using(var writer=new BinaryWriter(stream))
+                    {
+                        client.ReceiveTimeout=180000;if(reader.ReadString()!=secret)throw new Exception("Bootstrap token mismatch");
+                        writer.Write(world.Stages.Last().Hash);writer.Write(recipe?"@recipe":temporary);writer.Write(.1);if(recipe)writer.Write(WorldJson.Write(world.Recipe));writer.Flush();
+                        if(reader.ReadInt32()!=TerrainMeshWire.Version)throw new Exception("Bootstrap wire mismatch");reader.ReadString();reader.ReadString();port=reader.ReadInt32();
+                    }
+                    timer.Stop();child.Refresh();double cpu=child.TotalProcessorTime.TotalSeconds;
+                    using var query=new TcpClient{NoDelay=true,ReceiveTimeout=60000};query.Connect(IPAddress.Loopback,port);
+                    using var incoming=query.GetStream();using var data=new BinaryReader(incoming);using var send=new BinaryWriter(incoming);
+                    send.Write(secret);send.Write((byte)0);TerrainMeshWire.WriteRequest(send,frame,0,0,102.4,16,null);
+                    if(!data.ReadBoolean())throw new Exception("Bootstrap first mesh failed: "+data.ReadString());
+                    var mesh=TerrainMeshWire.ReadMesh(data);send.Write((byte)0);send.Flush();mesh.BuildMilliseconds=0;
+                    using var payload=new MemoryStream();using(var encoded=new BinaryWriter(payload,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteMesh(encoded,mesh);
+                    return(timer.Elapsed.TotalSeconds,cpu,Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(payload.ToArray())));
+                }
+                finally{listener.Stop();if(!child.HasExited){child.Kill(true);child.WaitForExit();}}
+            }
+            var recipeResult=Boot(true);var fileResult=Boot(false);
+            if(recipeResult.Payload!=fileResult.Payload||world.Prehistory?.Hash!=history)throw new Exception("Planetary reuse changed first rendered mesh or parent history");
+            File.WriteAllText(Path.Combine(output,"bootstrap.json"),System.Text.Json.JsonSerializer.Serialize(new{Cells=world.Surface.Cells.Length,WorldHash=world.Stages.Last().Hash,
+                StreamWriteSeconds=write.Elapsed.TotalSeconds,SnapshotBytes=bytes,RecipeBootstrapSeconds=recipeResult.Seconds,RecipeCpuSeconds=recipeResult.CpuSeconds,
+                FileBootstrapSeconds=fileResult.Seconds,FileCpuSeconds=fileResult.CpuSeconds,FileTotalSeconds=write.Elapsed.TotalSeconds+fileResult.Seconds,ExactFirstMeshSha256=fileResult.Payload,
+                Note="Sequential CoreCLR component timings; shared CPU/Chrome, not a Unity/Mono fresh-entry or FPS claim."},new System.Text.Json.JsonSerializerOptions{WriteIndented=true}));
+        }
+        finally{File.Delete(temporary);}
+        if(File.Exists(temporary))throw new Exception("Owned bootstrap snapshot was not cleaned");
+        using(var cancelled=new CancellationTokenSource())
+        {
+            cancelled.Cancel();bool observed=false;
+            try{using var file=new FileStream(temporary,FileMode.CreateNew,FileAccess.Write);WorldFile.WritePlanetary(world,file,cancelled.Token);}
+            catch(OperationCanceledException){observed=true;}
+            finally{File.Delete(temporary);}
+            if(!observed||File.Exists(temporary))throw new Exception("Cancelled streaming snapshot did not stop/clean up");
+        }
+        Console.WriteLine("PASS exact recipe/file first-mesh payload, unchanged parent history, owned snapshot and cancelled-write cleanup; "+Path.Combine(output,"bootstrap.json"));
+    }
     public static void Run(string path,string executable,bool recipe=false)
     {
         var world=WorldFile.Read(File.ReadAllBytes(path));var terrain=LocalTerrainDerivationCache.Create(world,horizontalScale:.1);
