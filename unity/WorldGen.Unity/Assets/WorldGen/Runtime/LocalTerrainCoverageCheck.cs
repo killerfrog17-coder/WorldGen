@@ -11,6 +11,8 @@ public sealed partial class LocalTerrainExplorer
         bool savedHardSetting=TerrainVideoOptions.HardChunkUpdates;TerrainVideoOptions.HardChunkUpdates=false;
         Directory.CreateDirectory(output);
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
+        var arguments=Environment.GetCommandLineArgs();int seamProof=Array.IndexOf(arguments,"--worldgen-resident-seam-proof");
+        if(seamProof>=0){CheckRefinedResidentSeam(arguments[seamProof+1],output);TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);yield break;}
         var host=new GameObject("Coverage shader check");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
         explorer.terrainRoot=host;
         Texture2D reused=null;int payloadFloats=0,reusedObjects=0;
@@ -289,6 +291,77 @@ public sealed partial class LocalTerrainExplorer
         CheckPartialForestEdgeGround(output);CheckHiddenResidentRetirement(output);
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention, paced retirement and owner-inert covered-parent removal.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
+    }
+    static void CheckRefinedResidentSeam(string fixture,string output)
+    {
+        var host=new GameObject("Actual refined resident seam proof");var owner=host.AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        owner.terrainRoot=host;owner.explorationSettings=new WorldGen.Core.PlaySettings{HorizontalScale=.1};
+        owner.frame=new LocalTerrainFrame(new WorldGen.Core.V(1,0,0),6371000,0,.1);
+        var keys=new[]{new TerrainTileKey(0,-1,1,.1),new TerrainTileKey(-1,-1,0,.1),new TerrainTileKey(-1,-2,0,.1)};
+        var plan=new System.Collections.Generic.Dictionary<TerrainTileKey,int>{{keys[0],32},{keys[1],32},{keys[2],8}};var edges=TerrainEdges.Build(plan);
+        var shader=Resources.Load<Shader>("WorldGenLocalTerrain");if(shader==null||!shader.isSupported)throw new Exception("Production terrain material unavailable for seam proof");
+        try
+        {
+            for(int index=0;index<keys.Length;index++)
+            {
+                LocalTerrainMesh source;using(var stream=File.OpenRead(Path.Combine(fixture,index+".mesh")))using(var reader=new BinaryReader(stream))source=TerrainMeshWire.ReadMesh(reader);
+                var key=keys[index];if(source.Segments!=plan[key]||Math.Abs(source.SizeM-key.SizeM)>.00001||Math.Abs(source.EastM-key.X*key.SizeM)>.00001||Math.Abs(source.NorthM-key.Z*key.SizeM)>.00001)
+                    throw new Exception("Refined seam fixture does not match its real tile address/detail");
+                var heights=new float[source.GroundVertices];for(int i=0;i<heights.Length;i++)heights[i]=source.Positions[i*3+1];
+                var root=new GameObject("Resident seam tile "+index);root.transform.SetParent(host.transform,false);root.transform.localPosition=new Vector3((float)source.EastM,0,(float)source.NorthM);
+                var material=new Material(shader);ResidentEdgeData data;
+                using(var vertices=new Unity.Collections.NativeArray<TerrainVertex>(source.Positions.Length/3,Unity.Collections.Allocator.Temp))
+                {
+                    var writable=vertices;for(int i=0;i<writable.Length;i++)writable[i]=new TerrainVertex{Position=new Vector3(source.Positions[i*3],source.Positions[i*3+1],source.Positions[i*3+2])};
+                    data=ResidentEdgeData.Build(source,vertices);
+                }
+                owner.tiles.Add(key,new Tile{Root=root,Materials=new[]{material},Segments=source.Segments,Edges=edges[key],Heights=heights,ResidentEdges=data,Contact=TerrainContactSurface.Build(source)});
+                owner.CoverageIndex(key,true);
+            }
+            var coarse=owner.tiles[keys[0]];var fine=owner.tiles[keys[1]];int witness=-1;
+            for(int i=0;i<fine.ResidentEdges.Points.Length;i++)if(fine.ResidentEdges.Points[i].Vertex==1055){witness=i;break;}
+            if(witness<0||(fine.ResidentEdges.Points[witness].Mask&2)==0||fine.Contact==null)throw new Exception("Actual used refined east-edge witness1055 is absent");
+            var point=fine.ResidentEdges.Points[witness].Position;double x=keys[1].X*keys[1].SizeM+point.x,z=keys[1].Z*keys[1].SizeM+point.z;
+            if(!ResidentHeight(keys[0],coarse,x,z,out double beforeCoarse))throw new Exception("Raw coarse seam profile missing");
+            double beforeGap=Math.Abs(point.y-beforeCoarse);if(beforeGap<=.1)throw new Exception("Fixture does not exercise the reported used-vertex raw gap: "+beforeGap);
+            owner.residentRevision++;owner.UpdateResidentEdges();
+            int shared=0,published=0;double maximumGap=0,maximumContact=0;
+            foreach(int index in fine.ResidentEdges.Sides[1])
+            {
+                var p=fine.ResidentEdges.Points[index];double xx=keys[1].X*keys[1].SizeM+p.Position.x,zz=keys[1].Z*keys[1].SizeM+p.Position.z;
+                if(zz<keys[0].Z*keys[0].SizeM||zz>(keys[0].Z+1)*keys[0].SizeM)continue;
+                if(!ResidentHeight(keys[0],coarse,xx,zz,out double coarseHeight)||!ResidentHeight(keys[1],fine,xx,zz,out double fineHeight))throw new Exception("Fitted shared boundary profile absent");
+                maximumGap=Math.Max(maximumGap,Math.Abs(fineHeight-coarseHeight));
+                if(!fine.Contact.TryHeight(p.Position.x,p.Position.z,out double contact))throw new Exception("Actual fine contact triangle absent at used edge vertex");
+                maximumContact=Math.Max(maximumContact,Math.Abs(contact-fineHeight));
+                if(coarse.Contact!=null)
+                {
+                    if(!coarse.Contact.TryHeight(xx-keys[0].X*keys[0].SizeM,zz-keys[0].Z*keys[0].SizeM,out double otherContact))throw new Exception("Actual coarse contact triangle absent at shared edge");
+                    maximumContact=Math.Max(maximumContact,Math.Abs(otherContact-coarseHeight));
+                }
+                shared++;
+            }
+            if(shared<2||maximumGap>=.001||maximumContact>=.001)throw new Exception("Production fitted shared/contact gap exceeds1mm: shared="+shared+" gap="+maximumGap+" contact="+maximumContact);
+            foreach(var tile in owner.tiles.Values)
+            {
+                var data=tile.ResidentEdges;if(!data.Conformed)continue;
+                if(data.Texture==null||data.Texture.format!=TextureFormat.RFloat||tile.Materials[0].GetTexture("_ResidentEdgeHeights")!=data.Texture||tile.Materials[0].GetFloat("_ResidentEdgeCount")!=data.Points.Length)
+                    throw new Exception("Production edge texture/material binding is missing");
+                var values=data.Texture.GetRawTextureData<float>();if(values.Length!=data.Heights.Length)throw new Exception("Published RFloat row has incorrect size");
+                for(int i=0;i<values.Length;i++)
+                {
+                    if(BitConverter.SingleToInt32Bits(values[i])!=BitConverter.SingleToInt32Bits(data.Heights[i])||BitConverter.SingleToInt32Bits(values[i])!=BitConverter.SingleToInt32Bits(data.Published[i]))throw new Exception("Published GPU height differs from fitted CPU edge height");
+                    published++;
+                }
+            }
+            if(!fine.ResidentEdges.Conformed||published==0)throw new Exception("Refined witness did not exercise actual RFloat publication");
+            File.WriteAllText(Path.Combine(output,"resident-refined-seam.txt"),"PASS actual3-mesh used-vertex fixture; raw gap="+beforeGap.ToString("R")+"m; raw fine/coarse="+point.y.ToString("R")+"/"+beforeCoarse.ToString("R")+"; shared used points="+shared+"; fitted maximum gap="+maximumGap.ToString("R")+"m; contact maximum="+maximumContact.ToString("R")+"m; published bit-exact RFloat components="+published+"; actual material/count bindings verified.\n"+owner.ResidentEdgeReceipt);
+        }
+        finally
+        {
+            foreach(var tile in owner.tiles.Values){owner.ReleaseResidentEdges(tile);foreach(var material in tile.Materials)Destroy(material);Destroy(tile.Root);}
+            owner.tiles.Clear();Destroy(host);
+        }
     }
     static void CheckPartialForestEdgeGround(string output)
     {

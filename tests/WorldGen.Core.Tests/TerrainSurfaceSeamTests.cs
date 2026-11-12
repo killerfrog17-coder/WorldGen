@@ -53,8 +53,10 @@ static class TerrainSurfaceSeamTests
             foreach(var pair in new[]{(mb,ma,side^1),(ma,mc,side)})
             {
                 var fine=pair.Item1;var coarse=pair.Item2;int edge=pair.Item3;
-                Check(TerrainBoundaryTests.Gap(fine,coarse,edge)<.001,"Surface shading never opens a geometric boundary");
-                Check(AttributeGap(fine,coarse,edge,m=>m.Normals,3,3)<2e-6,"Interpolated lighting normals match across detail levels");
+                string context=$"scale{scale:R}, turn{turn}, edge{edge}, first({fine.EastM:R},{fine.NorthM:R},size{fine.SizeM:R},segments{fine.Segments}), second({coarse.EastM:R},{coarse.NorthM:R},size{coarse.SizeM:R},segments{coarse.Segments})";
+                double geometryGap=TerrainBoundaryTests.Gap(fine,coarse,edge),normalGap=AttributeGap(fine,coarse,edge,m=>m.Normals,3,3);
+                Check(geometryGap<.001,$"Surface shading never opens a geometric boundary: gap{geometryGap:R}, {context}");
+                Check(normalGap<2e-6,$"Interpolated lighting normals match across detail levels: gap{normalGap:R}, {context}");
                 Check(AttributeGap(fine,coarse,edge,m=>m.Colors,4,4)<2e-6,"Albedo and cover alpha match across detail levels");
                 Check(AttributeGap(fine,coarse,edge,m=>m.SurfaceWeights,4,4)<2e-6&&AttributeGap(fine,coarse,edge,m=>m.GroundWeightsB,4,4)<2e-6,"All geology material weights match across detail levels");
                 // Channel13 is the conservative physical-water root gate; it
