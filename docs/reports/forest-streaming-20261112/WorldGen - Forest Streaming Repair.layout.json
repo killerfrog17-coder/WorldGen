@@ -1,0 +1,108 @@
+[
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 690.6897637795278,
+    "height": 38.400000000000006
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 432.80976377952777,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\forest-streaming-20261112\\tropical-first.jpg",
+    "bottom": 448.68976377952777,
+    "height": 230
+  },
+  {
+    "page": 1,
+    "kind": "text",
+    "bottom": 171.92976377952778,
+    "height": 10.88
+  },
+  {
+    "page": 1,
+    "kind": "image",
+    "source": "docs\\reports\\forest-streaming-20261112\\tropical-still.jpg",
+    "bottom": 187.80976377952777,
+    "height": 230
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 804.6497637795277,
+    "height": 10.24
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 763.1697637795277,
+    "height": 30.72
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 747.0897637795277,
+    "height": 12.8
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 553.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\forest-streaming-20261112\\temperate-first.jpg",
+    "bottom": 569.0897637795277,
+    "height": 160
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 553.2097637795277,
+    "height": 10.88
+  },
+  {
+    "page": 2,
+    "kind": "image",
+    "source": "docs\\reports\\forest-streaming-20261112\\temperate-flight.jpg",
+    "bottom": 569.0897637795277,
+    "height": 160
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 512.6097637795277,
+    "height": 25.6
+  },
+  {
+    "page": 2,
+    "kind": "text",
+    "bottom": 319.20976377952775,
+    "height": 38.400000000000006
+  }
+]

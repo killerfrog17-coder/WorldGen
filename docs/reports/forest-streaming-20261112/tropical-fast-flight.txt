@@ -1,0 +1,4 @@
+200 m/s forward and reverse; 40 seconds, 500m above land/water; frames with no resident ground at player=0; frames missing forward resident ground=0; max missing forward probes=0; builds=409; handoffs=0; max handoff ms=0 ; pixel audits=8 (extra GPU renders/readbacks included; not an FPS benchmark)
+1182 frames; median 26.56ms; p99 149.55ms; worst 351.99ms; over100ms 27; collections 48; largest mesh apply/bind 8.93ms; largest controller query 0.94ms; incremental True / Enabled
+413 / 2146 tiles · last 27.8 ms · max 4650.1 ms/tile
+fields 3802/3484, roots 150333, pending True, projection slices 3827 max_ms 151.595 active False, baked local 9, baked forest 33, pending models 0, texture bytes 11883850; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=False detail=True jobs=4 previous=0 retiring=0 fades=0 scatter=False scatterJobs=0 coverRequests=53

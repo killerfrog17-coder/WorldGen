@@ -1,0 +1,86 @@
+{
+  "title": "WorldGen - Forest Streaming Repair",
+  "section": "FOREST STREAMING",
+  "date": "12 NOV 2026",
+  "footer": "Actual in-game captures | Medium vegetation | 1280 x 800 | No FPS benchmark claim",
+  "pages": [
+    {
+      "title": "Forests arrive complete",
+      "subtitle": "Final terrain and vegetation at first reveal, then the same camera twenty seconds later.",
+      "blocks": [
+        {
+          "text": "A chunk waits for the vegetation planned for the current view. Initial entry also waits for planned terrain underneath visible trees, preventing existing trees from moving with late ground refinement. Distant trees use prepared billboards distributed across their real world patches."
+        },
+        {
+          "images": [
+            {
+              "file": "tropical-first.jpg",
+              "caption": "Tropical mountain overlook: first reveal, maximum terrain quality and long view."
+            }
+          ],
+          "max_height": 230
+        },
+        {
+          "images": [
+            {
+              "file": "tropical-still.jpg",
+              "caption": "Twenty seconds later without moving: settled terrain and the same tree arrangement."
+            }
+          ],
+          "max_height": 230
+        }
+      ]
+    },
+    {
+      "title": "Travel and practical limits",
+      "subtitle": "Complete vegetation first; movement can still change the level of detail.",
+      "blocks": [
+        {
+          "images": [
+            {
+              "file": "temperate-first.jpg",
+              "caption": "Ground-level temperate forest, same prepared tree renderer."
+            },
+            {
+              "file": "temperate-flight.jpg",
+              "caption": "Temperate flight at 600 m/s with a 6 km view."
+            }
+          ],
+          "max_height": 160
+        },
+        {
+          "text": "Distant trees use ordinary prepared billboards, distributed across their actual world patches rather than packed into repeated groves. Nearby trees retain canonical identities. Coarse prefetch starts earlier; terrain and its initial forest publish together."
+        },
+        {
+          "table": {
+            "headers": [
+              "Check",
+              "Observed result"
+            ],
+            "widths": [
+              0.44,
+              0.56
+            ],
+            "rows": [
+              [
+                "Stationary ground view and overlook",
+                "Dense forest at reveal; no population fill-in during the 20-second holds."
+              ],
+              [
+                "40-second forward/reverse routes",
+                "No missing resident ground below or ahead: temperate 600 m/s; tropical 200 m/s."
+              ],
+              [
+                "Final maximum-terrain entry",
+                "59.7 seconds after local setup in the tropical long-view test. Saved-world reading and worker setup are additional."
+              ]
+            ]
+          }
+        },
+        {
+          "text": "Loading speed remains unfinished: final detail is currently awaited rather than exposed as a temporary sparse arrangement. The 100 FPS floor and elimination of frame-time spikes are not verified. These screenshot routes include paced rendering and extra GPU readbacks, so they are not throughput benchmarks."
+        }
+      ]
+    }
+  ]
+}
