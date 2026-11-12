@@ -53,7 +53,12 @@ Shader "WorldGen/ForestPackets"
             float3 Rotate(float3 p,float angle){float s,c;sincos(angle,s,c);return float3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z);}
             float ForestUnit(uint seed){return (CanopyMix(seed)&0xffffffu)/16777216.;}
             float ForestGroundHeight(Ground ground,uint index)
-            {return index<4u?ground.a[index]:index<8u?ground.b[index-4u]:ground.c.x;}
+            {
+                // FXC evaluates vector indexing in both ternary arms while
+                // unrolling placement retries. Use scalar lanes throughout.
+                return index==0u?ground.a.x:index==1u?ground.a.y:index==2u?ground.a.z:index==3u?ground.a.w:
+                    index==4u?ground.b.x:index==5u?ground.b.y:index==6u?ground.b.z:index==7u?ground.b.w:ground.c.x;
+            }
             bool ForestChildGround(Ground ground,float2 offset,float radius,out float height)
             {
                 float2 grid=clamp(offset/max(.001,radius)+1,0,2),cell=min(floor(grid),1),f=grid-cell;
