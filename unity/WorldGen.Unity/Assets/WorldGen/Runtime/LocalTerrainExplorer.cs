@@ -473,8 +473,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var key in refreshRetiredTerrain){CacheTerrain(key,tiles[key]);tiles.Remove(key);residentRevision++;}
         foreach(var job in jobs)
             if(job.Prepared==null&&!job.Prefetch&&!job.Backdrop&&(!wanted.TryGetValue(job.Key,out int detail)||detail!=job.Segments||!TerrainEdges.Equal(job.Edges,wantedEdges[job.Key])))job.Cancellation?.Cancel();
-        double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);
-        priority.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
+        SortTerrainPriority(streaming:false,breakTies:true);
     }
     static bool Overlaps(TerrainTileKey a,TerrainTileKey b)=>Math.Max(a.X*a.SizeM,b.X*b.SizeM)<Math.Min((a.X+1)*a.SizeM,(b.X+1)*b.SizeM)&&Math.Max(a.Z*a.SizeM,b.Z*b.SizeM)<Math.Min((a.Z+1)*a.SizeM,(b.Z+1)*b.SizeM);
     void Upload(TerrainTileKey key,TerrainUpload data,double[] edges,PreparedFrame prepared=null,bool cacheOnly=false,bool fallback=false)

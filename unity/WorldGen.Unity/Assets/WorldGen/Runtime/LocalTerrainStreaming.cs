@@ -83,6 +83,19 @@ public sealed partial class LocalTerrainExplorer
         double future=double.IsNaN(x)?d:TerrainLod.DistanceSquared(key,x,z);
         return baseSize*baseSize*100+Math.Min(d,future*1.2);
     }
+    readonly List<(TerrainTileKey Key,double Score)> terrainPriorityScores=new List<(TerrainTileKey,double)>();
+    void SortTerrainPriority(bool streaming,bool breakTies)
+    {
+        terrainPriorityScores.Clear();
+        foreach(var key in priority)terrainPriorityScores.Add((key,streaming?StreamingPriority(key):TerrainLod.DistanceSquared(key,motion.X,motion.Z)));
+        if(breakTies)terrainPriorityScores.Sort((a,b)=>
+        {
+            int d=a.Score.CompareTo(b.Score);var x=a.Key;var y=b.Key;
+            return d!=0?d:x.Level!=y.Level?x.Level.CompareTo(y.Level):x.X!=y.X?x.X.CompareTo(y.X):x.Z.CompareTo(y.Z);
+        });
+        else terrainPriorityScores.Sort((a,b)=>a.Score.CompareTo(b.Score));
+        for(int i=0;i<priority.Count;i++)priority[i]=terrainPriorityScores[i].Key;
+    }
     void RefreshStreamingPrediction()
     {
         if(Time.realtimeSinceStartupAsDouble<predictionDue)return;predictionDue=Time.realtimeSinceStartupAsDouble+.2;
@@ -93,7 +106,7 @@ public sealed partial class LocalTerrainExplorer
             if(prefetchWanted.Count>0||!double.IsNaN(predictedX))
             {
                 predictedX=double.NaN;prefetchWanted.Clear();prefetchPriority.Clear();foreach(var j in jobs)if(j.Prefetch)j.Cancellation?.Cancel();
-                priority.Sort((a,b)=>StreamingPriority(a).CompareTo(StreamingPriority(b)));
+                SortTerrainPriority(streaming:true,breakTies:false);
             }
             return;
         }
@@ -109,7 +122,7 @@ public sealed partial class LocalTerrainExplorer
         }
         if(double.IsNaN(predictedX)||Math.Abs(x-predictedX)>size*.25||Math.Abs(z-predictedZ)>size*.25)
             PlanStreamingPrediction(x,z,size);
-        priority.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
+        SortTerrainPriority(streaming:true,breakTies:true);
     }
     void PlanStreamingPrediction(double x,double z,double size)
     {

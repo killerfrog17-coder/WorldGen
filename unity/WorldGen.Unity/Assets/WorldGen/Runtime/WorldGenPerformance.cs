@@ -877,6 +877,35 @@ public sealed partial class LocalTerrainExplorer
     public bool PerformanceGroundSettled=>Ready&&NearReady&&AllReady&&!DetailPlanning&&jobs.Count==0&&previousTerrain.Count==0&&retiringFrames.Count==0&&tiles.Values.All(t=>FadeComplete(t));
     public bool PerformanceSettled=>!GroundPublicationPending&&PerformanceGroundSettled&&ScatterReady&&scatterJobs.Count==0&&coverRequests.Count==0&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.FarForest||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!ForestPending)&&(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeImpostors||PendingTreeModels==0);
     public string PerformanceStreamingWork=>StreamingWorkReceipt;
+    public string PerformanceVerifyTerrainPrioritySort()
+    {
+        var original=priority.ToArray();double originalX=streamingPriorityX,originalZ=streamingPriorityZ;
+        var receipts=new List<string>();var modes=new[]{"streaming-score","distance-ties","moving-score-ties"};
+        try
+        {
+            for(int mode=0;mode<modes.Length;mode++)
+            {
+                if(mode==2){streamingPriorityX=motion.X+2*TerrainLod.BaseSizeM*HorizontalScale;streamingPriorityZ=motion.Z+.75*TerrainLod.BaseSizeM*HorizontalScale;}
+                priority.Clear();priority.AddRange(original);var expected=new List<TerrainTileKey>(original);
+                long started=System.Diagnostics.Stopwatch.GetTimestamp();
+                if(mode==0)expected.Sort((a,b)=>StreamingPriority(a).CompareTo(StreamingPriority(b)));
+                else if(mode==1)
+                {
+                    double Distance(TerrainTileKey k)=>TerrainLod.DistanceSquared(k,motion.X,motion.Z);
+                    expected.Sort((a,b)=>{int d=Distance(a).CompareTo(Distance(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
+                }
+                else expected.Sort((a,b)=>{int d=StreamingPriority(a).CompareTo(StreamingPriority(b));return d!=0?d:a.Level!=b.Level?a.Level.CompareTo(b.Level):a.X!=b.X?a.X.CompareTo(b.X):a.Z.CompareTo(b.Z);});
+                long literal=System.Diagnostics.Stopwatch.GetTimestamp()-started;started=System.Diagnostics.Stopwatch.GetTimestamp();
+                SortTerrainPriority(streaming:mode!=1,breakTies:mode!=0);
+                long scored=System.Diagnostics.Stopwatch.GetTimestamp()-started;
+                if(!priority.SequenceEqual(expected))throw new InvalidOperationException("Terrain priority permutation changed: "+modes[mode]);
+                double milliseconds=1000.0/System.Diagnostics.Stopwatch.Frequency;
+                receipts.Add("PASS terrain priority "+modes[mode]+" keys="+original.Length+" literal_cpu_ms="+(literal*milliseconds).ToString("F3",CultureInfo.InvariantCulture)+" scored_cpu_ms="+(scored*milliseconds).ToString("F3",CultureInfo.InvariantCulture));
+            }
+        }
+        finally{priority.Clear();priority.AddRange(original);streamingPriorityX=originalX;streamingPriorityZ=originalZ;}
+        return string.Join("; ",receipts)+"; single-call loading CPU timings only, not an FPS comparison";
+    }
     public string PerformanceForestState=>$"fields {ForestFieldCount}/{forestPriority.Length}, roots {ForestPacketCount}, pending {ForestPending}, projection slices {forestProjectionSlices} max_ms {forestProjectionMaxMs:F3} active {forestProjection!=null}, baked local {BakedTreeModels}, baked forest {BakedForestModels}, pending models {PendingTreeModels}, texture bytes {TreeBakeBytes}; shadow proxies {UseTreeShadowProxies}, soft {SoftCanopyShadows}, casters {TreeShadowObjects}, coarse {TreeShadowCoarse}, shadow draws {TreeShadowDraws}, triangles {TreeShadowTriangles}; readiness near={NearReady} all={AllReady} detail={DetailPlanning} jobs={jobs.Count} previous={previousTerrain.Count} retiring={retiringFrames.Count} fades={tiles.Values.Count(t=>!FadeComplete(t))} scatter={ScatterReady} scatterJobs={scatterJobs.Count} coverRequests={coverRequests.Count}";
     public void PerformanceInvalidate(){scatterDirty=true;}
     public void PerformanceShadows(bool enabled){if(localSun!=null)localSun.shadows=enabled?LightShadows.Soft:LightShadows.None;}
@@ -1602,6 +1631,8 @@ public sealed partial class WorldGenRuntime
                     yield return null;
                 }
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
+                if(WorldGenPerformance.TraceEnabled&&firstCase&&terrainExplorer.PerformanceSettled)
+                    File.AppendAllText(Path.Combine(output,"equivalence.txt"),site.Item1+" "+terrainExplorer.PerformanceVerifyTerrainPrioritySort()+"\n");
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
                 bool warmupTerrainOnly=Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-terrain-only");
@@ -1613,14 +1644,17 @@ public sealed partial class WorldGenRuntime
                     // materials and render targets; no readback or extra render.
                     var headingEndFrame=new WaitForEndOfFrame();yield return headingEndFrame;
                     double headingStart=Time.realtimeSinceStartupAsDouble,headingPrevious=headingStart,headingMaximum=0;
-                    var headingRows=new List<string>(26);int headingFocused=0;
+                    var headingRows=new List<string>(26);int headingFocused=0;bool invalidHeadingDraws=false;
                     int originalHeadingMask=terrainExplorer.PerformanceCullingMask,headingMask=warmupTerrainOnly?1<<30:originalHeadingMask;
+                    bool originalHeadingHidePlants=TerrainDiagnostics.HidePlants;
+                    string headingDrawsBefore=string.Join(",",terrainExplorer.ScatterDrawCalls,terrainExplorer.ForestDrawCalls,terrainExplorer.GroundCoverDraws,terrainExplorer.TreeShadowDraws);
                     try
                     {
                         terrainExplorer.PerformanceCullingMask=headingMask;
+                        if(warmupTerrainOnly)TerrainDiagnostics.HidePlants=true;
                         for(int direction=0;direction<=12;direction++)
                         {
-                            if(direction==12)terrainExplorer.PerformanceCullingMask=originalHeadingMask;
+                            if(direction==12){terrainExplorer.PerformanceCullingMask=originalHeadingMask;TerrainDiagnostics.HidePlants=originalHeadingHidePlants;}
                             float yaw=direction==12?20:20+direction*30;terrainExplorer.PerformanceTurn(yaw);
                             for(int rendered=0;rendered<2;rendered++)
                             {
@@ -1628,11 +1662,12 @@ public sealed partial class WorldGenRuntime
                                 double observed=Time.realtimeSinceStartupAsDouble,interval=(observed-headingPrevious)*1000;
                                 headingMaximum=Math.Max(headingMaximum,interval);headingPrevious=observed;
                                 if(Application.isFocused)headingFocused++;
-                                headingRows.Add(site.Item1+","+item.Name+","+(direction==12?"restore":"heading")+","+direction+","+yaw.ToString(CultureInfo.InvariantCulture)+","+Time.frameCount+","+Perf(observed-headingStart)+","+Perf(interval)+","+Application.isFocused+","+terrainExplorer.PerformanceCullingMask);
+                                if(warmupTerrainOnly&&direction<12&&(terrainExplorer.ScatterDrawCalls!=0||terrainExplorer.ForestDrawCalls!=0||terrainExplorer.GroundCoverDraws!=0||terrainExplorer.TreeShadowDraws!=0))invalidHeadingDraws=true;
+                                headingRows.Add(site.Item1+","+item.Name+","+(direction==12?"restore":"heading")+","+direction+","+yaw.ToString(CultureInfo.InvariantCulture)+","+Time.frameCount+","+Perf(observed-headingStart)+","+Perf(interval)+","+Application.isFocused+","+terrainExplorer.PerformanceCullingMask+","+TerrainDiagnostics.HidePlants+","+terrainExplorer.ScatterDrawCalls+","+terrainExplorer.ForestDrawCalls+","+terrainExplorer.GroundCoverDraws+","+terrainExplorer.TreeShadowDraws);
                             }
                         }
                     }
-                    finally{terrainExplorer.PerformanceCullingMask=originalHeadingMask;terrainExplorer.PerformanceTurn(20);}
+                    finally{terrainExplorer.PerformanceCullingMask=originalHeadingMask;TerrainDiagnostics.HidePlants=originalHeadingHidePlants;terrainExplorer.PerformanceTurn(20);}
                     double headingRenderedAt=Time.realtimeSinceStartupAsDouble;
                     // A newly visible model may still be baking or publishing.
                     // Use the ordinary readiness predicate again before timing.
@@ -1640,10 +1675,11 @@ public sealed partial class WorldGenRuntime
                     while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
                     double headingFinished=Time.realtimeSinceStartupAsDouble;
                     string headingPath=Path.Combine(output,"heading-warmup-frames.csv");
-                    if(!File.Exists(headingPath))File.WriteAllText(headingPath,"site,case,phase,heading_index,yaw,frame,elapsed_s,observed_interval_ms,focused,camera_culling_mask\n");
+                    if(!File.Exists(headingPath))File.WriteAllText(headingPath,"site,case,phase,heading_index,yaw,frame,elapsed_s,observed_interval_ms,focused,camera_culling_mask,hide_plants,scatter_draws,forest_draws,grass_draws,tree_shadow_draws\n");
                     File.AppendAllLines(headingPath,headingRows);
                     File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" diagnostic_pre_measurement_loading_seconds="+Perf(headingFinished-headingStart)+" rendered_sweep_seconds="+Perf(headingRenderedAt-headingStart)+" readiness_wait_seconds="+Perf(headingFinished-headingRenderedAt)+" observed_frames="+headingRows.Count+" focused_frames="+headingFocused+" maximum_observed_interval_ms="+Perf(headingMaximum)+" settled="+terrainExplorer.PerformanceSettled+" requested_measurement_seconds="+Perf(seconds)+"; this loading cost is separate from the unchanged measured window\n");
-                    File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" terrain_only="+warmupTerrainOnly+" heading_camera_mask="+headingMask+" restored_camera_mask="+terrainExplorer.PerformanceCullingMask+" source=Camera.cullingMask; layer30 terrain is drawn, layer0 vegetation is excluded in terrain-only mode; CPU work and other layer30 objects are not isolated\n");
+                    File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" terrain_only="+warmupTerrainOnly+" heading_camera_mask="+headingMask+" restored_camera_mask="+terrainExplorer.PerformanceCullingMask+" original_hide_plants="+originalHeadingHidePlants+" restored_hide_plants="+TerrainDiagnostics.HidePlants+" invalid_heading_draws="+invalidHeadingDraws+" before_scatter_forest_grass_shadow_draws="+headingDrawsBefore+" restored_scatter_forest_grass_shadow_draws="+string.Join(",",terrainExplorer.ScatterDrawCalls,terrainExplorer.ForestDrawCalls,terrainExplorer.GroundCoverDraws,terrainExplorer.TreeShadowDraws)+" source=HidePlants direct draw gates plus Camera.cullingMask; vegetation is also layer30, so mask alone does not isolate; CPU work and normal proxy-selection updates remain active\n");
+                    if(invalidHeadingDraws)throw new InvalidOperationException("Terrain-only heading warmup submitted vegetation; inspect recorded per-frame draw counts");
                     if(terrainExplorer.Error!=""||!terrainExplorer.PerformanceSettled)throw new InvalidOperationException("All-heading warmup did not settle after restoring the starting view: "+terrainExplorer.Error);
                 }
                 if(item.Name=="scatter-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter()+"\n");
