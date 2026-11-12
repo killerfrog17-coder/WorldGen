@@ -142,9 +142,28 @@ public sealed partial class LocalTerrainExplorer
             var previous=RenderTexture.active;RenderTexture.active=target;standImage.ReadPixels(new Rect(0,0,1280,720),0,0);standImage.Apply();RenderTexture.active=previous;return standImage.GetPixels32();
         }
         report+="Prepared stand "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), scale=(80,20,80), reference trees=36, bounds="+referenceMesh.bounds+"\n";
-        foreach(var fixture in new[]{(Name:"stand-flat-no-ground",Ground:false,Depth:false,Reference:false),(Name:"stand-flat-ground",Ground:true,Depth:false,Reference:false),(Name:"stand-depth-no-ground",Ground:false,Depth:true,Reference:false),(Name:"stand-depth-ground",Ground:true,Depth:true,Reference:false),(Name:"stand-reference-ground",Ground:true,Depth:false,Reference:true)})
+        float productionStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(2),productionPixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(2);
+        var productionRanges=new Vector4(productionStart,productionStart*1.5f,productionPixels,productionPixels*.5f);
+        foreach(var fixture in new[]{
+            (Name:"stand-flat-no-ground",Ground:false,Depth:false,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-flat-ground",Ground:true,Depth:false,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-depth-no-ground",Ground:false,Depth:true,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-depth-ground",Ground:true,Depth:true,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-reference-ground",Ground:true,Depth:false,Reference:true,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-production-2km",Ground:true,Depth:true,Reference:false,Distance:2000f,Production:true,Nearest:false),
+            (Name:"stand-production-reference-2km",Ground:true,Depth:false,Reference:true,Distance:2000f,Production:true,Nearest:false),
+            (Name:"stand-production-5km",Ground:true,Depth:true,Reference:false,Distance:5000f,Production:true,Nearest:false),
+            (Name:"stand-production-reference-5km",Ground:true,Depth:false,Reference:true,Distance:5000f,Production:true,Nearest:false),
+            (Name:"stand-production-nearest-5km",Ground:true,Depth:true,Reference:false,Distance:5000f,Production:true,Nearest:true)})
         {
             reference.SetActive(false);ground.SetActive(fixture.Ground);
+            camera.transform.position=new Vector3(0,500,-fixture.Distance);camera.transform.LookAt(new Vector3(0,8,0));
+            planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
+            compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);
+            if(fixture.Production)material.EnableKeyword("WORLDGEN_TREE_EFFICIENT");else material.DisableKeyword("WORLDGEN_TREE_EFFICIENT");
+            var viewRanges=fixture.Production?productionRanges:Vector4.zero;
+            if(fixture.Nearest){viewRanges.z=1000000;viewRanges.w=500000;}
+            Shader.SetGlobalVector("_WorldGenTreeViewRanges",viewRanges);Shader.SetGlobalFloat("_WorldGenTreeViewProjection",camera.pixelHeight/Mathf.Tan(camera.fieldOfView*Mathf.Deg2Rad*.5f));
             if(fixture.Depth)material.EnableKeyword("WORLDGEN_FOREST_STAND_DEPTH");else material.DisableKeyword("WORLDGEN_FOREST_STAND_DEPTH");
             // Clear the previous frame's indirect submission before the baseline.
             yield return null;
@@ -154,7 +173,7 @@ public sealed partial class LocalTerrainExplorer
             camera.Render();var pixels=ReadStandImage();int changed=0,minX=1280,maxX=-1,minY=720,maxY=-1;
             for(int y=0;y<720;y++)for(int x=0;x<1280;x++){int i=y*1280+x;if(Math.Abs(pixels[i].r-baseline[i].r)+Math.Abs(pixels[i].g-baseline[i].g)+Math.Abs(pixels[i].b-baseline[i].b)>20){changed++;minX=Math.Min(minX,x);maxX=Math.Max(maxX,x);minY=Math.Min(minY,y);maxY=Math.Max(maxY,y);}}
             File.WriteAllBytes(Path.Combine(output,fixture.Name+".png"),standImage.EncodeToPNG());
-            report+=fixture.Name+" visible pixels="+changed+", pixel bounds="+minX+","+minY+".."+maxX+","+maxY+"\n";
+            report+=fixture.Name+" visible pixels="+changed+", pixel bounds="+minX+","+minY+".."+maxX+","+maxY+", view ranges="+viewRanges+", projection="+(camera.pixelHeight/Mathf.Tan(camera.fieldOfView*Mathf.Deg2Rad*.5f))+"\n";
             // Ground cases are diagnostic: burial is the suspected failure, so
             // preserve their screenshots and counts instead of stopping early.
             if(!fixture.Ground&&changed<10)throw new Exception("Prepared stand absent without terrain: "+fixture.Name+" pixels="+changed);
