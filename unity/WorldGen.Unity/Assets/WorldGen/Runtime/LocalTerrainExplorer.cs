@@ -447,7 +447,13 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             int detail=wanted[key];
             if(tiles.TryGetValue(key,out var tile)&&!tile.CoverageOnly&&tile.Segments==detail&&TerrainEdges.Equal(tile.Edges,wantedEdges[key]))continue;
             if(TerrainProducts.Contains(new TerrainProductKey(key,detail,wantedEdges[key],false)))
-            {RestoreTerrain(key,detail,wantedEdges[key]);continue;}
+            {
+                // Cached surfaces discover forest dependencies after the normal
+                // forest scheduling pass. Service them before next frame clears
+                // the set, including while near terrain remains pending.
+                if(!RestoreTerrain(key,detail,wantedEdges[key])&&terrainForestRequired.Count>0)ScheduleForestWork();
+                continue;
+            }
             if(!CanRequest||ActiveWorkerCount>=WorkerLimit)break;
             if(HasMatchingTerrainJob(key))continue;
             RequestTerrain(key,detail,wantedEdges[key]);

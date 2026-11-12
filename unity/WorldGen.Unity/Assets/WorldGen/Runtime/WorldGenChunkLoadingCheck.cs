@@ -257,7 +257,7 @@ public sealed partial class LocalTerrainExplorer
             while(MissingExact()>0&&Time.realtimeSinceStartupAsDouble-handoffStart<120)
             {
                 if(Time.realtimeSinceStartupAsDouble>=nextReceipt)
-                {nextReceipt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"handoff-work.txt"),$"{Time.realtimeSinceStartupAsDouble-handoffStart:F2}s missing exact pages={MissingExact()}; {PerformanceForestState}\n");}
+                {nextReceipt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"handoff-work.txt"),$"{Time.realtimeSinceStartupAsDouble-handoffStart:F2}s missing exact pages={MissingExact()}; {PerformanceForestState}; {CheckStreamingState}; forest jobs={forestJobs.Count}, running={ActiveForestWorkers}, required={terrainForestRequired.Count}, canPrepare={CanPrepareForest}, nearPending={NearTerrainPending()}, foregroundPending={ForegroundTerrainPending()}, frameUploadMs={frameUploadMs:F3}\n");}
                 yield return null;
             }
             Capture(Path.Combine(output,"handoff-after.png"));
