@@ -33,13 +33,15 @@ namespace WorldGen.Serialization
         /// <summary>Write the same lossless snapshot directly to a caller-owned
         /// stream, without retaining a second compressed snapshot in memory.</summary>
         public static void Write(World world,Stream destination,CancellationToken cancellation=default,CompressionLevel compression=CompressionLevel.Optimal)
+            =>WriteSnapshot(world,destination,cancellation,compression,world.Prehistory?.Foragers!=null?3:1);
+        static void WriteSnapshot(World world,Stream destination,CancellationToken cancellation,CompressionLevel compression,int format)
         {
             cancellation.ThrowIfCancellationRequested();
             if(destination==null||!destination.CanWrite)throw new ArgumentException("Writable snapshot destination required.",nameof(destination));
             using(var compressed=new GuardedStream(destination,cancellation,true))
-            using (var transport=new BinaryWorldTransport(cancellation,world.Prehistory?.Foragers!=null?3:1))
+            using (var transport=new BinaryWorldTransport(cancellation,format))
             {
-                compressed.Write(world.Prehistory?.Foragers!=null?PackedMagic:Magic, 0, Magic.Length);
+                compressed.Write(format>=3?PackedMagic:Magic, 0, Magic.Length);
                 // Old worlds retain version1. New forager worlds use version3
                 // with bit-exact numeric and record packing; gzip and integrity checks still
                 // cover the whole record. No historical records are discarded.
@@ -59,7 +61,10 @@ namespace WorldGen.Serialization
             var planet=new World();
             foreach(var field in typeof(World).GetFields(BindingFlags.Public|BindingFlags.Instance))field.SetValue(planet,field.GetValue(world));
             planet.Prehistory=null;
-            Write(planet,destination,cancellation,compression);
+            // This is still the existing lossless format. Removing history must
+            // not also force Mono to serialize primitive double arrays through
+            // the much slower legacy XML path instead of packed byte vectors.
+            WriteSnapshot(planet,destination,cancellation,compression,3);
         }
         public static World Read(byte[] bytes, CancellationToken cancellation = default, Action<string> status = null)
             =>ReadSnapshot(bytes,cancellation,status,false);

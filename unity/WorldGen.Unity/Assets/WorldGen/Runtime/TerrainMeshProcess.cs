@@ -47,7 +47,7 @@ public sealed class TerrainMeshProcess : IDisposable
         string expectedAssembly=typeof(LocalTerrain).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion??"";
         ready=Task.Run(()=>
         {
-            var watch=Stopwatch.StartNew();string secret=Guid.NewGuid().ToString("N"),ownedSnapshot=null;
+            var watch=Stopwatch.StartNew();string secret=Guid.NewGuid().ToString("N"),ownedSnapshot=null;double snapshotSeconds=0;
             try
             {
                 string input=sourcePath;
@@ -58,8 +58,10 @@ public sealed class TerrainMeshProcess : IDisposable
                     // the worker or allocating two large compressed byte arrays.
                     string folder=Path.Combine(Path.GetTempPath(),"WorldGen");Directory.CreateDirectory(folder);
                     ownedSnapshot=Path.Combine(folder,"terrain-"+secret+".world");
+                    var snapshotWatch=Stopwatch.StartNew();
                     using(var snapshot=new FileStream(ownedSnapshot,FileMode.CreateNew,FileAccess.Write,FileShare.None,65536))
                         WorldFile.WritePlanetary(world,snapshot,lifetime.Token);
+                    snapshotSeconds=snapshotWatch.Elapsed.TotalSeconds;
                     lifetime.Token.ThrowIfCancellationRequested();input=ownedSnapshot;
                 }
                 bootstrap=new TcpListener(IPAddress.Loopback,0);bootstrap.Start();int port=((IPEndPoint)bootstrap.LocalEndpoint).Port;
@@ -89,7 +91,7 @@ public sealed class TerrainMeshProcess : IDisposable
                     w.Write(world.Stages.Last().Hash);w.Write(input);w.Write(scale);
                     w.Flush();int version=r.ReadInt32();string assembly=r.ReadString(),surface=r.ReadString();int endpoint=r.ReadInt32();
                     if(version!=TerrainMeshWire.Version||surface!=LocalTerrain.Version||expectedAssembly!=""&&assembly!=expectedAssembly)throw new InvalidDataException("Terrain worker and player assemblies differ; rebuild the packaged worker.");
-                    Diagnostics="CoreCLR terrain worker ready in "+watch.Elapsed.TotalSeconds.ToString("F2")+"s; "+assembly;
+                    Diagnostics="CoreCLR terrain worker ready in "+watch.Elapsed.TotalSeconds.ToString("F2")+"s; snapshot write "+snapshotSeconds.ToString("F2")+"s; "+assembly;
                     return new Connection{Port=endpoint,Token=secret};
                 }
             }
