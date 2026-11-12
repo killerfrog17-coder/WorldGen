@@ -394,8 +394,13 @@ public sealed partial class LocalTerrainExplorer
         if(moved==0||unchanged==0||!field.Bounds.Equals(expectedBounds))throw new Exception("Partial forest fixture did not preserve both changed roots and unchanged interior/bounds");
         owner.scatterGroundChanges.Clear();owner.scatterGroundChanges.Add(key);owner.scatterGroundChanges.Add(key,partial);
         if(!owner.scatterGroundChanges.Affects(key,size*.8,size*.8,.01))throw new Exception("A partial edge change narrowed an existing whole-tile notification");
+        owner.scatterGroundChanges.Clear();owner.scatterGroundChanges.Add(new TerrainTileKey(key.X>>2,key.Z>>2,key.Level+2,key.Scale));
+        owner.ProjectForestGround();
+        for(int i=0;i<expected.Length;i++)
+            if(!batch.Data[i].Equals(expected[i])||batch.GroundLevels[i]!=expectedLevels[i])throw new Exception("A changed coarse ancestor moved a root still owned by finer resident ground");
+        if(!field.Bounds.Equals(expectedBounds))throw new Exception("Coarse ancestor changed finer-owned forest bounds");
         owner.scatterGroundChanges.Clear();owner.forestFields.Clear();owner.tiles.Clear();batch.Dispose();Destroy(host);
-        File.WriteAllText(Path.Combine(output,"partial-forest-edge-ground.txt"),"PASS: edge-cell notification produces the same forest positions, owner levels, upright poses and bounds as literal full reprojection; changed roots move, unchanged interior remains untouched, and whole-tile invalidation cannot be narrowed.");
+        File.WriteAllText(Path.Combine(output,"partial-forest-edge-ground.txt"),"PASS: edge-cell notification produces the same forest positions, owner levels, upright poses and bounds as literal full reprojection; changed roots move, unchanged interior remains untouched, coarse ancestors preserve finer-owned roots, and whole-tile invalidation cannot be narrowed.");
     }
     static void CheckHiddenResidentRetirement(string output)
     {

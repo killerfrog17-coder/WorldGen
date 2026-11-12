@@ -443,9 +443,10 @@ public sealed partial class LocalTerrainExplorer
     void ProjectForestGround()
     {
         long trace=WorldGenPerformance.TraceBegin();
+        int tracedFields=0,tracedRoots=0,tracedSkipped=0,tracedQueries=0,tracedMoved=0;
         foreach(var field in forestFields.Values)
         {
-            bool affected=scatterGroundChanges.Count==0;
+            int minimumChangedLevel=scatterGroundChanges.Count==0?0:int.MaxValue;
             foreach(var key in scatterGroundChanges)
             {
                 var b=field.Bounds;double x=key.X*key.SizeM,z=key.Z*key.SizeM;
@@ -454,22 +455,36 @@ public sealed partial class LocalTerrainExplorer
                 // partial edge mask can reject the whole field before walking
                 // thousands of unchanged interior roots; full-key masks keep
                 // the existing conservative overlap behavior.
-                if(scatterGroundChanges.Affects(key,b.center.x,b.center.z,Math.Max(b.extents.x,b.extents.z)+.01)){affected=true;break;}
+                if(scatterGroundChanges.Affects(key,b.center.x,b.center.z,Math.Max(b.extents.x,b.extents.z)+.01))minimumChangedLevel=Math.Min(minimumChangedLevel,key.Level);
             }
-            if(!affected)continue;
+            if(minimumChangedLevel==int.MaxValue)continue;
+            if(trace!=0)tracedFields++;
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {
+                if(trace!=0)tracedRoots++;
+                int previousGroundLevel=pair.Key.GroundLevels[slot];
+                // A changed coarse ancestor cannot affect a root still owned by
+                // finer resident ground. Apply that existing per-key rule once
+                // before walking every changed key or copying the root record.
+                if(previousGroundLevel<minimumChangedLevel){if(trace!=0)tracedSkipped++;continue;}
                 var root=pair.Key.Data[slot];
                 // Each render root depends only on the ground beneath it.
                 double margin=.01;
-                if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,pair.Key.GroundLevels[slot]))continue;
+                if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,previousGroundLevel))continue;
+                if(trace!=0)tracedQueries++;
                 var before=root;ProjectForestRootGround(ref root,out int groundLevel);pair.Key.GroundLevels[slot]=groundLevel;
                 if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ&&root.Padding==before.Padding)continue;pair.Key.Data[slot]=root;DirtyForestRoot(pair.Key,slot);
+                if(trace!=0)tracedMoved++;
                 field.Bounds.Encapsulate(ForestRootBounds(root));
             }
         }
         forestRevision++;nextForestVisibility=0;
         WorldGenPerformance.TraceEnd(31,trace);
+        if(trace!=0)
+        {
+            double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-trace)*1000d/System.Diagnostics.Stopwatch.Frequency;
+            if(elapsed>=3)Debug.Log("FOREST_GROUND_CORRECTION ms="+elapsed.ToString("F3",System.Globalization.CultureInfo.InvariantCulture)+" fields="+tracedFields+" roots="+tracedRoots+" finer_owner_skips="+tracedSkipped+" queries="+tracedQueries+" moved="+tracedMoved+" changed_keys="+scatterGroundChanges.Count+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
+        }
     }
     void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)
     {
