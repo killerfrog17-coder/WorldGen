@@ -819,6 +819,7 @@ public sealed partial class LocalTerrainExplorer
         if(WorldGenPerformance.IndexedWalkingRivers)walkingPatch.RiverSpans();
     }
     public void PerformanceTurn(float yaw){heading=yaw;UpdateCamera();}
+    public int PerformanceCullingMask {get=>view.cullingMask;set=>view.cullingMask=value;}
     public string PerformanceVerifyAnimalPoseMath()
     {
         int compared=0,models=0;
@@ -1603,21 +1604,8 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
-                bool warmupLoadedShaders=Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-loaded-shaders");
-                if(warmupLoadedShaders)
-                {
-                    if(Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))throw new InvalidOperationException("Loaded-shader and all-heading warmup diagnostics are mutually exclusive");
-                    // Read already loaded Shader objects; do not load additional
-                    // Resources or invent a shader-variant count from this list.
-                    var shaderNames=Resources.FindObjectsOfTypeAll<Shader>().Select(s=>s.name).OrderBy(n=>n,StringComparer.Ordinal).ToArray();
-                    File.AppendAllLines(Path.Combine(output,"shader-warmup-inventory.txt"),new[]{site.Item1+" "+item.Name+" phase=before_call loaded_shader_objects="+shaderNames.Length}.Concat(shaderNames));
-                    File.AppendAllText(Path.Combine(output,"shader-warmup-loading.txt"),site.Item1+" "+item.Name+" BEGIN loaded_shader_objects="+shaderNames.Length+" utc="+DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture)+"\n");
-                    Debug.Log("PERF SHADER WARMUP BEGIN "+site.Item1+" "+item.Name);
-                    var shaderWarmupWatch=System.Diagnostics.Stopwatch.StartNew();Shader.WarmupAllShaders();shaderWarmupWatch.Stop();
-                    File.AppendAllText(Path.Combine(output,"shader-warmup-loading.txt"),site.Item1+" "+item.Name+" completed_cpu_wall_ms="+Perf(shaderWarmupWatch.Elapsed.TotalMilliseconds)+" requested_measurement_seconds="+Perf(seconds)+"; diagnostic loading cost is separate from the unchanged measured window\n");
-                    Debug.Log("PERF SHADER WARMUP END ms="+Perf(shaderWarmupWatch.Elapsed.TotalMilliseconds));
-                }
-                if(Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))
+                bool warmupTerrainOnly=Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-terrain-only");
+                if(warmupTerrainOnly||Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))
                 {
                     if(!WorldGenPerformance.Presented)throw new InvalidOperationException("All-heading render warmup requires the normal presented camera");
                     // Opt-in first-visibility diagnostic, not a gameplay change.
@@ -1626,18 +1614,25 @@ public sealed partial class WorldGenRuntime
                     var headingEndFrame=new WaitForEndOfFrame();yield return headingEndFrame;
                     double headingStart=Time.realtimeSinceStartupAsDouble,headingPrevious=headingStart,headingMaximum=0;
                     var headingRows=new List<string>(26);int headingFocused=0;
-                    for(int direction=0;direction<=12;direction++)
+                    int originalHeadingMask=terrainExplorer.PerformanceCullingMask,headingMask=warmupTerrainOnly?1<<30:originalHeadingMask;
+                    try
                     {
-                        float yaw=direction==12?20:20+direction*30;terrainExplorer.PerformanceTurn(yaw);
-                        for(int rendered=0;rendered<2;rendered++)
+                        terrainExplorer.PerformanceCullingMask=headingMask;
+                        for(int direction=0;direction<=12;direction++)
                         {
-                            yield return headingEndFrame;
-                            double observed=Time.realtimeSinceStartupAsDouble,interval=(observed-headingPrevious)*1000;
-                            headingMaximum=Math.Max(headingMaximum,interval);headingPrevious=observed;
-                            if(Application.isFocused)headingFocused++;
-                            headingRows.Add(site.Item1+","+item.Name+","+(direction==12?"restore":"heading")+","+direction+","+yaw.ToString(CultureInfo.InvariantCulture)+","+Time.frameCount+","+Perf(observed-headingStart)+","+Perf(interval)+","+Application.isFocused);
+                            if(direction==12)terrainExplorer.PerformanceCullingMask=originalHeadingMask;
+                            float yaw=direction==12?20:20+direction*30;terrainExplorer.PerformanceTurn(yaw);
+                            for(int rendered=0;rendered<2;rendered++)
+                            {
+                                yield return headingEndFrame;
+                                double observed=Time.realtimeSinceStartupAsDouble,interval=(observed-headingPrevious)*1000;
+                                headingMaximum=Math.Max(headingMaximum,interval);headingPrevious=observed;
+                                if(Application.isFocused)headingFocused++;
+                                headingRows.Add(site.Item1+","+item.Name+","+(direction==12?"restore":"heading")+","+direction+","+yaw.ToString(CultureInfo.InvariantCulture)+","+Time.frameCount+","+Perf(observed-headingStart)+","+Perf(interval)+","+Application.isFocused+","+terrainExplorer.PerformanceCullingMask);
+                            }
                         }
                     }
+                    finally{terrainExplorer.PerformanceCullingMask=originalHeadingMask;terrainExplorer.PerformanceTurn(20);}
                     double headingRenderedAt=Time.realtimeSinceStartupAsDouble;
                     // A newly visible model may still be baking or publishing.
                     // Use the ordinary readiness predicate again before timing.
@@ -1645,9 +1640,10 @@ public sealed partial class WorldGenRuntime
                     while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
                     double headingFinished=Time.realtimeSinceStartupAsDouble;
                     string headingPath=Path.Combine(output,"heading-warmup-frames.csv");
-                    if(!File.Exists(headingPath))File.WriteAllText(headingPath,"site,case,phase,heading_index,yaw,frame,elapsed_s,observed_interval_ms,focused\n");
+                    if(!File.Exists(headingPath))File.WriteAllText(headingPath,"site,case,phase,heading_index,yaw,frame,elapsed_s,observed_interval_ms,focused,camera_culling_mask\n");
                     File.AppendAllLines(headingPath,headingRows);
                     File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" diagnostic_pre_measurement_loading_seconds="+Perf(headingFinished-headingStart)+" rendered_sweep_seconds="+Perf(headingRenderedAt-headingStart)+" readiness_wait_seconds="+Perf(headingFinished-headingRenderedAt)+" observed_frames="+headingRows.Count+" focused_frames="+headingFocused+" maximum_observed_interval_ms="+Perf(headingMaximum)+" settled="+terrainExplorer.PerformanceSettled+" requested_measurement_seconds="+Perf(seconds)+"; this loading cost is separate from the unchanged measured window\n");
+                    File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" terrain_only="+warmupTerrainOnly+" heading_camera_mask="+headingMask+" restored_camera_mask="+terrainExplorer.PerformanceCullingMask+" source=Camera.cullingMask; layer30 terrain is drawn, layer0 vegetation is excluded in terrain-only mode; CPU work and other layer30 objects are not isolated\n");
                     if(terrainExplorer.Error!=""||!terrainExplorer.PerformanceSettled)throw new InvalidOperationException("All-heading warmup did not settle after restoring the starting view: "+terrainExplorer.Error);
                 }
                 if(item.Name=="scatter-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter()+"\n");
@@ -1848,11 +1844,6 @@ public sealed partial class WorldGenRuntime
                 string row=string.Join(",",site.Item1,site.Item2,h.Biome,h.ReliefM,item.Name,frames.Count,Perf(elapsed),Perf(frames.Count/elapsed),Perf(P(.5)),Perf(P(.95)),Perf(P(.99)),Perf(sorted.Last()),frames.Count(v=>v>10),frames.Count(v=>v>16.667),Perf(sections[0]/frames.Count),Perf(sections[1]/frames.Count),Perf(sections[2]/frames.Count),Perf(sections[3]/frames.Count),terrainExplorer.PerformanceCounts,terrainExplorer.PerformanceSettled,qpcStart,qpcEnd);
                 row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain)+","+windowUtc.ToString("O",CultureInfo.InvariantCulture)+","+windowEndUtc.ToString("O",CultureInfo.InvariantCulture);
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
-                if(warmupLoadedShaders)
-                {
-                    var shaderNames=Resources.FindObjectsOfTypeAll<Shader>().Select(s=>s.name).OrderBy(n=>n,StringComparer.Ordinal).ToArray();
-                    File.AppendAllLines(Path.Combine(output,"shader-warmup-inventory.txt"),new[]{site.Item1+" "+item.Name+" phase=after_measured_case loaded_shader_objects="+shaderNames.Length}.Concat(shaderNames));
-                }
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" after: "+terrainExplorer.PerformanceStreamingWork+"\n");
