@@ -542,7 +542,7 @@ public sealed partial class LocalTerrainExplorer
                 owner.RefreshWanted();double observerDeadline=Time.realtimeSinceStartupAsDouble+120;
                 double inspectedDistance=Math.Min(reviewRange*.85,Math.Max(100,look.magnitude*1.1));
                 while((!owner.NearReady||owner.DetailPlanning||owner.terrainRevealRadius<inspectedDistance)&&Time.realtimeSinceStartupAsDouble<observerDeadline)yield return null;
-                Check(owner.NearReady&&!owner.DetailPlanning&&owner.terrainRevealRadius>=inspectedDistance,"Actual review observer has requested terrain detail through its inspected view: "+name);
+                Check(owner.NearReady&&!owner.DetailPlanning&&owner.terrainRevealRadius>=inspectedDistance,"Actual review observer has resident terrain coverage through its inspected view: "+name);
             }
             owner.UpdateCamera();owner.UpdatePlayerWater(true);
             owner.BuildScatterBatches();
@@ -625,6 +625,30 @@ public sealed partial class LocalTerrainExplorer
                 fallMotionPixels=pixels;
             }
             Destroy(image);RenderTexture.active=prior;
+            if(arguments.Contains("--worldgen-surface-diagnosis")&&site.Outcrop.HasValue)
+            {
+                void RecordResidents(string phase)
+                {
+                    foreach(double fraction in new[]{0d,.5,.9})
+                    {
+                        double x=site.Outcrop.Value.RadiusM*fraction,z=0;
+                        var resident=owner.VisibleGroundOwner(x,z,out var key);
+                        string state=resident==null?"MISSING":"key="+key+" segments="+resident.Segments+" step="+(key.SizeM/resident.Segments)+" coverageOnly="+resident.CoverageOnly+" active="+resident.Root.activeInHierarchy+" fadeIn="+resident.FadeIn+" morphAge="+(Time.time-resident.FadeIn)+" contact="+(resident.Contact!=null);
+                        File.AppendAllText(Path.Combine(output,"surface-residents.txt"),name+" "+phase+" x="+x+" z="+z+" "+state+" jobs="+owner.jobs.Count+"\n");
+                    }
+                }
+                RecordResidents("initial");
+                yield return new WaitForSecondsRealtime(4);
+                owner.UpdateCamera();owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                var settled=new Texture2D(1536,864,TextureFormat.RGB24,false);
+                try
+                {
+                    settled.ReadPixels(new Rect(0,0,1536,864),0,0);settled.Apply();
+                    File.WriteAllBytes(Path.Combine(output,name+"-later.png"),settled.EncodeToPNG());
+                }
+                finally{Destroy(settled);RenderTexture.active=prior;}
+                RecordResidents("later");
+            }
             if(arguments.Contains("--worldgen-surface-diagnosis"))
             {
                 var savedFlags=TerrainDiagnostics.Flags;bool savedShadows=TerrainDiagnostics.NoReceiveShadows;
