@@ -1603,6 +1603,20 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                bool warmupLoadedShaders=Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-loaded-shaders");
+                if(warmupLoadedShaders)
+                {
+                    if(Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))throw new InvalidOperationException("Loaded-shader and all-heading warmup diagnostics are mutually exclusive");
+                    // Read already loaded Shader objects; do not load additional
+                    // Resources or invent a shader-variant count from this list.
+                    var shaderNames=Resources.FindObjectsOfTypeAll<Shader>().Select(s=>s.name).OrderBy(n=>n,StringComparer.Ordinal).ToArray();
+                    File.AppendAllLines(Path.Combine(output,"shader-warmup-inventory.txt"),new[]{site.Item1+" "+item.Name+" phase=before_call loaded_shader_objects="+shaderNames.Length}.Concat(shaderNames));
+                    File.AppendAllText(Path.Combine(output,"shader-warmup-loading.txt"),site.Item1+" "+item.Name+" BEGIN loaded_shader_objects="+shaderNames.Length+" utc="+DateTime.UtcNow.ToString("O",CultureInfo.InvariantCulture)+"\n");
+                    Debug.Log("PERF SHADER WARMUP BEGIN "+site.Item1+" "+item.Name);
+                    var shaderWarmupWatch=System.Diagnostics.Stopwatch.StartNew();Shader.WarmupAllShaders();shaderWarmupWatch.Stop();
+                    File.AppendAllText(Path.Combine(output,"shader-warmup-loading.txt"),site.Item1+" "+item.Name+" completed_cpu_wall_ms="+Perf(shaderWarmupWatch.Elapsed.TotalMilliseconds)+" requested_measurement_seconds="+Perf(seconds)+"; diagnostic loading cost is separate from the unchanged measured window\n");
+                    Debug.Log("PERF SHADER WARMUP END ms="+Perf(shaderWarmupWatch.Elapsed.TotalMilliseconds));
+                }
                 if(Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))
                 {
                     if(!WorldGenPerformance.Presented)throw new InvalidOperationException("All-heading render warmup requires the normal presented camera");
@@ -1834,6 +1848,11 @@ public sealed partial class WorldGenRuntime
                 string row=string.Join(",",site.Item1,site.Item2,h.Biome,h.ReliefM,item.Name,frames.Count,Perf(elapsed),Perf(frames.Count/elapsed),Perf(P(.5)),Perf(P(.95)),Perf(P(.99)),Perf(sorted.Last()),frames.Count(v=>v>10),frames.Count(v=>v>16.667),Perf(sections[0]/frames.Count),Perf(sections[1]/frames.Count),Perf(sections[2]/frames.Count),Perf(sections[3]/frames.Count),terrainExplorer.PerformanceCounts,terrainExplorer.PerformanceSettled,qpcStart,qpcEnd);
                 row+=","+Perf(gpu/Math.Max(1,timingCount))+","+Perf(cpu/Math.Max(1,timingCount))+","+timingCount+","+Perf(gpuDrain)+","+windowUtc.ToString("O",CultureInfo.InvariantCulture)+","+windowEndUtc.ToString("O",CultureInfo.InvariantCulture);
                 File.AppendAllText(Path.Combine(output,"summary.csv"),row+"\n");
+                if(warmupLoadedShaders)
+                {
+                    var shaderNames=Resources.FindObjectsOfTypeAll<Shader>().Select(s=>s.name).OrderBy(n=>n,StringComparer.Ordinal).ToArray();
+                    File.AppendAllLines(Path.Combine(output,"shader-warmup-inventory.txt"),new[]{site.Item1+" "+item.Name+" phase=after_measured_case loaded_shader_objects="+shaderNames.Length}.Concat(shaderNames));
+                }
                 File.AppendAllText(Path.Combine(output,"forest-root-uploads.csv"),site.Item1+","+item.Name+","+(terrainExplorer.ForestRootUploadBytes-uploadBytesBefore)+","+(terrainExplorer.ForestRootUploadCalls-uploadCallsBefore)+","+(terrainExplorer.ForestRootFullUploads-uploadFullBefore)+"\n");
                 File.AppendAllText(Path.Combine(output,"forest-state.txt"),site.Item1+" "+item.Name+": "+terrainExplorer.PerformanceForestState+"\n");
                 File.AppendAllText(Path.Combine(output,"streaming-state.txt"),site.Item1+" "+item.Name+" after: "+terrainExplorer.PerformanceStreamingWork+"\n");
