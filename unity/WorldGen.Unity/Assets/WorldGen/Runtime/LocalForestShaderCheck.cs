@@ -39,8 +39,10 @@ public sealed partial class LocalTerrainExplorer
             Check(curved.C.w>0,"curved support expands vertical bounds");
             Plane();group=Root(x:5);var edge=Sample(ref group,10);
             Check((int)edge.C.z==(511&~73),"outside owner leaves only missing left ground samples unset");
-            tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(512,10,512),new Vector3(2,1,40));group=Root();var wet=Sample(ref group,10);
-            Check(wet.C.z==511&&((int)wet.C.y&16)==0,"ordinary water support keeps ground but removes wet forest admission");
+            tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(512,10,512),new Vector3(512,1,512));group=Root();var wet=Sample(ref group,10);
+            Check(wet.C.y==511&&wet.C.z==511,"broad water mesh bounds never erase admitted dry habitat");
+            tile.ForestCover[(8*side+8)*8+3]=0;group=Root();wet=Sample(ref group,10);
+            Check(wet.C.y==0&&wet.C.z==511,"actual submerged habitat rejects forest while retaining ground support");Plane();
             group=Root();group.Face|=16u;var tidal=Sample(ref group,10);Check(tidal.C.y==511&&tidal.C.z==511,"mapped tidal forest retains wet support");
             tile.ForestCover[(8*side+8)*8+3]=0;group=Root();group.Face|=16u;tidal=Sample(ref group,10);Check(tidal.C.y==0&&tidal.C.z==511,"tidal exception never bypasses habitat admission");Plane();
             tile.HasWater=false;

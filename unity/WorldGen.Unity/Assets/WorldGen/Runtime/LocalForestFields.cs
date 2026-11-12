@@ -651,7 +651,7 @@ public sealed partial class LocalTerrainExplorer
         root.Position.y=(float)y-.045f;
         if(Math.Abs(root.Padding)>2.5f&&(root.Face&8u)!=0)
         {
-            groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,root.Width,out grid,terrain,publication,(root.Face&16u)!=0);
+            groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,root.Width,out grid,terrain,publication);
             root.Padding=3;
             root.SlopeX=root.SlopeZ=grid.C.w/Math.Max(1,root.Width);
             return groundLevel;
@@ -692,7 +692,7 @@ public sealed partial class LocalTerrainExplorer
         double width=Math.Abs(root.Padding)>2.5f?root.Width:root.Width*LocalTreePrototype.StandSpan;
         return width*.75+.01;
     }
-    static bool TryForestGroundSample(Tile tile,TerrainTileKey key,double x,double z,out double y,out bool forest,bool allowWet=false)
+    static bool TryForestGroundSample(Tile tile,TerrainTileKey key,double x,double z,out double y,out bool forest)
     {
         y=0;forest=false;if(tile==null||tile.Heights==null)return false;
         double size=key.SizeM,localX=x-key.X*size,localZ=z-key.Z*size;
@@ -706,17 +706,13 @@ public sealed partial class LocalTerrainExplorer
             y=u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
         int cx=Math.Min(n,Math.Max(0,(int)Math.Round(gx))),cz=Math.Min(n,Math.Max(0,(int)Math.Round(gz)));
+        // TerrainSurfaceVertex writes TreeFlora.Surface/Rooting admission here,
+        // including actual underwater depth and mapped tidal forest. A whole
+        // water mesh's bounds also enclose dry land and cannot reject roots.
         forest=tile.ForestCover.IsCreated&&tile.ForestCover[(cz*side+cx)*8+3]>.001f;
-        if(!allowWet&&tile.HasWater&&tile.WaterBoundsKnown)
-        {
-            var wet=tile.WaterBounds;
-            if(localX>=wet.min.x&&localX<=wet.max.x&&localZ>=wet.min.z&&localZ<=wet.max.z&&wet.max.y>=y-.1)forest=false;
-        }
         return true;
     }
-    static bool TryForestStandSample(Tile tile,TerrainTileKey key,double x,double z,out double y,bool allowWet=false)
-        =>TryForestGroundSample(tile,key,x,z,out y,out bool forest,allowWet)&&forest;
-    static int SampleForestGroundGrid(Tile tile,TerrainTileKey key,double x,double z,double centerY,double width,out ForestGroundGrid grid,LocalTerrainExplorer terrain=null,GroundPublication publication=null,bool allowWet=false)
+    static int SampleForestGroundGrid(Tile tile,TerrainTileKey key,double x,double z,double centerY,double width,out ForestGroundGrid grid,LocalTerrainExplorer terrain=null,GroundPublication publication=null)
     {
         grid=default;double radius=width*.75,maxDelta=0;int groundMask=0,forestMask=0,supportLevel=0;
         Span<float> heights=stackalloc float[9];
@@ -729,7 +725,7 @@ public sealed partial class LocalTerrainExplorer
                 else owner=terrain.VisibleGroundOwner(px,pz,out ownerKey);
             }
             double h=centerY;
-            if(TryForestGroundSample(owner,ownerKey,px,pz,out double sampleY,out bool forest,allowWet))
+            if(TryForestGroundSample(owner,ownerKey,px,pz,out double sampleY,out bool forest))
             {
                 h=sampleY;groundMask|=1<<index;if(forest)forestMask|=1<<index;
                 supportLevel=Math.Max(supportLevel,ownerKey.Level);maxDelta=Math.Max(maxDelta,Math.Abs(h-centerY));

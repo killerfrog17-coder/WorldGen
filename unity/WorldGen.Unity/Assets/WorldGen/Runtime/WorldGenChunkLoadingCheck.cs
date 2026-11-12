@@ -251,7 +251,16 @@ public sealed partial class LocalTerrainExplorer
             // Keep the SAME camera and location while the remaining exact
             // census replaces its distant canopy. This exposes a density jump
             // directly, rather than comparing unrelated parts of a flyover.
-            Capture(Path.Combine(output,"handoff-before.png"));
+            void CaptureHandoff(string name)
+            {
+                Capture(Path.Combine(output,name+".png"));
+                var ground=new List<Renderer>();
+                foreach(var tile in tiles.Values)foreach(var renderer in tile.Root.GetComponentsInChildren<MeshRenderer>())
+                    if(renderer.enabled&&renderer.gameObject.name=="Land and seabed"){renderer.enabled=false;ground.Add(renderer);}
+                try{Capture(Path.Combine(output,name+"-forest.png"));}
+                finally{foreach(var renderer in ground)renderer.enabled=true;}
+            }
+            CaptureHandoff("handoff-before");
             double handoffStart=Time.realtimeSinceStartupAsDouble,nextReceipt=handoffStart;
             int MissingExact()=>forestPriority.Count(k=>k.Level==0&&(!forestFields.TryGetValue(k,out var f)||!f.RenderReady));
             while(MissingExact()>0&&Time.realtimeSinceStartupAsDouble-handoffStart<120)
@@ -260,7 +269,7 @@ public sealed partial class LocalTerrainExplorer
                 {nextReceipt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"handoff-work.txt"),$"{Time.realtimeSinceStartupAsDouble-handoffStart:F2}s missing exact pages={MissingExact()}; {PerformanceForestState}; {CheckStreamingState}; forest jobs={forestJobs.Count}, running={ActiveForestWorkers}, required={terrainForestRequired.Count}, canPrepare={CanPrepareForest}, nearPending={NearTerrainPending()}, foregroundPending={ForegroundTerrainPending()}, frameUploadMs={frameUploadMs:F3}\n");}
                 yield return null;
             }
-            Capture(Path.Combine(output,"handoff-after.png"));
+            CaptureHandoff("handoff-after");
             File.WriteAllText(Path.Combine(output,"handoff.txt"),$"same camera; seconds={Time.realtimeSinceStartupAsDouble-handoffStart:F2}; missing exact pages={MissingExact()}; {PerformanceForestState}\n");
             if(MissingExact()>0)throw new InvalidOperationException("Exact forest did not finish the matched-view handoff review");
         }
