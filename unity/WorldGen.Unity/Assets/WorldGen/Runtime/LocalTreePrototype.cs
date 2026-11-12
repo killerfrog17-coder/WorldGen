@@ -90,9 +90,9 @@ public sealed class LocalTreePrototype : ScriptableObject
     {
         if(loaded.ContainsKey(code))yield break;
         var request=Resources.LoadAsync<LocalTreePrototype>(ResourcePath(code));
-        // Forest projection has a manual frame-budget iterator, so poll here
-        // rather than relying on Unity to interpret a yielded ResourceRequest.
-        while(!request.isDone)yield return null;
+        // The manual projection driver recognizes this pending request and
+        // returns to the next frame instead of spending its budget polling it.
+        while(!request.isDone)yield return request;
         if(!loaded.ContainsKey(code))Remember(code,request.asset as LocalTreePrototype);
     }
     static LocalTreePrototype Remember(int code,LocalTreePrototype prototype)

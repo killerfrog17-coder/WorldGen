@@ -291,7 +291,7 @@ public sealed partial class LocalTerrainExplorer
             forestCompletionComparison??=(a,b)=>ForestGapDistance(b.Key).CompareTo(ForestGapDistance(a.Key));
             forestJobs.Sort(forestCompletionComparison);
         }
-        if(forestProjection!=null&&CanPrepareForest)AdvanceForestProjection();
+        DrainForestProjection();
         int emptyInstalls=0,preparedPages=0;
         for(int i=forestJobs.Count-1;i>=0;i--)
         {
@@ -313,7 +313,7 @@ public sealed partial class LocalTerrainExplorer
             else{forestInstalling=field;forestProjection=ProjectForestSteps(field);}
             WorldGenPerformance.TraceEnd(56,installTrace);
             frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
-            if(!metadataOnly)AdvanceForestProjection();
+            if(!metadataOnly)DrainForestProjection();
             // Empty pages only certify a tree-free part of the census. They
             // create no tree models, transforms or GPU roots; do not charge
             // an entire object-upload frame for each of thousands of them.
@@ -464,6 +464,16 @@ public sealed partial class LocalTerrainExplorer
     {
         (forestProjection as IDisposable)?.Dispose();forestProjection=null;forestInstalling=null;
     }
+    void DrainForestProjection()
+    {
+        // A slice yields to the remaining upload budget, not necessarily the
+        // next frame. Actual asset waits must return without polling in a loop.
+        while(forestProjection!=null&&CanPrepareForest)
+        {
+            if(forestProjection.Current is ResourceRequest request&&!request.isDone)break;
+            AdvanceForestProjection();
+        }
+    }
     void AdvanceForestProjection()
     {
         long trace=WorldGenPerformance.TraceBegin(),started=System.Diagnostics.Stopwatch.GetTimestamp();
@@ -543,7 +553,7 @@ public sealed partial class LocalTerrainExplorer
                 while(preparation.MoveNext())
                 {
                     if(added>0){forestRootTopologyRevision++;added=0;}
-                    yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();
+                    yield return preparation.Current;started=System.Diagnostics.Stopwatch.GetTimestamp();
                 }
             }
             var batch=ForestBatchFor(code,macro);
