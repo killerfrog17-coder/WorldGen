@@ -36,8 +36,7 @@ public sealed partial class LocalTerrainExplorer
         int count=0;
         foreach(var work in jobs)if(legacyLoader||!work.Task.IsCompleted)count++;
         foreach(var work in scatterJobs)if(legacyLoader||!work.Task.IsCompleted)count++;
-        activeForestGroups.Clear();
-        foreach(var work in forestJobs)if(!work.Task.IsCompleted&&(work.Group==null||activeForestGroups.Add(work.Group)))count++;
+        count+=ActiveForestWorkers;
         if(animalPlan!=null&&!animalPlan.IsCompleted)count++;
         return count;
     }}
@@ -221,7 +220,7 @@ public sealed partial class LocalTerrainExplorer
             int requested=0;
             foreach(var p in backdropOrder)
             {
-                if(ActiveWorkerCount>=WorkerLimit)return;
+                if((flightPriority&&pass==0?RunningWorkerCount:ActiveWorkerCount)>=WorkerLimit)return;
                 if(flightPriority&&((p.Key.SizeM>coarseBoundary)!=(pass==0)))continue;
                 if(tiles.ContainsKey(p.Key)||HasChartTerrainJob(p.Key)||!BackdropNeeded(p.Key,flightPriority&&pass==0))continue;
                 RequestTerrain(p.Key,(int)Math.Round(p.Key.SizeM/p.Value[0]),p.Value,backdrop:true);

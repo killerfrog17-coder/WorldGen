@@ -35,6 +35,10 @@ public sealed partial class LocalTerrainExplorer
     }
     sealed class ForestWork {public ForestPageKey Key;public Task<ForestPage> Task;public CancellationTokenSource Cancellation;public object Group;}
     readonly HashSet<object> activeForestGroups=new HashSet<object>();
+    int ActiveForestWorkers
+    {
+        get{activeForestGroups.Clear();int count=0;foreach(var work in forestJobs)if(!work.Task.IsCompleted&&(work.Group==null||activeForestGroups.Add(work.Group)))count++;return count;}
+    }
     bool CanPrepareForest=>!reserveScatterFrame&&!GroundPublicationPending&&frameUploadMs<detailOptions.UploadBudgetMs;
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
     readonly Dictionary<int,ForestBatch> forestBatches=new Dictionary<int,ForestBatch>();
@@ -95,7 +99,7 @@ public sealed partial class LocalTerrainExplorer
     readonly Dictionary<ForestPageKey,ForestRevealBounds> forestRevealBounds=new Dictionary<ForestPageKey,ForestRevealBounds>();
     // Terrain and vegetation use different world grids. Keep the dependency
     // with the terrain product, rather than pretending their keys coincide.
-    readonly Dictionary<TerrainTileKey,ForestPageKey[]> terrainForestPages=new Dictionary<TerrainTileKey,ForestPageKey[]>();
+    readonly Dictionary<(TerrainTileKey Key,bool Fallback),ForestPageKey[]> terrainForestPages=new Dictionary<(TerrainTileKey,bool),ForestPageKey[]>();
     readonly HashSet<ForestPageKey> terrainForestRequired=new HashSet<ForestPageKey>();
     struct ForestRevealBounds {public V Center;public double Radius;}
     bool TreesNeededForReveal=>ScatterEnabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDensity>0;
@@ -116,16 +120,17 @@ public sealed partial class LocalTerrainExplorer
         double distance=ForestGapDistance(key);
         return distance<ForestBillboardEnd?distance:double.PositiveInfinity;
     }
-    bool TerrainForestReady(TerrainTileKey key)
+    bool TerrainForestReady(TerrainTileKey key,bool fallback=false)
     {
         double altitude=Math.Max(0,HeightAboveGround);
         if(!ForestNeededForReveal||TerrainLod.DistanceSquared(key,motion.X,motion.Z)+altitude*altitude>=ForestBillboardEnd*ForestBillboardEnd)return true;
         if(!forestCoveragePlanned)return false;
-        if(!terrainForestPages.TryGetValue(key,out var pages))
+        var dependency=(key,fallback);
+        if(!terrainForestPages.TryGetValue(dependency,out var pages))
         {
             var overlaps=new List<ForestPageKey>();
             double left=key.X*key.SizeM,right=left+key.SizeM,bottom=key.Z*key.SizeM,top=bottom+key.SizeM;
-            foreach(var page in forestPriority)
+            foreach(var page in fallback?flightForestPriority:forestPriority)
             {
                 scatter.ForestBounds(page,out var center,out double radius);
                 double dot=V.Dot(center,frame.Origin);if(dot<=.01)continue;
@@ -135,7 +140,7 @@ public sealed partial class LocalTerrainExplorer
                 if(x+extent<left||x-extent>right||z+extent<bottom||z-extent>top)continue;
                 overlaps.Add(page);
             }
-            pages=overlaps.ToArray();terrainForestPages.Add(key,pages);
+            pages=overlaps.ToArray();terrainForestPages.Add(dependency,pages);
         }
         if(pages.Length==0)return false; // A stale plan is not a treeless census.
         bool ready=true;
@@ -246,7 +251,7 @@ public sealed partial class LocalTerrainExplorer
                 forestPriority=forestPlan.Result;forestWanted.Clear();foreach(var key in forestPriority)forestWanted.Add(key);forestNextRequest=0;forestMaintenanceDirty=true;
                 terrainForestPages.Clear();terrainForestRequired.Clear();
                 flightForestCoverage=motion.Flying&&HeightAboveGround>80;
-                flightForestPriority=flightForestCoverage?FlightForestParents(forestPriority):Array.Empty<ForestPageKey>();flightForestNext=0;
+                flightForestPriority=FlightForestParents(forestPriority);flightForestNext=0;
                 flightForestWanted.Clear();foreach(var key in flightForestPriority)flightForestWanted.Add(key);
                 forestCoveragePlanned=true;forestCoverageAt=forestPlanAt;forestCoverageRange=forestPlanRange;forestRevealBounds.Clear();fogCheckAt=0;
                 foreach(var work in forestJobs)if(!forestWanted.Contains(work.Key)&&!flightForestWanted.Contains(work.Key))work.Cancellation.Cancel();
@@ -305,7 +310,7 @@ public sealed partial class LocalTerrainExplorer
             // an entire object-upload frame for each of thousands of them.
             if(forestProjection!=null||++preparedPages>=16||metadataOnly&&++emptyInstalls>=8||frameUploadMs>=detailOptions.UploadBudgetMs)break;
         }
-        if(forestPlan==null&&forestMaintenanceDirty&&!GroundPublicationPending)
+        if(forestMaintenanceDirty&&!GroundPublicationPending)
         {
         long phase=WorldGenPerformance.TraceBegin();
         forestMaintenanceDirty=false;
@@ -338,7 +343,12 @@ public sealed partial class LocalTerrainExplorer
     {
         // Near ground retains priority. When forest coverage is the reveal
         // blocker, it also gets a turn before distant terrain fills every lane.
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||ActiveForestWorkers>=Math.Min(2,WorkerLimit)||forestJobs.Count>=32||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
+        foreach(var required in flightForestPriority)
+        {
+            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
+            RequestForest(required);return true;
+        }
         foreach(var required in forestPriority)
         {
             if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
@@ -372,7 +382,7 @@ public sealed partial class LocalTerrainExplorer
         // one-page-per-frame dispatch/installation ceiling could not keep up
         // with flight even when generation and model assets were already fast.
         var keys=new List<ForestPageKey>(8){key};
-        foreach(var next in forestPriority)
+        foreach(var next in key.Level>0?flightForestPriority:forestPriority)
         {
             if(keys.Count>=8)break;
             if(next.Equals(key)||forestFields.ContainsKey(next)||forestJobs.Any(j=>j.Key.Equals(next)))continue;
@@ -396,6 +406,11 @@ public sealed partial class LocalTerrainExplorer
             }
         });
     }
+    void CancelForestWorker(ForestWork work)
+    {
+        if(work.Group==null){work.Cancellation.Cancel();return;}
+        foreach(var member in forestJobs)if(ReferenceEquals(work.Group,member.Group))member.Cancellation.Cancel();
+    }
     ForestPageKey[] FlightForestParents(IEnumerable<ForestPageKey> leaves)
     {
         // Reuse the existing real-tree stand representation, not a second
@@ -405,7 +420,7 @@ public sealed partial class LocalTerrainExplorer
         var parents=new HashSet<ForestPageKey>();
         foreach(var leaf in leaves)
         {
-            if(leaf.Level>=level)continue;var key=leaf;
+            if(leaf.Level>=level){parents.Add(leaf);continue;}var key=leaf;
             while(key.Level<level)key=key.Parent;parents.Add(key);
         }
         return parents.OrderBy(ForestGapDistance).ToArray();

@@ -71,7 +71,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var pair in tiles)
             if(pair.Value.Root!=null&&pair.Value.Root.activeInHierarchy&&pair.Value.Heights!=null&&pair.Value.ResidentEdges?.Mesh!=null)
                 initialCoverageResidents.Add(pair.Key,pair.Value.Segments);
-        return TerrainHandoff.Ready(wanted,initialCoverageResidents,motion.X,motion.Z,0,coverageMasksReady:true,coverageRadius:viewDistance);
+        if(!TerrainHandoff.Ready(wanted,initialCoverageResidents,motion.X,motion.Z,0,coverageMasksReady:true,coverageRadius:viewDistance))return false;
+        // The first playable neighbourhood includes prepared exact trees.
+        // The rest of the view can use its complete coarse representation.
+        double localForest=Math.Min(600,viewDistance);
+        return !ForestNeededForReveal||TreeRevealDistance(localForest)>=localForest*.99;
     }
     void UpdateInitialCoverage()
     {
@@ -323,7 +327,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
             var job=jobs[i];if(!job.Task.IsCompleted)continue;
             // Keep a completed mesh private until its initial forest is ready.
             // A separate vegetation queue must not expose a barren replacement.
-            if(job.Task.IsCompletedSuccessfully&&WorkMatchesCurrent(job)&&!TerrainForestReady(job.Key))continue;
+            if(job.Task.IsCompletedSuccessfully&&WorkMatchesCurrent(job)&&!TerrainForestReady(job.Key,job.Backdrop))continue;
             jobs.RemoveAt(i);
             bool requestedCancel=job.Cancellation?.IsCancellationRequested??false;job.Cancellation?.Dispose();
             if(job.Task.IsFaulted)
@@ -380,10 +384,10 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         {
             var background=jobs.LastOrDefault(j=>j.Prepared==null&&!ImmediateTerrain(j.Key)&&!j.Task.IsCompleted);
             if(background!=null){if(background.Cancellation?.IsCancellationRequested==false)streamingPreempted++;background.Cancellation?.Cancel();}
-            else if(!coveredFlight||forestJobs.Count(j=>!j.Task.IsCompleted)+jobs.Count(j=>j.Prepared!=null&&!j.Task.IsCompleted)>=WorkerLimit)
+            else if(!coveredFlight||ActiveForestWorkers+jobs.Count(j=>j.Prepared!=null&&!j.Task.IsCompleted)>=WorkerLimit)
             {
                 var forest=forestJobs.LastOrDefault(j=>!j.Task.IsCompleted&&!j.Cancellation.IsCancellationRequested);
-                if(forest!=null)forest.Cancellation.Cancel();else jobs.LastOrDefault(j=>j.Prepared!=null&&!j.Task.IsCompleted)?.Cancellation?.Cancel();
+                if(forest!=null)CancelForestWorker(forest);else jobs.LastOrDefault(j=>j.Prepared!=null&&!j.Task.IsCompleted)?.Cancellation?.Cancel();
             }
         }
         bool handoffDue=preparedFrame!=null&&ReanchorDistance>=ReanchorLimit;
