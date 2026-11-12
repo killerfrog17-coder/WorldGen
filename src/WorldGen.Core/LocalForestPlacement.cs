@@ -187,11 +187,8 @@ namespace WorldGen.Core
                 double nx=Math.Min(cell,count-left),ny=Math.Min(cell,count-bottom);
                 double expectedTrees=CanopyTreeEstimate(key.Face,left,bottom,(int)nx,(int)ny,patches,ref probes,token,out var source);
                 if(expectedTrees<=0)continue;
-                uint hash=Rng.Mix(unchecked((uint)left*73856093u^(uint)bottom*19349663u^(uint)key.Face*83492791u));
-                double jx=.2+.6*((hash&65535)/65535.0),jy=.2+.6*((hash>>16)/65535.0);
-                int gx=(int)(left+nx*jx),gy=(int)(bottom+ny*jy);var p=ForestPosition(key.Face,gx,gy);
-                var region=terrain.Profile(terrain.NearestCell(p));var forest=region.Forest;
-                double cover=Math.Max(expectedTrees/(nx*ny),D.Clamp(forest.Coverage*TreeFlora.Stand(forest,p,seed,terrain.RadiusM*scale)));
+                int gx=(int)(left+nx*.5),gy=(int)(bottom+ny*.5);var p=ForestPosition(key.Face,gx,gy);
+                var region=terrain.Profile(terrain.NearestCell(p));
                 Basis(key.Face,out V normal,out V u,out V v);double dot=V.Dot(p,normal),a=V.Dot(p,u)/dot,b=V.Dot(p,v)/dot;
                 double spacing=TreeLatticeStep*Math.Min(nx,ny)/Math.Pow(1+a*a+b*b,.75);
                 var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);ulong id=address.Id(0,gy%TreeCandidateSide*TreeCandidateSide+gx%TreeCandidateSide);
@@ -201,7 +198,10 @@ namespace WorldGen.Core
                 // physical crown dimensions and transport the packet footprint
                 // separately; stretching a single tree across this span made
                 // kilometre-scale leaves and flattened horizon cutouts.
-                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=Math.Max(2,spacing*Math.Sqrt(cover)*1.12),CanopyTreeCount=expectedTrees,Population=0});
+                // The count already includes sparse habitat and stand gaps.
+                // Compressing its positions by coverage again packed foliage
+                // into clumps with large artificial bare spaces between them.
+                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=Math.Max(2,spacing),CanopyTreeCount=expectedTrees,Population=0});
             }
             return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=probes};
         }
