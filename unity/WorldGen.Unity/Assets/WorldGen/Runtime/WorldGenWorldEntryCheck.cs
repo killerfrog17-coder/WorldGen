@@ -31,6 +31,7 @@ public sealed partial class WorldGenRuntime
             if(worldEntryError.Length>0)Check(false,"entry task failed: "+worldEntryError);yield return null;
         }
         Check(terrainExplorer!=null&&terrainExplorer.Ready&&terrainExplorer.CenterReady,"random-land entry loads actual ground");
+        File.WriteAllText(Path.Combine(output,"worker-ready.txt"),terrainMeshProcess?.Diagnostics??"local sampler");
         Check(observedCoverageLoading&&terrainExplorer.InitialViewReady&&!terrainExplorer.Paused&&terrainExplorer.HasInitialViewCoverage(),"first playable view has actual surrounding coverage and releases loading pause");
         Check(entryCamera!=null&&entryCamera.cullingMask!=0,"first playable view restores the actual camera");
         Check(play.Identity==null&&play.Mode==GameMode.Creative&&terrainExplorer.IsWalking==false,"random-land entry uses Creative flight and no NPC identity");
