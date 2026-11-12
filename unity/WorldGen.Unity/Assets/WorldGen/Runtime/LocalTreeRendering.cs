@@ -85,6 +85,7 @@ public sealed partial class LocalTerrainExplorer
         quad.bounds=new Bounds(data.Center,Vector3.one*data.Radius*2.1f);
         var material=owner.TreeStand?new Material(Resources.Load<Shader>("WorldGenForest")):new Material(old.Material);
         if(owner.TreeStand){material.CopyPropertiesFromMaterial(old.Material);material.DisableKeyword("WORLDGEN_TREE_QUAD_ALPHA");}
+        if(owner.TreeCluster)material.EnableKeyword("WORLDGEN_FOREST_STAND_DEPTH");
         material.enableInstancing=true;material.name="Multi-view tree "+owner.TreeCode;
         material.SetFloat("_Impostor",1);material.SetFloat("_Wind",0);material.SetTexture("_TreeColourViews",data.Colour);material.SetTexture("_TreeNormalViews",data.Normal);
         material.SetVector("_ImpostorBounds",new Vector4(data.Center.x,data.Center.y,data.Center.z,data.Radius));

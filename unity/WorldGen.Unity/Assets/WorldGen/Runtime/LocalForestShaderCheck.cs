@@ -105,6 +105,61 @@ public sealed partial class LocalTerrainExplorer
             report+="tight quad max RGB delta "+quadDelta+", significant="+significant+", mean="+mean+"\n";material.SetFloat("_TreeTightQuad",1);
             report+=code+" pixels="+left+"/"+right+"\n";Destroy(image);Destroy(mesh);Destroy(colour);Destroy(normals);yield return null;
         }
+        // Isolate the prepared grove from population placement and terrain
+        // streaming: compare its card against the exact 36 authoring trees.
+        var prototype=LocalTreePrototype.Load(LocalTreePrototype.Codes[0]);
+        if(prototype==null||!prototype.StandValid)throw new Exception("Prepared stand fixture asset unavailable");
+        camera.transform.position=new Vector3(0,500,-2000);camera.transform.LookAt(new Vector3(0,8,0));camera.farClipPlane=10000;
+        planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
+        compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Ranges",new Vector4(0,1,10000,15));compute.SetInt("_RootCount",1);
+        flags.SetData(new[]{3});roots.SetData(new[]{new ForestRoot{Position=Vector3.zero,Width=80,Height=20,Padding=3,Tint=Vector3.one},default(ForestRoot)});
+        Shader.SetGlobalVector("_WorldGenForestDistanceRange",new Vector4(9000,10000,0,0));
+        material.SetTexture("_TreeColourViews",prototype.StandColour);material.SetTexture("_TreeNormalViews",prototype.StandNormal);
+        material.SetVector("_ImpostorBounds",new Vector4(prototype.StandCenter.x,prototype.StandCenter.y,prototype.StandCenter.z,prototype.StandRadius));
+        material.SetVector("_ImpostorExtents",new Vector4(prototype.StandExtents.x,prototype.StandExtents.y,prototype.StandExtents.z,4*prototype.StandRadius/LocalTreeImpostor.Size));props.SetFloat("_ForestMacro",2);
+        if(Count()!=1)throw new Exception("Prepared stand fixture root not admitted");
+        var groundMesh=new Mesh{name="Stand fixture ground"};groundMesh.vertices=new[]{new Vector3(-5000,0,-5000),new Vector3(-5000,0,5000),new Vector3(5000,0,-5000),new Vector3(5000,0,5000)};
+        groundMesh.triangles=new[]{0,1,2,2,1,3};groundMesh.normals=new[]{Vector3.up,Vector3.up,Vector3.up,Vector3.up};groundMesh.uv=new[]{Vector2.zero,Vector2.up,Vector2.right,Vector2.one};groundMesh.colors=new[]{Color.white,Color.white,Color.white,Color.white};groundMesh.RecalculateBounds();
+        var groundMaterial=new Material(Resources.Load<Shader>("WorldGenLocalScatter"));groundMaterial.SetColor("_BaseColor",new Color(.30f,.32f,.21f));groundMaterial.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));groundMaterial.SetFloat("_FogDistance",10000);
+        var ground=new GameObject("Stand fixture ground"){layer=30};ground.AddComponent<MeshFilter>().sharedMesh=groundMesh;var groundRenderer=ground.AddComponent<MeshRenderer>();groundRenderer.sharedMaterial=groundMaterial;groundRenderer.shadowCastingMode=ShadowCastingMode.Off;
+        // Keep this reconstruction equal to PrepareExport's deterministic grove.
+        // It is a diagnostic reference only, never a runtime forest path.
+        var standRandom=new Rng(prototype.Code,"prepared-tree-stand-1");var parts=new CombineInstance[36];
+        for(int z=0;z<6;z++)for(int x=0;x<6;x++)
+        {
+            float px=(float)(x-2.5+(standRandom.Unit()-.5)*.9)/LocalTreePrototype.StandSpan,pz=(float)(z-2.5+(standRandom.Unit()-.5)*.9)/LocalTreePrototype.StandSpan;
+            float cohort=(float)(.55+.45*standRandom.Unit()),width=cohort*(float)(.93+.14*standRandom.Unit());
+            parts[z*6+x]=new CombineInstance{mesh=prototype.Middle,transform=Matrix4x4.TRS(new Vector3(px,0,pz),Quaternion.Euler(0,(float)(standRandom.Unit()*360),0),new Vector3(width/LocalTreePrototype.StandSpan,cohort,width/LocalTreePrototype.StandSpan))};
+        }
+        var referenceMesh=new Mesh{name="Stand fixture 36-tree reference",indexFormat=IndexFormat.UInt32};referenceMesh.CombineMeshes(parts,true,true,false);referenceMesh.RecalculateBounds();
+        var referenceMaterial=new Material(Resources.Load<Material>("TreeSurfaceMaterial"));var standShape=new TreeMorphology(prototype.Code);
+        referenceMaterial.SetTexture("_TreeLeaves",leaves);referenceMaterial.SetTexture("_TreeLeafNormals",leafNormals);LocalTreeTextures.BindBark(referenceMaterial);
+        referenceMaterial.SetFloat("_TreeLeafShape",(int)standShape.LeafShape);referenceMaterial.SetFloat("_TreeBarkPattern",LocalTreeTextures.BarkLayer(standShape));referenceMaterial.SetFloat("_Wind",0);referenceMaterial.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));referenceMaterial.SetFloat("_FogDistance",10000);
+        var reference=new GameObject("Stand fixture 36-tree reference"){layer=30};reference.transform.localScale=new Vector3(80,20,80);reference.AddComponent<MeshFilter>().sharedMesh=referenceMesh;var referenceRenderer=reference.AddComponent<MeshRenderer>();referenceRenderer.sharedMaterial=referenceMaterial;referenceRenderer.shadowCastingMode=ShadowCastingMode.Off;reference.SetActive(false);
+        var standImage=new Texture2D(1280,720,TextureFormat.RGB24,false);
+        Color32[] ReadStandImage()
+        {
+            var previous=RenderTexture.active;RenderTexture.active=target;standImage.ReadPixels(new Rect(0,0,1280,720),0,0);standImage.Apply();RenderTexture.active=previous;return standImage.GetPixels32();
+        }
+        report+="Prepared stand "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), scale=(80,20,80), reference trees=36, bounds="+referenceMesh.bounds+"\n";
+        foreach(var fixture in new[]{(Name:"stand-flat-no-ground",Ground:false,Depth:false,Reference:false),(Name:"stand-flat-ground",Ground:true,Depth:false,Reference:false),(Name:"stand-depth-no-ground",Ground:false,Depth:true,Reference:false),(Name:"stand-depth-ground",Ground:true,Depth:true,Reference:false),(Name:"stand-reference-ground",Ground:true,Depth:false,Reference:true)})
+        {
+            reference.SetActive(false);ground.SetActive(fixture.Ground);
+            if(fixture.Depth)material.EnableKeyword("WORLDGEN_FOREST_STAND_DEPTH");else material.DisableKeyword("WORLDGEN_FOREST_STAND_DEPTH");
+            // Clear the previous frame's indirect submission before the baseline.
+            yield return null;
+            camera.Render();var baseline=ReadStandImage();
+            if(fixture.Reference)reference.SetActive(true);
+            else{var parameters=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(Vector3.zero,Vector3.one*500),matProps=props,shadowCastingMode=ShadowCastingMode.Off};Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,args,1);}
+            camera.Render();var pixels=ReadStandImage();int changed=0,minX=1280,maxX=-1,minY=720,maxY=-1;
+            for(int y=0;y<720;y++)for(int x=0;x<1280;x++){int i=y*1280+x;if(Math.Abs(pixels[i].r-baseline[i].r)+Math.Abs(pixels[i].g-baseline[i].g)+Math.Abs(pixels[i].b-baseline[i].b)>20){changed++;minX=Math.Min(minX,x);maxX=Math.Max(maxX,x);minY=Math.Min(minY,y);maxY=Math.Max(maxY,y);}}
+            File.WriteAllBytes(Path.Combine(output,fixture.Name+".png"),standImage.EncodeToPNG());
+            report+=fixture.Name+" visible pixels="+changed+", pixel bounds="+minX+","+minY+".."+maxX+","+maxY+"\n";
+            // Ground cases are diagnostic: burial is the suspected failure, so
+            // preserve their screenshots and counts instead of stopping early.
+            if(!fixture.Ground&&changed<10)throw new Exception("Prepared stand absent without terrain: "+fixture.Name+" pixels="+changed);
+        }
+        reference.SetActive(false);ground.SetActive(false);Destroy(standImage);Destroy(reference);Destroy(referenceMesh);Destroy(referenceMaterial);Destroy(ground);Destroy(groundMesh);Destroy(groundMaterial);
         roots.Dispose();visible.Dispose();args.Dispose();flags.Dispose();hash.Dispose();birth.Dispose();File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED FOREST SHADER PASS "+report);Application.Quit(0);
     }
 }

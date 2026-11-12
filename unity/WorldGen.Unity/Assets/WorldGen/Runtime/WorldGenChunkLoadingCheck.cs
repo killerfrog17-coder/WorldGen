@@ -195,6 +195,16 @@ public sealed partial class LocalTerrainExplorer
                     }
                     workRows.Add($"forest L{level.Key}: single={individual}, stand={stands}, rejectedStand={rejectedStands}, meanSingleWidth={width/Math.Max(1,anchors):F2}m, sourceTrees={level.Sum(f=>f.Source.Roots.Sum(r=>r.Population>0?1:r.CanopyTreeCount)):F0}");
                 }
+                if(audits==1)
+                {
+                    foreach(var batch in forestBatches.Values)if(batch.Args!=null&&batch.SubmittedFrame==Time.frameCount)
+                    {var draw=new uint[4];batch.Args.GetData(draw);workRows.Add($"GPU forest code={batch.Model.TreeCode:X8} stand={batch.Model.TreeCluster} macro={batch.Macro} visible={draw[1]}");}
+                    var hiddenGround=new List<Renderer>();
+                    foreach(var tile in tiles.Values)foreach(var renderer in tile.Root.GetComponentsInChildren<MeshRenderer>())
+                        if(renderer.enabled&&renderer.gameObject.name=="Land and seabed"){renderer.enabled=false;hiddenGround.Add(renderer);}
+                    try{Capture(Path.Combine(output,"forest-without-ground.png"));}
+                    finally{foreach(var renderer in hiddenGround)renderer.enabled=true;}
+                }
                 File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
                 var snapshot=new List<string>{"scope,x,z,level,scale,segments,coverageOnly,hasWater,contact,waterBoundsKnown,waterMinWorldX,waterMinWorldZ,waterMaxWorldX,waterMaxWorldZ",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R},,,,,,,,"};
                 void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries,Dictionary<TerrainTileKey,Tile> residents=null)
