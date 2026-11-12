@@ -625,6 +625,20 @@ public sealed partial class LocalTerrainExplorer
                 fallMotionPixels=pixels;
             }
             Destroy(image);RenderTexture.active=prior;
+            if(arguments.Contains("--worldgen-surface-diagnosis")&&site.Canyon!=null)
+            {
+                foreach(var pixel in new[]{new Vector2(.84f,.68f),new Vector2(.90f,.60f),new Vector2(.73f,.63f)})
+                {
+                    var ray=owner.view.ViewportPointToRay(new Vector3(pixel.x,pixel.y,0));
+                    for(float distance=4;distance<reviewRange;distance+=4)
+                    {
+                        var point=ray.GetPoint(distance);double x=point.x+owner.originX,z=point.z+owner.originZ;
+                        if(owner.VisibleGround(x,z,double.NegativeInfinity)<=point.y)continue;
+                        var resident=owner.VisibleGroundOwner(x,z,out var key);
+                        File.AppendAllText(Path.Combine(output,"surface-residents.txt"),name+" pixel="+pixel+" hit="+point+" distance="+distance+" key="+key.X+","+key.Z+","+key.Level+" step="+(key.SizeM/resident.Segments)+" coverageOnly="+resident.CoverageOnly+" fadeIn="+resident.FadeIn+"\n");break;
+                    }
+                }
+            }
             if(arguments.Contains("--worldgen-surface-diagnosis")&&site.Outcrop!=null)
             {
                 void RecordResidents(string phase)
