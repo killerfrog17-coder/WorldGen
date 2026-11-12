@@ -12,6 +12,11 @@ public sealed partial class LocalTerrainExplorer
         Directory.CreateDirectory(output);
         Application.logMessageReceived+=(message,trace,kind)=>{if(kind==LogType.Error||kind==LogType.Exception){File.WriteAllText(Path.Combine(output,"failure.txt"),message+"\n"+trace);Application.Quit(1);}};
         var arguments=Environment.GetCommandLineArgs();int seamProof=Array.IndexOf(arguments,"--worldgen-resident-seam-proof");
+        if(Array.IndexOf(arguments,"--worldgen-priority-order-proof")>=0)
+        {
+            try{CheckTerrainPriorityOrder(output);}finally{TerrainVideoOptions.HardChunkUpdates=savedHardSetting;}
+            Application.Quit(0);yield break;
+        }
         if(seamProof>=0){CheckRefinedResidentSeam(arguments[seamProof+1],output);TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);yield break;}
         var host=new GameObject("Coverage shader check");var explorer=host.AddComponent<LocalTerrainExplorer>();explorer.enabled=false;
         explorer.terrainRoot=host;
@@ -291,6 +296,31 @@ public sealed partial class LocalTerrainExplorer
         CheckPartialForestEdgeGround(output);CheckHiddenResidentRetirement(output);
         File.WriteAllText(Path.Combine(output,"coverage-shader.txt"),"PASS actual production shader: opaque binary finest coverage, cache restore/invalidation including identical-height no-op, upper/lower geometry morph at start/mid/end, oblique halfway-height references, pinned boundaries without perspective holes, near/hard final-geometry guards, prepared-leaf and ancestor-completion lifecycle, valid fallback publication, planned/unplanned backdrop handling, finer-child retention, paced retirement and owner-inert covered-parent removal.");
         TerrainVideoOptions.HardChunkUpdates=savedHardSetting;Application.Quit(0);
+    }
+    static void CheckTerrainPriorityOrder(string output)
+    {
+        var host=new GameObject("CPU-only terrain priority proof");var owner=host.AddComponent<LocalTerrainExplorer>();owner.enabled=false;
+        var receipts=new System.Collections.Generic.List<string>();
+        try
+        {
+            foreach(double scale in new[]{.1,1d})
+            {
+                owner.explorationSettings=new WorldGen.Core.PlaySettings{HorizontalScale=scale};owner.priority.Clear();
+                for(int z=-15;z<15;z++)for(int x=-30;x<30;x++)owner.priority.Add(new TerrainTileKey(x,z,(x+30+z+15)%6,scale));
+                for(int reversed=0;reversed<2;reversed++)
+                {
+                    if(reversed!=0)owner.priority.Reverse();var original=owner.priority.ToArray();
+                    double predictionX=owner.streamingPriorityX,predictionZ=owner.streamingPriorityZ;
+                    string proof=owner.PerformanceVerifyTerrainPrioritySort();
+                    if(owner.priority.Count!=original.Length)throw new Exception("Priority proof changed the caller's key count");
+                    for(int i=0;i<original.Length;i++)if(!owner.priority[i].Equals(original[i]))throw new Exception("Priority proof did not restore the original key order");
+                    if(!owner.streamingPriorityX.Equals(predictionX)||!owner.streamingPriorityZ.Equals(predictionZ))throw new Exception("Priority proof did not restore the prediction state");
+                    receipts.Add("scale="+scale+" reversed="+(reversed!=0)+" "+proof);
+                }
+            }
+            File.WriteAllText(Path.Combine(output,"priority-order.txt"),string.Join("\n",receipts)+"\nPASS CPU-only Mono priority proof: 1800 negative/mixed-level keys, two scales, original/reversed orders, all three policies and caller-state restoration; no shader/camera/draw setup.\n");
+        }
+        finally{Destroy(host);}
     }
     static void CheckRefinedResidentSeam(string fixture,string output)
     {
