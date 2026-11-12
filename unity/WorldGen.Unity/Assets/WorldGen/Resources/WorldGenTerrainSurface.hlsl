@@ -315,7 +315,12 @@ half4 ShadeTerrainSurface(O i,float distance,float3 farColor,float3 fogColor)
     // material textures retire; these few weights are NOT an 850m texture stack.
     float4 flora=float4(cover,0,0,cover);
     if(_FloraSurfaceEnabled>.5&&textures)flora=SAMPLE_TEXTURE2D(_FloraSurface,sampler_FloraSurface,i.coverageUV*(1-_FloraSurface_TexelSize.xy)+.5*_FloraSurface_TexelSize.xy);
-    float3 mix=max(0,float3(flora.a/.45,flora.g,flora.b/.45))*_GroundFlora;
+    // These channels already describe covered area. Expanding grass/lichen by
+    // 1/.45 made ordinary partial cover become fully opaque, then normalization
+    // clipped the interpolated field into flat green islands with visible rims.
+    // Keep the physical area fractions so soil/litter remains visible between
+    // plants and transitions stay as gradual as the ecological field itself.
+    float3 mix=max(0,float3(flora.a,flora.g,flora.b))*_GroundFlora;
     // Low plants/moss can coexist with litter. The old full-opacity green mat
     // erased every soil texture under a canopy even when stems were sparse.
     mix*=1-floorWeight*float3(.85,.25,.35);
