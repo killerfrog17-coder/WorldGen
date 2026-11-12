@@ -46,6 +46,7 @@ public sealed partial class LocalTerrainExplorer
     bool RestoreTerrain(TerrainTileKey key,int segments,double[] edges)
     {
         if(GroundPublicationPending)return false;
+        if(!TerrainForestReady(key))return false;
         if(!CanInstall||!TerrainProducts.Take(new TerrainProductKey(key,segments,edges,false),out var tile))return false;
         // Reused products need the same atomic root/terrain publication as a
         // freshly built product. They remain disabled until preparation ends.

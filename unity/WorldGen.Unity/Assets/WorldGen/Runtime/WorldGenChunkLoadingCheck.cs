@@ -28,6 +28,31 @@ public sealed partial class LocalTerrainExplorer
             if(Error!="")throw new InvalidOperationException(Error);
             if(Ready&&walkingPatch!=null&&!viewed)
             {TestView(3,20,5);TestWeatherOverride=new WeatherFrame(22,.6,0,0,.15,.05,1800,500,Math.Max(7000,viewDistance*1.5),2,1,3,0);PlayerRules.SetLocalSolarHour(12,Math.Atan2(Position.Y,Position.X)*180/Math.PI);nextDaylightAt=0;SetDaylight(12,190000);viewed=true;}
+            if(CenterReady&&!milestones.ContainsKey("firstGround"))
+            {
+                milestones["firstGround"]=elapsed;
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry"))
+                {
+                    yield return new WaitForEndOfFrame();
+                    Capture(Path.Combine(output,"first-ground-and-forest.png"));
+                    int grounded=0,localFallback=0;uint submitted=0;
+                    foreach(var field in forestFields.Values)foreach(var pair in field.Roots)foreach(int slot in pair.Value)
+                    {
+                        var root=pair.Key.Data[slot];
+                        if(root.Padding<0||Vector3.Distance(root.Position,new Vector3((float)motion.X,(float)motion.Y,(float)motion.Z))>300)continue;
+                        grounded++;if((forestFlags[field.Id]&2)!=0)localFallback++;
+                    }
+                    foreach(var batch in forestBatches.Values)if(batch.Args!=null&&batch.SubmittedFrame==Time.frameCount)
+                    {var args=new uint[4];batch.Args.GetData(args);submitted+=args[1];}
+                    File.WriteAllText(Path.Combine(output,"first-forest.txt"),"seconds="+elapsed+" groundedRootsWithin300m="+grounded+" localFallbackRoots="+localFallback+" submittedForestInstances="+submitted+" pendingModelBakes="+PendingTreeModels+"\n"+PerformanceForestState);
+                    if(walkingPatch.ForestPotential(Position)>.2&&(grounded==0||submitted==0))throw new InvalidOperationException("First forested ground appeared without grounded, submitted trees");
+                    // Start travelling immediately: never wait for the entire
+                    // view, local scatter or maximum terrain detail to settle.
+                    yield return CheckChunkFastFlight(output);
+                    File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS first-ground forest submission and cold fast flight\n");
+                    Close();Application.Quit(0);yield break;
+                }
+            }
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
             foreach(double radius in radii)
             {
@@ -194,6 +219,8 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
         File.WriteAllText(Path.Combine(output,"fast-flight.txt"),(fixedSpeed>0?fixedSpeed+" m/s":"200 then 600 m/s")+" forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; frames missing forward resident ground="+missingForwardFrames+"; max missing forward probes="+maxMissingForward+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; max handoff ms="+LargestHandoffMs+" "+LargestHandoffProfile+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
+        if(flightArguments.Contains("--worldgen-chunk-forest-entry")&&missingFrames>0)
+            throw new InvalidOperationException("Cold forest flight lost resident ground beneath the player in "+missingFrames+" frames");
     }
     int CheckFlightGroundPixels(string path,bool overhead=true)
     {

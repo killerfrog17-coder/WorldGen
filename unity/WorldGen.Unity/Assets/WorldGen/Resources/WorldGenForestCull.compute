@@ -17,12 +17,14 @@ int Present(int x,int z,int level,uint face)
 [numthreads(64,1,1)]
 void Cull(uint3 tid:SV_DispatchThreadID)
 {
-    uint at=tid.x;if(at>=_RootCount)return;Root root=_Roots[at];if(root.height<=0||root.padding<0||_Fields[root.field&65535u]==0)return;
+    uint at=tid.x;if(at>=_RootCount)return;Root root=_Roots[at];int fieldFlags=_Fields[root.field&65535u];if(root.height<=0||root.padding<0||(fieldFlags&1)==0)return;
     if(_Chart.w<1&&(root.face>>8)/16777216.0>=_Chart.w)return;
     float3 p=root.position-_Chart.xyz+float3(0,root.height*.5,0);
     float span=max(root.width,abs(root.padding));
     float radius=max(span,root.height)*1.8+span*length(float2(root.slopeX,root.slopeZ))*1.5;
-    float distance=length(p-_Eye);if(distance+radius<_Ranges.x||distance-radius>_Ranges.z)return;
+    // Exact prepared trees cover the near view until its local mesh census is
+    // installed. The terrain must never appear with an empty inner forest ring.
+    float distance=length(p-_Eye);if(((fieldFlags&2)==0&&distance+radius<_Ranges.x)||distance-radius>_Ranges.z)return;
     [unroll]for(int plane=0;plane<6;plane++)if(dot(_Planes[plane].xyz,p)+_Planes[plane].w< -radius)return;
     uint level=root.field>>16;
     // Finest READY forest field owns each root, independently of terrain

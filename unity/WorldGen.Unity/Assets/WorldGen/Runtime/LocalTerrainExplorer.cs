@@ -302,6 +302,7 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(!mapOpen){PollTerrainDetail();RefreshStreamingPrediction();}
         WorldGenPerformance.TraceEnd(34,planningTrace);
         AdvanceGroundPublication();
+        terrainForestRequired.Clear();
         long installTrace=WorldGenPerformance.TraceBegin();
         // Completed nearby products precede cache-only/hidden background work.
         terrainJobPriorityComparison??=(a,b)=>{double Score(Work w)
@@ -319,7 +320,11 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         for(int i=jobs.Count-1;i>=0;i--)
         {
             if(!CanInstall)break;
-            var job=jobs[i];if(!job.Task.IsCompleted)continue;jobs.RemoveAt(i);
+            var job=jobs[i];if(!job.Task.IsCompleted)continue;
+            // Keep a completed mesh private until its initial forest is ready.
+            // A separate vegetation queue must not expose a barren replacement.
+            if(job.Task.IsCompletedSuccessfully&&WorkMatchesCurrent(job)&&!TerrainForestReady(job.Key))continue;
+            jobs.RemoveAt(i);
             bool requestedCancel=job.Cancellation?.IsCancellationRequested??false;job.Cancellation?.Dispose();
             if(job.Task.IsFaulted)
             {
@@ -385,6 +390,8 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         // Resident ground permits bounded outward coverage before refinement.
         // Missing horizon and finer fallbacks have separate worker allowances.
         long priorTerrainRequests=TerrainBuildRequests;
+        // Complete the area's first visual representation before refinements.
+        if(terrainForestRequired.Count>0)ScheduleForestWork();
         if(coveredFlight)ScheduleBackdrop(flightPriority:true);
         ScheduleCurrentTerrain(nearOnly:true);
         if(!NearTerrainPending())

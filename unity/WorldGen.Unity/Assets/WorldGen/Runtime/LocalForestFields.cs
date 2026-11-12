@@ -81,16 +81,20 @@ public sealed partial class LocalTerrainExplorer
     readonly float[] forestBirth=new float[8192];GraphicsBuffer forestBirthBuffer;
     void MarkForestBirth(ForestField field)
     {
-        if(field.Source.Key.Level!=0||forestBirth[field.Id]!=0)return;
+        if(field.Source.Key.Level!=0||forestBirth[field.Id]!=0||(forestFlags[field.Id]&2)!=0)return;
         var parent=field.Source.Key.Parent;
         for(int level=1;level<=15;level++,parent=parent.Parent)
             if(forestFields.TryGetValue(parent,out var coarse)&&coarse.RenderReady){forestBirth[field.Id]=Time.realtimeSinceStartup;coarse.RetireAfter=Time.realtimeSinceStartup+.7f;}
     }
-    ComputeShader forestCull;bool forestHashDirty;LocalTerrainFrame forestFrame;V forestPlanAt;double forestPlanRange=-1,forestPlanAltitude=-1,nextForestVisibility;int forestGroundRevision=-1,forestCoverageRevision=-1;
+    ComputeShader forestCull;bool forestHashDirty;LocalTerrainFrame forestFrame;V forestPlanAt;double forestPlanRange=-1,forestPlanAltitude=-1,nextForestVisibility;int forestGroundRevision=-1,forestCoverageRevision=-1,forestLocalRevision=-1;
     readonly Vector4[] forestPlanes=new Vector4[6];readonly Plane[] forestPlaneWork=new Plane[6];Vector3 forestVisibilityEye=new Vector3(float.NaN,0,0);
     ForestCoverageFootprint forestFootprint;int forestFootprintEpoch=-1;
     bool forestCoveragePlanned,forestUnavailable;V forestCoverageAt;double forestCoverageRange,forestRetryAt;
     readonly Dictionary<ForestPageKey,ForestRevealBounds> forestRevealBounds=new Dictionary<ForestPageKey,ForestRevealBounds>();
+    // Terrain and vegetation use different world grids. Keep the dependency
+    // with the terrain product, rather than pretending their keys coincide.
+    readonly Dictionary<TerrainTileKey,ForestPageKey[]> terrainForestPages=new Dictionary<TerrainTileKey,ForestPageKey[]>();
+    readonly HashSet<ForestPageKey> terrainForestRequired=new HashSet<ForestPageKey>();
     struct ForestRevealBounds {public V Center;public double Radius;}
     bool TreesNeededForReveal=>ScatterEnabled&&TerrainVideoOptions.GeneratedTrees&&TerrainVideoOptions.TreeDensity>0;
     bool ForestNeededForReveal=>TreesNeededForReveal&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&TerrainVideoOptions.FarForest&&SystemInfo.supportsComputeShaders&&!forestUnavailable;
@@ -110,6 +114,40 @@ public sealed partial class LocalTerrainExplorer
         double distance=ForestGapDistance(key);
         return distance<ForestBillboardEnd?distance:double.PositiveInfinity;
     }
+    bool TerrainForestReady(TerrainTileKey key)
+    {
+        double altitude=Math.Max(0,HeightAboveGround);
+        if(!ForestNeededForReveal||TerrainLod.DistanceSquared(key,motion.X,motion.Z)+altitude*altitude>=ForestBillboardEnd*ForestBillboardEnd)return true;
+        if(!forestCoveragePlanned)return false;
+        if(!terrainForestPages.TryGetValue(key,out var pages))
+        {
+            var overlaps=new List<ForestPageKey>();
+            double left=key.X*key.SizeM,right=left+key.SizeM,bottom=key.Z*key.SizeM,top=bottom+key.SizeM;
+            foreach(var page in forestPriority)
+            {
+                scatter.ForestBounds(page,out var center,out double radius);
+                double dot=V.Dot(center,frame.Origin);if(dot<=.01)continue;
+                double x=V.Dot(center,frame.East)*frame.RadiusM/dot,z=V.Dot(center,frame.North)*frame.RadiusM/dot;
+                // Conservative gnomonic projection of the spherical page bound.
+                double extent=radius/(dot*dot)+1;
+                if(x+extent<left||x-extent>right||z+extent<bottom||z-extent>top)continue;
+                overlaps.Add(page);
+            }
+            pages=overlaps.ToArray();terrainForestPages.Add(key,pages);
+        }
+        if(pages.Length==0)return false; // A stale plan is not a treeless census.
+        bool ready=true;
+        foreach(var page in pages)
+        {
+            // Root records and their shared prototypes may be prepared while
+            // terrain is hidden. Ungrounded records have negative Padding and
+            // cannot draw. Terrain publication grounds them before this frame's
+            // vegetation submission, so no barren intermediate frame is needed.
+            if(forestFields.TryGetValue(page,out var field)&&field.Ready)continue;
+            terrainForestRequired.Add(page);ready=false;
+        }
+        return ready;
+    }
     double TreeRevealDistance(double limit)
     {
         if(!TreesNeededForReveal)return limit;
@@ -117,6 +155,7 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in scatterRevealBounds)
         {
             if(scatterChunks.TryGetValue(pair.Key,out var ready)&&(!ScatterNeedsTrees(pair.Key)||ready.TreesIncluded))continue;
+            if(ForestNeededForReveal&&ForestCoversScatter(pair.Key))continue;
             double distance=Math.Max(0,(pair.Value.Center-Position).Length*frame.RadiusM-pair.Value.Radius);
             if(distance<localRange)gap=Math.Min(gap,distance);
         }
@@ -137,6 +176,13 @@ public sealed partial class LocalTerrainExplorer
         }
         return Math.Min(readyLimit,gap*.94);
     }
+    bool ForestCoversScatter(ScatterKey key)
+    {
+        int pages=LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide;
+        for(int y=0;y<pages;y++)for(int x=0;x<pages;x++)
+            if(!forestFields.TryGetValue(new ForestPageKey(key.Face,key.X*pages+x,key.Y*pages+y,0),out var field)||!field.RenderReady)return false;
+        return true;
+    }
     public int ForestFieldCount=>forestFields.Count;
     public int ForestPacketCount=>forestRootCount;
     public int ForestDrawCalls {get;private set;}
@@ -152,9 +198,9 @@ public sealed partial class LocalTerrainExplorer
     static uint ForestKeyHash(int x,int z,int level,int face=0)=>ForestMix(unchecked((uint)x*73856093u^(uint)z*19349663u^(uint)level*83492791u^(uint)face*15485863u));
     ArtModel ForestArt(int code,bool macro=false)
     {
-        code=macro?TreeFlora.RenderCode(code):TreeFlora.ModelCode(code,0);long key=ScatterArtKey(ScatterKind.GeneratedTree,code,2)|(1L<<49);
+        code=LocalTreePrototype.PrototypeCode(code);long key=ScatterArtKey(ScatterKind.GeneratedTree,code,2)|(1L<<49);
         if(scatterArt.TryGetValue(key,out var model))return model;
-        model=CreateRebuiltTree(key,code,2);model.TreeStand=true;return model;
+        model=CreateRebuiltTree(key,code,2,true);return model;
     }
     bool ForestOwnsTree(in ScatterInstance tree)
     {
@@ -174,13 +220,14 @@ public sealed partial class LocalTerrainExplorer
     }
     void UpdateForestFields()
     {
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||!CenterReady)return;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready)return;
         if(!SystemInfo.supportsComputeShaders)return;
         if(forestUnavailable)return;
         if(forestCull==null){forestCull=Resources.Load<ComputeShader>("WorldGenForestCull");if(forestCull==null){forestUnavailable=true;Debug.LogWarning("Forest compute shader missing; using local tree coverage.");return;}forestFlagBuffer=new GraphicsBuffer(GraphicsBuffer.Target.Structured,forestFlags.Length,4);forestBirthBuffer=new GraphicsBuffer(GraphicsBuffer.Target.Structured,forestBirth.Length,4);}
         foreach(var batch in forestBatches.Values)batch.Model.LastUsed=Time.realtimeSinceStartupAsDouble;
         if(!ReferenceEquals(forestFrame,frame))
         {
+            terrainForestPages.Clear();terrainForestRequired.Clear();
             long phase=WorldGenPerformance.TraceBegin();
             // Reproject immutable planet-addressed payloads; never reseed a forest
             // because its terrain chart was replaced.
@@ -195,6 +242,7 @@ public sealed partial class LocalTerrainExplorer
             if(forestPlan.IsCompletedSuccessfully)
             {
                 forestPriority=forestPlan.Result;forestWanted.Clear();foreach(var key in forestPriority)forestWanted.Add(key);forestNextRequest=0;forestMaintenanceDirty=true;
+                terrainForestPages.Clear();terrainForestRequired.Clear();
                 flightForestCoverage=motion.Flying&&HeightAboveGround>80;
                 flightForestPriority=flightForestCoverage?FlightForestParents(forestPriority):Array.Empty<ForestPageKey>();flightForestNext=0;
                 flightForestWanted.Clear();foreach(var key in flightForestPriority)flightForestWanted.Add(key);
@@ -289,7 +337,12 @@ public sealed partial class LocalTerrainExplorer
     {
         // Near ground retains priority. When forest coverage is the reveal
         // blocker, it also gets a turn before distant terrain fills every lane.
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||!CenterReady||forestCull==null||!coveredFlight&&NearTerrainPending()||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
+        foreach(var required in forestPriority)
+        {
+            if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
+            RequestForest(required);return true;
+        }
         while(flightForestNext<flightForestPriority.Length||forestNextRequest<forestPriority.Length)
         {
             // Merge the two existing queues instead of draining every flight
@@ -308,10 +361,14 @@ public sealed partial class LocalTerrainExplorer
                 coverage=near>LegacyForestReach+64&&ForestGapDistance(flightForestPriority[flightForestNext])<near;
             }
             var key=coverage?flightForestPriority[flightForestNext++]:forestPriority[forestNextRequest++];
-            var source=scatter;var producer=meshProcess;var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
-            forestJobs.Add(new ForestWork{Key=key,Cancellation=stop,Task=Task.Run(()=>producer==null?source.BuildForest(key,token):producer.Forest(key,token),token)});return true;
+            RequestForest(key);return true;
         }
         return false;
+    }
+    void RequestForest(ForestPageKey key)
+    {
+        var source=scatter;var producer=meshProcess;var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
+        forestJobs.Add(new ForestWork{Key=key,Cancellation=stop,Task=Task.Run(()=>producer==null?source.BuildForest(key,token):producer.Forest(key,token),token)});
     }
     ForestPageKey[] FlightForestParents(IEnumerable<ForestPageKey> leaves)
     {
@@ -383,7 +440,7 @@ public sealed partial class LocalTerrainExplorer
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         foreach(var source in page.Roots)
         {
-            var tree=source.Tree;bool macro=source.Population==0;int code=macro?TreeFlora.RenderCode(tree.Variant):TreeFlora.ModelCode(tree.Variant,0),batchCode=code|(macro?int.MinValue:0);
+            var tree=source.Tree;bool macro=source.Population==0;int code=LocalTreePrototype.PrototypeCode(tree.Variant),batchCode=code|(macro?int.MinValue:0);
             if(!forestBatches.TryGetValue(batchCode,out var batch)){batch=new ForestBatch{Model=ForestArt(code,macro),Macro=macro,Pigment=new TreeMorphology(code).Leaf};forestBatches.Add(batchCode,batch);}
             double dot=Math.Max(.1,V.Dot(tree.Position,frame.Origin)),px=V.Dot(tree.Position,frame.East)*frame.RadiusM/dot,pz=V.Dot(tree.Position,frame.North)*frame.RadiusM/dot;
             float height=(float)frame.SurfaceY(tree.Position,tree.GroundM);
@@ -563,15 +620,23 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalVector("_WorldGenForestDistanceRange",new Vector4((float)ForestBillboardStart,(float)ForestBillboardEnd,0,0));
         ForestDrawCalls=0;if(TerrainDiagnostics.HidePlants||TerrainDiagnostics.HideTrees||WorldGenPerformance.SuppressFarForest||!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||forestCull==null||forestFlagBuffer==null||view==null||forestFields.Count==0)return;
         PrepareForestHash();var eye=view.transform.localPosition;
-        if(Time.realtimeSinceStartupAsDouble>=nextForestVisibility&&(!eye.Equals(forestVisibilityEye)||float.IsNaN(forestVisibilityEye.x)||nextForestVisibility==0||forestGroundRevision!=residentRevision||forestCoverageRevision!=coverVisibilityRevision))
+        if(canopySourceRevision!=forestLocalRevision||Time.realtimeSinceStartupAsDouble>=nextForestVisibility&&(!eye.Equals(forestVisibilityEye)||float.IsNaN(forestVisibilityEye.x)||nextForestVisibility==0||forestGroundRevision!=residentRevision||forestCoverageRevision!=coverVisibilityRevision))
         {
-            nextForestVisibility=Time.realtimeSinceStartupAsDouble+.20;forestVisibilityEye=eye;forestGroundRevision=residentRevision;forestCoverageRevision=coverVisibilityRevision;
+            nextForestVisibility=Time.realtimeSinceStartupAsDouble+.20;forestVisibilityEye=eye;forestGroundRevision=residentRevision;forestCoverageRevision=coverVisibilityRevision;forestLocalRevision=canopySourceRevision;
             foreach(var field in forestFields.Values)
             {
                 // Empty ready pages still own/suppress coarser coverage in the
                 // hash. They have no draw records and need no hill queries.
                 if(field.Source.Roots.Length==0){forestFlags[field.Id]=0;continue;}
-                var bounds=field.Bounds;bounds.center-=new Vector3((float)originX,0,(float)originZ);bounds.Expand(12+(bounds.center-eye).magnitude*.04f);forestFlags[field.Id]=field.Ready&&!TerrainOccluded(bounds,eye)?1:0;
+                var bounds=field.Bounds;bounds.center-=new Vector3((float)originX,0,(float)originZ);bounds.Expand(12+(bounds.center-eye).magnitude*.04f);
+                int flags=field.Ready&&!TerrainOccluded(bounds,eye)?1:0;
+                if(flags!=0&&field.Source.Key.Level==0)
+                {
+                    var page=field.Source.Key;int pagesPerChunk=LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide;
+                    var local=new ScatterKey(page.Face,page.X/pagesPerChunk,page.Y/pagesPerChunk);
+                    if(!scatterChunks.TryGetValue(local,out var chunk)||!chunk.TreesIncluded||chunk.Groups==null||!ReferenceEquals(chunk.GroupsFrame,frame))flags|=2;
+                }
+                forestFlags[field.Id]=flags;
             }
             forestFlagBuffer.SetData(forestFlags);forestRevision++;
         }
@@ -598,6 +663,7 @@ public sealed partial class LocalTerrainExplorer
             }
             var props=batch.Properties;props.SetFloat("_ForestMacro",batch.Macro?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
             props.SetBuffer("_ForestBirth",forestBirthBuffer);props.SetBuffer("_Tiles",forestHashBuffer);props.SetFloat("_ForestClock",Time.realtimeSinceStartup);props.SetInt("_ForestHashMask",forestHashMask);
+            props.SetBuffer("_Fields",forestFlagBuffer);
             var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)ForestPlanningRange*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
             Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,batch.Args,1);batch.SubmittedFrame=Time.frameCount;ForestDrawCalls++;
         }
@@ -624,5 +690,6 @@ public sealed partial class LocalTerrainExplorer
         forestBirthBuffer?.Dispose();forestBirthBuffer=null;Array.Clear(forestBirth,0,forestBirth.Length);
         forestOwnershipEpoch++;forestOwnership.Clear();
         forestFootprint=null;forestFootprintEpoch=-1;forestCoveragePlanned=false;forestRevealBounds.Clear();forestUnavailable=false;forestRetryAt=0;
+        terrainForestPages.Clear();terrainForestRequired.Clear();
     }
 }

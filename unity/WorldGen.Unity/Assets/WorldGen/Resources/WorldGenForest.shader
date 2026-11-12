@@ -24,7 +24,7 @@ Shader "WorldGen/ForestPackets"
             #include "WorldGenTreeViews.hlsl"
             struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
             StructuredBuffer<Root> _Roots;StructuredBuffer<uint> _Visible;
-            StructuredBuffer<int4> _Tiles;StructuredBuffer<float> _ForestBirth;float _ForestClock;uint _ForestHashMask;
+            StructuredBuffer<int4> _Tiles;StructuredBuffer<int> _Fields;StructuredBuffer<float> _ForestBirth;float _ForestClock;uint _ForestHashMask;
             uint CanopyMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
             float ForestFade(Root root)
             {
@@ -36,9 +36,9 @@ Shader "WorldGen/ForestPackets"
                 return 1;
             }
             float4 _ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor,_ForestChart,_ForestRange,_WorldGenForestDistanceRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad,_ForestMacro;
-            float ForestDistanceWeight(float distance)
+            float ForestDistanceWeight(float distance,Root root)
             {
-                float nearWeight=smoothstep(_ForestRange.x,_ForestRange.y,distance);
+                float nearWeight=(_Fields[root.field&65535u]&2)!=0?1:smoothstep(_ForestRange.x,_ForestRange.y,distance);
                 float end=_WorldGenForestDistanceRange.y;
                 return nearWeight*(end>0?1-smoothstep(_WorldGenForestDistanceRange.x,max(end,_WorldGenForestDistanceRange.x+.001),distance):1);
             }
@@ -80,7 +80,7 @@ Shader "WorldGen/ForestPackets"
                 Root root=_Roots[i.root];float distance=length(root.position-_ForestChart.xyz-_WorldSpaceCameraPos);
                 // Complement the exact-tree interval [0,1-weight], rather than
                 // drawing the same screen-door pixels twice and leaving holes.
-                float weight=ForestDistanceWeight(distance);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
+                float weight=ForestDistanceWeight(distance,root);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
                 float fade=ForestFade(root),dither=WorldGenDither(i.positionCS.xy+float2(17,31));clip(root.padding>1.5?dither-(1-fade):fade-dither);
                 half4 color;half3 objectNormal;ForestSurface(i,_TreeEarlyAlpha>.5,color,objectNormal);clip(color.a-_TreeViewCutoff);
                 half3 albedo=color.rgb*SRGBToLinear(root.tint);
@@ -92,7 +92,7 @@ Shader "WorldGen/ForestPackets"
             half4 depthFrag(O i):SV_Target
             {
                 Root root=_Roots[i.root];float distance=length(root.position-_ForestChart.xyz-_WorldSpaceCameraPos);
-                float weight=ForestDistanceWeight(distance);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
+                float weight=ForestDistanceWeight(distance,root);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
                 float fade=ForestFade(root),dither=WorldGenDither(i.positionCS.xy+float2(17,31));clip(root.padding>1.5?dither-(1-fade):fade-dither);
                 half4 color;half3 normal;ForestSurface(i,false,color,normal);clip(color.a-_TreeViewCutoff);return 0;
             }
