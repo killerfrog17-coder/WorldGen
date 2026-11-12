@@ -420,7 +420,7 @@ public sealed partial class LocalTerrainExplorer
         =>artSet==null||artSet.Scatter==null?null:Array.Find(artSet.Scatter,b=>b!=null&&b.Kind==kind);
     ArtModel Art(ScatterKind kind,int variant,int lod)
     {
-        if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
+        if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=LocalTreePrototype.PrototypeCode(variant);
         long key=ScatterArtKey(kind,variant,lod);if(scatterArt.TryGetValue(key,out var found)){found.LastUsed=Time.realtimeSinceStartupAsDouble;return found;}
         if(kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)return CreateRebuiltTree(key,variant,lod);
         var binding=kind==ScatterKind.Outcrop&&CliffRocks.Is(variant)?null:FindScatterBinding(kind);
@@ -597,7 +597,7 @@ public sealed partial class LocalTerrainExplorer
                 ReleaseTreeTextures(item.Value);
                 foreach(var part in item.Value.Parts)
                 {
-                    ownedScatterMeshes.Remove(part.Mesh);Destroy(part.Mesh);
+                    if(ownedScatterMeshes.Remove(part.Mesh))Destroy(part.Mesh);
                     if(scatterArt.Any(other=>other.Key!=item.Key&&other.Value.Parts.Any(p=>p.Material==part.Material)))continue;
                     ownedScatterMaterials.Remove(part.Material);Destroy(part.Material);
                     foreach(var key in treeMaterials.Where(p=>p.Value==part.Material).Select(p=>p.Key).ToArray())treeMaterials.Remove(key);
@@ -730,7 +730,7 @@ public sealed partial class LocalTerrainExplorer
         bool sharedReed=reed&&lod==2&&!WorldGenPerformance.LegacyReedFar;
         int reedSpecies=variant;
         if(sharedReed)variant=(int)MidGrowthForm.ReedStand<<27;
-        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=TreeFlora.ModelCode(variant,TerrainVideoOptions.TreeImpostors?lod:Math.Min(1,lod));
+        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild)variant=LocalTreePrototype.PrototypeCode(variant);
         // Shadow eligibility varies with distance even within one model/LOD.
         // The old key inherited the first member's shadow mode for the entire
         // batch, making harmless group reordering change other objects' shadows.
@@ -761,7 +761,7 @@ public sealed partial class LocalTerrainExplorer
         {var actual=ReedFarPigment(reedSpecies);var shared=ReedFarPigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/shared.X),(float)(p.Color.Y*actual.Y/shared.Y),(float)(p.Color.Z*actual.Z/shared.Z),1);}
         // Pigment ignores the three individual structural-variant bits. The
         // current anatomical LOD models preserve all remaining pigment bits.
-        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2&&(p.Variant&~7)!=(variant&~7))
+        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&(p.Variant&~7)!=(variant&~7))
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.SourceIds[batch.Count]=p.Id;batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }

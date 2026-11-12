@@ -84,6 +84,8 @@ def inventory():
     for directory in ['unity/WorldGen.Unity/Assets/WorldGen/Editor/TreeSurfaceArtV1','unity/WorldGen.Unity/Assets/WorldGen/Resources/TreeSurfaceArtV1']:
         tree(directory,'tree-runtime-art',{'.png','.asset','.bytes','.meta'})
         add(directory+'.meta','tree-runtime-art')
+    tree('unity/WorldGen.Unity/Assets/WorldGen/Resources/TreePrototypesV1','tree-runtime-art',{'.asset','.meta'})
+    add('unity/WorldGen.Unity/Assets/WorldGen/Resources/TreePrototypesV1.meta','tree-runtime-art')
     tree('assets-source/humans/motion/npc','human-npc-source',{'.f32','.json','.txt'})
     tree('assets/human-motion-npc','human-npc-source',{'.fbx','.json'})
     for hair in ['ponytail01','short02']:
