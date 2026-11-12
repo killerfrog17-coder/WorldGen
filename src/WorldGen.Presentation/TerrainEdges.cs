@@ -104,7 +104,7 @@ namespace WorldGen.Presentation
             {long along=(long)Math.Round(offset/unit);Corner(span.Edge<2?tx+(span.Edge==1?ts:0):tx+along,span.Edge<2?tz+along:tz+(span.Edge==3?ts:0));}
             return Pack(tile,spans,new PackingScratch(),tile.SizeM/leaves[tile],corners);
         }
-        sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();}
+        sealed class Line{public readonly List<Side> Low=new List<Side>(),High=new List<Side>();public readonly List<long> HighPrefixEnd=new List<long>();}
         public static Dictionary<TerrainTileKey,double[]> Build(IReadOnlyDictionary<TerrainTileKey,int> leaves)=>new Workspace().Build(leaves);
 
         // One serial caller owns a workspace. Only intermediate neighbour lists
@@ -143,17 +143,27 @@ namespace WorldGen.Presentation
                 {
                     var line=entry.Value;
                     line.High.Sort((a,b)=>a.Start.CompareTo(b.Start));
-                    foreach(var a in line.Low)foreach(var b in line.High)
+                    line.HighPrefixEnd.Clear();long maximumEnd=long.MinValue;
+                    foreach(var b in line.High){maximumEnd=Math.Max(maximumEnd,b.End);line.HighPrefixEnd.Add(maximumEnd);}
+                    foreach(var a in line.Low)
                     {
-                        if(b.Start>=a.End)break;
-                        if(Math.Max(a.Start,b.Start)<Math.Min(a.End,b.End))
+                        // Skip only a prefix whose every interval ends before
+                        // this start. Nested/overlapping intervals retain the
+                        // original remaining order and exact intersection test.
+                        int first=0,last=line.HighPrefixEnd.Count;
+                        while(first<last){int middle=first+(last-first)/2;if(line.HighPrefixEnd[middle]<=a.Start)first=middle+1;else last=middle;}
+                        for(int i=first;i<line.High.Count;i++)
                         {
-                            long lo=Math.Max(a.Start,b.Start),hi=Math.Min(a.End,b.End);double unit=TerrainLod.BaseSizeM*a.Tile.Scale;
-                            spans[a.Tile].Add(new Span{Edge=a.Index,Start=(lo-a.Start)*unit,End=(hi-a.Start)*unit,Step=b.Step});
-                            spans[b.Tile].Add(new Span{Edge=b.Index,Start=(lo-b.Start)*unit,End=(hi-b.Start)*unit,Step=a.Step});
-                            double radius=Math.Max(a.Step,b.Step);
-                            Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:lo,verticalEdge?lo:entry.Key.Item2,radius);
-                            Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:hi,verticalEdge?hi:entry.Key.Item2,radius);
+                            var b=line.High[i];if(b.Start>=a.End)break;
+                            if(Math.Max(a.Start,b.Start)<Math.Min(a.End,b.End))
+                            {
+                                long lo=Math.Max(a.Start,b.Start),hi=Math.Min(a.End,b.End);double unit=TerrainLod.BaseSizeM*a.Tile.Scale;
+                                spans[a.Tile].Add(new Span{Edge=a.Index,Start=(lo-a.Start)*unit,End=(hi-a.Start)*unit,Step=b.Step});
+                                spans[b.Tile].Add(new Span{Edge=b.Index,Start=(lo-b.Start)*unit,End=(hi-b.Start)*unit,Step=a.Step});
+                                double radius=Math.Max(a.Step,b.Step);
+                                Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:lo,verticalEdge?lo:entry.Key.Item2,radius);
+                                Corner(entry.Key.Item1,verticalEdge?entry.Key.Item2:hi,verticalEdge?hi:entry.Key.Item2,radius);
+                            }
                         }
                     }
                 }

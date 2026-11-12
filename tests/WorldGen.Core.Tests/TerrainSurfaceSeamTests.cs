@@ -51,6 +51,28 @@ static class TerrainSurfaceSeamTests
                 Check(TerrainEdges.SurfaceAt(records,edge,at).Equals(OriginalSurfaceAt(records,edge,at)),
                     $"Single-pass surface radius preserves interval/corner evaluation: edge{edge}, position{at:R}");
         }
+        // Dense shared lines include nested parents on both sides, so sorted
+        // starts do not imply sorted ends. Compare with the literal old scan.
+        double[] Geometry(double[] records)
+        {
+            var result=records.Take(4).ToList();
+            for(int i=4;i<records.Length;i+=4)if(records[i+1]!=records[i+2])for(int j=0;j<4;j++)result.Add(records[i+j]);
+            return result.ToArray();
+        }
+        var edgeWorkspace=new TerrainEdges.Workspace();
+        foreach(double scale in new[]{.1,.3})
+        {
+            var dense=new Dictionary<TerrainTileKey,int>();
+            for(int z=-48;z<48;z++)for(int x=-1;x<=0;x++)dense.Add(new TerrainTileKey(x,z,0,scale),8<<((z+48+x+1)%4));
+            for(int level=1;level<=4;level++)for(int z=-2;z<=1;z++)for(int x=-1;x<=0;x++)dense.Add(new TerrainTileKey(x,z,level,scale),8<<((level+z+2)%4));
+            foreach(var plan in new[]{dense,dense.Reverse().ToDictionary(p=>p.Key,p=>p.Value)})
+            {
+                var expected=TerrainEdgesReference.Build(plan);var actual=edgeWorkspace.Build(plan);
+                foreach(var item in expected)Check(Geometry(actual[item.Key]).SequenceEqual(item.Value),
+                    "Dense mixed/nested edge lines preserve literal matching and interval order");
+                edgeWorkspace.Build(new Dictionary<TerrainTileKey,int>());
+            }
+        }
         var world=path==null?null:WorldFile.ReadFile(path);
         if(world==null)
         {
