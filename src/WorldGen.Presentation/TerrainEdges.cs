@@ -60,10 +60,19 @@ namespace WorldGen.Presentation
         }
         public static double SurfaceAt(double[] edges,int edge,double localMetres)
         {
-            double radius=At(edges,edge,localMetres);
-            for(int i=4;i<edges.Length;i+=4)if((int)edges[i]==edge&&edges[i+1]==edges[i+2]
-                &&Math.Abs(localMetres-edges[i+1])<=Math.Max(1e-8,Math.Abs(edges[i+1])*1e-10))radius=Math.Max(radius,edges[i+3]);
-            return radius;
+            bool sliced=false;double spacing=0,corner=double.NegativeInfinity;
+            for(int i=4;i<edges.Length;i+=4)
+            {
+                if((int)edges[i]!=edge)continue;
+                double start=edges[i+1],end=edges[i+2];
+                if(start!=end)
+                {
+                    sliced=true;double epsilon=Math.Max(1e-8,Math.Abs(end)*1e-10);
+                    if(localMetres>=start-epsilon&&localMetres<=end+epsilon)spacing=Math.Max(spacing,edges[i+3]);
+                }
+                else if(Math.Abs(localMetres-start)<=Math.Max(1e-8,Math.Abs(start)*1e-10))corner=Math.Max(corner,edges[i+3]);
+            }
+            return Math.Max(sliced?spacing:edges[edge],corner);
         }
         public static void Validate(double[] edges)
         {

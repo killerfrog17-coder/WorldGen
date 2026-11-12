@@ -24,6 +24,33 @@ static class TerrainSurfaceSeamTests
     public static void Run(string path,bool canyon=false)
     {
         int checks=0;void Check(bool ok,string why){checks++;if(!ok)throw new Exception(why);}
+        // Compare the fused scan against the original interval pass followed
+        // by its independent point/corner pass, including uncovered gaps.
+        double OriginalSurfaceAt(double[] records,int edge,double at)
+        {
+            double radius=TerrainEdges.At(records,edge,at);
+            for(int i=4;i<records.Length;i+=4)if((int)records[i]==edge&&records[i+1]==records[i+2]
+                &&Math.Abs(at-records[i+1])<=Math.Max(1e-8,Math.Abs(records[i+1])*1e-10))radius=Math.Max(radius,records[i+3]);
+            return radius;
+        }
+        var mixedRecords=new[]{
+            new[]{64d,32,16,8},
+            new[]{64d,32,16,8,0,10,10,128,1,20,20,96},
+            new[]{128d,64,32,16,0,30,30,96,1,0,20,4,0,0,10,8,2,1000000,1000000,64,0,20,40,16,0,10,30,4,0,40,40,2,1,20,40,8}
+        };
+        foreach(var records in mixedRecords)
+        {
+            TerrainEdges.Validate(records);
+            var positions=new List<double>{-1,0,5,15,19,25,35,50,999999,1000001};
+            for(int i=4;i<records.Length;i+=4)foreach(double endpoint in new[]{records[i+1],records[i+2]})
+            {
+                double epsilon=Math.Max(1e-8,Math.Abs(endpoint)*1e-10);
+                foreach(double offset in new[]{-2*epsilon,-epsilon,0,epsilon,2*epsilon})positions.Add(endpoint+offset);
+            }
+            foreach(double at in positions)for(int edge=0;edge<4;edge++)
+                Check(TerrainEdges.SurfaceAt(records,edge,at).Equals(OriginalSurfaceAt(records,edge,at)),
+                    $"Single-pass surface radius preserves interval/corner evaluation: edge{edge}, position{at:R}");
+        }
         var world=path==null?null:WorldFile.ReadFile(path);
         if(world==null)
         {
