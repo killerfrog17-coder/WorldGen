@@ -209,7 +209,7 @@ public sealed partial class LocalTerrainExplorer
         if(closed||frame==null)return;
         if(!ReferenceEquals(edgeFrame,frame)){ClearResidentEdges();edgeFrame=frame;}
         if(edgeRevision==residentRevision)return;
-        long started=System.Diagnostics.Stopwatch.GetTimestamp();edgeChanged.Clear();edgeAffected.Clear();edgeOwners.Clear();
+        long started=System.Diagnostics.Stopwatch.GetTimestamp(),phase=WorldGenPerformance.TraceBegin();edgeChanged.Clear();edgeAffected.Clear();edgeOwners.Clear();
         foreach(var pair in edgeObservedTiles)
         {
             if(!tiles.TryGetValue(pair.Key,out var next))
@@ -232,8 +232,10 @@ public sealed partial class LocalTerrainExplorer
         // then sample an ancestor's actual current triangles at an interior
         // coverage cut, instead of assuming that cut is its outer grid edge.
         edgeAffected.Sort((a,b)=>{int order=ResidentMaximumStep(b.Key,b.Value).CompareTo(ResidentMaximumStep(a.Key,a.Value));return order!=0?order:ResidentOrder(a.Key,b.Key);});
+        WorldGenPerformance.TraceEnd(59,phase);phase=WorldGenPerformance.TraceBegin();
         foreach(var pair in edgeAffected)RestoreResidentEdge(pair.Value);
         foreach(var pair in edgeAffected)FitResidentEdge(pair.Key,pair.Value);
+        WorldGenPerformance.TraceEnd(60,phase);phase=WorldGenPerformance.TraceBegin();
         residentEdgeResidualIntervals=0;residentEdgeResidualM=0;
         bool split=false;
         foreach(var pair in edgeAffected)
@@ -247,9 +249,11 @@ public sealed partial class LocalTerrainExplorer
             residentEdgeResidualIntervals=0;residentEdgeResidualM=0;
             foreach(var pair in edgeAffected)MissingResidentEdgeKnots(pair.Key,pair.Value,false);
         }
+        WorldGenPerformance.TraceEnd(61,phase);phase=WorldGenPerformance.TraceBegin();
         foreach(var pair in edgeAffected)PublishResidentEdge(pair.Key,pair.Value);
         FitPreviousResidentEdges();
         edgeObservedTiles.Clear();foreach(var pair in tiles)edgeObservedTiles.Add(pair.Key,pair.Value);
+        WorldGenPerformance.TraceEnd(62,phase);
         edgeRevision=residentRevision;residentEdgeFrameMs=residentEdgeLastMs=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000.0/System.Diagnostics.Stopwatch.Frequency;residentEdgeMaxMs=Math.Max(residentEdgeMaxMs,residentEdgeLastMs);
     }
     void FitPreviousResidentEdges()
