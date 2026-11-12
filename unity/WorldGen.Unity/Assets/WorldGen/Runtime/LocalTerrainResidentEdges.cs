@@ -241,7 +241,12 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in edgeAffected)
         {
             var cuts=MissingResidentEdgeKnots(pair.Key,pair.Value,true);
-            if(cuts!=null&&SplitResidentLandBoundary(pair.Key,pair.Value,cuts))split=true;
+            if(cuts!=null)
+            {
+                long splitStarted=WorldGenPerformance.TraceBegin();
+                if(SplitResidentLandBoundary(pair.Key,pair.Value,cuts))split=true;
+                WorldGenPerformance.TraceEnd(63,splitStarted);
+            }
         }
         if(split)
         {

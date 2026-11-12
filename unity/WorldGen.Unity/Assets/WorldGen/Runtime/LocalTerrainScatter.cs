@@ -759,7 +759,9 @@ public sealed partial class LocalTerrainExplorer
         batch.Colors[batch.Count]=new Vector4((float)p.Color.X,(float)p.Color.Y,(float)p.Color.Z,1);
         if(sharedReed)
         {var actual=ReedFarPigment(reedSpecies);var shared=ReedFarPigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/shared.X),(float)(p.Color.Y*actual.Y/shared.Y),(float)(p.Color.Z*actual.Z/shared.Z),1);}
-        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2)
+        // Pigment ignores the three individual structural-variant bits. The
+        // current anatomical LOD models preserve all remaining pigment bits.
+        if(p.Kind==ScatterKind.GeneratedTree&&TerrainVideoOptions.TreeRebuild&&TerrainVideoOptions.TreeImpostors&&lod==2&&(p.Variant&~7)!=(variant&~7))
         {var actual=TreePigment(p.Variant);var shared=TreePigment(variant);batch.Colors[batch.Count]=new Vector4((float)(p.Color.X*actual.X/Math.Max(.01,shared.X)),(float)(p.Color.Y*actual.Y/Math.Max(.01,shared.Y)),(float)(p.Color.Z*actual.Z/Math.Max(.01,shared.Z)),1);}
         batch.SourceIds[batch.Count]=p.Id;batch.Fades[batch.Count]=new Vector4(low,high,0,0);batch.Count++;
     }

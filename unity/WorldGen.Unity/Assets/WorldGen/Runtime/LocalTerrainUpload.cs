@@ -142,10 +142,13 @@ public sealed partial class LocalTerrainExplorer
         double size=key.SizeM;
         int[] Edge(int a,int b)
         {
+            // Interior triangle edges cannot contain a perimeter union knot.
+            // Reject them before the shared-edge dictionary and vertex reads.
+            int mask=boundaryMasks[a]&boundaryMasks[b];
+            int side=(mask&1)!=0?0:(mask&2)!=0?1:(mask&4)!=0?2:(mask&8)!=0?3:-1;
+            if(side<0||cuts[side]==null||cuts[side].Count==0)return Array.Empty<int>();
             int low=Math.Min(a,b),high=Math.Max(a,b);if(inserted.TryGetValue((low,high),out var existing))return existing;
             var pa=vertices[low].Position;var pb=vertices[high].Position;
-            int mask=boundaryMasks[low]&boundaryMasks[high],side=(mask&1)!=0?0:(mask&2)!=0?1:(mask&4)!=0?2:(mask&8)!=0?3:-1;
-            if(side<0||cuts[side]==null||cuts[side].Count==0)return Array.Empty<int>();
             bool vertical=side<2;double from=vertical?pa.z:pa.x,to=vertical?pb.z:pb.x;
             double first=Math.Min(from,to),last=Math.Max(from,to);var added=new System.Collections.Generic.List<int>();
             foreach(double cut in cuts[side])
