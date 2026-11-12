@@ -71,9 +71,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         foreach(var pair in tiles)
             if(pair.Value.Root!=null&&pair.Value.Root.activeInHierarchy&&pair.Value.Heights!=null&&pair.Value.ResidentEdges?.Mesh!=null)
                 initialCoverageResidents.Add(pair.Key,pair.Value.Segments);
-        if(!TerrainHandoff.Ready(wanted,initialCoverageResidents,motion.X,motion.Z,0,coverageMasksReady:true,coverageRadius:viewDistance))return false;
+        // Vegetation follows resident ground. Revealing a coarse preview here
+        // would move the same trees again as its planned surface arrived.
+        double finalGroundRange=ForestNeededForReveal?ForestPlanningRange:0;
+        if(DetailPlanning||!TerrainHandoff.Ready(wanted,initialCoverageResidents,motion.X,motion.Z,finalGroundRange,coverageMasksReady:true,coverageRadius:viewDistance))return false;
         // The first playable neighbourhood includes prepared exact trees.
-        // The rest of the view can use its complete coarse representation.
+        // Beyond the vegetation band, a complete coarse horizon is sufficient.
         double localForest=Math.Min(600,viewDistance);
         return !ForestNeededForReveal||TreeRevealDistance(localForest)>=localForest*.99;
     }
