@@ -633,7 +633,7 @@ public sealed partial class LocalTerrainExplorer
                     {
                         double x=site.Outcrop.RadiusM*fraction,z=0;
                         var resident=owner.VisibleGroundOwner(x,z,out var key);
-                        string state=resident==null?"MISSING":"key="+key+" segments="+resident.Segments+" step="+(key.SizeM/resident.Segments)+" coverageOnly="+resident.CoverageOnly+" active="+resident.Root.activeInHierarchy+" fadeIn="+resident.FadeIn+" morphAge="+(Time.time-resident.FadeIn)+" contact="+(resident.Contact!=null);
+                        string state=resident==null?"MISSING":"key="+key.X+","+key.Z+","+key.Level+" segments="+resident.Segments+" step="+(key.SizeM/resident.Segments)+" coverageOnly="+resident.CoverageOnly+" active="+resident.Root.activeInHierarchy+" fadeIn="+resident.FadeIn+" morphAge="+(Time.time-resident.FadeIn)+" contact="+(resident.Contact!=null);
                         File.AppendAllText(Path.Combine(output,"surface-residents.txt"),name+" "+phase+" x="+x+" z="+z+" "+state+" jobs="+owner.jobs.Count+"\n");
                     }
                 }
