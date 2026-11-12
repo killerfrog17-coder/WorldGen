@@ -245,6 +245,17 @@ namespace WorldGen.Presentation
                     double sz=(heights[at-normalStride*halo]-heights[at+normalStride*halo])/(2*normalRadius);
                     vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
                 }
+                else if(terrain.Amplification!=null&&step<=64)
+                {
+                    // Average the transverse slope as well as the axial one.
+                    // The existing one-cell halo already holds these diagonals;
+                    // narrow steep bands otherwise light as alternating teeth.
+                    double sx=(heights[at-halo-1]+2*heights[at-1]+heights[at+halo-1]
+                        -heights[at-halo+1]-2*heights[at+1]-heights[at+halo+1])/(8*step);
+                    double sz=(heights[at-halo-1]+2*heights[at-halo]+heights[at-halo+1]
+                        -heights[at+halo-1]-2*heights[at+halo]-heights[at+halo+1])/(8*step);
+                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
+                }
                 if(timing!=null)timing.MaterialSamples++;
                 TerrainSurfaceVertex.Write(mesh,i,vertex,vertex,0);
             }
@@ -286,6 +297,13 @@ namespace WorldGen.Presentation
                     double radius=h*Math.Ceiling(HyperAmplification.FinestSpacingM/h);
                     double sx=(ShadingHeight(x-radius,z)-ShadingHeight(x+radius,z))/(2*radius);
                     double sz=(ShadingHeight(x,z-radius)-ShadingHeight(x,z+radius))/(2*radius);
+                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
+                }
+                else if(terrain.Amplification!=null&&h<=64)
+                {
+                    double nw=Height(x-h,z-h),ne=Height(x+h,z-h),sw=Height(x-h,z+h),se=Height(x+h,z+h);
+                    double sx=(nw+2*Height(x-h,z)+sw-ne-2*Height(x+h,z)-se)/(8*h);
+                    double sz=(nw+2*Height(x,z-h)+ne-sw-2*Height(x,z+h)-se)/(8*h);
                     vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
                 }
                 return vertex;
