@@ -1,0 +1,2 @@
+dense-tropicalrainforest travel-whip-current focused_frames=3838 unfocused_frames=0
+dense-temperateforest travel-whip-current focused_frames=3303 unfocused_frames=0

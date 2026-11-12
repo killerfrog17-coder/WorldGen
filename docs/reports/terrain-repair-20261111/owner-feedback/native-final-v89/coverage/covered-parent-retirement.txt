@@ -1,0 +1,1 @@
+PASS: 81 negative-coordinate owner/height probes, including outer edge/corner incident positions, remain identical after a fully covered parent is removed. With a missing quadrant the proof fails and the real neighbouring ResidentTarget changes from 1000 to 2000; heightless placeholders cannot satisfy coverage.

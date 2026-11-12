@@ -1,0 +1,1 @@
+PASS: edge-cell notification produces the same forest positions, owner levels, upright poses and bounds as literal full reprojection; changed roots move, unchanged interior remains untouched, coarse ancestors preserve finer-owned roots, and whole-tile invalidation cannot be narrowed.

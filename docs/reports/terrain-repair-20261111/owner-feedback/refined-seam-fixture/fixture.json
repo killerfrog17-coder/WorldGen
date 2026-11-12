@@ -1,0 +1,123 @@
+{
+  "SourceWorld": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-surfaces-20261107\\playable.world",
+  "SourceCell": 5439,
+  "RecipeSeed": 73421,
+  "RecipeDetail": 200000,
+  "Cells": 200000,
+  "StageHash": "f20c364e568b5944d7e5745bb5f3a65aa8dd2011859098a5a7afc195b441705c",
+  "TerrainVersion": "local-terrain-continuous-valley-121",
+  "PresentationAssembly": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-repair-20261111\\coverage-equivalence\\bin\\Release\\net10.0\\WorldGen.Presentation.dll",
+  "PresentationSha256": "95D744AE6918436C7877E7501B601CADBE7AC451B724A1D164E7A432D5836241",
+  "Frame": {
+    "Origin": [
+      -0.324739592,
+      -0.027492073,
+      -0.94540382
+    ],
+    "East": [
+      0.084357068,
+      -0.996435589,
+      0
+    ],
+    "North": [
+      -0.942034014,
+      -0.079751494,
+      0.325901238
+    ],
+    "RadiusM": 637100,
+    "AltitudeM": 0,
+    "HorizontalScale": 0.1
+  },
+  "Meshes": [
+    {
+      "File": "0.mesh",
+      "X": 0,
+      "Z": -1,
+      "Level": 1,
+      "Scale": 0.1,
+      "Segments": 32,
+      "Edges": [
+        12.8,
+        0,
+        0,
+        0,
+        0,
+        0,
+        102.4,
+        12.8,
+        0,
+        102.4,
+        204.8,
+        3.2,
+        0,
+        0,
+        0,
+        12.8,
+        0,
+        102.4,
+        102.4,
+        12.8
+      ]
+    },
+    {
+      "File": "1.mesh",
+      "X": -1,
+      "Z": -1,
+      "Level": 0,
+      "Scale": 0.1,
+      "Segments": 32,
+      "Edges": [
+        0,
+        6.4,
+        12.8,
+        0,
+        0,
+        0,
+        0,
+        12.8,
+        1,
+        0,
+        0,
+        12.8,
+        1,
+        102.4,
+        102.4,
+        6.4,
+        2,
+        0,
+        0,
+        12.8,
+        2,
+        102.4,
+        102.4,
+        12.8
+      ]
+    },
+    {
+      "File": "2.mesh",
+      "X": -1,
+      "Z": -2,
+      "Level": 0,
+      "Scale": 0.1,
+      "Segments": 8,
+      "Edges": [
+        0,
+        6.4,
+        0,
+        3.2
+      ]
+    }
+  ],
+  "BeforeMaximumGapM": 0.113494873046875,
+  "GapPoint": {
+    "X": 0,
+    "Z": -3.2,
+    "Mesh": 1,
+    "Vertex": 1055,
+    "RegularEdgeK": 31,
+    "Used": true,
+    "ActualY": 421.32428,
+    "ExpectedCoarseY": 421.2107849121094
+  },
+  "Diagnostic": "C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-repair-20261111\\refined-seam-fixture-v1-diagnostic.json"
+}

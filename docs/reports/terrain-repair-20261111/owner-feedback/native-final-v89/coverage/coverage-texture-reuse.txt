@@ -1,0 +1,1 @@
+PASS 10240 literal/reused native float components including shrink/grow, zero padding, empty uploads and 4 same-sized object reuses.

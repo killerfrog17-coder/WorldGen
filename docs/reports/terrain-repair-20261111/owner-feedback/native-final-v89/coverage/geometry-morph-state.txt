@@ -1,0 +1,110 @@
+Actual shader morph fixture state before/after each manual camera render.
+geometry-reference-midpoint before frame=54868 time=3.21890664 levelTime=3.21890664 realtime=3.4263289014739229 delta=0.00244779629
+tileIn=0.116458893 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(0.116458893, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.2164588, -0.07479623, -0.9971988, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 2, 0) uv0=(2, 1)
+v1=(2, 2, 0) uv0=(2, 1)
+v2=(0, 2, 2) uv0=(2, 1)
+v3=(2, 2, 2) uv0=(2, 1)
+geometry-reference-midpoint after frame=54868 time=3.21890664 levelTime=3.21890664 realtime=3.4311049014739234 delta=0.00244779629
+tileIn=0.116458893 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(0.116458893, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.21890664, -0.07723699, -0.997012734, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 2, 0) uv0=(2, 1)
+v1=(2, 2, 0) uv0=(2, 1)
+v2=(0, 2, 2) uv0=(2, 1)
+v3=(2, 2, 2) uv0=(2, 1)
+geometry-lower-midpoint before frame=54869 time=3.227242 levelTime=3.227242 realtime=3.432312401473923 delta=0.008335502
+tileIn=1.71890664 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(1.71890664, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.21890664, -0.07723699, -0.997012734, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 0, 0) uv0=(4, 1)
+v1=(2, 0, 0) uv0=(4, 1)
+v2=(0, 0, 2) uv0=(4, 1)
+v3=(2, 0, 2) uv0=(4, 1)
+geometry-lower-midpoint after frame=54869 time=3.227242 levelTime=3.227242 realtime=3.4344692014739229 delta=0.008335502
+tileIn=1.71890664 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(1.71890664, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.227242, -0.08554466, -0.9963343, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 0, 0) uv0=(4, 1)
+v1=(2, 0, 0) uv0=(4, 1)
+v2=(0, 0, 2) uv0=(4, 1)
+v3=(2, 0, 2) uv0=(4, 1)
+geometry-upper-midpoint before frame=54870 time=3.22997785 levelTime=3.22997785 realtime=3.4350272014739236 delta=0.00273579941
+tileIn=1.727242 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(1.727242, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.227242, -0.08554466, -0.9963343, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 4, 0) uv0=(0, 1)
+v1=(2, 4, 0) uv0=(0, 1)
+v2=(0, 4, 2) uv0=(0, 1)
+v3=(2, 4, 2) uv0=(0, 1)
+geometry-upper-midpoint after frame=54870 time=3.22997785 levelTime=3.22997785 realtime=3.437160101473923 delta=0.00273579941
+tileIn=1.727242 material=8020:256 expectedMaterial=8020:256 shader=WorldGen/LocalTerrain active=True propertyBlock=False
+LodFade=(1.727242, 0, 0, 0) transition=1 safety=0 residentCount=0
+global_Time=(0, 0, 0, 0) global_TimeParameters=(3.22997785, -0.08827016, -0.996096551, 0) camera=(1, 7, -5)
+mesh=8019:256 vertices=4 uv=4
+attribute=Position format=Float32 dimension=3 stream=0
+attribute=Normal format=Float32 dimension=3 stream=0
+attribute=Color format=Float32 dimension=4 stream=0
+attribute=TexCoord0 format=Float32 dimension=2 stream=0
+attribute=TexCoord1 format=Float32 dimension=4 stream=0
+attribute=TexCoord2 format=Float32 dimension=4 stream=0
+attribute=TexCoord3 format=Float32 dimension=1 stream=0
+attribute=TexCoord4 format=Float32 dimension=4 stream=0
+attribute=TexCoord5 format=Float32 dimension=2 stream=0
+v0=(0, 4, 0) uv0=(0, 1)
+v1=(2, 4, 0) uv0=(0, 1)
+v2=(0, 4, 2) uv0=(0, 1)
+v3=(2, 4, 2) uv0=(0, 1)
+pixel mean Y reference/lower/upper=75/74.5/75

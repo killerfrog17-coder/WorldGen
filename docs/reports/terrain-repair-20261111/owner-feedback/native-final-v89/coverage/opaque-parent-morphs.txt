@@ -1,0 +1,1 @@
+PASS: prepared leaf stamps survive single-mesh publication without outgoing draws; an arriving child finishes its ancestor before exposing an interior cut, child stamps remain independent, and ancestor replacements with existing children snap.

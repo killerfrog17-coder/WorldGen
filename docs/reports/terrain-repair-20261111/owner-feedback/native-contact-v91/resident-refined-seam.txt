@@ -1,0 +1,2 @@
+PASS actual3-mesh used-vertex fixture; raw gap=0.1134948296240168m; raw fine/coarse=421.32428/421.21078495553223; shared used points=32; fitted maximum gap=1.5229808923322707E-05m; contact maximum=0m; published bit-exact RFloat components=139; actual material/count bindings verified.
+resident edge conformances=1 vertices=5 knot unions=0 inserted=0 unresolved refined intervals=0 residual m=0.000 hidden retirements=0 outgoing draws/publications=0/0 last/max ms=13.42/13.42

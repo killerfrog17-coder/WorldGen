@@ -1,0 +1,47 @@
+﻿{
+    "AssemblySha256":  "ffb3f2b5a15ebe7ede25f942ca639e7ca3ebcaeeda976d99aa44019de6e11afa",
+    "CoreSha256":  "2548dd8504e727ef6821e79118e1a58313742c048160d033980ec48f10fb756d",
+    "WorkerSha256":  "7254efa1d0cb94472c05c28cf20672d2d71652bbb329ec0fb0153a280b2cec7f",
+    "Build":  {
+                  "BuiltUtc":  "2026-11-12T02:55:52.9713101Z",
+                  "SourceCommit":  "44f01a5c8c2221d50e69a0fe6b2b82c569362418",
+                  "SourceChanges":  [
+                                        "?? assets/verification/terrain-feedback-20261111.json"
+                                    ],
+                  "Backend":  "Mono",
+                  "Development":  false,
+                  "ScriptsOnly":  true,
+                  "Inputs":  [
+                                 {
+                                     "Assembly":  "WorldGen.Core",
+                                     "Path":  "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Core.dll",
+                                     "Sha256":  "2548dd8504e727ef6821e79118e1a58313742c048160d033980ec48f10fb756d"
+                                 },
+                                 {
+                                     "Assembly":  "WorldGen.Serialization",
+                                     "Path":  "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Serialization.dll",
+                                     "Sha256":  "9e935b0ad066603e53d62f8ecd7a909dc1346a22f472529fe25d6aa6c5102052"
+                                 },
+                                 {
+                                     "Assembly":  "WorldGen.Presentation",
+                                     "Path":  "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\WorldGen.Presentation.dll",
+                                     "Sha256":  "92782695a5236e33a4008b41a4474b25a5804b8f21eb0c1de2cabd8e762c777b"
+                                 },
+                                 {
+                                     "Assembly":  "DelaunatorSharp",
+                                     "Path":  "C:\\Users\\kille\\Desktop\\WorldGen\\unity\\WorldGen.Unity\\Assets\\Plugins\\WorldGen\\DelaunatorSharp.dll",
+                                     "Sha256":  "7ec621c554d7dc696dd7638b5eed835ea973548f18e478961d3692563689389e"
+                                 }
+                             ],
+                  "TerrainWorkerSha256":  "7254efa1d0cb94472c05c28cf20672d2d71652bbb329ec0fb0153a280b2cec7f"
+              },
+    "RequestedSwapChain":  "Default",
+    "NativeGcDiagnostic":  true,
+    "CpuTimingDiagnostic":  true,
+    "HideWaterDrawingDiagnostic":  false,
+    "LegacyReedFarDiagnostic":  false,
+    "TravelLoopMeters":  180,
+    "TerrainQualityOverride":  4,
+    "LoadingEffortOverride":  1,
+    "RecordedUtc":  "2026-11-12T03:01:12.4527634Z"
+}

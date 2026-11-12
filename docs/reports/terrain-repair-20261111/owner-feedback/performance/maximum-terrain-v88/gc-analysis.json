@@ -1,0 +1,338 @@
+{
+  "events": 426,
+  "unmatched_sequences": 0,
+  "windows": [
+    {
+      "site": "dense-tropicalrainforest",
+      "case": "travel-whip-current",
+      "clock_bridge_half_span_ms": 0.07195,
+      "stop_resume_intervals": 5,
+      "worst_frames": [
+        {
+          "t_s": 0.08516,
+          "frame_ms": 35.5669,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 2.7698
+        },
+        {
+          "t_s": 0.7464,
+          "frame_ms": 27.1553,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 21.2186
+        },
+        {
+          "t_s": 16.50947,
+          "frame_ms": 22.8804,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.9546
+        },
+        {
+          "t_s": 17.12244,
+          "frame_ms": 22.794,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 16.4886
+        },
+        {
+          "t_s": 15.3059,
+          "frame_ms": 22.5562,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.8233
+        },
+        {
+          "t_s": 7.94093,
+          "frame_ms": 22.049,
+          "native_stop_resume_overlap_ms": 6.181999999999789,
+          "explorer_ms": 5.6751
+        },
+        {
+          "t_s": 25.05586,
+          "frame_ms": 21.9862,
+          "native_stop_resume_overlap_ms": 6.465400000000955,
+          "explorer_ms": 1.6894
+        },
+        {
+          "t_s": 16.04044,
+          "frame_ms": 21.0651,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 17.1262
+        },
+        {
+          "t_s": 16.68825,
+          "frame_ms": 20.0542,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.9232
+        },
+        {
+          "t_s": 16.06032,
+          "frame_ms": 19.8773,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 15.1564
+        },
+        {
+          "t_s": 16.43256,
+          "frame_ms": 19.8391,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.3265
+        },
+        {
+          "t_s": 14.48074,
+          "frame_ms": 19.6198,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.2404
+        },
+        {
+          "t_s": 23.06084,
+          "frame_ms": 19.2702,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.4106
+        },
+        {
+          "t_s": 17.02583,
+          "frame_ms": 19.1506,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.4759
+        },
+        {
+          "t_s": 17.55997,
+          "frame_ms": 19.1291,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.2792
+        },
+        {
+          "t_s": 0.8522,
+          "frame_ms": 19.0691,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 7.5152
+        },
+        {
+          "t_s": 25.80806,
+          "frame_ms": 19.0685,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.2133
+        },
+        {
+          "t_s": 17.41507,
+          "frame_ms": 18.6862,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.1267
+        },
+        {
+          "t_s": 16.38236,
+          "frame_ms": 18.4488,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 13.3555
+        },
+        {
+          "t_s": 16.40686,
+          "frame_ms": 18.33,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.2945
+        }
+      ],
+      "longest_pauses": [
+        {
+          "start_s": 25.03511405,
+          "total_ms": 6.465400000000955,
+          "suspend_ms": 0.3055,
+          "stopped_ms": 6.1171,
+          "resume_ms": 0.0428,
+          "thread": 25028
+        },
+        {
+          "start_s": 7.920792250000001,
+          "total_ms": 6.181999999999789,
+          "suspend_ms": 0.2608,
+          "stopped_ms": 5.8807,
+          "resume_ms": 0.0405,
+          "thread": 25028
+        },
+        {
+          "start_s": 24.73221585,
+          "total_ms": 3.479699999999866,
+          "suspend_ms": 0.274,
+          "stopped_ms": 3.1657,
+          "resume_ms": 0.04,
+          "thread": 25568
+        },
+        {
+          "start_s": 7.87044725,
+          "total_ms": 3.0201999999999316,
+          "suspend_ms": 0.2871,
+          "stopped_ms": 2.6929,
+          "resume_ms": 0.0402,
+          "thread": 25028
+        },
+        {
+          "start_s": 25.00039245,
+          "total_ms": 0.863100000002305,
+          "suspend_ms": 0.3098,
+          "stopped_ms": 0.5072,
+          "resume_ms": 0.0461,
+          "thread": 25028
+        }
+      ]
+    },
+    {
+      "site": "dense-temperateforest",
+      "case": "travel-whip-current",
+      "clock_bridge_half_span_ms": 0.00025,
+      "stop_resume_intervals": 4,
+      "worst_frames": [
+        {
+          "t_s": 0.31845,
+          "frame_ms": 148.7363,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 8.1788
+        },
+        {
+          "t_s": 0.42336,
+          "frame_ms": 104.9088,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 10.2991
+        },
+        {
+          "t_s": 0.52793,
+          "frame_ms": 104.57,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 10.1149
+        },
+        {
+          "t_s": 0.11106,
+          "frame_ms": 61.1858,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.7225
+        },
+        {
+          "t_s": 0.16972,
+          "frame_ms": 58.6621,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 7.3662
+        },
+        {
+          "t_s": 26.30528,
+          "frame_ms": 39.636,
+          "native_stop_resume_overlap_ms": 10.098700000002282,
+          "explorer_ms": 11.9746
+        },
+        {
+          "t_s": 25.81247,
+          "frame_ms": 34.7706,
+          "native_stop_resume_overlap_ms": 4.85109999999986,
+          "explorer_ms": 26.8939
+        },
+        {
+          "t_s": 16.05641,
+          "frame_ms": 34.0117,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 27.1867
+        },
+        {
+          "t_s": 3.25658,
+          "frame_ms": 31.7399,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 25.3377
+        },
+        {
+          "t_s": 19.28436,
+          "frame_ms": 31.4378,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 24.5947
+        },
+        {
+          "t_s": 26.09644,
+          "frame_ms": 30.8015,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 8.8006
+        },
+        {
+          "t_s": 12.8784,
+          "frame_ms": 29.7783,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 23.3361
+        },
+        {
+          "t_s": 16.08511,
+          "frame_ms": 28.7079,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 22.5478
+        },
+        {
+          "t_s": 19.25292,
+          "frame_ms": 27.5813,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 21.0835
+        },
+        {
+          "t_s": 12.84862,
+          "frame_ms": 27.3847,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 22.1547
+        },
+        {
+          "t_s": 0.59839,
+          "frame_ms": 27.2363,
+          "native_stop_resume_overlap_ms": 10.616399999999999,
+          "explorer_ms": 2.896
+        },
+        {
+          "t_s": 25.83823,
+          "frame_ms": 25.7634,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.3148
+        },
+        {
+          "t_s": 29.04097,
+          "frame_ms": 25.45,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.5292
+        },
+        {
+          "t_s": 22.47566,
+          "frame_ms": 25.2964,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.1675
+        },
+        {
+          "t_s": 6.45029,
+          "frame_ms": 24.1568,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 19.4403
+        }
+      ],
+      "longest_pauses": [
+        {
+          "start_s": 0.57235795,
+          "total_ms": 10.616399999999999,
+          "suspend_ms": 0.2806,
+          "stopped_ms": 10.2782,
+          "resume_ms": 0.0576,
+          "thread": 25028
+        },
+        {
+          "start_s": 26.26717355,
+          "total_ms": 10.098700000002282,
+          "suspend_ms": 0.2731,
+          "stopped_ms": 9.7829,
+          "resume_ms": 0.0427,
+          "thread": 25028
+        },
+        {
+          "start_s": 25.79042395,
+          "total_ms": 4.85109999999986,
+          "suspend_ms": 0.3007,
+          "stopped_ms": 4.5107,
+          "resume_ms": 0.0397,
+          "thread": 25028
+        },
+        {
+          "start_s": 26.22046575,
+          "total_ms": 1.6690999999991618,
+          "suspend_ms": 0.2828,
+          "stopped_ms": 1.3469,
+          "resume_ms": 0.0394,
+          "thread": 25028
+        }
+      ]
+    }
+  ]
+}

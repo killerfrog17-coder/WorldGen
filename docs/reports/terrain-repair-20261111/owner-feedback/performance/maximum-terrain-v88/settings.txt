@@ -1,0 +1,4 @@
+dense-tropicalrainforest canopy=True proxies=True coarseCrown=False treeShadows=True frontToBack=False grassNear=30 grassFar=300
+dense-tropicalrainforest saved=True geometry=4 loading=1 surface=4 grass=2 specialists=2 mid=2 trees=2 view=60000 depthPrepass=True
+dense-temperateforest canopy=True proxies=True coarseCrown=False treeShadows=True frontToBack=False grassNear=30 grassFar=300
+dense-temperateforest saved=True geometry=4 loading=1 surface=4 grass=2 specialists=2 mid=2 trees=2 view=60000 depthPrepass=True

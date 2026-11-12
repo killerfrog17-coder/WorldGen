@@ -1,0 +1,152 @@
+{
+  "events": 30,
+  "unmatched_sequences": 0,
+  "windows": [
+    {
+      "site": "dense-temperateforest",
+      "case": "travel-whip-current",
+      "clock_bridge_half_span_ms": 0.08075,
+      "stop_resume_intervals": 2,
+      "worst_frames": [
+        {
+          "t_s": 0.51238,
+          "frame_ms": 183.9894,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.7014
+        },
+        {
+          "t_s": 0.32839,
+          "frame_ms": 165.2612,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 8.7282
+        },
+        {
+          "t_s": 0.6721,
+          "frame_ms": 159.7127,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 10.2319
+        },
+        {
+          "t_s": 0.16313,
+          "frame_ms": 77.0293,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 7.1164
+        },
+        {
+          "t_s": 3.28854,
+          "frame_ms": 57.3433,
+          "native_stop_resume_overlap_ms": 7.891899999999623,
+          "explorer_ms": 51.608
+        },
+        {
+          "t_s": 0.0861,
+          "frame_ms": 40.9973,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 11.1197
+        },
+        {
+          "t_s": 10.09002,
+          "frame_ms": 39.882,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 12.2324
+        },
+        {
+          "t_s": 29.00374,
+          "frame_ms": 32.6271,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 28.1473
+        },
+        {
+          "t_s": 12.87628,
+          "frame_ms": 26.9528,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.8613
+        },
+        {
+          "t_s": 16.06749,
+          "frame_ms": 26.832,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.4704
+        },
+        {
+          "t_s": 16.09317,
+          "frame_ms": 25.6745,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 20.35
+        },
+        {
+          "t_s": 19.29784,
+          "frame_ms": 24.5645,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 19.054
+        },
+        {
+          "t_s": 19.27328,
+          "frame_ms": 24.4686,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 18.1248
+        },
+        {
+          "t_s": 12.7375,
+          "frame_ms": 23.7691,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 16.2644
+        },
+        {
+          "t_s": 9.66709,
+          "frame_ms": 23.6551,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 18.5201
+        },
+        {
+          "t_s": 0.92256,
+          "frame_ms": 23.5722,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 2.1941
+        },
+        {
+          "t_s": 10.74614,
+          "frame_ms": 23.5702,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 17.1746
+        },
+        {
+          "t_s": 9.49163,
+          "frame_ms": 23.4876,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 2.6759
+        },
+        {
+          "t_s": 3.2312,
+          "frame_ms": 23.4608,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 16.6727
+        },
+        {
+          "t_s": 9.85816,
+          "frame_ms": 23.4366,
+          "native_stop_resume_overlap_ms": 0,
+          "explorer_ms": 14.704
+        }
+      ],
+      "longest_pauses": [
+        {
+          "start_s": 3.25900275,
+          "total_ms": 4.862499999999727,
+          "suspend_ms": 0.2216,
+          "stopped_ms": 4.6043,
+          "resume_ms": 0.0366,
+          "thread": 12676
+        },
+        {
+          "start_s": 3.24650045,
+          "total_ms": 3.029399999999896,
+          "suspend_ms": 0.2433,
+          "stopped_ms": 2.7486,
+          "resume_ms": 0.0375,
+          "thread": 12676
+        }
+      ]
+    }
+  ]
+}

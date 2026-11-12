@@ -1,0 +1,1 @@
+PASS actual shader: upper/lower current terrain remains opaque at start/mid/end; oblique midpoint heights match a static reference; physical-near/hard guards use final geometry; moving interior retains its final shared boundary without perspective ground holes.

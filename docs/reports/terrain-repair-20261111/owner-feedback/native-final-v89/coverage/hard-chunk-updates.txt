@@ -1,0 +1,1 @@
+PASS: prepared opaque replacements retain their morph stamp with no outgoing draw; hard mode clears the active stamp and forces final geometry, subsequent hard replacements snap, and disabling restores geometry morph support.

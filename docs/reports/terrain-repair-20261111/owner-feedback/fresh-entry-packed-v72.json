@@ -1,0 +1,33 @@
+{
+    "Slot":  "slot-a",
+    "ExitCode":  0,
+    "ElapsedSeconds":  110.9051822,
+    "Milestones":  {
+                       "ENTRY preparing":  54.0554384,
+                       "ENTRY sampler ready":  98.395611,
+                       "ENTRY prepared Creative":  98.5531122,
+                       "ENTRY PASS random-land entry loads actual ground":  108.0195057,
+                       "ENTRY PASS first playable view has actual surrounding coverage":  108.01951059999999
+                   },
+    "Arguments":  [
+                      "-batchmode",
+                      "-screen-width",
+                      "1536",
+                      "-screen-height",
+                      "864",
+                      "-screen-fullscreen",
+                      "0",
+                      "--worldgen-entry-check",
+                      "\"C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-surfaces-20261107\\playable.world\"",
+                      "--worldgen-entry-creative-only",
+                      "--worldgen-entry-seed",
+                      "271828",
+                      "--worldgen-terrain-regenerate",
+                      "--worldgen-no-animals",
+                      "--worldgen-output",
+                      "\"C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-repair-20261111\\fresh-entry-packed-v72\"",
+                      "-logFile",
+                      "\"C:\\Users\\kille\\Desktop\\WorldGen\\artifacts\\terrain-repair-20261111\\fresh-entry-packed-v72\\player.log\""
+                  ],
+    "Note":  "Actual Mono creative-entry path,200k saved planetary fixture forced through fresh worker branch; shared Chrome workload;30FPS pacing,NOTFPS benchmark. Poll precision~150ms. No NPC/camp entry."
+}

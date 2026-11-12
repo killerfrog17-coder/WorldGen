@@ -1,0 +1,1 @@
+dense-temperateforest travel-whip-current diagnostic_pre_measurement_loading_seconds=0.75856 rendered_sweep_seconds=0.75790 readiness_wait_seconds=0.00066 observed_frames=26 focused_frames=26 maximum_observed_interval_ms=161.28270 settled=True requested_measurement_seconds=30.00000; this loading cost is separate from the unchanged measured window

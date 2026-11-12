@@ -1,0 +1,6 @@
+dense-tropicalrainforest travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=True
+warmup_limit_seconds=420
+dense-tropicalrainforest travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2
+dense-temperateforest travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=True
+warmup_limit_seconds=420
+dense-temperateforest travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2

@@ -1,0 +1,1 @@
+PASS: a useful staged 8-segment fallback publishes and grounds an actual affected forest root while its same-address final request still requires 16 segments and different edges; no reject/restage loop.

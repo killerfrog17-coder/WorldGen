@@ -1,0 +1,17 @@
+Empty spectator; no humans, communities, camps, or fauna; no saved preferences changed.
+Shared PC; concurrent owner workload recorded separately. Frame figures include 60 FPS pacing, not an FPS benchmark.
+Preparation ms: 13886.850
+Detail: 4; effort: 1; view: 60000
+Legacy scheduler: False
+Hard chunk updates: True
+Frame p99/max ms: 32.802 / 882.474
+Frames >50ms / >100ms: 19 / 4
+6676 frames; median 16.70ms; p99 20.82ms; worst 264.59ms; over100ms 2; collections 15; largest mesh apply/bind 11.98ms; largest controller query 2.00ms; incremental True / Enabled
+464 / 399 tiles · last 1921.6 ms · max 4186.4 ms/tile
+fields 469/469, roots 377585, pending False, projection slices 1525 max_ms 259.064 active False, baked local 9, baked forest 12, pending models 0, texture bytes 58720256; shadow proxies True, soft True, casters 81, coarse 81, shadow draws 32, triangles 972; readiness near=True all=True detail=False jobs=0 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0
+near seconds: 1.488
+radius50 seconds: 14.765
+radius100 seconds: 14.765
+radius300 seconds: 14.765
+radius600 seconds: 16.507
+complete seconds: 114.619
