@@ -91,7 +91,9 @@ public sealed partial class LocalTerrainExplorer
     readonly float[] forestBirth=new float[8192];GraphicsBuffer forestBirthBuffer;
     void MarkForestBirth(ForestField field)
     {
-        if(field.Source.Key.Level!=0||forestBirth[field.Id]!=0||(forestFlags[field.Id]&2)!=0)return;
+        if(field.Source.Key.Level!=0||forestBirth[field.Id]!=0)return;
+        // GPU fallback trees still replace a coarse parent. They need the same
+        // complementary fade even before local interactive scatter is ready.
         var parent=field.Source.Key.Parent;
         for(int level=1;level<=15;level++,parent=parent.Parent)
             if(forestFields.TryGetValue(parent,out var coarse)&&coarse.RenderReady){forestBirth[field.Id]=Time.realtimeSinceStartup;coarse.RetireAfter=Time.realtimeSinceStartup+.7f;}
@@ -562,16 +564,22 @@ public sealed partial class LocalTerrainExplorer
             var random=new Rng(unchecked((int)identity),"regional-render-roots-1");
             int crowns=macro?(paired?LocalScatter.ForestCanopyAnchorCount(source):Math.Max(1,(int)Math.Ceiling(source.CanopyTreeCount))):1;
             double phaseX=random.Unit(),phaseZ=random.Unit();
+            double packetSide=LocalScatter.ForestPageSide*(double)(1<<page.Key.Level)/8;
+            double packetWidth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellX),packetDepth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellY);
             for(int crown=0;crown<crowns;crown++)
             {
                 double x=px,z=pz;float cohort=1;int face=page.Key.Face,gx=cellX,gy=cellY;
                 if(macro)
                 {
-                    double span=source.CrownScale;
                     // A shifted low-discrepancy sequence fills partial packets
-                    // without a repeated missing row or aligned planting grid.
-                    x+=((phaseX+crown*.7548776662466927)%1-.5)*span;
-                    z+=((phaseZ+crown*.5698402909980532)%1-.5)*span;
+                    // in their actual cube-face footprint. A world-XZ square
+                    // loses packet rotation/shear and leaves false clearings.
+                    var anchor=scatter.ForestPosition(page.Key.Face,
+                        source.CellX+((phaseX+crown*.7548776662466927)%1)*packetWidth,
+                        source.CellY+((phaseZ+crown*.5698402909980532)%1)*packetDepth);
+                    double anchorDot=Math.Max(.1,V.Dot(anchor,frame.Origin));
+                    x=V.Dot(anchor,frame.East)*frame.RadiusM/anchorDot;
+                    z=V.Dot(anchor,frame.North)*frame.RadiusM/anchorDot;
                     // GPU group children normalize their own size variation;
                     // the group carries the source packet's physical RMS.
                     scatter.ForestCoordinates(frame.Position(x,z),out face,out gx,out gy);

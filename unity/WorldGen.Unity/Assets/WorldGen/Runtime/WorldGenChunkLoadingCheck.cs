@@ -253,13 +253,31 @@ public sealed partial class LocalTerrainExplorer
             // directly, rather than comparing unrelated parts of a flyover.
             var fineAdmissionBefore=new Dictionary<(int Face,int X,int Y),(bool Rejected,int GroundLevel)>();
             var admissionRows=new List<string>{"phase,renderReady,groundLevel,exactRoots,rejectedRoots"};
+            var groupMaskRows=new List<string>{"phase,forestLevel,groups,groundComplete,groundPartial,groundEmpty,forestComplete,forestPartial,forestEmpty"};
             void RecordFineAdmission(string phase)
             {
                 bool before=phase=="handoff-before";var totals=new int[36];var rejected=new int[36];
+                var groupMasks=new int[16,7];
                 int matched=0,recovered=0,recoveredOnFinerGround=0,newlyRejected=0,readyRejected=0;
                 foreach(var field in forestFields.Values)
                 {
-                    if(field.Source.Key.Level!=0)continue;
+                    if(field.Source.Key.Level!=0)
+                    {
+                        int level=field.Source.Key.Level;
+                        foreach(var pair in field.Roots)
+                        {
+                            if(pair.Key.Model?.TreeCluster!=true)continue;
+                            foreach(int slot in pair.Value)
+                            {
+                                if(pair.Key.Data[slot].Height<=0)continue;
+                                var grid=pair.Key.GroundData[slot];int ground=(int)grid.C.z,forest=(int)grid.C.y;
+                                groupMasks[level,0]++;
+                                groupMasks[level,ground==511?1:ground==0?3:2]++;
+                                groupMasks[level,forest==511?4:forest==0?6:5]++;
+                            }
+                        }
+                        continue;
+                    }
                     foreach(var pair in field.Roots)foreach(int slot in pair.Value)
                     {
                         var tree=pair.Key.Data[slot];if(tree.Height<=0)continue;
@@ -276,7 +294,9 @@ public sealed partial class LocalTerrainExplorer
                     }
                 }
                 for(int i=0;i<totals.Length;i++)if(totals[i]>0)admissionRows.Add($"{phase},{i>=18},{i%18},{totals[i]},{rejected[i]}");
+                for(int level=1;level<16;level++)if(groupMasks[level,0]>0)groupMaskRows.Add($"{phase},{level},{groupMasks[level,0]},{groupMasks[level,1]},{groupMasks[level,2]},{groupMasks[level,3]},{groupMasks[level,4]},{groupMasks[level,5]},{groupMasks[level,6]}");
                 File.WriteAllLines(Path.Combine(output,"handoff-admission.csv"),admissionRows);
+                File.WriteAllLines(Path.Combine(output,"handoff-group-masks.csv"),groupMaskRows);
                 File.AppendAllText(Path.Combine(output,"handoff-admission.txt"),$"{phase}: rejected exact roots in RenderReady fields={readyRejected}; matched canonical roots={matched}; rejected->admitted={recovered}; rejected->admitted with finer stored ground LOD={recoveredOnFinerGround}; admitted->rejected={newlyRejected}. Ground LOD17 means unknown. Resident counts, not GPU-visible counts.\n");
             }
             void CaptureHandoff(string name)
