@@ -5,7 +5,8 @@ using System.Threading;
 namespace WorldGen.Core
 {
     /// <summary>World-addressed hierarchy over the SAME candidate lattice as
-    /// LocalScatter. Level zero is an exact census, not a second planting rule.</summary>
+    /// LocalScatter. Level zero is an exact candidate census, not a second
+    /// planting rule; physical root admission is a separate near-field query.</summary>
     public readonly struct ForestPageKey : IEquatable<ForestPageKey>
     {
         public readonly int Face,X,Y,Level;
@@ -33,6 +34,7 @@ namespace WorldGen.Core
     {
         public const int ForestPageSide=32;
         public const int ForestCanopyTrees=16;
+        public const int MaximumForestRoots=1048576;
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
@@ -80,7 +82,7 @@ namespace WorldGen.Core
                 // Budget the expected LIVE representation, not just page count.
                 // Dense forests otherwise exhaust the root pool before reaching
                 // the horizon. Leave capacity for ready fallback/replacements.
-                double expected=0;
+                double expected=0,exactExpected=0;
                 foreach(var key in result)
                 {
                     if(key.Level>0){expected+=64*ForestCanopyTrees;continue;}
@@ -89,9 +91,14 @@ namespace WorldGen.Core
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);
                     double single=D.Clamp(area*TreeFlora.PlacementPerM2)*D.Clamp(support*TreeFlora.Stocking(forest)*TreeFlora.Stand(forest,center,seed,terrain.RadiusM*scale));
                     double probability=1-Math.Pow(1-single,(1L<<key.Level)*(1L<<key.Level));
-                    expected+=ForestPageSide*ForestPageSide*probability;
+                    double exact=ForestPageSide*ForestPageSide*probability;
+                    expected+=exact;exactExpected+=exact;
                 }
-                if(result.Count<=maximumPages&&expected<=380000)break;error*=1.22;
+                // The mandatory identity band cannot coarsen as error grows.
+                // Reserve its expected roots plus a bounded distant canopy
+                // allowance, rather than retrying an impossible 380k target.
+                double budget=Math.Min(MaximumForestRoots*.8,Math.Max(380000,exactExpected+64000));
+                if(result.Count<=maximumPages&&expected<=budget)break;error*=1.22;
             }
             result.Sort((a,b)=>{ForestBounds(a,out V ac,out double ar);ForestBounds(b,out V bc,out double br);return ((ac-eye).Length*terrain.RadiusM*scale-ar).CompareTo((bc-eye).Length*terrain.RadiusM*scale-br);});
             return result.ToArray();
@@ -113,7 +120,7 @@ namespace WorldGen.Core
                 token.ThrowIfCancellationRequested();int gx=x0+x,gy=y0+y;
                 var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);
                 var patch=Patch(address);if(patch.MaximumForestCoverage<=0)continue;
-                probes++;if(!TryTree(address,gx%TreeCandidateSide,gy%TreeCandidateSide,patch,out var tree))continue;
+                probes++;if(!TryTreeCandidate(address,gx%TreeCandidateSide,gy%TreeCandidateSide,patch,out var tree))continue;
                 result.Add(new ForestRepresentative{Tree=tree,CellX=gx,CellY=gy,CrownScale=1,Population=1});
             }
             return new ForestPage{Key=key,Roots=result.ToArray(),Probes=probes};

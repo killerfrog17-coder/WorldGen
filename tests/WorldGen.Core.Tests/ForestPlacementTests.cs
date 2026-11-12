@@ -45,7 +45,20 @@ static class ForestPlacementTests
                 using var stream=new MemoryStream();using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteForest(writer,page);stream.Position=0;
                 using var reader=new BinaryReader(stream);var roundtrip=TerrainMeshWire.ReadForest(reader,page.Key);Check(page.Roots.SequenceEqual(roundtrip.Roots),"Forest transport exact payload");
             }
-            Check(near.Count==distant.Count,"Near/far exact census count");foreach(var tree in near)Check(distant.TryGetValue(tree.Key,out var far)&&tree.Value.Equals(far),"Same root, anatomy, dimensions, ground, tint and yaw");
+            // Forest pages now carry cheap potential trees. Local interaction
+            // performs exact physical admission, so it may remove candidates;
+            // it MUST NOT choose another model, size, root, colour or yaw.
+            bool SameCandidate(ScatterInstance a,ScatterInstance b)=>a.Id==b.Id&&a.Kind==b.Kind&&a.Variant==b.Variant&&a.Position.Equals(b.Position)&&
+                a.HeightM==b.HeightM&&a.WidthM==b.WidthM&&a.YawDegrees==b.YawDegrees&&a.Color.Equals(b.Color);
+            Check(near.Count<=distant.Count,"Physically admitted roots are a subset of forest candidates");
+            foreach(var tree in near)Check(distant.TryGetValue(tree.Key,out var far)&&SameCandidate(tree.Value,far),"Same candidate identity, anatomy, dimensions, root, tint and yaw after physical admission");
+            var candidatePatch=terrain.Patch(scatter.Position(key),840/.1);
+            foreach(var candidate in distant.Values)
+            {
+                int slot=(int)(candidate.Id&65535);
+                Check(scatter.TryTreeCandidate(key,slot%LocalScatter.TreeCandidateSide,slot/LocalScatter.TreeCandidateSide,candidatePatch,out var cachedCandidate)&&candidate.Equals(cachedCandidate),"Physical positive/negative cache cannot rewrite candidate identity or approximate grounding");
+            }
+            Console.WriteLine($"Canonical forest: {distant.Count} candidates, {near.Count} exact physical roots");
             // Reversing page completion also reverses which caller first fills
             // the shared habitat nodes. It must not alter any physical tree.
             var reverse=new LocalScatter(terrain,.1);

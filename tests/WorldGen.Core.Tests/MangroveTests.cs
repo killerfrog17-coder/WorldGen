@@ -121,8 +121,12 @@ static class MangroveTests
                 var page=independent.BuildForest(new ForestPageKey(key.Face,key.X*pages+x,key.Y*pages+y,0));
                 foreach(var root in page.Roots){Check(root.Population==1&&root.CrownScale==1,"Detailed tidal forest uses exact individual roots");Check(far.TryAdd(root.Tree.Id,root.Tree),"No duplicate tidal forest root across pages");}
             }
-            Check(trees.Count==far.Count,"Near scatter and distant exact forest census agree");
-            foreach(var tree in trees)Check(far.TryGetValue(tree.Key,out var other)&&tree.Value.Equals(other),"Near/far tidal root identity, anatomy, dimensions, position and ground agree exactly");
+            // Distant pages retain potential identities; exact physical water
+            // and exposure may reject one locally without inventing a new tree.
+            Check(trees.Count<=far.Count,"Physical tidal roots are a subset of distant candidates");
+            foreach(var tree in trees)Check(far.TryGetValue(tree.Key,out var other)&&tree.Value.Id==other.Id&&tree.Value.Kind==other.Kind&&tree.Value.Variant==other.Variant&&
+                tree.Value.HeightM==other.HeightM&&tree.Value.WidthM==other.WidthM&&tree.Value.Position.Equals(other.Position)&&tree.Value.YawDegrees==other.YawDegrees&&tree.Value.Color.Equals(other.Color),
+                "Near/far tidal candidate identity, anatomy, dimensions, position, yaw and tint agree exactly; physical grounding is separate");
             Console.WriteLine($"Tidal coast {site.Cell}: trees {trees.Count}, tidal {tidal}, low {low}, submerged {submerged}, forms {string.Join(",",forms)}");
             rows.Add(new{site.Cell,Position=new[]{site.Position.X,site.Position.Y,site.Position.Z},site.Height,site.ForestCoverage,Trees=trees.Count,Tidal=tidal,LowShore=low,Submerged=submerged,Forms=forms.Select(f=>f.ToString()).ToArray()});
         }

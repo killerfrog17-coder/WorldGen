@@ -46,11 +46,6 @@ public sealed partial class LocalTerrainExplorer
                     {var args=new uint[4];batch.Args.GetData(args);submitted+=args[1];}
                     File.WriteAllText(Path.Combine(output,"first-forest.txt"),"seconds="+elapsed+" groundedRootsWithin300m="+grounded+" localFallbackRoots="+localFallback+" submittedForestInstances="+submitted+" pendingModelBakes="+PendingTreeModels+"\n"+PerformanceForestState);
                     if(walkingPatch.ForestPotential(Position)>.2&&(grounded==0||submitted==0))throw new InvalidOperationException("First forested ground appeared without grounded, submitted trees");
-                    // Start travelling immediately: never wait for the entire
-                    // view, local scatter or maximum terrain detail to settle.
-                    yield return CheckChunkFastFlight(output);
-                    File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS first-ground forest submission and cold fast flight\n");
-                    Close();Application.Quit(0);yield break;
                 }
             }
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
@@ -58,6 +53,17 @@ public sealed partial class LocalTerrainExplorer
             {
                 string name="radius"+radius;
                 if(Math.Min(terrainRevealRadius,forestRevealRadius)>=radius&&!milestones.ContainsKey(name))milestones[name]=elapsed;
+            }
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry")&&milestones.ContainsKey("radius600"))
+            {
+                // Controls cannot be handed over on the corner of the first
+                // tiny resident tile. Start with a usable local neighbourhood,
+                // while the remaining view and detail are still streaming.
+                Capture(Path.Combine(output,"playable-ground-and-forest.png"));
+                File.WriteAllText(Path.Combine(output,"playable-start.txt"),"seconds="+elapsed+"\n"+PerformanceForestState);
+                yield return CheckChunkFastFlight(output);
+                File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS first-ground forest submission and cold fast flight\n");
+                Close();Application.Quit(0);yield break;
             }
             if(now>=next)
             {

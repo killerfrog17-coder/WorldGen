@@ -36,7 +36,8 @@ public sealed partial class LocalTerrainExplorer
         int count=0;
         foreach(var work in jobs)if(legacyLoader||!work.Task.IsCompleted)count++;
         foreach(var work in scatterJobs)if(legacyLoader||!work.Task.IsCompleted)count++;
-        foreach(var work in forestJobs)if(!work.Task.IsCompleted)count++;
+        activeForestGroups.Clear();
+        foreach(var work in forestJobs)if(!work.Task.IsCompleted&&(work.Group==null||activeForestGroups.Add(work.Group)))count++;
         if(animalPlan!=null&&!animalPlan.IsCompleted)count++;
         return count;
     }}

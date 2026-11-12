@@ -33,7 +33,9 @@ public sealed partial class LocalTerrainExplorer
         public bool RenderReady=>Ready&&(Source.Roots.Length==0||Published);
         public bool EvaluateReady(){if(Projecting)return false;foreach(var batch in Roots.Keys)if(!batch.Model.TreeBaked)return false;return true;}
     }
-    sealed class ForestWork {public ForestPageKey Key;public Task<ForestPage> Task;public CancellationTokenSource Cancellation;}
+    sealed class ForestWork {public ForestPageKey Key;public Task<ForestPage> Task;public CancellationTokenSource Cancellation;public object Group;}
+    readonly HashSet<object> activeForestGroups=new HashSet<object>();
+    bool CanPrepareForest=>!reserveScatterFrame&&!GroundPublicationPending&&frameUploadMs<detailOptions.UploadBudgetMs;
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
     readonly Dictionary<int,ForestBatch> forestBatches=new Dictionary<int,ForestBatch>();
     public long ForestRootUploadBytes {get;private set;}
@@ -275,9 +277,8 @@ public sealed partial class LocalTerrainExplorer
             forestCompletionComparison??=(a,b)=>ForestGapDistance(b.Key).CompareTo(ForestGapDistance(a.Key));
             forestJobs.Sort(forestCompletionComparison);
         }
-        bool projected=false;
-        if(forestProjection!=null&&CanInstall){AdvanceForestProjection();projected=true;}
-        int emptyInstalls=0;
+        if(forestProjection!=null&&CanPrepareForest)AdvanceForestProjection();
+        int emptyInstalls=0,preparedPages=0;
         for(int i=forestJobs.Count-1;i>=0;i--)
         {
             var job=forestJobs[i];if(!job.Task.IsCompleted)continue;
@@ -285,7 +286,7 @@ public sealed partial class LocalTerrainExplorer
             // A completed zero-root page certifies an empty census. It does
             // not upload objects or correct ground, so terrain publication
             // must not block it and occupy both forest request slots.
-            if(job.Task.IsCompletedSuccessfully&&(forestWanted.Contains(job.Key)||flightForestWanted.Contains(job.Key))&&!metadataOnly&&(!CanInstall||forestProjection!=null||projected))continue;
+            if(job.Task.IsCompletedSuccessfully&&(forestWanted.Contains(job.Key)||flightForestWanted.Contains(job.Key))&&!metadataOnly&&(!CanPrepareForest||forestProjection!=null))continue;
             forestJobs.RemoveAt(i);job.Cancellation.Dispose();
             if(job.Task.IsCanceled){forestNextRequest=flightForestNext=0;continue;} // Retry interrupted coverage after near-ground pressure ends.
             if(job.Task.IsFaulted){Debug.LogWarning("Forest page retained fallback: "+job.Task.Exception.GetBaseException().Message);forestNextRequest=flightForestNext=0;forestRetryAt=Time.realtimeSinceStartupAsDouble+2;continue;}
@@ -298,11 +299,11 @@ public sealed partial class LocalTerrainExplorer
             else{forestInstalling=field;forestProjection=ProjectForestSteps(field);}
             WorldGenPerformance.TraceEnd(56,installTrace);
             frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-installed)*1000d/System.Diagnostics.Stopwatch.Frequency;
-            if(!metadataOnly){AdvanceForestProjection();projected=true;}
+            if(!metadataOnly)AdvanceForestProjection();
             // Empty pages only certify a tree-free part of the census. They
             // create no tree models, transforms or GPU roots; do not charge
             // an entire object-upload frame for each of thousands of them.
-            if(!metadataOnly||++emptyInstalls>=8||frameUploadMs>=detailOptions.UploadBudgetMs)break;
+            if(forestProjection!=null||++preparedPages>=16||metadataOnly&&++emptyInstalls>=8||frameUploadMs>=detailOptions.UploadBudgetMs)break;
         }
         if(forestPlan==null&&forestMaintenanceDirty&&!GroundPublicationPending)
         {
@@ -337,7 +338,7 @@ public sealed partial class LocalTerrainExplorer
     {
         // Near ground retains priority. When forest coverage is the reveal
         // blocker, it also gets a turn before distant terrain fills every lane.
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=524288)return false;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||forestJobs.Count>=Math.Min(2,WorkerLimit)||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
         foreach(var required in forestPriority)
         {
             if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required)))continue;
@@ -367,8 +368,33 @@ public sealed partial class LocalTerrainExplorer
     }
     void RequestForest(ForestPageKey key)
     {
-        var source=scatter;var producer=meshProcess;var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var token=stop.Token;
-        forestJobs.Add(new ForestWork{Key=key,Cancellation=stop,Task=Task.Run(()=>producer==null?source.BuildForest(key,token):producer.Forest(key,token),token)});
+        // Small placement pages share one worker request batch. The old
+        // one-page-per-frame dispatch/installation ceiling could not keep up
+        // with flight even when generation and model assets were already fast.
+        var keys=new List<ForestPageKey>(8){key};
+        foreach(var next in forestPriority)
+        {
+            if(keys.Count>=8)break;
+            if(next.Equals(key)||forestFields.ContainsKey(next)||forestJobs.Any(j=>j.Key.Equals(next)))continue;
+            if(terrainForestRequired.Count>0&&!terrainForestRequired.Contains(next))continue;
+            keys.Add(next);
+        }
+        var source=scatter;var producer=meshProcess;var group=new object();
+        var batch=new List<(ForestPageKey Key,CancellationToken Token,TaskCompletionSource<ForestPage> Result)>(keys.Count);
+        foreach(var next in keys)
+        {
+            var stop=CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token);var result=new TaskCompletionSource<ForestPage>();
+            forestJobs.Add(new ForestWork{Key=next,Cancellation=stop,Task=result.Task,Group=group});batch.Add((next,stop.Token,result));
+        }
+        _=Task.Run(()=>
+        {
+            foreach(var request in batch)
+            {
+                try{request.Token.ThrowIfCancellationRequested();request.Result.TrySetResult(producer==null?source.BuildForest(request.Key,request.Token):producer.Forest(request.Key,request.Token));}
+                catch(OperationCanceledException){request.Result.TrySetCanceled();}
+                catch(Exception e){request.Result.TrySetException(e);}
+            }
+        });
     }
     ForestPageKey[] FlightForestParents(IEnumerable<ForestPageKey> leaves)
     {
@@ -548,7 +574,7 @@ public sealed partial class LocalTerrainExplorer
         long groundStarted=WorldGenPerformance.TraceEnabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
         double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
         Tile tile=null;TerrainTileKey key=default;
-        if(Math.Abs(root.Padding)>1.5f&&groundLevel<17)
+        if(groundLevel<17)
         {
             double size=TerrainLod.BaseSizeM*HorizontalScale*(1<<groundLevel);
             key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),groundLevel,HorizontalScale);
@@ -567,16 +593,28 @@ public sealed partial class LocalTerrainExplorer
         bool macro=Math.Abs(root.Padding)>1.5f;
         float footprint=macro?Math.Max(2,Math.Abs(root.Padding)):0;
         root.Padding=groundLevel>=17?(macro?-footprint:-1):(macro?footprint:0);
-        if(macro&&groundLevel<17)
+        if(groundLevel<17&&tile!=null)
         {
             // Terrain already carries ecological admission, including water,
             // exposed cliffs and treeline. Read that grid instead of running
             // more exact tree/soil/height queries for a distant preview.
-            if(tile!=null&&tile.ForestCover.IsCreated)
+            if(tile.ForestCover.IsCreated)
             {
                 double x=root.Position.x,z=root.Position.z;
                 int side=tile.Segments+1,gx=Mathf.Clamp((int)Math.Round((x/key.SizeM-key.X)*tile.Segments),0,tile.Segments),gz=Mathf.Clamp((int)Math.Round((z/key.SizeM-key.Z)*tile.Segments),0,tile.Segments);
-                if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=-footprint;
+                if(tile.ForestCover[(gz*side+gx)*8+3]<=.001f)root.Padding=macro?-footprint:-1;
+            }
+            if(!macro&&tile.Heights!=null)
+            {
+                // Visual candidates use the same stable slope admission hash
+                // as physical trees, against the already prepared local mesh.
+                // Never run world geometry/noise once per distant tree here.
+                int n=tile.Segments,side=n+1;
+                double gx=(root.Position.x/key.SizeM-key.X)*n,gz=(root.Position.z/key.SizeM-key.Z)*n;
+                int a=Math.Max(0,Math.Min(n-1,(int)gx)),b=Math.Max(0,Math.Min(n-1,(int)gz));double u=gx-a,v=gz-b,step=key.SizeM/n;
+                float h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
+                double dx=(u+v<=1?h10-h00:h11-h01)/step,dz=(u+v<=1?h01-h00:h11-h10)/step;
+                if((root.Face>>8)/16777216.0>TreeFlora.SlopeAdmission(1/Math.Sqrt(1+dx*dx+dz*dz)))root.Padding=-1;
             }
         }
         // Trees remain upright. Terrain affects their root position, never
