@@ -128,7 +128,7 @@ public sealed partial class LocalTerrainExplorer
         camera.transform.position=new Vector3(0,500,-2000);camera.transform.LookAt(new Vector3(0,8,0));camera.farClipPlane=10000;
         planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
         compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Ranges",new Vector4(0,1,10000,15));compute.SetInt("_RootCount",1);
-        flags.SetData(new[]{3});roots.SetData(new[]{new ForestRoot{Position=Vector3.zero,Width=80,Height=20,Padding=80,Tint=Vector3.one,Face=4,Field=4u<<16,CellX=32736,CellY=32736},default(ForestRoot)});
+        flags.SetData(new[]{3});roots.SetData(new[]{new ForestRoot{Position=Vector3.zero,Width=80,Height=20,Padding=100,Tint=Vector3.one,Face=4,Field=4u<<16,CellX=32736,CellY=32736},default(ForestRoot)});
         args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=216}});
         Shader.SetGlobalVector("_WorldGenForestDistanceRange",new Vector4(9000,10000,0,0));
         material.SetTexture("_TreeColourViews",prototype.Colour);material.SetTexture("_TreeNormalViews",prototype.Normal);
@@ -151,6 +151,8 @@ public sealed partial class LocalTerrainExplorer
             uint seed=Mix((uint)(z*6+x+1)*0x9e3779b9u);float single=80/LocalTreePrototype.StandSpan;
             int child=z*6+x;
             float qx=Mathf.Repeat(packetPhaseX+child*.754877666f,1),qz=Mathf.Repeat(packetPhaseZ+child*.569840291f,1);
+            qx+=(Unit(seed^0xa24baed5u)-.5f)*2*LocalTreePrototype.PacketFeather;
+            qz+=(Unit(seed^0x9fb21c65u)-.5f)*2*LocalTreePrototype.PacketFeather;
             // Face4 is +Z with X/Y axes; this synthetic production chart maps
             // [32736,32800) of 65536 cells to [-40,40) metres on both axes.
             float px=((32736+qx*64)*2/65536-1)*40960,pz=((32736+qz*64)*2/65536-1)*40960;
@@ -167,7 +169,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var previous=RenderTexture.active;RenderTexture.active=target;standImage.ReadPixels(new Rect(0,0,1280,720),0,0);standImage.Apply();RenderTexture.active=previous;return standImage.GetPixels32();
         }
-        report+="Expanded packet group "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), physical width=80, height=20, support span=80, vertices=216, children=36, production spherical mapping ON: face4 level4 left=(32736,32736), lattice65536 radius40960; finer ownership hash empty, reference bounds="+referenceMesh.bounds+"\n";
+        report+="Expanded packet group "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), physical width=80, height=20, support span=100, feather="+LocalTreePrototype.PacketFeather+", vertices=216, children=36, production spherical mapping ON: face4 level4 left=(32736,32736), lattice65536 radius40960; finer ownership hash empty, reference bounds="+referenceMesh.bounds+"\n";
         float productionStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(2),productionPixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(2);
         var productionRanges=new Vector4(productionStart,productionStart*1.5f,productionPixels,productionPixels*.5f);
         foreach(var fixture in new[]{

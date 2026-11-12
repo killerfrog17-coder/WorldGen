@@ -4,6 +4,7 @@ Shader "WorldGen/ForestPackets"
 
         _TreeColourViews("Actual-tree stand colours",2DArray)=""{} _TreeNormalViews("Stand normals and depth",2DArray)=""{}
         [HideInInspector] _ForestMacro("Regional canopy patches",Float)=0
+        [HideInInspector] _ForestPacketFeather("World-space patch overlap",Float)=.35
         _ImpostorBounds("Object centre/radius",Vector)=(0,.48,0,1.5)
         [HideInInspector] _ImpostorExtents("Model extents and edge padding",Vector)=(0,0,0,0)
         [HideInInspector] _TreeTightQuad("Trim empty billboard space",Float)=1
@@ -38,7 +39,7 @@ Shader "WorldGen/ForestPackets"
                 return 1;
             }
             float4 _ImpostorBounds,_ImpostorExtents,_AmbientTint,_FogColor,_ForestChart,_ForestRange,_WorldGenForestDistanceRange;float _FogDistance,_TreeEarlyAlpha,_TreeViewCutoff,_TreeTightQuad,_ForestMacro;
-            float4 _ForestPlanet0,_ForestPlanet1,_ForestPlanet2;uint _ForestLatticeCount;
+            float4 _ForestPlanet0,_ForestPlanet1,_ForestPlanet2;uint _ForestLatticeCount;float _ForestPacketFeather;
             float ForestDistanceWeight(float distance,Root root)
             {
                 float nearWeight=(_Fields[root.field&65535u]&2)!=0?1:smoothstep(_ForestRange.x,_ForestRange.y,distance);
@@ -136,6 +137,10 @@ Shader "WorldGen/ForestPackets"
                         if(packet)
                         {
                             float2 q=attempt==0u?frac(phase+child*float2(.754877666,.569840291)):random;
+                            // Convolve the rectangular sampling footprint with
+                            // stable world-space jitter. Adjacent patches blend
+                            // their density/colour without adding more trees.
+                            q+=(float2(ForestUnit(jitter^0xa24baed5u),ForestUnit(jitter^0x9fb21c65u))-.5)*(2*_ForestPacketFeather);
                             offset=ForestPacketPosition(root,q)-root.position.xz;
                         }
                         else

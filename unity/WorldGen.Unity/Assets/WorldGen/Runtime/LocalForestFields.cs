@@ -576,7 +576,10 @@ public sealed partial class LocalTerrainExplorer
                 double extent=0;
                 for(int j=0;j<2;j++)for(int i=0;i<2;i++)
                 {
-                    var corner=scatter.ForestPosition(page.Key.Face,source.CellX+i*packetWidth,source.CellY+j*packetDepth);
+                    double feather=LocalTreePrototype.PacketFeather;
+                    var corner=scatter.ForestPosition(page.Key.Face,
+                        source.CellX+(i*(1+2*feather)-feather)*packetWidth,
+                        source.CellY+(j*(1+2*feather)-feather)*packetDepth);
                     double cornerDot=Math.Max(.1,V.Dot(corner,frame.Origin));
                     double cornerX=V.Dot(corner,frame.East)*frame.RadiusM/cornerDot,cornerZ=V.Dot(corner,frame.North)*frame.RadiusM/cornerDot;
                     extent=Math.Max(extent,Math.Max(Math.Abs(cornerX-px),Math.Abs(cornerZ-pz)));
@@ -885,7 +888,7 @@ public sealed partial class LocalTerrainExplorer
             var props=batch.Properties;props.SetFloat("_ForestMacro",model.TreeCluster?2:batch.Macro?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
             props.SetBuffer("_ForestBirth",forestBirthBuffer);props.SetBuffer("_Tiles",forestHashBuffer);props.SetFloat("_ForestClock",Time.realtimeSinceStartup);props.SetInt("_ForestHashMask",forestHashMask);
             props.SetBuffer("_Fields",forestFlagBuffer);
-            props.SetBuffer("_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);props.SetVector("_ForestPlanet0",planet0);props.SetVector("_ForestPlanet1",planet1);props.SetVector("_ForestPlanet2",planet2);props.SetInt("_ForestLatticeCount",scatter.TreeLatticeCount);
+            props.SetBuffer("_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);props.SetVector("_ForestPlanet0",planet0);props.SetVector("_ForestPlanet1",planet1);props.SetVector("_ForestPlanet2",planet2);props.SetInt("_ForestLatticeCount",scatter.TreeLatticeCount);props.SetFloat("_ForestPacketFeather",LocalTreePrototype.PacketFeather);
             var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)ForestPlanningRange*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
             Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,batch.Args,1);batch.SubmittedFrame=Time.frameCount;ForestDrawCalls++;
         }

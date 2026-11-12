@@ -10,6 +10,7 @@ public sealed class LocalTreePrototype : ScriptableObject
 {
     public const int BankVersion=2;
     public const float StandSpan=6.6f;
+    public const float PacketFeather=.35f;
     public int Version=BankVersion,Code;
     public Mesh Near,Middle;
     public Texture2DArray Colour,Normal;
