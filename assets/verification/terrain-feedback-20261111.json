@@ -1,9 +1,9 @@
 {
-  "status": "in_progress_not_selected",
-  "updated_utc": "2026-11-12T03:50:31.513348+00:00",
+  "status": "playable_handoff_performance_unfinished",
+  "updated_utc": "2026-11-12T04:31:44.643245+00:00",
   "branch": "work/terrain-render-repair-20261111",
-  "selected": "slot-b FULL d610f0f4 + ScriptsOnly a365d78f; shortcut unchanged",
-  "candidate": "Current source f74af627 includes Core disjoint-prefix optimization88eb60f6; coordinator build A in progress (session71087), no passing-package claim yet for this revision. Last completed candidate slot-a FULL a30e0423 + ScriptsOnly2fa98ab2, Mono non-development, native v91 PASS. Selected slot-b FULLd610f0f4 + ScriptsOnlya365d78f and root shortcut unchanged.",
+  "selected": "slot-a FULL a30e0423 + ScriptsOnly157c6252, Mono non-development; normal root shortcut updated and verified to builds/slot-a/WorldGen.exe.",
+  "candidate": "Final157c6252 accepted for playtest and selected as slot-a; build PASS and CPU-only native priority-order-v95 PASS. Performance investigation remains unfinished; no overall FPS gain claimed.",
   "owner_constraints": [
     "Owner required Chrome tabs closed before FPS; zero visible Chrome windows verified, background Chrome processes remain. Completed focused measurements ran without concurrent own builds, CPU tests or native GPU checks; focus receipts are recorded per run.",
     "Use leftmost monitor for visible reviews.",
@@ -33,7 +33,10 @@
     "39e81a0a": "Reuse the current tile distance during streaming priority comparisons instead of calculating it repeatedly.",
     "2fa98ab2": "Opt-in performance diagnostic WarmupAllHeadings presents each heading before measurement to isolate first-visibility stalls; not enabled in ordinary game behavior. Loading cost will be reported separately.",
     "88eb60f6": "Skip provably disjoint prefixes during terrain edge matching; focused Core --terrain-surface-seams passed1592 in coordinator tool transcript.",
-    "f74af627": "Optional diagnostic to measure loaded-shader warmup separately from gameplay timing; build/test in progress, no results yet. Not enabled as ordinary game behavior."
+    "f74af627": "RETIRED optional loaded-shader warmup diagnostic: v93 spent131.054ms extra loading and still measured185.7675ms first-use spike. Removed by8cfce572; no fix or FPS gain claimed.",
+    "8cfce572": "Remove ineffective shader-warmup option and add opt-in first-visibility isolation diagnostic. Original layer30-only v94 attempt invalid because procedural forest/scatter/shadow submissions share the layer; canceled before measurement.",
+    "9007e247": "Compute streaming priority scores once per sort and verify exact order; corrected explicit terrain-isolation diagnostic remains opt-in/unmeasured. Priority functional proof pending at this checkpoint, no FPS gain claim.",
+    "157c6252": "Add CPU-only native priority-order witness without loading a world or graphics workload; final coordinator build/check pending."
   },
   "retired_experiment": {
     "commit": "e4434e2f",
@@ -222,6 +225,26 @@
       "source_commit": "88eb60f6",
       "scope": "Existing focused Core edge/surface behavior after provably disjoint prefix skip; does not supersede separate preserved raw wet fixture failure.",
       "evidence_kind": "Coordinator tool transcript; no separate raw CLI log claimed."
+    },
+    "priority_order_9007e247": {
+      "status": "PASS",
+      "source_commit": "157c6252",
+      "runtime": "CPU-only Mono",
+      "exit_code": 0,
+      "keys": 1800,
+      "scales": [
+        0.1,
+        1.0
+      ],
+      "orders": [
+        "original",
+        "reversed"
+      ],
+      "policies": 3,
+      "exact_order_and_caller_state_restoration": true,
+      "canonical_receipts": "docs/reports/terrain-repair-20261111/owner-feedback/native-priority-order-v95",
+      "receipt": "scale=0.1 reversed=False PASS terrain priority streaming-score keys=1800 literal_cpu_ms=4.343 scored_cpu_ms=1.754; PASS terrain priority distance-ties keys=1800 literal_cpu_ms=1.683 scored_cpu_ms=0.424; PASS terrain priority moving-score-ties keys=1800 literal_cpu_ms=4.699 scored_cpu_ms=0.420; single-call loading CPU timings only, not an FPS comparison\nscale=0.1 reversed=True PASS terrain priority streaming-score keys=1800 literal_cpu_ms=3.014 scored_cpu_ms=0.332; PASS terrain priority distance-ties keys=1800 literal_cpu_ms=1.359 scored_cpu_ms=0.300; PASS terrain priority moving-score-ties keys=1800 literal_cpu_ms=3.853 scored_cpu_ms=0.415; single-call loading CPU timings only, not an FPS comparison\nscale=1 reversed=False PASS terrain priority streaming-score keys=1800 literal_cpu_ms=2.919 scored_cpu_ms=0.334; PASS terrain priority distance-ties keys=1800 literal_cpu_ms=1.381 scored_cpu_ms=0.308; PASS terrain priority moving-score-ties keys=1800 literal_cpu_ms=3.885 scored_cpu_ms=0.421; single-call loading CPU timings only, not an FPS comparison\nscale=1 reversed=True PASS terrain priority streaming-score keys=1800 literal_cpu_ms=3.048 scored_cpu_ms=0.334; PASS terrain priority distance-ties keys=1800 literal_cpu_ms=1.350 scored_cpu_ms=0.303; PASS terrain priority moving-score-ties keys=1800 literal_cpu_ms=3.882 scored_cpu_ms=0.417; single-call loading CPU timings only, not an FPS comparison\nPASS CPU-only Mono priority proof: 1800 negative/mixed-level keys, two scales, original/reversed orders, all three policies and caller-state restoration; no shader/camera/draw setup.",
+      "timing_scope": "Single-call CPU sorting samples, including cold start; not an FPS or loading-time comparison. No gameplay performance gain claimed."
     }
   },
   "excluded_performance": [
@@ -244,13 +267,18 @@
       "focused_frames": 0,
       "unfocused_frames": 4172,
       "status": "INVALID absolute FPS baseline; background diagnostics only. User-facing number corrected."
+    },
+    {
+      "directory": "artifacts/terrain-repair-20261111/maximum-terrain-only-warmup-v94",
+      "canonical_receipts": "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94",
+      "status": "CANCELED INVALID ISOLATION BEFORE MEASUREMENT; no FPS result",
+      "reason": "CANCELED before measurement: layer30 contains terrain AND procedural forest/scatter/shadow submissions, so the camera mask does not isolate terrain. No FPS claim."
     }
   ],
   "pending": [
-    "Coordinator build A71087 from sourcef74af627 in progress; planned v93 loaded-shader-warmup diagnostic has no results.",
-    "Frame spikes remain unresolved. v92 heading sweep strongly implicates first visibility but moves161.2827ms spike into separate loading; no runtime fix, average FPS gain or100FPS-floor certification.",
-    "Final concise before/after PDF after measurements; inspect both pages, then open a new Chrome tab on the leftmost monitor.",
-    "Select/verify root shortcut only after coordinator acceptance; selected B remains unchanged. Final evidence/report delivery pending."
+    "Coordinator to finish concise two-page PDF inspection and open a new Chrome tab on leftmost monitor; agent did not render/open it.",
+    "Performance investigation unfinished: frame spikes and100FPS floor remain unresolved; corrected terrain-isolation probe9007e247 unmeasured. Final selected157c6252 has no FPS comparison.",
+    "Any further player build must target inactive slot-b; preserve selected slot-a and unchanged owner files/preferences."
   ],
   "limits": [
     "100FPS floor UNMET in focused samples; frame spikes remain. Earlier 80.6ms forest stall is not certified fixed. No overall FPS gain or startup gain claimed.",
@@ -669,16 +697,42 @@
         "engine_gpu_timing_samples": 0,
         "diagnostic": "WarmupAllHeadings opt-in; extra premeasurement loading cost recorded separately. Not ordinary game behavior.",
         "status": "COMPLETE VALID FOCUSED DIAGNOSTIC SAMPLE; 100FPS floor unmet"
+      },
+      {
+        "directory": "artifacts/terrain-repair-20261111/maximum-shader-warmup-v93",
+        "canonical_receipts": "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93",
+        "build": "candidate A f74af627",
+        "backend": "Mono",
+        "development": false,
+        "site": "dense-temperateforest",
+        "site_cell": 41387,
+        "case": "travel-whip-current",
+        "settings": "dense-temperateforest travel-whip-current presentation=FullScreenWindow resolution=1920x1080 vSync=0 targetFps=-1 queuedFrames=2",
+        "geometry": 4,
+        "surface": 4,
+        "vegetation": 2,
+        "view_m": 60000,
+        "frames": 3350,
+        "seconds": 30.01294,
+        "fps": 111.61851,
+        "p50_ms": 7.6989,
+        "p95_ms": 16.1935,
+        "p99_ms": 20.9703,
+        "max_ms": 185.7675,
+        "over10ms": 874,
+        "over16ms": 142,
+        "focused_frames": 3350,
+        "unfocused_frames": 0,
+        "settled": true,
+        "engine_gpu_timing_samples": 0,
+        "diagnostic": "Loaded shader warmup; additional loading131.054ms. Failed to eliminate first-use stall; source option subsequently retired.",
+        "status": "COMPLETE VALID FOCUSED DIAGNOSTIC; proposed remedy FAILED; 100FPS floor unmet"
       }
     ],
     "pending_run": {
-      "run": "v93 planned",
-      "status": "PLANNED after coordinator build71087; no results",
-      "build_source": "f74af627",
-      "geometry": 4,
-      "view_m": 60000,
-      "site": "dense temperate forest",
-      "diagnostic_difference": "Optional loaded-shader warmup; warmup cost must be reported separately. No ordinary game behavior change claimed."
+      "status": "FPS DEFERRED during owner YouTube workload; final selected157c6252 has no measured FPS comparison",
+      "corrected_probe_source": "9007e247",
+      "corrected_probe_status": "UNMEASURED; originalv94 invalid/canceled. CPU-only exact priority ordering verified separately in v95."
     },
     "interpretation": "No overall FPS improvement claimed. Focused owner Borderless uncapped old B v83 averaged 166.02094FPS (p99 15.1269ms, max 22.7345ms); candidate 527a1ceb v84 averaged 162.85527FPS (p99 15.143ms, max 25.7222ms); candidate 44f01a5c v86 averaged 158.60432FPS (p99 15.325ms, max 27.2989ms). Windowed/exclusive/cap diagnostics remain recorded separately. Targeted CPU savings do not establish a total frame-time improvement; spikes and 100FPS floor remain unresolved.",
     "floor_status": "UNMET; no world-wide or 100FPS minimum certification",
@@ -724,7 +778,14 @@
       "maximum_loading_interval_ms": 161.2827,
       "receipt": "dense-temperateforest travel-whip-current diagnostic_pre_measurement_loading_seconds=0.75856 rendered_sweep_seconds=0.75790 readiness_wait_seconds=0.00066 observed_frames=26 focused_frames=26 maximum_observed_interval_ms=161.28270 settled=True requested_measurement_seconds=30.00000; this loading cost is separate from the unchanged measured window",
       "interpretation": "Moving first visibility into an explicit premeasurement heading sweep strongly implicates first-visibility work in the opening stall. It moves cost into loading; it is not a general runtime fix, overall FPS gain, or 100FPS-floor certification."
-    }
+    },
+    "shader_warmup_v93": {
+      "status": "FAILED remedy; source option RETIRED by8cfce572",
+      "loading_ms": 131.054,
+      "measured_max_ms": 185.7675,
+      "interpretation": "Loaded-shader warmup did not remove the large first-use spike; not retained or claimed as a performance fix."
+    },
+    "owner_stop": "Owner requested playable handoff at next feature stopping point. Final build and CPU-only ordering proof completed; no new feature work or GPU/FPS tests while owner watches YouTube."
   },
   "canonical_evidence": {
     "native_final": "docs/reports/terrain-repair-20261111/owner-feedback/native-final-v89",
@@ -776,8 +837,35 @@
       "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-heading-warmup-v92/gc-analysis.json",
       "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-heading-warmup-v92/heading-warmup-frames.csv",
       "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-heading-warmup-v92/heading-warmup-summary.txt",
-      "docs/reports/terrain-repair-20261111/owner-feedback/native-contact-v91/resident-refined-seam.txt"
+      "docs/reports/terrain-repair-20261111/owner-feedback/native-contact-v91/resident-refined-seam.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/summary.csv",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/focus.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/package.json",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/settings.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/case-settings.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-shader-warmup-v93/shader-warmup-loading.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94/summary.csv",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94/package.json",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94/settings.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94/case-settings.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/performance/maximum-terrain-only-warmup-v94/invalid-isolation.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/native-priority-order-v95/priority-order.txt",
+      "docs/reports/terrain-repair-20261111/owner-feedback/native-priority-order-v95/build-inputs.json"
     ],
     "scope": "Only native proof text and compact summary/focus/settings/case-settings/package/gc-analysis receipts. No megatraces, player logs or image inventory copied."
+  },
+  "report_wording_recommendation": {
+    "status": "Playtest build A 157c6252; visual repairs checked at representative sites.",
+    "fps_note": "Earlier max-detail: forest 110 FPS, jungle 128 FPS. Spikes remain; no FPS gain or 100 FPS floor.",
+    "limit": "Earlier max-detail samples do not benchmark final selected157c6252; final proof is functional/CPU-only."
+  },
+  "inactive_recovery": "slot-b FULLd610f0f4 + ScriptsOnlya365d78f retained as inactive previous player. Next further build must target inactive slot-b; never overwrite selected/running slot-a.",
+  "shortcut_selection": {
+    "canonical_receipt": "docs/reports/terrain-repair-20261111/owner-feedback/shortcut-selection.json",
+    "target": "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "source_commit": "157c62525e28be06568dd083163fa0a826fe0b4f",
+    "backend": "Mono",
+    "development": false,
+    "verified": true
   }
 }

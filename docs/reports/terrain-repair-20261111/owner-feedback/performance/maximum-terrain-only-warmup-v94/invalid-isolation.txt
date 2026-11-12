@@ -1,0 +1,1 @@
+CANCELED before measurement: layer30 contains terrain AND procedural forest/scatter/shadow submissions, so the camera mask does not isolate terrain. No FPS claim.

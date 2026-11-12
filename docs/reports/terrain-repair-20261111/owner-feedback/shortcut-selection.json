@@ -1,0 +1,12 @@
+{
+    "UpdatedUtc":  "2026-11-12T04:30:47.7365351Z",
+    "Before":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-b\\WorldGen.exe",
+    "Target":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a\\WorldGen.exe",
+    "WorkingDirectory":  "C:\\Users\\kille\\Desktop\\WorldGen\\builds\\slot-a",
+    "Arguments":  "",
+    "SourceCommit":  "157c62525e28be06568dd083163fa0a826fe0b4f",
+    "Backend":  "Mono",
+    "Development":  false,
+    "CoreSha256":  "5FD489D8EAB04D91B78E431FC9717F61782C36C45BFA842E2293CA5F10E0737B",
+    "PriorityProof":  "native-priority-order-v95 PASS; no graphics/FPS test"
+}

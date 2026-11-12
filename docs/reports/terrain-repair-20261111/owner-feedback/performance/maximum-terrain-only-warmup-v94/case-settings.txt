@@ -1,0 +1,2 @@
+dense-temperateforest travel-whip-current parallel=True burst=True partialUploads=True flatTree=False rangeCache=False humanMemo=False repeatHumanBinding=False fullWaterAim=False memoryTrace=False depthPrepass=True
+warmup_limit_seconds=420

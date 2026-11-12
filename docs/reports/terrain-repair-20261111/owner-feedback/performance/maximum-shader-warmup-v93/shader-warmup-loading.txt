@@ -1,0 +1,2 @@
+dense-temperateforest travel-whip-current BEGIN loaded_shader_objects=74 utc=2026-11-12T03:57:06.5351896Z
+dense-temperateforest travel-whip-current completed_cpu_wall_ms=131.05400 requested_measurement_seconds=30.00000; diagnostic loading cost is separate from the unchanged measured window
