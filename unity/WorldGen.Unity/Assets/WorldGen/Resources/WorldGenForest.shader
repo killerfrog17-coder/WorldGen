@@ -78,37 +78,7 @@ Shader "WorldGen/ForestPackets"
                 WorldGenTreeSurface(i.local,i.direction,_ImpostorBounds.w,i.viewLod,early,color,normal);
                 #endif
             }
-            #if defined(WORLDGEN_FOREST_STAND_DEPTH)
-            struct ForestFragmentOutput {half4 color:SV_Target;float depth:SV_Depth;};
-            float ForestStandDepth(O i,Root root)
-            {
-                // The wide grove card can cross the ground even when its
-                // actual trees are supported. Restore the baked surface along
-                // this ray instead of writing the billboard plane's depth.
-                uint3 indices;float3 weights;WorldGenTreeSelectViews(i.direction,indices,weights);
-                half4 a=WorldGenTreeCoverage(indices.x,i.local,i.direction,_ImpostorBounds.w);
-                half4 b=WorldGenTreeCoverage(indices.y,i.local,i.direction,_ImpostorBounds.w);
-                half4 c=WorldGenTreeCoverage(indices.z,i.local,i.direction,_ImpostorBounds.w);
-                float3 covered=weights*float3(a.a,b.a,c.a);
-                uint selected=covered.x>=covered.y&&covered.x>=covered.z?indices.x:covered.y>=covered.z?indices.y:indices.z;
-                float3 sourceDirection=WorldGenTreeViewDirection(selected);
-                float2 uv=WorldGenTreeViewUV(selected,i.local,i.direction,_ImpostorBounds.w);
-                float depth=SAMPLE_TEXTURE2D_ARRAY(_TreeNormalViews,sampler_TreeNormalViews,uv,selected).a;
-                float rayOffset=((depth-.5)*2*_ImpostorBounds.w-dot(i.local,sourceDirection))/max(.2,dot(i.direction,sourceDirection));
-                float3 hit=i.local+i.direction*rayOffset+_ImpostorBounds.xyz;
-                float3 relative=Rotate(hit*float3(root.width,root.height,root.width),root.yaw);
-                relative.y+=relative.x*root.slopeX+relative.z*root.slopeZ;
-                float4 clipPosition=TransformWorldToHClip(root.position-_ForestChart.xyz+relative);
-                float deviceDepth=clipPosition.z/clipPosition.w;
-                #if defined(SHADER_API_GLCORE) || defined(SHADER_API_GLES) || defined(SHADER_API_GLES3)
-                deviceDepth=deviceDepth*.5+.5;
-                #endif
-                return deviceDepth;
-            }
-            ForestFragmentOutput frag(O i)
-            #else
             half4 frag(O i):SV_Target
-            #endif
             {
                 Root root=_Roots[i.root];float distance=length(root.position-_ForestChart.xyz-_WorldSpaceCameraPos);
                 // Complement the exact-tree interval [0,1-weight], rather than
@@ -122,28 +92,14 @@ Shader "WorldGen/ForestPackets"
                 normal=normalize(normal);
                 half canopy;Light sun=WorldGenFoliageLight(i.world,canopy);half diffuse=saturate((dot(normal,sun.direction)+.2)/1.2),transmission=.14*pow(saturate(dot(-normal,sun.direction)),2);
                 half3 colour=albedo*(VegetationAmbient(_AmbientTint).rgb*(1.4*WorldGenCanopyAmbient(canopy))+sun.color*(diffuse+transmission)*sun.shadowAttenuation)+SecondaryCelestialLight(normal,albedo);
-                half4 result=half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
-                #if defined(WORLDGEN_FOREST_STAND_DEPTH)
-                ForestFragmentOutput output;output.color=result;output.depth=ForestStandDepth(i,root);return output;
-                #else
-                return result;
-                #endif
+                return half4(ApplyPlanetAir(colour,i.world,_WorldSpaceCameraPos,VegetationFogLinear(SRGBToLinear(_FogColor.rgb)),VegetationFogDistance(_FogDistance)),1);
             }
-            #if defined(WORLDGEN_FOREST_STAND_DEPTH)
-            ForestFragmentOutput depthFrag(O i)
-            #else
             half4 depthFrag(O i):SV_Target
-            #endif
             {
                 Root root=_Roots[i.root];float distance=length(root.position-_ForestChart.xyz-_WorldSpaceCameraPos);
                 float weight=ForestDistanceWeight(distance,root);clip(WorldGenDither(i.positionCS.xy)-(1-weight));
                 float fade=ForestFade(root),dither=WorldGenDither(i.positionCS.xy+float2(17,31));clip(root.padding>1.5?dither-(1-fade):fade-dither);
-                half4 color;half3 normal;ForestSurface(i,false,color,normal);clip(color.a-_TreeViewCutoff);
-                #if defined(WORLDGEN_FOREST_STAND_DEPTH)
-                ForestFragmentOutput output;output.color=0;output.depth=ForestStandDepth(i,root);return output;
-                #else
-                return 0;
-                #endif
+                half4 color;half3 normal;ForestSurface(i,false,color,normal);clip(color.a-_TreeViewCutoff);return 0;
             }
         ENDHLSL
         Pass
@@ -153,7 +109,6 @@ Shader "WorldGen/ForestPackets"
             #pragma target 4.5
             #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
-            #pragma multi_compile_local _ WORLDGEN_FOREST_STAND_DEPTH
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
@@ -167,7 +122,6 @@ Shader "WorldGen/ForestPackets"
             #pragma target 4.5
             #pragma multi_compile _ WORLDGEN_FLAT_TREE_DEPTH
             #pragma multi_compile_local _ WORLDGEN_TREE_EFFICIENT
-            #pragma multi_compile_local _ WORLDGEN_FOREST_STAND_DEPTH
             #pragma vertex vert
             #pragma fragment depthFrag
             ENDHLSL

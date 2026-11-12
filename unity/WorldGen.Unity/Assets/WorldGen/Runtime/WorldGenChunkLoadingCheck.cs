@@ -246,6 +246,24 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
         File.WriteAllText(Path.Combine(output,"fast-flight.txt"),(fixedSpeed>0?fixedSpeed+" m/s":"200 then 600 m/s")+" forward and reverse; "+duration+" seconds, 500m above land/water; frames with no resident ground at player="+missingFrames+"; frames missing forward resident ground="+missingForwardFrames+"; max missing forward probes="+maxMissingForward+"; builds="+(TerrainBuildRequests-initialBuilds)+"; handoffs="+ReanchorCount+"; max handoff ms="+LargestHandoffMs+" "+LargestHandoffProfile+"; pixel audits="+audits+" (extra GPU renders/readbacks included; not an FPS benchmark)\n"+EndLoadingProfile()+"\n"+Diagnostics+"\n"+PerformanceForestState);
         Capture(Path.Combine(output,"fast-flight.png"));
+        if(flightArguments.Contains("--worldgen-forest-handoff-check"))
+        {
+            // Keep the SAME camera and location while the remaining exact
+            // census replaces its distant canopy. This exposes a density jump
+            // directly, rather than comparing unrelated parts of a flyover.
+            Capture(Path.Combine(output,"handoff-before.png"));
+            double handoffStart=Time.realtimeSinceStartupAsDouble,nextReceipt=handoffStart;
+            int MissingExact()=>forestPriority.Count(k=>k.Level==0&&(!forestFields.TryGetValue(k,out var f)||!f.RenderReady));
+            while(MissingExact()>0&&Time.realtimeSinceStartupAsDouble-handoffStart<120)
+            {
+                if(Time.realtimeSinceStartupAsDouble>=nextReceipt)
+                {nextReceipt=Time.realtimeSinceStartupAsDouble+5;File.AppendAllText(Path.Combine(output,"handoff-work.txt"),$"{Time.realtimeSinceStartupAsDouble-handoffStart:F2}s missing exact pages={MissingExact()}; {PerformanceForestState}\n");}
+                yield return null;
+            }
+            Capture(Path.Combine(output,"handoff-after.png"));
+            File.WriteAllText(Path.Combine(output,"handoff.txt"),$"same camera; seconds={Time.realtimeSinceStartupAsDouble-handoffStart:F2}; missing exact pages={MissingExact()}; {PerformanceForestState}\n");
+            if(MissingExact()>0)throw new InvalidOperationException("Exact forest did not finish the matched-view handoff review");
+        }
         if(flightArguments.Contains("--worldgen-chunk-forest-entry")&&missingFrames>0)
             throw new InvalidOperationException("Cold forest flight lost resident ground beneath the player in "+missingFrames+" frames");
         if(flightArguments.Contains("--worldgen-chunk-forest-entry")&&missingForwardFrames>0)

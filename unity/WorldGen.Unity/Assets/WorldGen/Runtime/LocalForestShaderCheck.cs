@@ -107,7 +107,14 @@ public sealed partial class LocalTerrainExplorer
         }
         // Isolate the prepared grove from population placement and terrain
         // streaming: compare its card against the exact 36 authoring trees.
-        var prototype=LocalTreePrototype.Load(LocalTreePrototype.Codes[0]);
+        var fixtureArguments=Environment.GetCommandLineArgs();int prototypeArgument=Array.IndexOf(fixtureArguments,"--worldgen-forest-prototype-code"),prototypeCode=0x00002600;
+        if(prototypeArgument>=0)
+        {
+            if(prototypeArgument+1>=fixtureArguments.Length)throw new ArgumentException("Missing forest prototype hex code");
+            string hex=fixtureArguments[prototypeArgument+1];if(hex.StartsWith("0x",StringComparison.OrdinalIgnoreCase))hex=hex.Substring(2);
+            prototypeCode=int.Parse(hex,System.Globalization.NumberStyles.HexNumber,System.Globalization.CultureInfo.InvariantCulture);
+        }
+        var prototype=LocalTreePrototype.Load(prototypeCode);
         if(prototype==null||!prototype.StandValid)throw new Exception("Prepared stand fixture asset unavailable");
         camera.transform.position=new Vector3(0,500,-2000);camera.transform.LookAt(new Vector3(0,8,0));camera.farClipPlane=10000;
         planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
@@ -145,16 +152,14 @@ public sealed partial class LocalTerrainExplorer
         float productionStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(2),productionPixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(2);
         var productionRanges=new Vector4(productionStart,productionStart*1.5f,productionPixels,productionPixels*.5f);
         foreach(var fixture in new[]{
-            (Name:"stand-flat-no-ground",Ground:false,Depth:false,Reference:false,Distance:2000f,Production:false,Nearest:false),
-            (Name:"stand-flat-ground",Ground:true,Depth:false,Reference:false,Distance:2000f,Production:false,Nearest:false),
-            (Name:"stand-depth-no-ground",Ground:false,Depth:true,Reference:false,Distance:2000f,Production:false,Nearest:false),
-            (Name:"stand-depth-ground",Ground:true,Depth:true,Reference:false,Distance:2000f,Production:false,Nearest:false),
-            (Name:"stand-reference-ground",Ground:true,Depth:false,Reference:true,Distance:2000f,Production:false,Nearest:false),
-            (Name:"stand-production-2km",Ground:true,Depth:true,Reference:false,Distance:2000f,Production:true,Nearest:false),
-            (Name:"stand-production-reference-2km",Ground:true,Depth:false,Reference:true,Distance:2000f,Production:true,Nearest:false),
-            (Name:"stand-production-5km",Ground:true,Depth:true,Reference:false,Distance:5000f,Production:true,Nearest:false),
-            (Name:"stand-production-reference-5km",Ground:true,Depth:false,Reference:true,Distance:5000f,Production:true,Nearest:false),
-            (Name:"stand-production-nearest-5km",Ground:true,Depth:true,Reference:false,Distance:5000f,Production:true,Nearest:true)})
+            (Name:"stand-detail-no-ground",Ground:false,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-detail-ground",Ground:true,Reference:false,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-reference-ground",Ground:true,Reference:true,Distance:2000f,Production:false,Nearest:false),
+            (Name:"stand-production-2km",Ground:true,Reference:false,Distance:2000f,Production:true,Nearest:false),
+            (Name:"stand-production-reference-2km",Ground:true,Reference:true,Distance:2000f,Production:true,Nearest:false),
+            (Name:"stand-production-5km",Ground:true,Reference:false,Distance:5000f,Production:true,Nearest:false),
+            (Name:"stand-production-reference-5km",Ground:true,Reference:true,Distance:5000f,Production:true,Nearest:false),
+            (Name:"stand-production-nearest-5km",Ground:true,Reference:false,Distance:5000f,Production:true,Nearest:true)})
         {
             reference.SetActive(false);ground.SetActive(fixture.Ground);
             camera.transform.position=new Vector3(0,500,-fixture.Distance);camera.transform.LookAt(new Vector3(0,8,0));
@@ -164,7 +169,6 @@ public sealed partial class LocalTerrainExplorer
             var viewRanges=fixture.Production?productionRanges:Vector4.zero;
             if(fixture.Nearest){viewRanges.z=1000000;viewRanges.w=500000;}
             Shader.SetGlobalVector("_WorldGenTreeViewRanges",viewRanges);Shader.SetGlobalFloat("_WorldGenTreeViewProjection",camera.pixelHeight/Mathf.Tan(camera.fieldOfView*Mathf.Deg2Rad*.5f));
-            if(fixture.Depth)material.EnableKeyword("WORLDGEN_FOREST_STAND_DEPTH");else material.DisableKeyword("WORLDGEN_FOREST_STAND_DEPTH");
             // Clear the previous frame's indirect submission before the baseline.
             yield return null;
             camera.Render();var baseline=ReadStandImage();
