@@ -251,6 +251,34 @@ public sealed partial class LocalTerrainExplorer
             // Keep the SAME camera and location while the remaining exact
             // census replaces its distant canopy. This exposes a density jump
             // directly, rather than comparing unrelated parts of a flyover.
+            var fineAdmissionBefore=new Dictionary<(int Face,int X,int Y),(bool Rejected,int GroundLevel)>();
+            var admissionRows=new List<string>{"phase,renderReady,groundLevel,exactRoots,rejectedRoots"};
+            void RecordFineAdmission(string phase)
+            {
+                bool before=phase=="handoff-before";var totals=new int[36];var rejected=new int[36];
+                int matched=0,recovered=0,recoveredOnFinerGround=0,newlyRejected=0,readyRejected=0;
+                foreach(var field in forestFields.Values)
+                {
+                    if(field.Source.Key.Level!=0)continue;
+                    foreach(var pair in field.Roots)foreach(int slot in pair.Value)
+                    {
+                        var tree=pair.Key.Data[slot];if(tree.Height<=0)continue;
+                        int groundLevel=pair.Key.GroundLevels[slot],index=Math.Min(17,Math.Max(0,groundLevel))+(field.RenderReady?18:0);
+                        bool hidden=tree.Padding<0;totals[index]++;if(hidden){rejected[index]++;if(field.RenderReady)readyRejected++;}
+                        var identity=((int)(tree.Face&7u),tree.CellX,tree.CellY);
+                        if(before)fineAdmissionBefore[identity]=(hidden,groundLevel);
+                        else if(fineAdmissionBefore.TryGetValue(identity,out var prior))
+                        {
+                            matched++;
+                            if(prior.Rejected&&!hidden){recovered++;if(groundLevel<prior.GroundLevel)recoveredOnFinerGround++;}
+                            if(!prior.Rejected&&hidden)newlyRejected++;
+                        }
+                    }
+                }
+                for(int i=0;i<totals.Length;i++)if(totals[i]>0)admissionRows.Add($"{phase},{i>=18},{i%18},{totals[i]},{rejected[i]}");
+                File.WriteAllLines(Path.Combine(output,"handoff-admission.csv"),admissionRows);
+                File.AppendAllText(Path.Combine(output,"handoff-admission.txt"),$"{phase}: rejected exact roots in RenderReady fields={readyRejected}; matched canonical roots={matched}; rejected->admitted={recovered}; rejected->admitted with finer stored ground LOD={recoveredOnFinerGround}; admitted->rejected={newlyRejected}. Ground LOD17 means unknown. Resident counts, not GPU-visible counts.\n");
+            }
             void CaptureHandoff(string name)
             {
                 Capture(Path.Combine(output,name+".png"));
@@ -259,6 +287,7 @@ public sealed partial class LocalTerrainExplorer
                     if(renderer.enabled&&renderer.gameObject.name=="Land and seabed"){renderer.enabled=false;ground.Add(renderer);}
                 try{Capture(Path.Combine(output,name+"-forest.png"));}
                 finally{foreach(var renderer in ground)renderer.enabled=true;}
+                RecordFineAdmission(name);
             }
             CaptureHandoff("handoff-before");
             double handoffStart=Time.realtimeSinceStartupAsDouble,nextReceipt=handoffStart;
