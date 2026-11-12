@@ -76,10 +76,11 @@ public sealed partial class LocalTerrainExplorer
     }
     double StreamingPriority(TerrainTileKey key)
     {
-        if(ImmediateTerrain(key))return TerrainLod.DistanceSquared(key,motion.X,motion.Z);
+        double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z);
+        if(detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):d<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2))return d;
         double baseSize=TerrainLod.BaseSizeM*HorizontalScale;
         double x=double.IsNaN(streamingPriorityX)?predictedX:streamingPriorityX,z=double.IsNaN(streamingPriorityX)?predictedZ:streamingPriorityZ;
-        double d=TerrainLod.DistanceSquared(key,motion.X,motion.Z),future=double.IsNaN(x)?d:TerrainLod.DistanceSquared(key,x,z);
+        double future=double.IsNaN(x)?d:TerrainLod.DistanceSquared(key,x,z);
         return baseSize*baseSize*100+Math.Min(d,future*1.2);
     }
     void RefreshStreamingPrediction()
