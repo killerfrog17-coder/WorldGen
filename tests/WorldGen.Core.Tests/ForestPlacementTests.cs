@@ -88,6 +88,16 @@ static class ForestPlacementTests
                     double represented=LocalScatter.ForestCanopyAnchorCount(root)*(LocalScatter.ForestCanopyUsesStand(root)?LocalScatter.ForestStandTreeCount:1);
                     Check(represented>=root.CanopyTreeCount&&represented-root.CanopyTreeCount<LocalScatter.ForestStandTreeCount,"Coarse representation preserves density to within one prepared stand");
                 }
+                if(level==1)
+                {
+                    var packet=page.Roots.First(r=>r.CanopyTreeCount>1);
+                    var census=independent.BuildForest(new ForestPageKey(page.Key.Face,packet.CellX/LocalScatter.ForestPageSide,packet.CellY/LocalScatter.ForestPageSide,0));
+                    var members=census.Roots.Where(r=>r.CellX>=packet.CellX&&r.CellX<packet.CellX+8&&r.CellY>=packet.CellY&&r.CellY<packet.CellY+8).ToArray();
+                    Check(packet.CanopyTreeCount==members.Length,"Small coarse packet preserves the independent exact candidate count");
+                    double widthArea=members.Average(r=>r.Tree.WidthM*r.Tree.WidthM),heightMass=members.Average(r=>r.Tree.HeightM*r.Tree.HeightM);
+                    Check(Math.Abs(packet.Tree.WidthM*packet.Tree.WidthM-widthArea)<1e-9*Math.Max(1,widthArea),"Coarse crown width preserves exact packet mean canopy area");
+                    Check(Math.Abs(packet.Tree.HeightM*packet.Tree.HeightM-heightMass)<1e-9*Math.Max(1,heightMass),"Coarse height preserves exact packet second moment");
+                }
                 using(var stream=new MemoryStream())
                 {
                     using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteForest(writer,page);stream.Position=0;

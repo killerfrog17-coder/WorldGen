@@ -152,7 +152,7 @@ namespace WorldGen.Core
         // density. They never perform physical per-root geometry admission.
         double CanopyTreeEstimate(int face,int left,int bottom,int nx,int ny,Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch> patches,ref int probes,CancellationToken token,out ScatterInstance source)
         {
-            int admitted=0,samples=0;source=default;
+            int admitted=0,samples=0;source=default;double widthSquared=0,heightSquared=0,largestWidthSquared=-1;
             bool exact=nx*ny<=64;int sx=exact?nx:8,sy=exact?ny:8;
             for(int y=0;y<sy;y++)for(int x=0;x<sx;x++)
             {
@@ -165,8 +165,15 @@ namespace WorldGen.Core
                 {patch=terrain.Patch(Position(address),840/scale);patches.Add(address,patch);}
                 probes++;samples++;
                 if(patch.MaximumForestCoverage>0&&TryTreeCandidate(address,gx%TreeCandidateSide,gy%TreeCandidateSide,patch,out var candidate))
-                {if(admitted==0)source=candidate;admitted++;}
+                {
+                    double crownArea=candidate.WidthM*candidate.WidthM;
+                    if(crownArea>largestWidthSquared){source=candidate;largestWidthSquared=crownArea;}
+                    widthSquared+=crownArea;heightSquared+=candidate.HeightM*candidate.HeightM;admitted++;
+                }
             }
+            // Preserve sampled canopy area and vertical mass rather than
+            // repeating the first (often juvenile) sampled tree over a packet.
+            if(admitted>0){source.WidthM=Math.Sqrt(widthSquared/admitted);source.HeightM=Math.Sqrt(heightSquared/admitted);}
             return samples==0?0:admitted*(double)nx*ny/samples;
         }
         ForestPage BuildCanopy(ForestPageKey key,int x0,int y0,int span,int count,CancellationToken token)

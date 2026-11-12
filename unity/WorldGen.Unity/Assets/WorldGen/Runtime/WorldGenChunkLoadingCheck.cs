@@ -238,6 +238,8 @@ public sealed partial class LocalTerrainExplorer
         Capture(Path.Combine(output,"fast-flight.png"));
         if(flightArguments.Contains("--worldgen-chunk-forest-entry")&&missingFrames>0)
             throw new InvalidOperationException("Cold forest flight lost resident ground beneath the player in "+missingFrames+" frames");
+        if(flightArguments.Contains("--worldgen-chunk-forest-entry")&&missingForwardFrames>0)
+            throw new InvalidOperationException("Cold forest flight lost resident ground ahead in "+missingForwardFrames+" frames");
     }
     int CheckFlightGroundPixels(string path,bool overhead=true)
     {

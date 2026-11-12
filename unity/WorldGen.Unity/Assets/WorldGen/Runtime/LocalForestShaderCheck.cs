@@ -36,6 +36,8 @@ public sealed partial class LocalTerrainExplorer
             Plane();tile.Heights[8*side+8]=18;Pair(false,18);
             Plane();Pair(false,10,x:5);
             tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(512,10,512),new Vector3(2,1,40));Pair(false,10);
+            var tidal=Root(true);tidal.Face|=16u;ApplyForestRootGround(ref tidal,10,key.Level,tile,key);Check(tidal.Padding>0,"mapped shallow tidal forest retains its stand");
+            tile.ForestCover[(8*side+8)*8+3]=0;ApplyForestRootGround(ref tidal,10,key.Level,tile,key);Check(tidal.Padding<0,"tidal exception retains canonical habitat admission");Plane();
             tile.WaterBounds=new Bounds(new Vector3(512,0,512),new Vector3(2,1,40));Pair(true,10);tile.HasWater=false;
             for(int i=0;i<side*side;i++){neighbour.Heights[i]=fine.Heights[i]=10;neighbour.ForestCover[i*8+3]=fine.ForestCover[i*8+3]=1;}
             var adjacent=new WorldGen.Presentation.TerrainTileKey(1,0,1,.5);owner.tiles.Add(key,tile);owner.tiles.Add(adjacent,neighbour);

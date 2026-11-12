@@ -359,9 +359,10 @@ public sealed partial class LocalTerrainExplorer
         }
         while(flightForestNext<flightForestPriority.Length||forestNextRequest<forestPriority.Length)
         {
-            // Merge the two existing queues instead of draining every flight
-            // parent first. Nearby exact pages must get their turn even when
-            // a large coarse parent's bounds also contain the camera.
+            // Keep the immediate exact forest first, then complete canopy
+            // coverage before refining the rest of the two-kilometre census.
+            // Otherwise upgrades consume the lanes while flight outruns its
+            // next coarse forest/terrain packet.
             while(forestNextRequest<forestPriority.Length&&
                 (forestFields.ContainsKey(forestPriority[forestNextRequest])||forestJobs.Any(j=>j.Key.Equals(forestPriority[forestNextRequest]))))forestNextRequest++;
             while(flightForestNext<flightForestPriority.Length&&
@@ -372,7 +373,7 @@ public sealed partial class LocalTerrainExplorer
             if(leaf&&parent)
             {
                 double near=ForestGapDistance(forestPriority[forestNextRequest]);
-                coverage=near>LegacyForestReach+64&&ForestGapDistance(flightForestPriority[flightForestNext])<near;
+                coverage=near>Math.Max(600,LegacyForestReach+64);
             }
             var key=coverage?flightForestPriority[flightForestNext++]:forestPriority[forestNextRequest++];
             RequestForest(key);return true;
@@ -543,24 +544,41 @@ public sealed partial class LocalTerrainExplorer
                     // without a repeated missing row or aligned planting grid.
                     x+=((phaseX+crown*.7548776662466927)%1-.5)*span;
                     z+=((phaseZ+crown*.5698402909980532)%1-.5)*span;
-                    cohort=(float)(.62+.46*random.Unit());
+                    // Source dimensions already include the sampled size
+                    // cohorts. Stand artwork has its own .55..1 cohorts;
+                    // normalize their RMS instead of shrinking the canopy twice.
+                    cohort=paired?1/.786f:1;
                     scatter.ForestCoordinates(frame.Position(x,z),out face,out gx,out gy);
                 }
                 uint densityHash=Rng.Mix(identity^unchecked((uint)crown*0x9e3779b9u)^0x9a65c4u)&0xffffffu;
-                var sourceRoot=new ForestRoot{Position=new Vector3((float)x,height-.045f,(float)z),Width=(float)(tree.WidthM*(macro?cohort:source.CrownScale)),Height=(float)tree.HeightM*cohort,Yaw=macro?(float)(random.Unit()*Math.PI*2):(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=gx,CellY=gy,Face=(uint)face|(paired?8u:0u)|(densityHash<<8),
+                var sourceRoot=new ForestRoot{Position=new Vector3((float)x,height-.045f,(float)z),Width=(float)(tree.WidthM*(macro?cohort:source.CrownScale)),Height=(float)tree.HeightM*cohort,Yaw=macro?(float)(random.Unit()*Math.PI*2):(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=gx,CellY=gy,Face=(uint)face|(paired?8u:0u)|(TreeFlora.TidalCode(tree.Variant)?16u:0u)|(densityHash<<8),
                     Tint=new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
+                var preparedStand=sourceRoot;int standGroundLevel=17;
+                if(paired)
+                {
+                    preparedStand.Width*=LocalTreePrototype.StandSpan;preparedStand.Padding=3;
+                    ProjectForestRootGround(ref preparedStand,out standGroundLevel);
+                }
                 for(int representation=0;representation<(paired?2:1);representation++)
                 {
-                    var root=sourceRoot;var target=batch;
-                    if(representation==1){root.Width*=LocalTreePrototype.StandSpan;root.Padding=3;target=standBatch;}
-                    ProjectForestRootGround(ref root,out int groundLevel);
+                    var root=sourceRoot;var target=batch;int groundLevel;
+                    if(representation==1){root=preparedStand;groundLevel=standGroundLevel;target=standBatch;}
+                    else if(paired&&preparedStand.Padding>0)
+                    {root.Position.y=preparedStand.Position.y;root.Padding=-2;groundLevel=standGroundLevel;}
+                    else
+                    {
+                        // The ordinary fallback needs only its own centre, not
+                        // a second identical nine-point stand support query.
+                        root.Face&=~8u;ProjectForestRootGround(ref root,out groundLevel);
+                        if(paired)root.Face|=8u;
+                    }
                     AddForestRoot(field,target,root,groundLevel,ref first);
                     // Both representations stay private until the page is
                     // complete. Terrain publication chooses one atomically.
                     added++;
-                    if(added%16==0&&(added>=4096||System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007))
-                    {forestRootTopologyRevision++;added=0;yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
                 }
+                if(added%16==0&&(added>=4096||System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007))
+                {forestRootTopologyRevision++;added=0;yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
             }
         }
         if(added>0)forestRootTopologyRevision++;
@@ -669,7 +687,7 @@ public sealed partial class LocalTerrainExplorer
             bool supported=false;
             if(root.Padding>0)
             {
-                supported=TryForestStandPlane(tile,key,root.Position.x,root.Position.z,y,standWidth,root.Height,out sx,out sz,out int supportLevel,terrain,publication);
+                supported=TryForestStandPlane(tile,key,root.Position.x,root.Position.z,y,standWidth,root.Height,out sx,out sz,out int supportLevel,terrain,publication,(root.Face&16u)!=0);
                 // An edge can be supported by several LOD owners. Remember the
                 // coarsest one, so a later change there also rechecks the stand.
                 groundLevel=Math.Max(groundLevel,supportLevel);
@@ -689,7 +707,7 @@ public sealed partial class LocalTerrainExplorer
         double width=Math.Abs(root.Padding)>2.5f?root.Width:root.Width*LocalTreePrototype.StandSpan;
         return width*.6;
     }
-    static bool TryForestStandSample(Tile tile,TerrainTileKey key,double x,double z,out double y)
+    static bool TryForestStandSample(Tile tile,TerrainTileKey key,double x,double z,out double y,bool allowWet=false)
     {
         y=0;if(tile==null||tile.Heights==null||!tile.ForestCover.IsCreated)return false;
         double size=key.SizeM,localX=x-key.X*size,localZ=z-key.Z*size;
@@ -704,14 +722,16 @@ public sealed partial class LocalTerrainExplorer
             float h00=tile.Heights[b*side+a],h10=tile.Heights[b*side+a+1],h01=tile.Heights[(b+1)*side+a],h11=tile.Heights[(b+1)*side+a+1];
             y=u+v<=1?h00+(h10-h00)*u+(h01-h00)*v:h11+(h01-h11)*(1-u)+(h10-h11)*(1-v);
         }
-        if(tile.HasWater&&tile.WaterBoundsKnown)
+        // Mapped tidal forest already carries canonical shallow-water root
+        // admission in ForestCover. Ordinary crowns still reject wet support.
+        if(!allowWet&&tile.HasWater&&tile.WaterBoundsKnown)
         {
             var wet=tile.WaterBounds;
             if(localX>=wet.min.x&&localX<=wet.max.x&&localZ>=wet.min.z&&localZ<=wet.max.z&&wet.max.y>=y-.1)return false;
         }
         return true;
     }
-    static bool TryForestStandPlane(Tile tile,TerrainTileKey key,double x,double z,double centerY,double width,double height,out float sx,out float sz,out int supportLevel,LocalTerrainExplorer terrain=null,GroundPublication publication=null)
+    static bool TryForestStandPlane(Tile tile,TerrainTileKey key,double x,double z,double centerY,double width,double height,out float sx,out float sz,out int supportLevel,LocalTerrainExplorer terrain=null,GroundPublication publication=null,bool allowWet=false)
     {
         sx=sz=0;supportLevel=key.Level;if(tile==null)return false;double radius=width*.6;
         Span<double> heights=stackalloc double[9];
@@ -725,7 +745,7 @@ public sealed partial class LocalTerrainExplorer
             }
             if(owner==null){supportLevel=17;return false;}
             supportLevel=Math.Max(supportLevel,ownerKey.Level);
-            if(!TryForestStandSample(owner,ownerKey,px,pz,out heights[(j+1)*3+i+1])){supportLevel=17;return false;}
+            if(!TryForestStandSample(owner,ownerKey,px,pz,out heights[(j+1)*3+i+1],allowWet)){supportLevel=17;return false;}
         }
         // Ordinary chunk boundaries and finer resident surfaces do not remove
         // forest. Reject only unsupported/wet probes or genuinely curved rock.
