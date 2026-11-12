@@ -202,21 +202,18 @@ namespace WorldGen.Presentation
                 if(interior)samples[z*side+x]=sample;
             }
             // Keep the original physical grid/one-cell halo and its sampling
-            // order. Only extra axial strips serve the wider shading derivative.
+            // order. The outer ring serves only the wider shading derivative.
             for (int z = -1; z <= side; z++)
             {
                 token.ThrowIfCancellationRequested();
                 for (int x = -1; x <= side; x++)
                     SampleHeight(x,z,x>=0&&x<side&&z>=0&&z<side);
             }
-            for(int offset=2;offset<=normalStride;offset++)
+            for(int z=-normalStride;normalStride>1&&z<side+normalStride;z++)
             {
                 token.ThrowIfCancellationRequested();
-                for(int at=0;at<side;at++)
-                {
-                    SampleHeight(-offset,at,false);SampleHeight(segments+offset,at,false);
-                    SampleHeight(at,-offset,false);SampleHeight(at,segments+offset,false);
-                }
+                for(int x=-normalStride;x<side+normalStride;x++)
+                    if(x< -1||x>side||z< -1||z>side)SampleHeight(x,z,false);
             }
             mesh.Positions = new float[ground * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[ground * 4];
             timing?.Mark(1);
@@ -236,24 +233,16 @@ namespace WorldGen.Presentation
                 mesh.WaterColors[i * 4] = .13f; mesh.WaterColors[i * 4 + 1] = .37f; mesh.WaterColors[i * 4 + 2] = .46f; mesh.WaterColors[i * 4 + 3] = (float)sample.OceanInfluence;
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
                 var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,frame.Position(eastM+x*step,northM+z*step),sample,nx,nz);
-                if(normalStride>1)
+                if(terrain.Amplification!=null&&step<=64)
                 {
-                    // Fine mesh spacing must not turn each underlying eight-
-                    // metre height triangle into a separately lit patch. Keep
-                    // ecological/physical slopes above literal; filter shading only.
-                    double sx=(heights[at-normalStride]-heights[at+normalStride])/(2*normalRadius);
-                    double sz=(heights[at-normalStride*halo]-heights[at+normalStride*halo])/(2*normalRadius);
-                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
-                }
-                else if(terrain.Amplification!=null&&step<=64)
-                {
-                    // Average the transverse slope as well as the axial one.
-                    // The existing one-cell halo already holds these diagonals;
-                    // narrow steep bands otherwise light as alternating teeth.
-                    double sx=(heights[at-halo-1]+2*heights[at-1]+heights[at+halo-1]
-                        -heights[at-halo+1]-2*heights[at+1]-heights[at+halo+1])/(8*step);
-                    double sz=(heights[at-halo-1]+2*heights[at-halo]+heights[at-halo+1]
-                        -heights[at+halo-1]-2*heights[at+halo]-heights[at+halo+1])/(8*step);
+                    // Average transverse and axial slopes over the same footprint
+                    // on fine and coarse grids. Physical/ecological slopes above
+                    // remain literal; only lighting receives this filter.
+                    int d=normalStride,row=d*halo;
+                    double sx=(heights[at-row-d]+2*heights[at-d]+heights[at+row-d]
+                        -heights[at-row+d]-2*heights[at+d]-heights[at+row+d])/(8*normalRadius);
+                    double sz=(heights[at-row-d]+2*heights[at-row]+heights[at-row+d]
+                        -heights[at+row-d]-2*heights[at+row]-heights[at+row+d])/(8*normalRadius);
                     vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
                 }
                 if(timing!=null)timing.MaterialSamples++;
@@ -269,9 +258,8 @@ namespace WorldGen.Presentation
             double ShadingHeight(double x,double z)
             {
                 double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
-                bool axial=ix>=0&&ix<side&&iz>=-normalStride&&iz<side+normalStride
-                    ||iz>=0&&iz<side&&ix>=-normalStride&&ix<side+normalStride;
-                if(axial&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+normalStride)*halo+ix+normalStride];
+                if(ix>=-normalStride&&ix<side+normalStride&&iz>=-normalStride&&iz<side+normalStride
+                    &&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+normalStride)*halo+ix+normalStride];
                 return Height(x,z);
             }
             TerrainSurfaceVertex Boundary(double x,double z,double h)
@@ -292,18 +280,12 @@ namespace WorldGen.Presentation
                 }
                 var sample=h<16&&sparseMaterials?SurfaceSample(x,z,Sample(x,z,p,true)):Sample(x,z,p);
                 var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
-                if(terrain.Amplification!=null&&h<HyperAmplification.FinestSpacingM)
+                if(terrain.Amplification!=null&&h<=64)
                 {
-                    double radius=h*Math.Ceiling(HyperAmplification.FinestSpacingM/h);
-                    double sx=(ShadingHeight(x-radius,z)-ShadingHeight(x+radius,z))/(2*radius);
-                    double sz=(ShadingHeight(x,z-radius)-ShadingHeight(x,z+radius))/(2*radius);
-                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
-                }
-                else if(terrain.Amplification!=null&&h<=64)
-                {
-                    double nw=Height(x-h,z-h),ne=Height(x+h,z-h),sw=Height(x-h,z+h),se=Height(x+h,z+h);
-                    double sx=(nw+2*Height(x-h,z)+sw-ne-2*Height(x+h,z)-se)/(8*h);
-                    double sz=(nw+2*Height(x,z-h)+ne-sw-2*Height(x,z+h)-se)/(8*h);
+                    double radius=h*Math.Max(1,Math.Ceiling(HyperAmplification.FinestSpacingM/h));
+                    double nw=ShadingHeight(x-radius,z-radius),ne=ShadingHeight(x+radius,z-radius),sw=ShadingHeight(x-radius,z+radius),se=ShadingHeight(x+radius,z+radius);
+                    double sx=(nw+2*ShadingHeight(x-radius,z)+sw-ne-2*ShadingHeight(x+radius,z)-se)/(8*radius);
+                    double sz=(nw+2*ShadingHeight(x,z-radius)+ne-sw-2*ShadingHeight(x,z+radius)-se)/(8*radius);
                     vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
                 }
                 return vertex;
