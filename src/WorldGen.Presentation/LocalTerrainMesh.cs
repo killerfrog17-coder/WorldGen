@@ -81,6 +81,8 @@ namespace WorldGen.Presentation
             if (segments < 4 || segments > 128 || sizeM <= 0 || sizeM > 131072 || double.IsNaN(sizeM)) throw new ArgumentOutOfRangeException(nameof(segments));
             var mesh = new LocalTerrainMesh { EastM = eastM, NorthM = northM, SizeM = sizeM, Segments = segments, MinHeightM = double.MaxValue, MaxHeightM = double.MinValue };
             double step = sizeM / segments;
+            int normalStride=terrain.Amplification==null?1:Math.Max(1,(int)Math.Ceiling(HyperAmplification.FinestSpacingM/step));
+            double normalRadius=normalStride*step;
             bool distant=terrain.Amplification!=null&&step>=128;
             bool coarseGeometry=terrain.Amplification!=null&&step>256;
             double extent=(sizeM*1.1+step*2)/frame.HorizontalScale;
@@ -183,7 +185,7 @@ namespace WorldGen.Presentation
                 {if(timing!=null)timing.SurfaceFallbacks++;return Sample(x,z,frame.Position(x,z),knownGeometry:geometry);}
                 return LocalTerrain.LocalTerrainPatch.BlendEcology(a,b,c,d,x/materialStep-ix,z/materialStep-iz,geometry);
             }
-            int side = segments + 1, halo = side + 2, ground = side * side;
+            int side = segments + 1, halo = side + normalStride*2, ground = side * side;
             mesh.GroundVertices = ground;
             // Every terrain LOD needs the grass/moss/lichen material mixture.
             // Only nearby tiles create geometry from this compact regular grid.
@@ -191,16 +193,29 @@ namespace WorldGen.Presentation
             mesh.MidCover=new float[ground*6];
             mesh.ForestCover=new float[ground*8];
             var heights = new double[halo * halo]; var samples = new LocalTerrainSample[ground];
+            void SampleHeight(int x,int z,bool interior)
+            {
+                var position=frame.Position(eastM+x*step,northM+z*step);
+                var sample=Sample(eastM+x*step,northM+z*step,position,sparseMaterials||!interior);
+                if(timing!=null)timing.GeometrySamples++;
+                heights[(z+normalStride)*halo+x+normalStride]=frame.SurfaceY(position,sample.ElevationM);
+                if(interior)samples[z*side+x]=sample;
+            }
+            // Keep the original physical grid/one-cell halo and its sampling
+            // order. Only extra axial strips serve the wider shading derivative.
             for (int z = -1; z <= side; z++)
             {
                 token.ThrowIfCancellationRequested();
                 for (int x = -1; x <= side; x++)
+                    SampleHeight(x,z,x>=0&&x<side&&z>=0&&z<side);
+            }
+            for(int offset=2;offset<=normalStride;offset++)
+            {
+                token.ThrowIfCancellationRequested();
+                for(int at=0;at<side;at++)
                 {
-                    bool interior=x>=0&&x<side&&z>=0&&z<side;
-                    var position = frame.Position(eastM + x * step, northM + z * step); var sample = Sample(eastM+x*step,northM+z*step,position,sparseMaterials||!interior);
-                    if(timing!=null)timing.GeometrySamples++;
-                    double height = frame.SurfaceY(position, sample.ElevationM); heights[(z + 1) * halo + x + 1] = height;
-                    if (x >= 0 && x < side && z >= 0 && z < side) samples[z * side + x] = sample;
+                    SampleHeight(-offset,at,false);SampleHeight(segments+offset,at,false);
+                    SampleHeight(at,-offset,false);SampleHeight(at,segments+offset,false);
                 }
             }
             mesh.Positions = new float[ground * 3]; mesh.Normals = new float[mesh.Positions.Length]; mesh.Colors = new float[ground * 4];
@@ -211,7 +226,7 @@ namespace WorldGen.Presentation
             mesh.WaterPositions = new float[ground * 3]; mesh.WaterColors = new float[ground * 4];
             for (int z = 0; z < side; z++) for (int x = 0; x < side; x++)
             {
-                int i = z * side + x, at = (z + 1) * halo + x + 1; var sample = sparseMaterials?SurfaceSample(eastM+x*step,northM+z*step,samples[i]):samples[i]; double y = heights[at];
+                int i = z * side + x, at = (z + normalStride) * halo + x + normalStride; var sample = sparseMaterials?SurfaceSample(eastM+x*step,northM+z*step,samples[i]):samples[i]; double y = heights[at];
                 // Distant bank vertices reuse this ecological grid. Retain the
                 // enriched sample rather than the first pass's geometry only.
                 if(distant)samples[i]=sample;
@@ -221,15 +236,32 @@ namespace WorldGen.Presentation
                 mesh.WaterColors[i * 4] = .13f; mesh.WaterColors[i * 4 + 1] = .37f; mesh.WaterColors[i * 4 + 2] = .46f; mesh.WaterColors[i * 4 + 3] = (float)sample.OceanInfluence;
                 double nx = (heights[at - 1] - heights[at + 1]) / (2 * step), nz = (heights[at - halo] - heights[at + halo]) / (2 * step);
                 var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,frame.Position(eastM+x*step,northM+z*step),sample,nx,nz);
+                if(normalStride>1)
+                {
+                    // Fine mesh spacing must not turn each underlying eight-
+                    // metre height triangle into a separately lit patch. Keep
+                    // ecological/physical slopes above literal; filter shading only.
+                    double sx=(heights[at-normalStride]-heights[at+normalStride])/(2*normalRadius);
+                    double sz=(heights[at-normalStride*halo]-heights[at+normalStride*halo])/(2*normalRadius);
+                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
+                }
                 if(timing!=null)timing.MaterialSamples++;
                 TerrainSurfaceVertex.Write(mesh,i,vertex,vertex,0);
             }
             double Height(double x,double z)
             {
                 double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
-                if(ix>=-1&&ix<=side&&iz>=-1&&iz<=side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+1)*halo+ix+1];
+                if(ix>=-1&&ix<=side&&iz>=-1&&iz<=side&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+normalStride)*halo+ix+normalStride];
                 var p=frame.Position(x,z);
                 return frame.SurfaceY(p,coarseGeometry?Sample(x,z,p,true).ElevationM:patch!=null?patch.Elevation(p):Sample(x,z,p).ElevationM);
+            }
+            double ShadingHeight(double x,double z)
+            {
+                double fx=(x-eastM)/step,fz=(z-northM)/step;int ix=(int)Math.Round(fx),iz=(int)Math.Round(fz);
+                bool axial=ix>=0&&ix<side&&iz>=-normalStride&&iz<side+normalStride
+                    ||iz>=0&&iz<side&&ix>=-normalStride&&ix<side+normalStride;
+                if(axial&&Math.Abs(fx-ix)<1e-7&&Math.Abs(fz-iz)<1e-7)return heights[(iz+normalStride)*halo+ix+normalStride];
+                return Height(x,z);
             }
             TerrainSurfaceVertex Boundary(double x,double z,double h)
             {
@@ -248,7 +280,15 @@ namespace WorldGen.Presentation
                     return TerrainSurfaceVertex.Evaluate(terrain,frame,p,coarse,(At(x-h,z)-At(x+h,z))/(2*h),(At(x,z-h)-At(x,z+h))/(2*h));
                 }
                 var sample=h<16&&sparseMaterials?SurfaceSample(x,z,Sample(x,z,p,true)):Sample(x,z,p);
-                return TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
+                var vertex=TerrainSurfaceVertex.Evaluate(terrain,frame,p,sample,(Height(x-h,z)-Height(x+h,z))/(2*h),(Height(x,z-h)-Height(x,z+h))/(2*h));
+                if(terrain.Amplification!=null&&h<HyperAmplification.FinestSpacingM)
+                {
+                    double radius=h*Math.Ceiling(HyperAmplification.FinestSpacingM/h);
+                    double sx=(ShadingHeight(x-radius,z)-ShadingHeight(x+radius,z))/(2*radius);
+                    double sz=(ShadingHeight(x,z-radius)-ShadingHeight(x,z+radius))/(2*radius);
+                    vertex.Normal=new V(sx,1,sz)/Math.Sqrt(sx*sx+1+sz*sz);
+                }
+                return vertex;
             }
             timing?.Mark(2);TerrainSurfaceEdges.Apply(mesh,edgeSteps,Boundary,token);timing?.Mark(3);
             mesh.Triangles=SurfaceTriangles(segments);
