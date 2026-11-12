@@ -149,10 +149,11 @@ public sealed partial class LocalTerrainExplorer
     void PlanBackdrop()
     {
         backdrops.Clear();backdropRevision++;
-        // Cover the next two seconds of flight before its horizon enters view.
+        // Cold terrain plus its forest needs several seconds of headroom at
+        // aircraft speed; two seconds exposed the next coarse horizon tile.
         // Only coarse coverage grows; detailed terrain and forest ranges do not.
         double speed=Math.Sqrt(streamingVX*streamingVX+streamingVZ*streamingVZ);
-        backdropHorizonLead=motion.Flying&&plannedAltitude>80?Math.Min(2048,speed*2):0;
+        backdropHorizonLead=motion.Flying&&plannedAltitude>80?Math.Min(8192,speed*6):0;
         backdropHorizonLevel=0;
         foreach(var pair in TerrainStreamingPlan.Coverage(motion.X,motion.Z,HorizontalScale,viewDistance,backdropHorizonLead))
         {
