@@ -242,9 +242,7 @@ public sealed partial class LocalTerrainExplorer
                 if(PublicationChanges(plan,root.Position.x,root.Position.z,ForestGroundMargin(root),pair.Key.GroundLevels[slot]))
                 {
                     var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level,out Tile owner,out TerrainTileKey ownerKey);
-                    ApplyForestRootGround(ref root,y,level,owner,ownerKey,
-                        blockedStand:!plan.Retiring&&ownerKey.Level>plan.Key.Level&&ForestStandTouches(root,plan.Key),
-                        retiringStandChild:plan.Retiring?(TerrainTileKey?)plan.Key:null);
+                    level=ApplyForestRootGround(ref root,y,level,owner,ownerKey,this,plan);
                     bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding;
                     plan.Roots.Add(new ForestGroundEdit{Batch=pair.Key,Slot=slot,Level=level,Root=root,Changed=moved});
                     if(moved){bounds.Encapsulate(ForestRootBounds(root));changed=true;}

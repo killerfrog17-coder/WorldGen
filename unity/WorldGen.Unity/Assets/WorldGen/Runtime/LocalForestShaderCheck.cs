@@ -15,15 +15,18 @@ public sealed partial class LocalTerrainExplorer
         void Check(bool ok,string text){if(!ok)throw new InvalidOperationException("Forest stand support: "+text);checks++;}
         var key=new WorldGen.Presentation.TerrainTileKey(0,0,1,.5);const int n=16,side=n+1;
         var tile=new Tile{Segments=n,Heights=new float[side*side],ForestCover=new Unity.Collections.NativeArray<float>(side*side*8,Unity.Collections.Allocator.Temp)};
+        var neighbour=new Tile{Segments=n,Heights=new float[side*side],ForestCover=new Unity.Collections.NativeArray<float>(side*side*8,Unity.Collections.Allocator.Temp)};
+        var fine=new Tile{Segments=n,Heights=new float[side*side],ForestCover=new Unity.Collections.NativeArray<float>(side*side*8,Unity.Collections.Allocator.Temp)};
+        var host=new GameObject("Forest stand owner support fixture");var owner=host.AddComponent<LocalTerrainExplorer>();owner.enabled=false;owner.explorationSettings.HorizontalScale=.5;
         try
         {
             void Plane(float sx=0,float sz=0)
             {for(int z=0;z<side;z++)for(int x=0;x<side;x++){tile.Heights[z*side+x]=(float)(10+sx*x*key.SizeM/n+sz*z*key.SizeM/n);tile.ForestCover[(z*side+x)*8+3]=1;}}
             ForestRoot Root(bool stand,float x=512,float z=512)=>new ForestRoot{Position=new Vector3(x,0,z),Width=stand?33:33/LocalTreePrototype.StandSpan,Height=15,Padding=stand?3:2,Face=8};
-            void Pair(bool supported,double y,bool blocked=false,WorldGen.Presentation.TerrainTileKey? retiring=null,float x=512,float z=512)
+            void Pair(bool supported,double y,float x=512,float z=512,LocalTerrainExplorer terrain=null,GroundPublication publication=null)
             {
                 var stand=Root(true,x,z);var single=Root(false,x,z);
-                ApplyForestRootGround(ref stand,y,key.Level,tile,key,blocked,retiring);ApplyForestRootGround(ref single,y,key.Level,tile,key,blocked,retiring);
+                ApplyForestRootGround(ref stand,y,key.Level,tile,key,terrain,publication);ApplyForestRootGround(ref single,y,key.Level,tile,key,terrain,publication);
                 Check((stand.Padding>0)==supported,"stand selection");Check((single.Padding>0)!=supported,"exactly one prepared representation draws");
             }
             Plane();Pair(true,10);
@@ -32,12 +35,22 @@ public sealed partial class LocalTerrainExplorer
             Check(Math.Abs(inclined.SlopeX-.15)<.0001&&Math.Abs(inclined.SlopeZ+.07)<.0001,"stand follows the supporting plane");
             Plane();tile.Heights[8*side+8]=18;Pair(false,18);
             Plane();Pair(false,10,x:5);
-            tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(522,10,512),new Vector3(2,1,40));Pair(false,10);tile.HasWater=false;
-            var child=new WorldGen.Presentation.TerrainTileKey(1,0,0,.5);tile.CoverageChildren=new System.Collections.Generic.List<WorldGen.Presentation.TerrainTileKey>{child};
-            Pair(false,10);Pair(true,10,retiring:child);tile.CoverageChildren.Clear();Pair(false,10,blocked:true);
-            return checks+" flat/inclined/curved/edge/water/finer-owner/retirement stand controls pass\n";
+            tile.HasWater=tile.WaterBoundsKnown=true;tile.WaterBounds=new Bounds(new Vector3(512,10,512),new Vector3(2,1,40));Pair(false,10);
+            tile.WaterBounds=new Bounds(new Vector3(512,0,512),new Vector3(2,1,40));Pair(true,10);tile.HasWater=false;
+            for(int i=0;i<side*side;i++){neighbour.Heights[i]=fine.Heights[i]=10;neighbour.ForestCover[i*8+3]=fine.ForestCover[i*8+3]=1;}
+            var adjacent=new WorldGen.Presentation.TerrainTileKey(1,0,1,.5);owner.tiles.Add(key,tile);owner.tiles.Add(adjacent,neighbour);
+            Pair(true,10,x:(float)key.SizeM-5,terrain:owner);
+            owner.tiles.Remove(adjacent);Pair(false,10,x:(float)key.SizeM-5,terrain:owner);owner.tiles.Add(adjacent,neighbour);
+            var child=new WorldGen.Presentation.TerrainTileKey(1,1,0,.5);tile.CoverageChildren=new System.Collections.Generic.List<WorldGen.Presentation.TerrainTileKey>{child};owner.tiles.Add(child,fine);
+            Pair(true,10,terrain:owner);
+            for(int i=0;i<side*side;i++)fine.ForestCover[i*8+3]=0;
+            Pair(false,10,terrain:owner);
+            var retirement=new GroundPublication{Key=child,Product=fine,Retiring=true};Pair(true,10,terrain:owner,publication:retirement);
+            owner.tiles.Remove(child);
+            var incoming=new GroundPublication{Key=child,Product=fine};Pair(false,10,terrain:owner,publication:incoming);
+            return checks+" flat/inclined/curved/edge/water/cross-owner/finer-owner/publication stand controls pass\n";
         }
-        finally{tile.ForestCover.Dispose();}
+        finally{owner.tiles.Clear();tile.ForestCover.Dispose();neighbour.ForestCover.Dispose();fine.ForestCover.Dispose();DestroyImmediate(host);}
     }
     public static IEnumerator CheckForestShader(string output)
     {

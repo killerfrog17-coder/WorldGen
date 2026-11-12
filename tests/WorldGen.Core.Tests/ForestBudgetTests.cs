@@ -18,7 +18,7 @@ static class ForestBudgetTests
                 // A regional descriptor expands into anchors that may each
                 // retain a hidden fallback beside the stand. This is a bound
                 // on resident records, not the number of visible trees.
-                foreach(var root in page.Roots)capacityBound+=root.Population==0?LocalScatter.ForestCanopyTrees*LocalScatter.MaximumForestRepresentationsPerAnchor:1;
+                foreach(var root in page.Roots)capacityBound+=LocalScatter.ForestCanopyAnchorCount(root)*(LocalScatter.ForestCanopyUsesStand(root)?LocalScatter.MaximumForestRepresentationsPerAnchor:1);
                 probes+=page.Probes;if(page.Roots.Length==0)empty++;
                 foreach(var p in page.Roots)if(!ids.Add(p.Tree.Id))throw new Exception("Duplicate representative across disjoint pages");
                 if(capacityBound>LocalScatter.MaximumForestRoots)throw new Exception("Forest resident-record capacity bound exceeds the runtime pool before coverage completed");

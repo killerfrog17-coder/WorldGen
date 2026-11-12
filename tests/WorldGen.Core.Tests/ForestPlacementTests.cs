@@ -80,9 +80,19 @@ static class ForestPlacementTests
             for(int level=1;level<=4;level++)
             {
                 int span=LocalScatter.ForestPageSide*(1<<level);var page=scatter.BuildForest(new ForestPageKey(key.Face,key.X*LocalScatter.TreeCandidateSide/span,key.Y*LocalScatter.TreeCandidateSide/span,level));
-                Check(page.Probes==0&&page.Roots.Length<=64,"Distant canopy has bounded regional descriptors and no tree census");
+                Check(page.Probes>0&&page.Probes<=4096&&page.Roots.Length<=64,"Distant canopy uses bounded canonical density samples without per-root physical geometry");
                 foreach(var root in page.Roots)
-                {Check(root.Population==0,"Canopy descriptor is not a fabricated population member");Check(root.Tree.WidthM>0&&root.Tree.HeightM>0&&double.IsFinite(root.Tree.WidthM),"Finite canopy dimensions");}
+                {
+                    Check(root.Population==0,"Canopy descriptor is not a fabricated population member");Check(root.Tree.WidthM>0&&root.Tree.HeightM>0&&double.IsFinite(root.Tree.WidthM),"Finite canopy dimensions");
+                    Check(root.CanopyTreeCount>0&&double.IsFinite(root.CanopyTreeCount),"Coarse density carries a finite expected local tree count");
+                    double represented=LocalScatter.ForestCanopyAnchorCount(root)*(LocalScatter.ForestCanopyUsesStand(root)?LocalScatter.ForestStandTreeCount:1);
+                    Check(represented>=root.CanopyTreeCount&&represented-root.CanopyTreeCount<LocalScatter.ForestStandTreeCount,"Coarse representation preserves density to within one prepared stand");
+                }
+                using(var stream=new MemoryStream())
+                {
+                    using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteForest(writer,page);stream.Position=0;
+                    using var reader=new BinaryReader(stream);Check(page.Roots.SequenceEqual(TerrainMeshWire.ReadForest(reader,page.Key).Roots),"Coarse tree density survives worker transport");
+                }
                 Check(page.Roots.SequenceEqual(scatter.BuildForest(page.Key).Roots),"Deterministic regional canopy");
             }
             foreach(var point in new[]{at,new V(1,1,0).Unit,new V(0,0,1),new V(-1,0,0)})
@@ -90,6 +100,7 @@ static class ForestPlacementTests
                 var plan=scatter.PlanForest(point,10000,1600);Check(plan.Length<=4096,"Bounded forest page plan "+plan.Length);var keys=new HashSet<ForestPageKey>(plan);Check(keys.Count==plan.Length,"No duplicate planned pages");
                 foreach(var page in plan)
                 {
+                    Check(page.Level<=scatter.ForestCanopyMaximumLevel,"Coarse forest pages retain a bounded physical footprint");
                     scatter.ForestBounds(page,out var center,out var radius);
                     double gap=Math.Max(0,(center-point).Length*terrain.RadiusM*.1-radius);
                     Check(page.Level==0||gap>=LocalScatter.ForestIdentityDistanceM,"Recognisable forest keeps canonical exact placement out to two kilometres");

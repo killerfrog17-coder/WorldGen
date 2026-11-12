@@ -185,6 +185,16 @@ public sealed partial class LocalTerrainExplorer
                 int perspectiveGaps=CheckFlightGroundPixels(Path.Combine(output,"flight-perspective-ground-"+(audits-1)+".png"),overhead:false);
                 workRows.Add(t.ToString("F2",CultureInfo.InvariantCulture)+"s: "+StreamingWorkReceipt);
                 workRows.Add("perspective bottom-third ground gaps="+perspectiveGaps+"/3072");
+                foreach(var level in forestFields.Values.GroupBy(f=>f.Source.Key.Level).OrderBy(g=>g.Key))
+                {
+                    int individual=0,stands=0,rejectedStands=0;double width=0;int anchors=0;
+                    foreach(var field in level)foreach(var pair in field.Roots)foreach(int slot in pair.Value)
+                    {
+                        var root=pair.Key.Data[slot];if(pair.Key.Model.TreeCluster){if(root.Padding>0)stands++;else rejectedStands++;}
+                        else{if(root.Padding>=0)individual++;width+=root.Width;anchors++;}
+                    }
+                    workRows.Add($"forest L{level.Key}: single={individual}, stand={stands}, rejectedStand={rejectedStands}, meanSingleWidth={width/Math.Max(1,anchors):F2}m, sourceTrees={level.Sum(f=>f.Source.Roots.Sum(r=>r.Population>0?1:r.CanopyTreeCount)):F0}");
+                }
                 File.WriteAllLines(Path.Combine(output,"flight-work.txt"),workRows);
                 var snapshot=new List<string>{"scope,x,z,level,scale,segments,coverageOnly,hasWater,contact,waterBoundsKnown,waterMinWorldX,waterMinWorldZ,waterMaxWorldX,waterMaxWorldZ",$"observer,{motion.X:R},{motion.Z:R},0,{HorizontalScale:R},{viewDistance:R},,,,,,,,"};
                 void Save(string scope,IEnumerable<KeyValuePair<TerrainTileKey,int>> entries,Dictionary<TerrainTileKey,Tile> residents=null)

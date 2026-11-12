@@ -22,6 +22,8 @@ namespace WorldGen.Core
         public ScatterInstance Tree;
         public int CellX,CellY;
         public double CrownScale;
+        // Expected potential trees in a coarse packet, not a tracked population.
+        public double CanopyTreeCount;
         public int Population;
     }
     public sealed class ForestPage
@@ -33,7 +35,7 @@ namespace WorldGen.Core
     public sealed partial class LocalScatter
     {
         public const int ForestPageSide=32;
-        public const int ForestCanopyTrees=16;
+        public const int ForestStandTreeCount=36;
         // A coarse anchor can retain an inactive single-tree fallback beside
         // its stand record. Only one is visible, but both consume root storage.
         public const int MaximumForestRepresentationsPerAnchor=2;
@@ -41,6 +43,10 @@ namespace WorldGen.Core
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
+        public int ForestCanopyMaximumLevel=>Math.Max(1,(int)Math.Floor(Math.Log(2048/(ForestPageSide*TreeLatticeStep),2)));
+        public static bool ForestCanopyUsesStand(in ForestRepresentative root)=>root.Population==0&&root.CanopyTreeCount>=ForestStandTreeCount;
+        public static int ForestCanopyAnchorCount(in ForestRepresentative root)
+            =>root.Population!=0?1:checked((int)Math.Ceiling(root.CanopyTreeCount/(ForestCanopyUsesStand(root)?ForestStandTreeCount:1)));
         public void ForestCoordinates(V position,out int face,out int x,out int y)
         {
             face=Address(position).Face;Basis(face,out V n,out V u,out V v);
@@ -65,8 +71,9 @@ namespace WorldGen.Core
             // Statistical regional canopy belongs beyond this band, never in
             // place of the forest through which the player is approaching.
             exactRange=Math.Max(exactRange,Math.Min(range,ForestIdentityDistanceM));
-            int top=0;while((long)ForestPageSide*(1L<<top)<TreeLatticeCount)top++;
+            int top=0,maximumCanopyLevel=ForestCanopyMaximumLevel;while((long)ForestPageSide*(1L<<top)<TreeLatticeCount)top++;
             var result=new List<ForestPageKey>();double error=.04;
+            var coarseCosts=new Dictionary<ForestPageKey,double>();
             for(int attempt=0;attempt<14;attempt++)
             {
                 result.Clear();
@@ -77,7 +84,7 @@ namespace WorldGen.Core
                     ForestBounds(key,out V center,out double radius);double groundDistance=Math.Max(0,(center-eye).Length*terrain.RadiusM*scale-radius),distance=Math.Sqrt(groundDistance*groundDistance+altitudeM*altitudeM);
                     if(distance>range||(center-eye).Length*terrain.RadiusM*scale+radius<innerRange)return;
                     double step=4*TreeLatticeStep*(1<<key.Level);
-                    if(key.Level>0&&(distance<exactRange||key.Level>1&&step>Math.Max(TreeLatticeStep,distance*error)))
+                    if(key.Level>0&&(key.Level>maximumCanopyLevel||distance<exactRange||key.Level>1&&step>Math.Max(TreeLatticeStep,distance*error)))
                     {for(int y=0;y<2;y++)for(int x=0;x<2;x++)Visit(new ForestPageKey(key.Face,key.X*2+x,key.Y*2+y,key.Level-1));}
                     else result.Add(key);
                 }
@@ -85,22 +92,35 @@ namespace WorldGen.Core
                 // Budget resident representation records, not just page count.
                 // Dense forests otherwise exhaust the root pool before reaching
                 // the horizon. Leave capacity for ready fallback/replacements.
-                double expected=0,exactExpected=0;
+                double expected=0;
                 foreach(var key in result)
                 {
-                    if(key.Level>0){expected+=64*ForestCanopyTrees*MaximumForestRepresentationsPerAnchor;continue;}
+                    if(key.Level>0)
+                    {
+                        if(!coarseCosts.TryGetValue(key,out double cost))
+                        {
+                            int span=ForestPageSide*(1<<key.Level),left=key.X*span,bottom=key.Y*span,probes=0;
+                            var patches=new Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch>();
+                            double trees=CanopyTreeEstimate(key.Face,left,bottom,Math.Min(span,TreeLatticeCount-left),Math.Min(span,TreeLatticeCount-bottom),patches,ref probes,default,out _);
+                            // Each of 64 packets needs at most 36 single-crown
+                            // records, or two records per 36-tree stand.
+                            cost=trees/(ForestStandTreeCount/(double)MaximumForestRepresentationsPerAnchor)+64*ForestStandTreeCount;
+                            coarseCosts.Add(key,cost);
+                        }
+                        expected+=cost;continue;
+                    }
                     ForestBounds(key,out V center,out double radius);var forest=terrain.Profile(terrain.NearestCell(center)).Forest;double support=forest.Coverage;
                     Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(center,normal),u=V.Dot(center,a)/dot,v=V.Dot(center,b)/dot;
                     double area=TreeLatticeStep*TreeLatticeStep/Math.Pow(1+u*u+v*v,1.5);
                     double single=D.Clamp(area*TreeFlora.PlacementPerM2)*D.Clamp(support*TreeFlora.Stocking(forest)*TreeFlora.Stand(forest,center,seed,terrain.RadiusM*scale));
                     double probability=1-Math.Pow(1-single,(1L<<key.Level)*(1L<<key.Level));
                     double exact=ForestPageSide*ForestPageSide*probability;
-                    expected+=exact;exactExpected+=exact;
+                    expected+=exact;
                 }
-                // The mandatory identity band cannot coarsen as error grows.
-                // Reserve its expected roots plus a bounded distant canopy
-                // allowance, rather than retrying an impossible 380k target.
-                double budget=Math.Min(MaximumForestRoots*.8,Math.Max(380000,exactExpected+64000));
+                // Keep the mandatory identity band and coarse density intact;
+                // only the packet hierarchy may simplify. Retain room for
+                // incoming replacements beside the current complete view.
+                double budget=MaximumForestRoots*.9;
                 if(result.Count<=maximumPages&&expected<=budget)break;error*=1.22;
             }
             result.Sort((a,b)=>{ForestBounds(a,out V ac,out double ar);ForestBounds(b,out V bc,out double br);return ((ac-eye).Length*terrain.RadiusM*scale-ar).CompareTo((bc-eye).Length*terrain.RadiusM*scale-br);});
@@ -128,37 +148,55 @@ namespace WorldGen.Core
             }
             return new ForestPage{Key=key,Roots=result.ToArray(),Probes=probes};
         }
-        // A distant canopy is a regional coverage descriptor, NOT a sampled
-        // population of real trees. No terrain, soil, slope or TryTree census.
-        // The renderer drapes these cheap GPU patches over resident ground.
+        // Bounded samples of the canonical candidate field retain local forest
+        // density. They never perform physical per-root geometry admission.
+        double CanopyTreeEstimate(int face,int left,int bottom,int nx,int ny,Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch> patches,ref int probes,CancellationToken token,out ScatterInstance source)
+        {
+            int admitted=0,samples=0;source=default;
+            bool exact=nx*ny<=64;int sx=exact?nx:8,sy=exact?ny:8;
+            for(int y=0;y<sy;y++)for(int x=0;x<sx;x++)
+            {
+                token.ThrowIfCancellationRequested();
+                uint hash=Rng.Mix(unchecked((uint)left*73856093u^(uint)bottom*19349663u^(uint)face*83492791u^(uint)(y*sx+x)*2654435761u));
+                int gx=left+(exact?x:Math.Min(nx-1,(int)((x+(hash&65535)/65536.0)*nx/sx)));
+                int gy=bottom+(exact?y:Math.Min(ny-1,(int)((y+(hash>>16)/65536.0)*ny/sy)));
+                var address=new ScatterKey(face,gx/TreeCandidateSide,gy/TreeCandidateSide);
+                if(!patches.TryGetValue(address,out var patch))
+                {patch=terrain.Patch(Position(address),840/scale);patches.Add(address,patch);}
+                probes++;samples++;
+                if(patch.MaximumForestCoverage>0&&TryTreeCandidate(address,gx%TreeCandidateSide,gy%TreeCandidateSide,patch,out var candidate))
+                {if(admitted==0)source=candidate;admitted++;}
+            }
+            return samples==0?0:admitted*(double)nx*ny/samples;
+        }
         ForestPage BuildCanopy(ForestPageKey key,int x0,int y0,int span,int count,CancellationToken token)
         {
-            var roots=new List<ForestRepresentative>(64);double cell=span/8.0;
+            var roots=new List<ForestRepresentative>(64);double cell=span/8.0;int probes=0;
+            var patches=new Dictionary<ScatterKey,LocalTerrain.LocalTerrainPatch>();
             for(int y=0;y<8;y++)for(int x=0;x<8;x++)
             {
                 token.ThrowIfCancellationRequested();
                 int left=(int)(x0+x*cell),bottom=(int)(y0+y*cell);if(left>=count||bottom>=count)continue;
                 double nx=Math.Min(cell,count-left),ny=Math.Min(cell,count-bottom);
+                double expectedTrees=CanopyTreeEstimate(key.Face,left,bottom,(int)nx,(int)ny,patches,ref probes,token,out var source);
+                if(expectedTrees<=0)continue;
                 uint hash=Rng.Mix(unchecked((uint)left*73856093u^(uint)bottom*19349663u^(uint)key.Face*83492791u));
                 double jx=.2+.6*((hash&65535)/65535.0),jy=.2+.6*((hash>>16)/65535.0);
                 int gx=(int)(left+nx*jx),gy=(int)(bottom+ny*jy);var p=ForestPosition(key.Face,gx,gy);
                 var region=terrain.Profile(terrain.NearestCell(p));var forest=region.Forest;
-                if(forest.Coverage<=.005||region.Biome==Biome.Ocean||region.Biome==Biome.Freshwater||region.Biome==Biome.SalineLake)continue;
-                double cover=D.Clamp(forest.Coverage*TreeFlora.Stand(forest,p,seed,terrain.RadiusM*scale));
-                if(cover<=.005)continue;
+                double cover=Math.Max(expectedTrees/(nx*ny),D.Clamp(forest.Coverage*TreeFlora.Stand(forest,p,seed,terrain.RadiusM*scale)));
                 Basis(key.Face,out V normal,out V u,out V v);double dot=V.Dot(p,normal),a=V.Dot(p,u)/dot,b=V.Dot(p,v)/dot;
                 double spacing=TreeLatticeStep*Math.Min(nx,ny)/Math.Pow(1+a*a+b*b,.75);
                 var address=new ScatterKey(key.Face,gx/TreeCandidateSide,gy/TreeCandidateSide);ulong id=address.Id(0,gy%TreeCandidateSide*TreeCandidateSide+gx%TreeCandidateSide);
-                var tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=forest.MorphologyCode,Position=p,Normal=p,
-                    GroundM=region.ElevationM,HeightM=Math.Max(1,forest.HeightM),WidthM=Math.Max(.5,forest.WidthM),
-                    Color=forest.Color*(.90+.20*Rng.Value(seed,"regional-canopy-colour",unchecked((int)id))),YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360};
+                var tree=source;tree.Id=id;tree.Position=p;tree.Normal=p;tree.GroundM=region.ElevationM;
+                tree.YawDegrees=Rng.Value(seed,"regional-canopy-yaw",unchecked((int)id))*360;
                 // Coverage is an area, not the width of one tree. Keep the
                 // physical crown dimensions and transport the packet footprint
                 // separately; stretching a single tree across this span made
                 // kilometre-scale leaves and flattened horizon cutouts.
-                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=Math.Max(2,spacing*Math.Sqrt(cover)*1.12),Population=0});
+                roots.Add(new ForestRepresentative{Tree=tree,CellX=left,CellY=bottom,CrownScale=Math.Max(2,spacing*Math.Sqrt(cover)*1.12),CanopyTreeCount=expectedTrees,Population=0});
             }
-            return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=0};
+            return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=probes};
         }
     }
 }
