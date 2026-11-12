@@ -123,6 +123,9 @@ public sealed partial class LocalTerrainExplorer
     bool SplitResidentLandBoundary(TerrainTileKey key,Tile tile,System.Collections.Generic.List<double>[] cuts)
     {
         var previous=tile.ResidentEdges;var oldMesh=previous.Mesh;if(oldMesh==null)return false;
+        bool trace=WorldGenPerformance.TraceEnabled;
+        long started=trace?System.Diagnostics.Stopwatch.GetTimestamp():0,phase=started,copyTicks=0,topologyTicks=0,contactTicks=0;
+        const MeshUpdateFlags flags=MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices;
         System.Collections.Generic.List<TerrainVertex> vertices;int originalCount;int[] oldIndices;int oldIndexBytes;
         using(var read=Mesh.AcquireReadOnlyMeshData(oldMesh))
         {
@@ -136,6 +139,7 @@ public sealed partial class LocalTerrainExplorer
             if(source.indexFormat==IndexFormat.UInt16){var indices=source.GetIndexData<ushort>();for(int i=0;i<oldIndices.Length;i++)oldIndices[i]=indices[sub.indexStart+i]+sub.baseVertex;}
             else{var indices=source.GetIndexData<int>();for(int i=0;i<oldIndices.Length;i++)oldIndices[i]=indices[sub.indexStart+i]+sub.baseVertex;}
         }
+        if(trace){long now=System.Diagnostics.Stopwatch.GetTimestamp();copyTicks+=now-phase;phase=now;}
         var triangles=new System.Collections.Generic.List<int>(oldIndices.Length+64);
         var inserted=new System.Collections.Generic.Dictionary<(int,int),int[]>();
         var boundaryMasks=new int[originalCount];foreach(var point in previous.Points)boundaryMasks[point.Vertex]=point.Mask;
@@ -188,18 +192,23 @@ public sealed partial class LocalTerrainExplorer
         int addedCount=vertices.Count-originalCount;if(addedCount==0)return false;
         var positions=new float[vertices.Count*3];for(int i=0;i<vertices.Count;i++){var p=vertices[i].Position;positions[i*3]=p.x;positions[i*3+1]=p.y;positions[i*3+2]=p.z;}
         var finalIndices=triangles.ToArray();var wire=new LocalTerrainMesh{Positions=positions,Triangles=finalIndices,Segments=tile.Segments,SizeM=size,GroundVertices=tile.Heights.Length};
+        if(trace){long now=System.Diagnostics.Stopwatch.GetTimestamp();topologyTicks=now-phase;phase=now;}
         var contact=TerrainContactSurface.Build(wire);ResidentEdgeData data=null;Mesh mesh=null;
+        if(trace){long now=System.Diagnostics.Stopwatch.GetTimestamp();contactTicks+=now-phase;phase=now;}
         try
         {
             using(var native=new NativeArray<TerrainVertex>(vertices.Count,Allocator.Temp,NativeArrayOptions.UninitializedMemory))
             {
                 var writable=native;for(int i=0;i<vertices.Count;i++)writable[i]=vertices[i];
-                data=ResidentEdgeData.Build(wire,native);mesh=new Mesh{name="Resident terrain boundary knot union"};mesh.MarkDynamic();
-                mesh.SetVertexBufferParams(native.Length,TerrainUpload.Layout);mesh.SetVertexBufferData(native,0,0,native.Length);
+                if(trace){long now=System.Diagnostics.Stopwatch.GetTimestamp();copyTicks+=now-phase;phase=now;}
+                data=ResidentEdgeData.Build(wire,native);
+                if(trace){long now=System.Diagnostics.Stopwatch.GetTimestamp();contactTicks+=now-phase;phase=now;}
+                mesh=new Mesh{name="Resident terrain boundary knot union"};mesh.MarkDynamic();
+                mesh.SetVertexBufferParams(native.Length,TerrainUpload.Layout);mesh.SetVertexBufferData(native,0,0,native.Length,0,flags);
                 bool compact=native.Length<=65535;mesh.SetIndexBufferParams(finalIndices.Length,compact?IndexFormat.UInt16:IndexFormat.UInt32);
-                if(compact){var indices=new ushort[finalIndices.Length];for(int i=0;i<indices.Length;i++)indices[i]=(ushort)finalIndices[i];mesh.SetIndexBufferData(indices,0,0,indices.Length);}
-                else mesh.SetIndexBufferData(finalIndices,0,0,finalIndices.Length);
-                mesh.subMeshCount=1;mesh.bounds=oldMesh.bounds;mesh.SetSubMesh(0,new SubMeshDescriptor(0,finalIndices.Length){vertexCount=native.Length,bounds=mesh.bounds},MeshUpdateFlags.DontRecalculateBounds|MeshUpdateFlags.DontValidateIndices);
+                if(compact){var indices=new ushort[finalIndices.Length];for(int i=0;i<indices.Length;i++)indices[i]=(ushort)finalIndices[i];mesh.SetIndexBufferData(indices,0,0,indices.Length,flags);}
+                else mesh.SetIndexBufferData(finalIndices,0,0,finalIndices.Length,flags);
+                mesh.subMeshCount=1;mesh.bounds=oldMesh.bounds;mesh.SetSubMesh(0,new SubMeshDescriptor(0,finalIndices.Length){vertexCount=native.Length,bounds=mesh.bounds},flags);
             }
         }
         catch{data?.Dispose();if(mesh!=null)Destroy(mesh);throw;}
@@ -211,7 +220,13 @@ public sealed partial class LocalTerrainExplorer
         for(int i=0;i<tile.Heights.Length;i++){tile.Heights[i]=positions[i*3+1];if(tile.Cover.IsCreated&&i*16+15<tile.Cover.Length)tile.Cover[i*16+15]=tile.Heights[i];}
         tile.Materials[0].SetFloat("_ResidentEdgeCount",0);tile.Materials[0].SetTexture("_ResidentEdgeHeights",Texture2D.blackTexture);
         previous.Dispose();if(!terrainMeshPool.Release(oldMesh))Destroy(oldMesh);
-        residentEdgeSplits++;residentEdgeInsertedVertices+=addedCount;return true;
+        residentEdgeSplits++;residentEdgeInsertedVertices+=addedCount;
+        if(trace)
+        {
+            long ended=System.Diagnostics.Stopwatch.GetTimestamp();double milliseconds=1000.0/System.Diagnostics.Stopwatch.Frequency,total=(ended-started)*milliseconds;
+            if(total>=3)Debug.Log("RESIDENT_SPLIT ms="+total.ToString("F3")+" copy_ms="+(copyTicks*milliseconds).ToString("F3")+" topology_ms="+(topologyTicks*milliseconds).ToString("F3")+" contact_ms="+(contactTicks*milliseconds).ToString("F3")+" native_upload_ms="+((ended-phase)*milliseconds).ToString("F3")+" vertices="+originalCount+"->"+vertices.Count+" triangles="+finalIndices.Length/3+" inserted="+addedCount+" key="+key.X+","+key.Z+",L"+key.Level+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("F6"));
+        }
+        return true;
     }
     static TerrainVertex InterpolateResidentVertex(TerrainVertex a,TerrainVertex b,float t)=>new TerrainVertex{
         Position=Vector3.LerpUnclamped(a.Position,b.Position,t),Normal=Vector3.LerpUnclamped(a.Normal,b.Normal,t),Color=Color.LerpUnclamped(a.Color,b.Color,t),Uv=Vector2.LerpUnclamped(a.Uv,b.Uv,t),
