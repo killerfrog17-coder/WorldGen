@@ -27,6 +27,7 @@ param(
     [switch]$MemorySnapshot,
     [switch]$CaptureAfter,
     [switch]$CpuTiming,
+    [switch]$WarmupAllHeadings,
     [switch]$HideWaterDrawing,
     [switch]$LegacyReedFar,
     [string]$NativeGcProbe='',
@@ -35,6 +36,7 @@ param(
 $ErrorActionPreference='Stop'
 if($WindowMode -ne 'Windowed' -and !$Presented){throw 'Fullscreen comparisons require a presented player'}
 if($SwapChain -ne 'Default' -and !$Presented){throw 'Swap-chain comparisons require a presented player'}
+if($WarmupAllHeadings -and !$Presented){throw 'All-heading render warmup requires a presented player'}
 $repo=Split-Path -Parent $PSScriptRoot
 $player=Join-Path $repo "builds/$PlayerFolder/WorldGen.exe"
 if(Test-Path -LiteralPath (Join-Path ([IO.Path]::GetDirectoryName($player)) 'build-incomplete.txt')){throw 'The last build has not passed packaging and shader checks; do not benchmark it.'}
@@ -59,6 +61,7 @@ if($GpuProfile -and (!$buildStamp.Development -or $Cases -ne 'travel-whip-cpu-pr
     RequestedSwapChain=$SwapChain
     NativeGcDiagnostic=[bool]$NativeGcProbe
     CpuTimingDiagnostic=[bool]$CpuTiming
+    WarmupAllHeadingsDiagnostic=[bool]$WarmupAllHeadings
     HideWaterDrawingDiagnostic=[bool]$HideWaterDrawing
     LegacyReedFarDiagnostic=[bool]$LegacyReedFar
     TravelLoopMeters=$TravelLoopMeters
@@ -74,6 +77,7 @@ if($SwapChain -eq 'Flip'){$arguments+='-force-d3d11-flip-model'}
 if($SwapChain -eq 'BitBlt'){$arguments+='-force-d3d11-bitblt-model'}
 if($StutterTrace){$arguments+='--worldgen-stutter-trace'}
 if($CpuTiming){if(!$StutterTrace){throw 'CPU frame timing requires StutterTrace for timestamp correlation'};$arguments+='--worldgen-cpu-timing'}
+if($WarmupAllHeadings){$arguments+='--worldgen-perf-warmup-all-headings'}
 if($HideWaterDrawing){$arguments+='--worldgen-perf-hide-water'}
 if($GpuProfile){$arguments+='--worldgen-gpu-profile'}
 if($Presented){

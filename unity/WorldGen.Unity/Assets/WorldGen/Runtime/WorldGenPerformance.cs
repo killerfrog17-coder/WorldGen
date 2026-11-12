@@ -1603,6 +1603,39 @@ public sealed partial class WorldGenRuntime
                 if(terrainExplorer.Error!=""){Debug.LogError("PERF "+terrainExplorer.Error);Application.Quit(1);yield break;}
                 firstCase=false;
                 play.SetLocalSolarHour(12,lon);terrainExplorer.PerformanceFreezeDaylight(sitesPath.Length>0);yield return new WaitForSecondsRealtime(4);
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-perf-warmup-all-headings"))
+                {
+                    if(!WorldGenPerformance.Presented)throw new InvalidOperationException("All-heading render warmup requires the normal presented camera");
+                    // Opt-in first-visibility diagnostic, not a gameplay change.
+                    // Real automatic-camera draws exercise the current meshes,
+                    // materials and render targets; no readback or extra render.
+                    var headingEndFrame=new WaitForEndOfFrame();yield return headingEndFrame;
+                    double headingStart=Time.realtimeSinceStartupAsDouble,headingPrevious=headingStart,headingMaximum=0;
+                    var headingRows=new List<string>(26);int headingFocused=0;
+                    for(int direction=0;direction<=12;direction++)
+                    {
+                        float yaw=direction==12?20:20+direction*30;terrainExplorer.PerformanceTurn(yaw);
+                        for(int rendered=0;rendered<2;rendered++)
+                        {
+                            yield return headingEndFrame;
+                            double observed=Time.realtimeSinceStartupAsDouble,interval=(observed-headingPrevious)*1000;
+                            headingMaximum=Math.Max(headingMaximum,interval);headingPrevious=observed;
+                            if(Application.isFocused)headingFocused++;
+                            headingRows.Add(site.Item1+","+item.Name+","+(direction==12?"restore":"heading")+","+direction+","+yaw.ToString(CultureInfo.InvariantCulture)+","+Time.frameCount+","+Perf(observed-headingStart)+","+Perf(interval)+","+Application.isFocused);
+                        }
+                    }
+                    double headingRenderedAt=Time.realtimeSinceStartupAsDouble;
+                    // A newly visible model may still be baking or publishing.
+                    // Use the ordinary readiness predicate again before timing.
+                    deadline=headingRenderedAt+warmup;
+                    while(!terrainExplorer.PerformanceSettled&&terrainExplorer.Error==""&&Time.realtimeSinceStartupAsDouble<deadline)yield return null;
+                    double headingFinished=Time.realtimeSinceStartupAsDouble;
+                    string headingPath=Path.Combine(output,"heading-warmup-frames.csv");
+                    if(!File.Exists(headingPath))File.WriteAllText(headingPath,"site,case,phase,heading_index,yaw,frame,elapsed_s,observed_interval_ms,focused\n");
+                    File.AppendAllLines(headingPath,headingRows);
+                    File.AppendAllText(Path.Combine(output,"heading-warmup-summary.txt"),site.Item1+" "+item.Name+" diagnostic_pre_measurement_loading_seconds="+Perf(headingFinished-headingStart)+" rendered_sweep_seconds="+Perf(headingRenderedAt-headingStart)+" readiness_wait_seconds="+Perf(headingFinished-headingRenderedAt)+" observed_frames="+headingRows.Count+" focused_frames="+headingFocused+" maximum_observed_interval_ms="+Perf(headingMaximum)+" settled="+terrainExplorer.PerformanceSettled+" requested_measurement_seconds="+Perf(seconds)+"; this loading cost is separate from the unchanged measured window\n");
+                    if(terrainExplorer.Error!=""||!terrainExplorer.PerformanceSettled)throw new InvalidOperationException("All-heading warmup did not settle after restoring the starting view: "+terrainExplorer.Error);
+                }
                 if(item.Name=="scatter-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelScatter()+"\n");
                 if(item.Name=="moving-parallel-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyParallelRenders(Path.Combine(output,"parallel-renders"))+"\n");
                 if(item.Name=="scatter-range-cache-verify")File.AppendAllText(Path.Combine(output,"equivalence.txt"),terrainExplorer.PerformanceVerifyScatterRange()+"\n");
