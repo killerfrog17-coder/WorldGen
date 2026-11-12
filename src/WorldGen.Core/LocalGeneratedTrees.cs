@@ -13,32 +13,72 @@ namespace WorldGen.Core
         // read these same planet-addressed nodes. Exact root water/height still
         // comes from Geometry; this memo never owns rendering or tree identity.
         const int TreeHabitatStep=8,TreeHabitatLimit=8192;
-        readonly object treeHabitatGate=new object();
-        readonly Dictionary<(int Face,int X,int Y),LocalTerrainSample> treeHabitat=new Dictionary<(int,int,int),LocalTerrainSample>();
-        readonly Queue<(int Face,int X,int Y)> treeHabitatOrder=new Queue<(int,int,int)>();
-        LocalTerrainSample TreeHabitatNode(int face,int x,int y,LocalTerrain.LocalTerrainPatch patch)
+        sealed class TreeHabitatNodeData
         {
-            var key=(face,x,y);LocalTerrainSample cached;
+            public LocalTerrainSample Sample;public V Position;
+            // One requested regional flora array per node; an ecotone may
+            // replace it, but cannot grow an unbounded region/model cache.
+            public TreeSpecies[] Species;public double[] Weights;
+        }
+        readonly struct TreeHabitatBlend
+        {
+            public readonly TreeHabitatNodeData A,B,C,D;public readonly double U,V;
+            public TreeHabitatBlend(TreeHabitatNodeData a,TreeHabitatNodeData b,TreeHabitatNodeData c,TreeHabitatNodeData d,double u,double v){A=a;B=b;C=c;D=d;U=u;V=v;}
+        }
+        readonly object treeHabitatGate=new object();
+        readonly Dictionary<(int Face,int X,int Y),TreeHabitatNodeData> treeHabitat=new Dictionary<(int,int,int),TreeHabitatNodeData>();
+        readonly Queue<(int Face,int X,int Y)> treeHabitatOrder=new Queue<(int,int,int)>();
+        TreeHabitatNodeData TreeHabitatNode(int face,int x,int y,LocalTerrain.LocalTerrainPatch patch)
+        {
+            var key=(face,x,y);TreeHabitatNodeData cached;
             lock(treeHabitatGate)if(treeHabitat.TryGetValue(key,out cached))return cached;
             int count=TreeLatticeCount;
-            var sample=patch.Sample(ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep)));
+            var point=ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep));
+            var node=new TreeHabitatNodeData{Sample=patch.Sample(point),Position=point};
             lock(treeHabitatGate)
             {
                 if(treeHabitat.TryGetValue(key,out cached))return cached;
                 while(treeHabitat.Count>=TreeHabitatLimit)treeHabitat.Remove(treeHabitatOrder.Dequeue());
-                treeHabitat.Add(key,sample);treeHabitatOrder.Enqueue(key);
+                treeHabitat.Add(key,node);treeHabitatOrder.Enqueue(key);
             }
-            return sample;
+            return node;
         }
-        LocalTerrainSample TreeHabitatAt(ScatterKey key,V at,LocalTerrain.LocalTerrainPatch patch,LocalTerrainSample geometry,out double sx,out double sz,out bool preciseSlope)
+        double[] TreeSpeciesWeights(TreeHabitatNodeData node,TreeSpecies[] species)
+        {
+            lock(node)
+            {
+                if(ReferenceEquals(node.Species,species))return node.Weights;
+                var sample=node.Sample;var ecology=world.Ecology;
+                HabitatCell? habitat=ecology!=null&&sample.Cell<ecology.Habitat.Length?ecology.Habitat[sample.Cell]:null;
+                var weights=new double[species.Length];
+                for(int i=0;i<species.Length;i++)
+                    weights[i]=TreeFlora.SpeciesWeight(species[i],habitat,sample,node.Position,seed,terrain.RadiusM*scale,world.ElevationM[sample.Cell]);
+                node.Species=species;node.Weights=weights;return weights;
+            }
+        }
+        double BlendTreeSpeciesWeights(in TreeHabitatBlend blend,TreeSpecies[] species,Span<double> weights)
+        {
+            // Species colony wavelengths are hundreds of metres. Evaluate
+            // those noise fields at the existing habitat nodes, then reuse
+            // their regional weights for neighbouring individual candidates.
+            var a=TreeSpeciesWeights(blend.A,species);var b=TreeSpeciesWeights(blend.B,species);
+            var c=TreeSpeciesWeights(blend.C,species);var d=TreeSpeciesWeights(blend.D,species);
+            double u=blend.U,v=blend.V,sum=0;
+            for(int i=0;i<species.Length;i++)
+            {weights[i]=(a[i]*(1-u)+b[i]*u)*(1-v)+(c[i]*(1-u)+d[i]*u)*v;sum+=weights[i];}
+            return sum;
+        }
+        LocalTerrainSample TreeHabitatAt(ScatterKey key,V at,LocalTerrain.LocalTerrainPatch patch,LocalTerrainSample geometry,out double sx,out double sz,out bool preciseSlope,out TreeHabitatBlend blend)
         {
             // Jitter belongs to the original candidate RNG; derive the exact
             // fractional lattice coordinate from that point, never a page LOD.
             Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(at,normal),count=TreeLatticeCount;
             double gx=(V.Dot(at,a)/dot+1)*.5*count/TreeHabitatStep,gy=(V.Dot(at,b)/dot+1)*.5*count/TreeHabitatStep;
             int ix=(int)Math.Floor(gx),iy=(int)Math.Floor(gy);double u=gx-ix,v=gy-iy;
-            var aa=TreeHabitatNode(key.Face,ix,iy,patch);var ab=TreeHabitatNode(key.Face,ix+1,iy,patch);
-            var ba=TreeHabitatNode(key.Face,ix,iy+1,patch);var bb=TreeHabitatNode(key.Face,ix+1,iy+1,patch);
+            var aNode=TreeHabitatNode(key.Face,ix,iy,patch);var bNode=TreeHabitatNode(key.Face,ix+1,iy,patch);
+            var cNode=TreeHabitatNode(key.Face,ix,iy+1,patch);var dNode=TreeHabitatNode(key.Face,ix+1,iy+1,patch);
+            blend=new TreeHabitatBlend(aNode,bNode,cNode,dNode,u,v);
+            var aa=aNode.Sample;var ab=bNode.Sample;var ba=cNode.Sample;var bb=dNode.Sample;
             double side=TreeHabitatStep*TreeLatticeStep;
             double du=((ab.ElevationM-aa.ElevationM)*(1-v)+(bb.ElevationM-ba.ElevationM)*v)/side;
             double dv=((ba.ElevationM-aa.ElevationM)*(1-u)+(bb.ElevationM-ab.ElevationM)*u)/side;
@@ -120,7 +160,7 @@ namespace WorldGen.Core
                 // Species/soil and smooth slope share a roughly 32m grid rather
                 // than five full terrain evaluations for every admitted root.
                 var geometry=patch.Geometry(at);
-                var sample=TreeHabitatAt(key,at,patch,geometry,out double sx,out double sz,out bool preciseSlope);
+                var sample=TreeHabitatAt(key,at,patch,geometry,out double sx,out double sz,out bool preciseSlope,out var habitatBlend);
                 var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
                 if(!TreeFlora.Rooting(sample.Forest,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome))return false;
                 // The raw forest profile is only an upper admission bound.
@@ -131,11 +171,7 @@ namespace WorldGen.Core
                     if(admission>forest.Coverage*stand*TreeFlora.Stocking(forest))return false;
                 }
                 var e=world.Ecology;HabitatCell? h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
-                var species=terrain.FloraRegion(sample.Cell).Trees;double sum=0;
-                for(int i=0;i<species.Length;i++)
-                {
-                    weights[i]=TreeFlora.SpeciesWeight(species[i],h,sample,at,seed,terrain.RadiusM*scale,world.ElevationM[sample.Cell]);sum+=weights[i];
-                }
+                var species=terrain.FloraRegion(sample.Cell).Trees;double sum=BlendTreeSpeciesWeights(habitatBlend,species,weights);
                 if(sum<.001)return false;
                 double pick=r.Unit()*sum;int chosen=species.Length-1;for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
                 var s=species[chosen];V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
