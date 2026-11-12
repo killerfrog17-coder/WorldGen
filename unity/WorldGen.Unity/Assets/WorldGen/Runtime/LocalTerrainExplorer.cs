@@ -85,6 +85,9 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         if(now<initialCoverageCheckAt||error.Length>0)return;initialCoverageCheckAt=now+.1;
         if(!HasInitialViewCoverage())return;
         initialViewReady=true;paused=initialPriorPaused;
+        // Nothing was visible during entry. Start the first visible frame at
+        // the complete coarse horizon rather than animating out of dense fog.
+        renderedStreamingFog=streamedFog=viewDistance*.98;SetFog();
         if(view!=null)view.cullingMask=initialViewMask;
         initialCoverageResidents.Clear();CaptureMouse();
     }

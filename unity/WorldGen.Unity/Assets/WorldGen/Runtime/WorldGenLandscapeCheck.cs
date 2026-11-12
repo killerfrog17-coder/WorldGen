@@ -403,6 +403,7 @@ public sealed partial class LocalTerrainExplorer
         var play=new PlaySession{Mode=GameMode.Spectator,SolarDays=.125};play.Settings.HorizontalScale=.1;play.PrimeMeridianLongitude=Math.Atan2(site.Position.Y,site.Position.X)*180/Math.PI;
         var owner=new GameObject("Actual landscape review").AddComponent<LocalTerrainExplorer>();owner.viewDistance=reviewRange;
         owner.Initialize(Task.FromResult(model),site.Position,()=>{if(arguments.Contains("--worldgen-landscape-keep-open"))Application.Quit(0);},world,play,worker:worker);
+        if(arguments.Contains("--worldgen-chunk-forest-entry"))owner.RequireInitialCoverage();
         var bootstrapCamera=Camera.main;if(bootstrapCamera!=null&&bootstrapCamera!=owner.view)bootstrapCamera.enabled=false;
         if(arguments.Contains("--worldgen-chunk-loading-check"))
         {yield return owner.CheckChunkLoading(output,preparation);yield break;}

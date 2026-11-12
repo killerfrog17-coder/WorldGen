@@ -19,6 +19,7 @@ public sealed partial class LocalTerrainExplorer
     double detailX,detailZ,nextRequestAt,frameUploadMs,fogSafeRadius,terrainRevealRadius,forestRevealRadius,streamedFog=TerrainStreamingReveal.InitialDistance,fogCheckAt;
     bool detailDirty;double renderedStreamingFog=TerrainStreamingReveal.InitialDistance;
     TerrainQualityFootprint fogFootprint;
+    TerrainCoverageFootprint loadingCoverage;
     readonly Dictionary<TerrainTileKey,double[]> backdrops=new Dictionary<TerrainTileKey,double[]>();
     struct BackdropEntry{public TerrainTileKey Key;public double[] Value;public int Order;}
     readonly List<BackdropEntry> backdropOrder=new List<BackdropEntry>();Comparison<BackdropEntry> backdropComparison;
@@ -77,7 +78,7 @@ public sealed partial class LocalTerrainExplorer
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);
-        detailDirty=true;backdrops.Clear();backdropRevision++;renderedStreamingFog=streamedFog=TerrainStreamingReveal.InitialDistance;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;
+        detailDirty=true;backdrops.Clear();backdropRevision++;renderedStreamingFog=streamedFog=TerrainStreamingReveal.InitialDistance;fogSafeRadius=terrainRevealRadius=forestRevealRadius=0;fogCheckAt=0;fogFootprint=null;loadingCoverage=null;
     }
     Dictionary<TerrainTileKey,int> InitialDetailPlan(double x,double z,double altitude)
     {
@@ -244,8 +245,12 @@ public sealed partial class LocalTerrainExplorer
         if(now>=fogCheckAt)
         {
             fogCheckAt=now+.15;double limit=viewDistance*.98;
-            if(fogFootprint==null)fogFootprint=new TerrainQualityFootprint(tiles.Where(p=>!p.Value.CoverageOnly).Select(p=>new KeyValuePair<TerrainTileKey,int>(p.Key,p.Value.Segments)));
-            double gap=fogFootprint.NearestGap(wanted,motion.X,motion.Z,limit/.94);
+            if(loadingCoverage==null)loadingCoverage=new TerrainCoverageFootprint(tiles.Keys);
+            // Loading fog hides absent complete chunks. A resident coarse
+            // terrain+forest representation already fills the view; waiting
+            // for requested fine spacing would fog out an otherwise valid
+            // landscape as soon as the camera climbs above the local LOD ring.
+            double gap=loadingCoverage.NearestGap(priority,motion.X,motion.Z,limit/.94);
             terrainRevealRadius=Math.Min(limit,gap*.94);
             forestRevealRadius=TreeRevealDistance(limit);
             double safe=Math.Min(terrainRevealRadius,forestRevealRadius);

@@ -34,7 +34,7 @@ public sealed partial class LocalTerrainExplorer
                 if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry"))
                 {
                     yield return new WaitForEndOfFrame();
-                    Capture(Path.Combine(output,"first-ground-and-forest.png"));
+                    Capture(Path.Combine(output,"prepared-first-chunk.png"));
                     int grounded=0,localFallback=0;uint submitted=0;
                     foreach(var field in forestFields.Values)foreach(var pair in field.Roots)foreach(int slot in pair.Value)
                     {
@@ -44,8 +44,8 @@ public sealed partial class LocalTerrainExplorer
                     }
                     foreach(var batch in forestBatches.Values)if(batch.Args!=null&&batch.SubmittedFrame==Time.frameCount)
                     {var args=new uint[4];batch.Args.GetData(args);submitted+=args[1];}
-                    File.WriteAllText(Path.Combine(output,"first-forest.txt"),"seconds="+elapsed+" groundedRootsWithin300m="+grounded+" localFallbackRoots="+localFallback+" submittedForestInstances="+submitted+" pendingModelBakes="+PendingTreeModels+"\n"+PerformanceForestState);
-                    if(walkingPatch.ForestPotential(Position)>.2&&(grounded==0||submitted==0))throw new InvalidOperationException("First forested ground appeared without grounded, submitted trees");
+                    File.WriteAllText(Path.Combine(output,"first-forest.txt"),"seconds="+elapsed+" hiddenDuringEntry="+!InitialViewReady+" groundedRootsWithin300m="+grounded+" localFallbackRoots="+localFallback+" submittedForestInstances="+submitted+" pendingModelBakes="+PendingTreeModels+"\n"+PerformanceForestState);
+                    if(walkingPatch.ForestPotential(Position)>.2&&(grounded==0||submitted==0))throw new InvalidOperationException("First prepared forested chunk has no grounded, submitted tree records");
                 }
             }
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
@@ -54,11 +54,10 @@ public sealed partial class LocalTerrainExplorer
                 string name="radius"+radius;
                 if(Math.Min(terrainRevealRadius,forestRevealRadius)>=radius&&!milestones.ContainsKey(name))milestones[name]=elapsed;
             }
-            if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry")&&milestones.ContainsKey("radius600"))
+            if(Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry")&&InitialViewReady&&HasInitialViewCoverage())
             {
-                // Controls cannot be handed over on the corner of the first
-                // tiny resident tile. Start with a usable local neighbourhood,
-                // while the remaining view and detail are still streaming.
+                // Use the actual production entry gate: complete coarse view
+                // and an exact local forest. Detail still streams during flight.
                 Capture(Path.Combine(output,"playable-ground-and-forest.png"));
                 File.WriteAllText(Path.Combine(output,"playable-start.txt"),"seconds="+elapsed+"\n"+PerformanceForestState);
                 yield return CheckChunkFastFlight(output);

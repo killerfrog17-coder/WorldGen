@@ -64,6 +64,7 @@ public sealed partial class LocalTerrainExplorer
         if(!coverageDirty)return;long started=WorldGenPerformance.TraceBegin();coverageDirty=false;
         coverageTrees.Clear();coverageBindings.Clear();coverageMissing.Clear();
         bool qualityChanged=!coverageObserved;
+        bool coverageChanged=!coverageObserved;
         float safety=view==null?0:TerrainMorphSafetyRadius;
         bool bindAll=!coverageObserved||coverageHard!=TerrainVideoOptions.HardChunkUpdates||coverageSafety!=safety;
         foreach(var pair in coverageResidents)if(!tiles.ContainsKey(pair.Key))coverageMissing.Add(pair.Key);
@@ -72,6 +73,7 @@ public sealed partial class LocalTerrainExplorer
             var old=coverageResidents[key];CoverageIndex(key,false);CoverageAncestorTrees(key);
             if(!old.CoverageOnly)qualityChanged=true;
             coverageResidents.Remove(key);
+            coverageChanged=true;
         }
         foreach(var pair in tiles)
         {
@@ -79,6 +81,7 @@ public sealed partial class LocalTerrainExplorer
             if(!coverageResidents.TryGetValue(pair.Key,out var old))
             {
                 CoverageIndex(pair.Key,true);CoverageAncestorTrees(pair.Key);coverageTrees.Add(pair.Key);coverageBindings.Add(pair.Key);
+                coverageChanged=true;
                 if(!current.CoverageOnly)qualityChanged=true;
             }
             else
@@ -99,6 +102,8 @@ public sealed partial class LocalTerrainExplorer
             // the expensive reveal query to run again in this same frame.
             else fogFootprint.Reset(coverageSurfaces);
         }
+        if(loadingCoverage==null)loadingCoverage=new TerrainCoverageFootprint(tiles.Keys);
+        else if(coverageChanged)loadingCoverage.Reset(tiles.Keys);
         foreach(var key in coverageTrees)
         {
             if(!tiles.TryGetValue(key,out var tile))continue;
