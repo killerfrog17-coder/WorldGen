@@ -79,13 +79,32 @@ Shader "WorldGen/ForestPackets"
                 {int4 item=_Tiles[slot];if(item.w==0)break;if(item.x==x&&item.y==z&&item.z==(int)level&&(item.w&7)==(int)face+1)return (item.w>>3)-1;slot=(slot+1u)&_ForestHashMask;}
                 return -1;
             }
+            void ForestFaceBasis(uint face,out float3 normal,out float3 east,out float3 north)
+            {
+                if(face<4u)
+                {
+                    normal=face<2u?float3(face==0u?1:-1,0,0):float3(0,face==2u?1:-1,0);
+                    east=cross(float3(0,0,1),normal);north=float3(0,0,1);
+                }
+                else{normal=float3(0,0,face==4u?1:-1);east=float3(1,0,0);north=float3(0,face==4u?1:-1,0);}
+            }
+            float2 ForestPacketPosition(Root root,float2 q)
+            {
+                uint side=min(4u<<(root.field>>16),_ForestLatticeCount);
+                float2 left=float2(root.cellX,root.cellY),span=min((float)side,(float)_ForestLatticeCount-left);
+                float2 cube=(left+q*span)*(2./_ForestLatticeCount)-1;
+                float3 normal,east,north;ForestFaceBasis(root.face&7u,normal,east,north);
+                float3 p=normal+east*cube.x+north*cube.y;
+                return float2(dot(p,_ForestPlanet1.xyz),dot(p,_ForestPlanet2.xyz))*(_ForestPlanet0.w/dot(p,_ForestPlanet0.xyz));
+            }
             float ForestChildFade(Root root,float2 position)
             {
                 if(_ForestPlanet0.w<=0||_ForestLatticeCount==0u)return 1;
                 float3 p=normalize(_ForestPlanet0.xyz+(_ForestPlanet1.xyz*position.x+_ForestPlanet2.xyz*position.y)/_ForestPlanet0.w),a=abs(p),n,u,v;uint face;
-                if(a.x>=a.y&&a.x>=a.z){face=p.x>=0?0u:1u;n=float3(p.x>=0?1:-1,0,0);u=float3(0,p.x>=0?1:-1,0);v=float3(0,0,1);}
-                else if(a.y>=a.z){face=p.y>=0?2u:3u;n=float3(0,p.y>=0?1:-1,0);u=float3(p.y>=0?-1:1,0,0);v=float3(0,0,1);}
-                else{face=p.z>=0?4u:5u;n=float3(0,0,p.z>=0?1:-1);u=float3(1,0,0);v=float3(0,p.z>=0?1:-1,0);}
+                if(a.x>=a.y&&a.x>=a.z)face=p.x>=0?0u:1u;
+                else if(a.y>=a.z)face=p.y>=0?2u:3u;
+                else face=p.z>=0?4u:5u;
+                ForestFaceBasis(face,n,u,v);
                 float denominator=dot(p,n);uint2 cell=(uint2)clamp(floor((float2(dot(p,u),dot(p,v))/denominator+1)*.5*_ForestLatticeCount),0,(float)_ForestLatticeCount-1);
                 float fade=1;uint level=root.field>>16;
                 [loop]for(uint fine=0;fine<level;fine++)
@@ -108,13 +127,24 @@ Shader "WorldGen/ForestPackets"
                     width=singleWidth*cohort*(.93+.14*ForestUnit(seed^0x368cc8b7u))/.78645317;
                     height=root.height*cohort/.78581168;yaw+=6.28318530718*ForestUnit(seed^0x9e3779b9u);
                     Ground ground=_Ground[index];float2 offset=0;float groundY=0;bool supported=false;
+                    bool packet=root.padding>3.5&&_ForestPlanet0.w>0&&_ForestLatticeCount>0u;
+                    float2 phase=float2(ForestUnit((root.face>>8)^0x68bc21ebu),ForestUnit((root.face>>8)^0x02e5be93u));
                     [unroll]for(uint attempt=0;attempt<4u;attempt++)
                     {
                         uint jitter=attempt==0u?seed:CanopyMix(seed^((attempt+1u)*0x85ebca6bu));
                         float2 random=float2(ForestUnit(jitter^0x68bc21ebu),ForestUnit(jitter^0x02e5be93u));
-                        float2 layout=attempt==0u?(float2(child%6u,child/6u)-2.5+(random-.5)*.9):(random-.5)*5.9;
-                        offset=Rotate(float3(layout.x*singleWidth,0,layout.y*singleWidth),root.yaw).xz;
-                        if(ForestChildGround(ground,offset,root.width*.75,groundY)){supported=true;break;}
+                        if(packet)
+                        {
+                            float2 q=attempt==0u?frac(phase+child*float2(.754877666,.569840291)):random;
+                            offset=ForestPacketPosition(root,q)-root.position.xz;
+                        }
+                        else
+                        {
+                            float2 layout=attempt==0u?(float2(child%6u,child/6u)-2.5+(random-.5)*.9):(random-.5)*5.9;
+                            offset=Rotate(float3(layout.x*singleWidth,0,layout.y*singleWidth),root.yaw).xz;
+                        }
+                        float radius=(root.padding>3.5?root.padding:root.width)*.75;
+                        if(ForestChildGround(ground,offset,radius,groundY)){supported=true;break;}
                     }
                     if(!supported){o.positionCS=float4(0,0,0,1);return o;}
                     origin.xz+=offset;origin.y=groundY-.045-_ForestChart.y;

@@ -33,6 +33,9 @@ public sealed partial class LocalTerrainExplorer
             Plane(.15f,-.07f);group=Root();var inclined=Sample(ref group,10+(.15-.07)*512);
             Check(inclined.C.y==511&&inclined.C.z==511,"inclined terrain admits every support sample");
             for(int z=-1;z<=1;z++)for(int x=-1;x<=1;x++)Check(Math.Abs(Height(inclined,(z+1)*3+x+1)-(10+.15*(512+x*24.75)-.07*(512+z*24.75)))<.001,"inclined sample follows analytical plane");
+            group=Root();group.Padding=80;var packetSupport=Sample(ref group,10+(.15-.07)*512);
+            Check(group.Padding==80&&packetSupport.C.z==511,"packet support span survives grounding independently of tree width");
+            Check(Math.Abs(Height(packetSupport,0)-(10+.15*452-.07*452))<.001,"packet support uses its own 60m radius");
             Plane();tile.Heights[8*side+8]=18;group=Root();var curved=Sample(ref group,18);
             Check(group.Padding==3&&curved.C.y==511&&curved.C.z==511,"curved supported terrain retains the group");
             Check(Math.Abs(Height(curved,4)-18)<.001&&Height(curved,0)>10&&Height(curved,0)<18,"curved support preserves changing height");
@@ -125,13 +128,13 @@ public sealed partial class LocalTerrainExplorer
         camera.transform.position=new Vector3(0,500,-2000);camera.transform.LookAt(new Vector3(0,8,0));camera.farClipPlane=10000;
         planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
         compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Ranges",new Vector4(0,1,10000,15));compute.SetInt("_RootCount",1);
-        flags.SetData(new[]{3});roots.SetData(new[]{new ForestRoot{Position=Vector3.zero,Width=80,Height=20,Padding=3,Tint=Vector3.one},default(ForestRoot)});
+        flags.SetData(new[]{3});roots.SetData(new[]{new ForestRoot{Position=Vector3.zero,Width=80,Height=20,Padding=80,Tint=Vector3.one,Face=4,Field=4u<<16,CellX=32736,CellY=32736},default(ForestRoot)});
         args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=216}});
         Shader.SetGlobalVector("_WorldGenForestDistanceRange",new Vector4(9000,10000,0,0));
         material.SetTexture("_TreeColourViews",prototype.Colour);material.SetTexture("_TreeNormalViews",prototype.Normal);
         material.SetVector("_ImpostorBounds",new Vector4(prototype.Center.x,prototype.Center.y,prototype.Center.z,prototype.Radius));
         material.SetVector("_ImpostorExtents",new Vector4(prototype.Extents.x,prototype.Extents.y,prototype.Extents.z,4*prototype.Radius/LocalTreeImpostor.Size));props.SetFloat("_ForestMacro",2);
-        props.SetVector("_ForestPlanet0",Vector4.zero);props.SetVector("_ForestPlanet1",Vector4.zero);props.SetVector("_ForestPlanet2",Vector4.zero);props.SetInt("_ForestLatticeCount",0);
+        props.SetVector("_ForestPlanet0",new Vector4(0,0,1,40960));props.SetVector("_ForestPlanet1",new Vector4(1,0,0,0));props.SetVector("_ForestPlanet2",new Vector4(0,1,0,0));props.SetInt("_ForestLatticeCount",65536);
         if(Count()!=1)throw new Exception("Prepared stand fixture root not admitted");
         var groundMesh=new Mesh{name="Stand fixture ground"};groundMesh.vertices=new[]{new Vector3(-5000,0,-5000),new Vector3(-5000,0,5000),new Vector3(5000,0,-5000),new Vector3(5000,0,5000)};
         groundMesh.triangles=new[]{0,1,2,2,1,3};groundMesh.normals=new[]{Vector3.up,Vector3.up,Vector3.up,Vector3.up};groundMesh.uv=new[]{Vector2.zero,Vector2.up,Vector2.right,Vector2.one};groundMesh.colors=new[]{Color.white,Color.white,Color.white,Color.white};groundMesh.RecalculateBounds();
@@ -141,11 +144,16 @@ public sealed partial class LocalTerrainExplorer
         // geometry reference, independent of billboard projection and masking.
         uint Mix(uint value){value^=value>>16;value*=0x7feb352du;value^=value>>15;value*=0x846ca68bu;value^=value>>16;return value;}
         float Unit(uint seed)=>(Mix(seed)&0xffffffu)/16777216f;
+        float packetPhaseX=Unit(0x68bc21ebu),packetPhaseZ=Unit(0x02e5be93u);
         var parts=new CombineInstance[36];
         for(int z=0;z<6;z++)for(int x=0;x<6;x++)
         {
             uint seed=Mix((uint)(z*6+x+1)*0x9e3779b9u);float single=80/LocalTreePrototype.StandSpan;
-            float px=(x-2.5f+(Unit(seed^0x68bc21ebu)-.5f)*.9f)*single,pz=(z-2.5f+(Unit(seed^0x02e5be93u)-.5f)*.9f)*single;
+            int child=z*6+x;
+            float qx=Mathf.Repeat(packetPhaseX+child*.754877666f,1),qz=Mathf.Repeat(packetPhaseZ+child*.569840291f,1);
+            // Face4 is +Z with X/Y axes; this synthetic production chart maps
+            // [32736,32800) of 65536 cells to [-40,40) metres on both axes.
+            float px=((32736+qx*64)*2/65536-1)*40960,pz=((32736+qz*64)*2/65536-1)*40960;
             float cohort=.55f+.45f*Unit(seed^0x967a889bu),width=single*cohort*(.93f+.14f*Unit(seed^0x368cc8b7u))/.78645317f;
             parts[z*6+x]=new CombineInstance{mesh=prototype.Middle,transform=Matrix4x4.TRS(new Vector3(px,-.045f,pz),Quaternion.Euler(0,Unit(seed^0x9e3779b9u)*360,0),new Vector3(width,20*cohort/.78581168f,width))};
         }
@@ -159,7 +167,7 @@ public sealed partial class LocalTerrainExplorer
         {
             var previous=RenderTexture.active;RenderTexture.active=target;standImage.ReadPixels(new Rect(0,0,1280,720),0,0);standImage.Apply();RenderTexture.active=previous;return standImage.GetPixels32();
         }
-        report+="Expanded group "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), width=80, height=20, vertices=216, children=36, isolated shape ownership disabled (planet radius=0), reference bounds="+referenceMesh.bounds+"\n";
+        report+="Expanded packet group "+prototype.Code.ToString("X8")+" eye=(0,500,-2000), physical width=80, height=20, support span=80, vertices=216, children=36, production spherical mapping ON: face4 level4 left=(32736,32736), lattice65536 radius40960; finer ownership hash empty, reference bounds="+referenceMesh.bounds+"\n";
         float productionStart=(float)WorldGen.Presentation.TreeRenderingLod.ViewStart(2),productionPixels=(float)WorldGen.Presentation.TreeRenderingLod.PixelStart(2);
         var productionRanges=new Vector4(productionStart,productionStart*1.5f,productionPixels,productionPixels*.5f);
         foreach(var fixture in new[]{

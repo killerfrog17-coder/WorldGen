@@ -136,7 +136,9 @@ public sealed partial class LocalTerrainExplorer
         {
             var overlaps=new List<ForestPageKey>();
             double left=key.X*key.SizeM,right=left+key.SizeM,bottom=key.Z*key.SizeM,top=bottom+key.SizeM;
-            foreach(var page in fallback?flightForestPriority:forestPriority)
+            // First publication uses the final vegetation plan at this view.
+            // A temporary parent grove is not a completed forested chunk.
+            foreach(var page in forestPriority)
             {
                 scatter.ForestBounds(page,out var center,out double radius);
                 double dot=V.Dot(center,frame.Origin);if(dot<=.01)continue;
@@ -260,7 +262,7 @@ public sealed partial class LocalTerrainExplorer
                 forestPriority=forestPlan.Result;forestWanted.Clear();foreach(var key in forestPriority)forestWanted.Add(key);forestNextRequest=0;forestMaintenanceDirty=true;
                 terrainForestPages.Clear();terrainForestRequired.Clear();
                 flightForestCoverage=motion.Flying&&HeightAboveGround>80;
-                flightForestPriority=FlightForestParents(forestPriority);flightForestNext=0;
+                flightForestPriority=CoarseForestPriority(forestPriority);flightForestNext=0;
                 flightForestWanted.Clear();foreach(var key in flightForestPriority)flightForestWanted.Add(key);
                 forestCoveragePlanned=true;forestCoverageAt=forestPlanAt;forestCoverageRange=forestPlanRange;forestRevealBounds.Clear();fogCheckAt=0;
                 foreach(var work in forestJobs)if(!forestWanted.Contains(work.Key)&&!flightForestWanted.Contains(work.Key))work.Cancellation.Cancel();
@@ -422,19 +424,11 @@ public sealed partial class LocalTerrainExplorer
         if(work.Group==null){work.Cancellation.Cancel();return;}
         foreach(var member in forestJobs)if(ReferenceEquals(work.Group,member.Group))member.Cancellation.Cancel();
     }
-    ForestPageKey[] FlightForestParents(IEnumerable<ForestPageKey> leaves)
+    ForestPageKey[] CoarseForestPriority(IEnumerable<ForestPageKey> leaves)
     {
-        // Reuse the existing real-tree stand representation, not a second
-        // planting rule or extra tree models. A roughly 2km page supplies a
-        // cheap continuous canopy while its exact descendants stream in.
-        int level=Math.Max(0,(int)Math.Floor(Math.Log(2048/(LocalScatter.ForestPageSide*scatter.TreeLatticeStep),2)));
-        var parents=new HashSet<ForestPageKey>();
-        foreach(var leaf in leaves)
-        {
-            if(leaf.Level>=level){parents.Add(leaf);continue;}var key=leaf;
-            while(key.Level<level)key=key.Parent;parents.Add(key);
-        }
-        return parents.OrderBy(ForestGapDistance).ToArray();
+        // Prioritize actual distant LODs, not provisional groves that would
+        // later fill in while the camera remains still.
+        return leaves.Where(key=>key.Level>0).OrderBy(ForestGapDistance).ToArray();
     }
     bool ForestReplacementReady(ForestPageKey key)
     {
@@ -576,10 +570,25 @@ public sealed partial class LocalTerrainExplorer
             double phaseX=random.Unit(),phaseZ=random.Unit();
             double packetSide=LocalScatter.ForestPageSide*(double)(1<<page.Key.Level)/8;
             double packetWidth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellX),packetDepth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellY);
+            float supportSpan=3;
+            if(paired)
+            {
+                double extent=0;
+                for(int j=0;j<2;j++)for(int i=0;i<2;i++)
+                {
+                    var corner=scatter.ForestPosition(page.Key.Face,source.CellX+i*packetWidth,source.CellY+j*packetDepth);
+                    double cornerDot=Math.Max(.1,V.Dot(corner,frame.Origin));
+                    double cornerX=V.Dot(corner,frame.East)*frame.RadiusM/cornerDot,cornerZ=V.Dot(corner,frame.North)*frame.RadiusM/cornerDot;
+                    extent=Math.Max(extent,Math.Max(Math.Abs(cornerX-px),Math.Abs(cornerZ-pz)));
+                }
+                supportSpan=(float)Math.Max(4,(extent+tree.WidthM*.5)/.75);
+            }
+            ForestRoot sharedGroundRoot=default;ForestGroundGrid sharedGroundGrid=default;
+            int sharedGroundLevel=17,sharedGroundRevision=-1;
             for(int crown=0;crown<crowns;crown++)
             {
-                double x=px,z=pz;float cohort=1;int face=page.Key.Face,gx=cellX,gy=cellY;
-                if(macro)
+                double x=px,z=pz;float cohort=1;int face=page.Key.Face,gx=paired?source.CellX:cellX,gy=paired?source.CellY:cellY;
+                if(macro&&!paired)
                 {
                     // A shifted low-discrepancy sequence fills partial packets
                     // in their actual cube-face footprint. A world-XZ square
@@ -600,9 +609,22 @@ public sealed partial class LocalTerrainExplorer
                 var root=sourceRoot;var target=batch;
                 if(paired)
                 {
-                    root.Width*=LocalTreePrototype.StandSpan;root.Padding=3;target=standBatch;
+                    root.Width*=LocalTreePrototype.StandSpan;root.Padding=supportSpan;target=standBatch;
                 }
-                ProjectForestRootGround(ref root,out int groundLevel,out var grid);
+                int groundLevel;ForestGroundGrid grid;
+                if(paired)
+                {
+                    // Packet groups share one support grid. A terrain commit
+                    // between iterator slices invalidates only this local copy.
+                    if(sharedGroundRevision!=residentRevision)
+                    {
+                        ProjectForestRootGround(ref root,out sharedGroundLevel,out sharedGroundGrid);
+                        sharedGroundRoot=root;sharedGroundRevision=residentRevision;
+                    }
+                    root.Position.y=sharedGroundRoot.Position.y;root.SlopeX=sharedGroundRoot.SlopeX;root.SlopeZ=sharedGroundRoot.SlopeZ;
+                    groundLevel=sharedGroundLevel;grid=sharedGroundGrid;
+                }
+                else ProjectForestRootGround(ref root,out groundLevel,out grid);
                 AddForestRoot(field,target,root,groundLevel,grid,ref first);added++;
                 if(added%16==0&&(added>=4096||System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007))
                 {forestRootTopologyRevision++;added=0;yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
@@ -684,8 +706,10 @@ public sealed partial class LocalTerrainExplorer
         root.Position.y=(float)y-.045f;
         if(Math.Abs(root.Padding)>2.5f&&(root.Face&8u)!=0)
         {
-            groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,root.Width,out grid,terrain,publication);
-            root.Padding=3;
+            // Padding>=4 carries the packet support span. Padding3 remains
+            // the legacy width-sized group used by the focused shader fixture.
+            double supportSpan=root.Padding>=4?root.Padding:root.Width;
+            groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,supportSpan,out grid,terrain,publication);
             root.SlopeX=root.SlopeZ=grid.C.w/Math.Max(1,root.Width);
             return groundLevel;
         }
@@ -722,6 +746,7 @@ public sealed partial class LocalTerrainExplorer
     static double ForestGroundMargin(in ForestRoot root)
     {
         if((root.Face&8u)==0||Math.Abs(root.Padding)<1.5f)return .01;
+        if(root.Padding>=4)return root.Padding*.75+.01;
         double width=Math.Abs(root.Padding)>2.5f?root.Width:root.Width*LocalTreePrototype.StandSpan;
         return width*.75+.01;
     }

@@ -60,6 +60,14 @@ public sealed partial class LocalTerrainExplorer
                 // and an exact local forest. Detail still streams during flight.
                 Capture(Path.Combine(output,"playable-ground-and-forest.png"));
                 File.WriteAllText(Path.Combine(output,"playable-start.txt"),"seconds="+elapsed+"\n"+PerformanceForestState);
+                if(Environment.GetCommandLineArgs().Contains("--worldgen-forest-stationary-check"))
+                {
+                    // Leave camera and position unchanged while background
+                    // streaming completes; inspect vegetation at first reveal.
+                    yield return new WaitForSecondsRealtime(20);
+                    Capture(Path.Combine(output,"stationary-after.png"));
+                    File.WriteAllText(Path.Combine(output,"stationary-after.txt"),PerformanceForestState);
+                }
                 yield return CheckChunkFastFlight(output);
                 File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS first-ground forest submission and cold fast flight\n");
                 Close();Application.Quit(0);yield break;
