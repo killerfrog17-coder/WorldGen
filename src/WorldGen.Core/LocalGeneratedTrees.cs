@@ -201,8 +201,20 @@ namespace WorldGen.Core
                     block=new PlantingBlockData{P00=a.Probability*cap,P10=b.Probability*cap,P01=c.Probability*cap,P11=d.Probability*cap,
                         Tree=new ScatterInstance{Id=new ScatterKey(face,left/TreeCandidateSide,bottom/TreeCandidateSide).Id(0,(bottom%TreeCandidateSide)*TreeCandidateSide+left%TreeCandidateSide),
                             Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode,Position=center,Normal=center,GroundM=elevation,HeightM=s.HeightM*growth,WidthM=s.WidthM*growth,Color=new V(1,1,1)}};
-                    bool water=a.Sample.Underwater||b.Sample.Underwater||c.Sample.Underwater||d.Sample.Underwater||
-                        Math.Max(Math.Max(a.Sample.RiverInfluence,b.Sample.RiverInfluence),Math.Max(c.Sample.RiverInfluence,d.Sample.RiverInfluence))>.001;
+                    // Catchment flow is nonzero across whole uplands. It is
+                    // not a water footprint and must not trigger 64 full terrain
+                    // queries for every dry block. Existing finite river spans
+                    // and pond descriptors conservatively select actual banks.
+                    double margin=TreeLatticeStep*ForestPlantingSide*1.5,physical=terrain.RadiusM*scale;
+                    bool NearLevel(LocalTerrainSample v)=>v.Underwater||v.WaterKind!=LocalWaterKind.None&&!double.IsNaN(v.WaterSurfaceM)&&Math.Abs(v.ElevationM-v.WaterSurfaceM)<margin*2;
+                    bool water=NearLevel(a.Sample)||NearLevel(b.Sample)||NearLevel(c.Sample)||NearLevel(d.Sample);
+                    if(!water)foreach(var span in patch.RiverSpans())
+                    {
+                        V along=span.B-span.A,delta=center-span.A;double t=D.Clamp(V.Dot(delta,along)/Math.Max(1e-30,V.Dot(along,along)));
+                        double limit=margin+Math.Max(span.WidthA,span.WidthB)*1.5;
+                        V nearest=(delta-along*t)*physical;if(V.Dot(nearest,nearest)<=limit*limit){water=true;break;}
+                    }
+                    if(!water&&terrain.Amplification!=null)water=terrain.Amplification.SmallWaterMayIntersect(center,margin);
                     double step=TreeHabitatStep*TreeLatticeStep;
                     for(int y=0;y<ForestPlantingSide;y++)for(int x=0;x<ForestPlantingSide;x++)
                     {

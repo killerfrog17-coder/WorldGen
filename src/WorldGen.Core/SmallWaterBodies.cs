@@ -181,7 +181,7 @@ namespace WorldGen.Core
             }
             return false;
         }
-        public SmallLake At(V position,Func<V,SmallWaterGround> ground)
+        Candidate[] Neighbours(V position)
         {
             V metres=position*planetRadius;int ix=(int)Math.Floor(metres.X/grid),iy=(int)Math.Floor(metres.Y/grid),iz=(int)Math.Floor(metres.Z/grid);
             var address=(ix,iy,iz);Candidate[] neighbours;lock(gate)neighbourhoods.TryGetValue(address,out neighbours);
@@ -195,6 +195,24 @@ namespace WorldGen.Core
                 neighbours=list.ToArray();lock(gate)
                 {if(neighbourhoods.TryGetValue(address,out var previous))neighbours=previous;else{if(neighbourhoodOrder.Count>=512)neighbourhoods.Remove(neighbourhoodOrder.Dequeue());neighbourhoods.Add(address,neighbours);neighbourhoodOrder.Enqueue(address);}}
             }
+            return neighbours;
+        }
+        // Conservative footprint query using the existing descriptor cache;
+        // it never surveys terrain or constructs a lake.
+        public bool MayIntersect(V position,double radiusM)
+        {
+            foreach(var candidate in Neighbours(position))
+            {
+                lock(gate)if(cache.TryGetValue(candidate.Key,out var known)&&known==null)continue;
+                double limit=Math.Sqrt(candidate.Support2)+radiusM;
+                V delta=(position-candidate.Center)*planetRadius;
+                if(V.Dot(delta,delta)<=limit*limit)return true;
+            }
+            return false;
+        }
+        public SmallLake At(V position,Func<V,SmallWaterGround> ground)
+        {
+            var neighbours=Neighbours(position);
             SmallLake best=null;double nearest=double.PositiveInfinity;
             foreach(var candidate in neighbours)
             {

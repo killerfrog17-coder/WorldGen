@@ -99,6 +99,7 @@ namespace WorldGen.Core
             var roots=new List<ForestRepresentative>();
             var center=ForestPosition(key.Face,left+ForestPageSide*.5,bottom+ForestPageSide*.5);
             var patch=terrain.Patch(center,840/scale);
+            if(patch.MaximumForestCoverage>0)patch.RiverSpans();
             if(patch.MaximumForestCoverage>0)
             for(int y=bottom;y<bottom+ForestPageSide&&y<count;y+=ForestPlantingSide)
             for(int x=left;x<left+ForestPageSide&&x<count;x+=ForestPlantingSide)

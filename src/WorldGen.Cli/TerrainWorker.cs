@@ -105,7 +105,16 @@ static class TerrainWorker
                             responseStarted=true;w.Write(true);TerrainMeshWire.WriteMesh(w,mesh);
                         }
                         else if(command==1||command==4){var patch=scatter.Build(key,cancellation.Token,includeTrees:command==1);cancellation.Token.ThrowIfCancellationRequested();responseStarted=true;w.Write(true);TerrainMeshWire.WriteScatter(w,patch);}
-                        else{var page=scatter.BuildForest(forest,cancellation.Token);cancellation.Token.ThrowIfCancellationRequested();responseStarted=true;w.Write(true);TerrainMeshWire.WriteForest(w,page);}
+                        else
+                        {
+                            long started=Stopwatch.GetTimestamp();var page=scatter.BuildForest(forest,cancellation.Token);
+                            if(!string.IsNullOrEmpty(profilePath))
+                            {
+                                var entry=new{Kind="forest",forest.Face,forest.X,forest.Y,Milliseconds=(Stopwatch.GetTimestamp()-started)*1000d/Stopwatch.Frequency,Blocks=page.Roots.Length,page.Probes};
+                                lock(profileGate)File.AppendAllText(profilePath,System.Text.Json.JsonSerializer.Serialize(entry)+Environment.NewLine);
+                            }
+                            cancellation.Token.ThrowIfCancellationRequested();responseStarted=true;w.Write(true);TerrainMeshWire.WriteForest(w,page);
+                        }
                     }
                     finally{slots.Release();}
                     }
