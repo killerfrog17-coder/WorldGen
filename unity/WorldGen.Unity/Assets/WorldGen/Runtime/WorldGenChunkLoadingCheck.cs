@@ -88,7 +88,7 @@ public sealed partial class LocalTerrainExplorer
             }
             if(now>=nextState)
             {nextState=now+5;File.AppendAllText(Path.Combine(output,"loading-work.txt"),elapsed.ToString("F2",CultureInfo.InvariantCulture)+"s: "+CheckStreamingState+"; "+PerformanceGroundPublication+"; install="+CanInstall+" scatter reserve="+reserveScatterFrame+" uploadMs="+frameUploadMs+"\n");}
-            if(AllReady&&!DetailPlanning&&jobs.Count==0&&!ForestPending&&ScatterReady&&milestones.ContainsKey("radius600"))
+            if(!Environment.GetCommandLineArgs().Contains("--worldgen-chunk-forest-entry")&&AllReady&&!DetailPlanning&&jobs.Count==0&&!ForestPending&&ScatterReady&&milestones.ContainsKey("radius600"))
             {milestones["complete"]=elapsed;break;}
             yield return null;
         }

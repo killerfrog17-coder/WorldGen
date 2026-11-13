@@ -43,7 +43,7 @@ public sealed partial class LocalTerrainExplorer
     {
         get{activeForestGroups.Clear();int count=0;foreach(var work in forestJobs)if(!work.Task.IsCompleted&&(work.Group==null||activeForestGroups.Add(work.Group)))count++;return count;}
     }
-    int ForestWorkerLimit=>Math.Min(InitialViewReady?2:Math.Max(2,WorkerLimit-1),WorkerLimit);
+    int ForestWorkerLimit=>Math.Min(2,WorkerLimit);
     bool CanPrepareForest=>!reserveScatterFrame&&!GroundPublicationPending&&frameUploadMs<StreamingUploadBudgetMs;
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
     readonly Dictionary<int,ForestBatch> forestBatches=new Dictionary<int,ForestBatch>();

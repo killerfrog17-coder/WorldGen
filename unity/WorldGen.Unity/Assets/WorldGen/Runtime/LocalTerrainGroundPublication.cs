@@ -37,6 +37,9 @@ public sealed partial class LocalTerrainExplorer
 
     bool StageGroundPublication(TerrainTileKey key,Tile product,bool fallback=false)
     {
+        // Entry is hidden. Publish these surfaces directly and let the
+        // existing correction pass ground the combined batch before reveal.
+        if(!InitialViewReady)return false;
         if(!WorldGenPerformance.StagedGroundPublication){groundStageBypass=GroundStageBypass.Disabled;return false;}
         if(GroundPublicationPending){groundStageBypass=GroundStageBypass.Pending;return false;}
         if(!wanted.ContainsKey(key)){groundStageBypass=GroundStageBypass.Backdrop;return false;}
@@ -53,6 +56,7 @@ public sealed partial class LocalTerrainExplorer
     }
     bool StageGroundRetirement(TerrainTileKey key,Tile tile)
     {
+        if(!InitialViewReady)return false;
         if(!WorldGenPerformance.StagedTerrainRetirement||GroundPublicationPending||
             scatterGroundChanges.Count!=0||scatterGroundRevision!=projectedGroundRevision)return false;
         if(TerrainRootFree(key))return false;
