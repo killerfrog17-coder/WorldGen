@@ -17,6 +17,14 @@ public sealed partial class LocalTerrainExplorer
     {public Vector3 Position;public float Width,Height,Yaw,SlopeX,SlopeZ;public Vector3 Tint;public uint Field;public int CellX,CellY;public uint Face;public float Padding;}
     [StructLayout(LayoutKind.Sequential)]
     struct ForestGroundGrid {public Vector4 A,B,C,D,E,F,G,H;public bool Equals(ForestGroundGrid other)=>A.Equals(other.A)&&B.Equals(other.B)&&C.Equals(other.C)&&D.Equals(other.D)&&E.Equals(other.E)&&F.Equals(other.F)&&G.Equals(other.G)&&H.Equals(other.H);}
+    readonly struct ForestGroundSupport
+    {
+        public readonly int Level;public readonly float Y,SlopeX,SlopeZ;public readonly ForestGroundGrid Grid;
+        public ForestGroundSupport(in ForestRoot root,int level,in ForestGroundGrid grid){Level=level;Y=root.Position.y;SlopeX=root.SlopeX;SlopeZ=root.SlopeZ;Grid=grid;}
+        public void Apply(ref ForestRoot root,out int level,out ForestGroundGrid grid){root.Position.y=Y;root.SlopeX=SlopeX;root.SlopeZ=SlopeZ;level=Level;grid=Grid;}
+    }
+    // Scratch for one field/correction pass; never retained across revisions.
+    readonly Dictionary<(int,int,float),ForestGroundSupport> forestCorrectionSupport=new Dictionary<(int,int,float),ForestGroundSupport>(64);
     [StructLayout(LayoutKind.Sequential)]
     struct ForestHash {public int X,Z,Level,State;}
     sealed class ForestBatch
@@ -610,6 +618,7 @@ public sealed partial class LocalTerrainExplorer
                 if(scatterGroundChanges.Affects(key,b.center.x,b.center.z,Math.Max(b.extents.x,b.extents.z)+.01))minimumChangedLevel=Math.Min(minimumChangedLevel,key.Level);
             }
             if(minimumChangedLevel==int.MaxValue)continue;
+            forestCorrectionSupport.Clear();
             if(trace!=0)tracedFields++;
             foreach(var pair in field.Roots)foreach(int slot in pair.Value)
             {
@@ -624,7 +633,7 @@ public sealed partial class LocalTerrainExplorer
                 double margin=ForestGroundMargin(root);
                 if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,previousGroundLevel))continue;
                 if(trace!=0)tracedQueries++;
-                var before=root;ProjectForestRootGround(ref root,out int groundLevel,out var grid);SetForestGroundLevel(field,pair.Key,slot,groundLevel);
+                var before=root;ProjectForestRootGround(ref root,out int groundLevel,out var grid,forestCorrectionSupport);SetForestGroundLevel(field,pair.Key,slot,groundLevel);
                 if((root.Face&32u)!=0){grid.D=pair.Key.GroundData[slot].D;grid.E=pair.Key.GroundData[slot].E;grid.F=pair.Key.GroundData[slot].F;grid.G=pair.Key.GroundData[slot].G;grid.H=pair.Key.GroundData[slot].H;}
                 bool gridChanged=pair.Key.Model?.TreeCluster==true&&!pair.Key.GroundData[slot].Equals(grid);
                 if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ&&root.Padding==before.Padding&&!gridChanged)continue;
@@ -642,7 +651,7 @@ public sealed partial class LocalTerrainExplorer
         }
     }
     void ProjectForestRootGround(ref ForestRoot root,out int groundLevel)=>ProjectForestRootGround(ref root,out groundLevel,out _);
-    void ProjectForestRootGround(ref ForestRoot root,out int groundLevel,out ForestGroundGrid grid)
+    void ProjectForestRootGround(ref ForestRoot root,out int groundLevel,out ForestGroundGrid grid,Dictionary<(int,int,float),ForestGroundSupport> supports=null)
     {
         long groundStarted=WorldGenPerformance.TraceEnabled?System.Diagnostics.Stopwatch.GetTimestamp():0;
         double x=root.Position.x,z=root.Position.z,y=VisibleGround(x,z,root.Position.y+.045f,out groundLevel);
@@ -653,15 +662,17 @@ public sealed partial class LocalTerrainExplorer
             key=new TerrainTileKey((int)Math.Floor(x/size),(int)Math.Floor(z/size),groundLevel,HorizontalScale);
             tiles.TryGetValue(key,out tile);
         }
-        groundLevel=ApplyForestRootGround(ref root,y,groundLevel,tile,key,out grid,this);
+        groundLevel=ApplyForestRootGround(ref root,y,groundLevel,tile,key,out grid,this,supports:supports);
         if(groundStarted!=0)
         {
             double elapsed=(System.Diagnostics.Stopwatch.GetTimestamp()-groundStarted)*1000d/System.Diagnostics.Stopwatch.Frequency;
             if(elapsed>=8)Debug.Log("FOREST ROOT GROUND ms="+elapsed.ToString("F3",System.Globalization.CultureInfo.InvariantCulture)+" level="+groundLevel+" x="+x+" z="+z+" realtime="+Time.realtimeSinceStartupAsDouble.ToString("F6",System.Globalization.CultureInfo.InvariantCulture));
         }
     }
-    static int ApplyForestRootGround(ref ForestRoot root,double y,int groundLevel,Tile tile,TerrainTileKey key,out ForestGroundGrid grid,LocalTerrainExplorer terrain=null,GroundPublication publication=null)
+    static int ApplyForestRootGround(ref ForestRoot root,double y,int groundLevel,Tile tile,TerrainTileKey key,out ForestGroundGrid grid,LocalTerrainExplorer terrain=null,GroundPublication publication=null,Dictionary<(int,int,float),ForestGroundSupport> supports=null)
     {
+        bool shared=supports!=null&&(root.Face&32u)!=0&&root.Padding>=4;var supportKey=(root.CellX,root.CellY,root.Padding);
+        if(shared&&supports.TryGetValue(supportKey,out var prior)){prior.Apply(ref root,out int level,out grid);return level;}
         grid=default;
         root.Position.y=(float)y-.045f;
         if(Math.Abs(root.Padding)>2.5f&&(root.Face&8u)!=0)
@@ -671,6 +682,7 @@ public sealed partial class LocalTerrainExplorer
             double supportSpan=root.Padding>=4?root.Padding:root.Width;
             groundLevel=SampleForestGroundGrid(tile,key,root.Position.x,root.Position.z,y,supportSpan,out grid,terrain,publication);
             root.SlopeX=root.SlopeZ=grid.C.w/(float)Math.Max(1,supportSpan);
+            if(shared)supports[supportKey]=new ForestGroundSupport(root,groundLevel,grid);
             return groundLevel;
         }
         bool macro=Math.Abs(root.Padding)>1.5f;

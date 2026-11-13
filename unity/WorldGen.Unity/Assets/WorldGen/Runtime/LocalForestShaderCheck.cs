@@ -36,6 +36,15 @@ public sealed partial class LocalTerrainExplorer
             group=Root();group.Padding=80;var packetSupport=Sample(ref group,10+(.15-.07)*512);
             Check(group.Padding==80&&packetSupport.C.z==511,"packet support span survives grounding independently of tree width");
             Check(Math.Abs(Height(packetSupport,0)-(10+.15*452-.07*452))<.001,"packet support uses its own 60m radius");
+            var sharedSupports=new System.Collections.Generic.Dictionary<(int,int,float),ForestGroundSupport>();
+            var speciesA=Root();speciesA.Face|=32u;speciesA.Padding=80;
+            int sharedLevel=ApplyForestRootGround(ref speciesA,10+(.15-.07)*512,key.Level,tile,key,out var sharedGrid,supports:sharedSupports);
+            var speciesB=speciesA;speciesB.Width=4;speciesB.Height=40;
+            int secondLevel=ApplyForestRootGround(ref speciesB,10+(.15-.07)*512,key.Level,tile,key,out var secondGrid,supports:sharedSupports);
+            Check(sharedSupports.Count==1&&sharedGrid.Equals(secondGrid)&&sharedLevel==secondLevel&&speciesA.Position.y==speciesB.Position.y,"different species share physical support without changing grounding");
+            sharedSupports.Clear();Plane();
+            ApplyForestRootGround(ref speciesB,10,key.Level,tile,key,out secondGrid,supports:sharedSupports);
+            Check(Height(secondGrid,4)==10&&!secondGrid.Equals(sharedGrid),"a new correction scope cannot reuse previous ground heights");
             Plane();tile.Heights[8*side+8]=18;group=Root();var curved=Sample(ref group,18);
             Check(group.Padding==3&&curved.C.y==511&&curved.C.z==511,"curved supported terrain retains the group");
             Check(Math.Abs(Height(curved,4)-18)<.001&&Height(curved,0)>10&&Height(curved,0)<18,"curved support preserves changing height");
