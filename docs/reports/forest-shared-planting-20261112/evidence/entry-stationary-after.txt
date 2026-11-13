@@ -1,0 +1,1 @@
+fields 551/551, roots 315035, pending False, projection slices 3892 max_ms 186.009 active False, baked local 9, baked forest 9, pending models 0, texture bytes 6291450; shadow proxies True, soft True, casters 0, coarse 0, shadow draws 0, triangles 0; readiness near=True all=True detail=False jobs=0 previous=0 retiring=0 fades=0 scatter=True scatterJobs=0 coverRequests=0

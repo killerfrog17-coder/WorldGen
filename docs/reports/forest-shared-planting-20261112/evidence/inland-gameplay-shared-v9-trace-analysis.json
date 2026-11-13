@@ -1,0 +1,178 @@
+[
+  {
+    "file": "dense-tropicalrainforest-travel-current-trace.csv",
+    "frames": 1429,
+    "mean_ms": 8.401057662701193,
+    "p95_ms": 12.1504,
+    "p99_ms": 14.7656,
+    "max_ms": 27.7058,
+    "over10ms": 242,
+    "over16ms": 7,
+    "collections": 1.0,
+    "main_allocated_bytes_per_second": null,
+    "heap_min_mib": 978.46875,
+    "heap_max_mib": 1023.328125,
+    "peaks": [
+      {
+        "t_s": 3.38717,
+        "frame_ms": 27.7058,
+        "gc_same_frame": true,
+        "gc_adjacent_frame": true,
+        "explorer_ms": 10.4492,
+        "largest_tracked_phases": {
+          "ground_publication_ms": 3.0944,
+          "fauna_ms": 0.9839,
+          "forest_ground_ms": 0.9048
+        }
+      },
+      {
+        "t_s": 7.07702,
+        "frame_ms": 18.5522,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 10.2881,
+        "largest_tracked_phases": {
+          "terrain_install_ms": 4.4033,
+          "terrain_retirement_ms": 1.1208,
+          "fauna_ms": 0.7428
+        }
+      },
+      {
+        "t_s": 3.60582,
+        "frame_ms": 18.5089,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 10.6942,
+        "largest_tracked_phases": {
+          "forest_ground_ms": 3.1598,
+          "fauna_ms": 0.9924,
+          "terrain_retirement_ms": 0.9703
+        }
+      },
+      {
+        "t_s": 3.28959,
+        "frame_ms": 17.0357,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.8148,
+        "largest_tracked_phases": {
+          "terrain_install_ms": 6.701,
+          "fauna_ms": 0.8686,
+          "terrain_retirement_ms": 0.4316
+        }
+      },
+      {
+        "t_s": 1.48688,
+        "frame_ms": 16.7671,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 9.9593,
+        "largest_tracked_phases": {
+          "projection_ms": 1.057,
+          "fauna_ms": 0.8894,
+          "scheduling_ms": 0.4261
+        }
+      },
+      {
+        "t_s": 8.13135,
+        "frame_ms": 16.6431,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 6.6664,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.0158,
+          "projection_ms": 0.7791,
+          "scheduling_ms": 0.4352
+        }
+      }
+    ]
+  },
+  {
+    "file": "dense-tropicalrainforest-turning-trace.csv",
+    "frames": 1465,
+    "mean_ms": 8.191845665529002,
+    "p95_ms": 9.5979,
+    "p99_ms": 11.7816,
+    "max_ms": 15.9843,
+    "over10ms": 37,
+    "over16ms": 0,
+    "collections": 1.0,
+    "main_allocated_bytes_per_second": null,
+    "heap_min_mib": 948.76953125,
+    "heap_max_mib": 969.33984375,
+    "peaks": [
+      {
+        "t_s": 1.72042,
+        "frame_ms": 15.9843,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 9.0299,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.7614,
+          "scheduling_ms": 0.3704,
+          "weather_ms": 0.0922
+        }
+      },
+      {
+        "t_s": 0.71812,
+        "frame_ms": 15.9279,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.644,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.7159,
+          "scheduling_ms": 0.3636,
+          "weather_ms": 0.0931
+        }
+      },
+      {
+        "t_s": 8.74541,
+        "frame_ms": 15.733,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.6119,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.6907,
+          "scheduling_ms": 0.3675,
+          "weather_ms": 0.0718
+        }
+      },
+      {
+        "t_s": 11.759,
+        "frame_ms": 15.5111,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 9.1874,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.0993,
+          "scheduling_ms": 0.3793,
+          "weather_ms": 0.0972
+        }
+      },
+      {
+        "t_s": 3.72198,
+        "frame_ms": 15.5066,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.9807,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.7232,
+          "scheduling_ms": 0.3629,
+          "weather_ms": 0.0909
+        }
+      },
+      {
+        "t_s": 2.72073,
+        "frame_ms": 15.2278,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.4604,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.8549,
+          "scheduling_ms": 0.3625,
+          "weather_ms": 0.0756
+        }
+      }
+    ]
+  }
+]

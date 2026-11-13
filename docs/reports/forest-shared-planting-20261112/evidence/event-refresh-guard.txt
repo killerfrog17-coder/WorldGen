@@ -1,0 +1,2 @@
+PASS 32 actual-camera renders at fixed exposure, visible-instance containment and exact physical caster multisets; max RGB delta 1, at most 0 changed edge pixels (budget 0.001%); eye movement invalidates.
+dense-tropicalrainforest: 9835 loading/idle readiness comparisons passed.

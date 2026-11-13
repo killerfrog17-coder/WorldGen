@@ -1,0 +1,2 @@
+dense-tropicalrainforest turning focused_frames=1421 unfocused_frames=0
+dense-tropicalrainforest travel-current focused_frames=1420 unfocused_frames=0

@@ -1,0 +1,154 @@
+[
+  {
+    "file": "dense-tropicalrainforest-travel-current-trace.csv",
+    "frames": 1420,
+    "mean_ms": 8.454660352112667,
+    "p95_ms": 12.2056,
+    "p99_ms": 14.8573,
+    "max_ms": 18.9666,
+    "over10ms": 244,
+    "over16ms": 4,
+    "collections": 1.0,
+    "main_allocated_bytes_per_second": null,
+    "heap_min_mib": 933.54296875,
+    "heap_max_mib": 1055.74609375,
+    "peaks": [
+      {
+        "t_s": 3.62972,
+        "frame_ms": 18.9666,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.9912,
+        "largest_tracked_phases": {
+          "forest_ground_ms": 1.9488,
+          "fauna_ms": 0.8871,
+          "terrain_retirement_ms": 0.79
+        }
+      },
+      {
+        "t_s": 0.74258,
+        "frame_ms": 18.8076,
+        "gc_same_frame": true,
+        "gc_adjacent_frame": true,
+        "explorer_ms": 1.6965,
+        "largest_tracked_phases": {
+          "fauna_ms": 0.7991,
+          "scheduling_ms": 0.3856,
+          "humans_ms": 0.1404
+        }
+      },
+      {
+        "t_s": 3.46478,
+        "frame_ms": 18.0981,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 9.0767,
+        "largest_tracked_phases": {
+          "forest_ground_ms": 1.9446,
+          "fauna_ms": 0.9455,
+          "terrain_retirement_ms": 0.8971
+        }
+      },
+      {
+        "t_s": 3.37581,
+        "frame_ms": 17.9782,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 10.5512,
+        "largest_tracked_phases": {
+          "ground_publication_ms": 3.2652,
+          "fauna_ms": 0.9601,
+          "forest_ground_ms": 0.8894
+        }
+      },
+      {
+        "t_s": 6.66913,
+        "frame_ms": 15.8802,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 8.3068,
+        "largest_tracked_phases": {
+          "terrain_retirement_ms": 0.8984,
+          "fauna_ms": 0.8548,
+          "projection_ms": 0.813
+        }
+      }
+    ]
+  },
+  {
+    "file": "dense-tropicalrainforest-turning-trace.csv",
+    "frames": 1421,
+    "mean_ms": 8.447543490499644,
+    "p95_ms": 9.9252,
+    "p99_ms": 11.1065,
+    "max_ms": 28.0412,
+    "over10ms": 63,
+    "over16ms": 3,
+    "collections": 1.0,
+    "main_allocated_bytes_per_second": null,
+    "heap_min_mib": 979.48046875,
+    "heap_max_mib": 1004.07421875,
+    "peaks": [
+      {
+        "t_s": 7.37028,
+        "frame_ms": 28.0412,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 3.1389,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.4708,
+          "scheduling_ms": 0.559,
+          "weather_ms": 0.1409
+        }
+      },
+      {
+        "t_s": 11.72133,
+        "frame_ms": 17.6466,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 7.6535,
+        "largest_tracked_phases": {
+          "fauna_ms": 5.302,
+          "scheduling_ms": 1.0105,
+          "weather_ms": 0.2396
+        }
+      },
+      {
+        "t_s": 0.10113,
+        "frame_ms": 16.7347,
+        "gc_same_frame": true,
+        "gc_adjacent_frame": true,
+        "explorer_ms": 2.3549,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.448,
+          "scheduling_ms": 0.3856,
+          "weather_ms": 0.128
+        }
+      },
+      {
+        "t_s": 8.21711,
+        "frame_ms": 13.2839,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 3.5164,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.5719,
+          "scheduling_ms": 0.6903,
+          "humans_ms": 0.417
+        }
+      },
+      {
+        "t_s": 8.16637,
+        "frame_ms": 12.4822,
+        "gc_same_frame": false,
+        "gc_adjacent_frame": false,
+        "explorer_ms": 3.0462,
+        "largest_tracked_phases": {
+          "fauna_ms": 1.3184,
+          "scheduling_ms": 0.8086,
+          "humans_ms": 0.2073
+        }
+      }
+    ]
+  }
+]

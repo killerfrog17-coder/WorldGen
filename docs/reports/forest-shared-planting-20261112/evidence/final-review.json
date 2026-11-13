@@ -1,0 +1,18 @@
+{
+  "entrySeconds": 21.5393396,
+  "entrySource": "ecccf4dc",
+  "candidateSource": "842367a2",
+  "entrySite": "dense-tropicalrainforest, cell112031, >=20km inland",
+  "entryTimeScope": "after terrain setup, world reading and worker startup additional",
+  "stationaryFields": 551,
+  "stationaryRootRecords": 315035,
+  "renderedPositionErrorPx": 0.043944,
+  "entryRun": "shared-support-inland-v8",
+  "fpsSharedPc": true,
+  "backgroundWorkload": "owner reports another Codex running",
+  "timerRebuildsBefore": 12,
+  "timerRebuildsAfter": 0,
+  "performanceConclusions": "timer rebuild removed; no reliable overall FPS gain or 100FPS floor",
+  "horizonStatus": "Reviewed visually; owner moved during capture, not stationary evidence. Beyond6km terrain canopy tint only; silhouettes deferred by owner.",
+  "ownerStoppingPoint": "Owner says distant forest looks quite good; defer far silhouette improvement and stop at checkpoint."
+}
