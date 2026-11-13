@@ -82,7 +82,7 @@ public sealed partial class LocalTerrainExplorer
         var data=new[]{new ForestRoot{Position=new Vector3(-.58f,0,0),Width=.35f,Height=1,Yaw=0,Tint=Vector3.one},new ForestRoot{Position=new Vector3(.58f,0,0),Width=.35f,Height=1,Yaw=.7f,Tint=Vector3.one}};roots.SetData(data);
         var planes=GeometryUtility.CalculateFrustumPlanes(camera);var planeVectors=new Vector4[6];for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
         compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Chart",new Vector4(0,0,0,1));compute.SetVector("_Ranges",new Vector4(0,1,100,15));compute.SetInt("_RootCount",2);compute.SetBuffer(0,"_Roots",roots);compute.SetBuffer(0,"_Visible",visible);compute.SetBuffer(0,"_Fields",flags);compute.SetBuffer(0,"_Tiles",hash);
-        uint Count(){visible.SetCounterValue(0);compute.Dispatch(0,1,1,1);GraphicsBuffer.CopyCount(visible,args,4);var counts=new GraphicsBuffer.IndirectDrawArgs[1];args.GetData(counts);return counts[0].instanceCount;}
+        int checkRootCount=2;uint Count(){visible.SetCounterValue(0);compute.Dispatch(0,(checkRootCount+63)/64,1,1);GraphicsBuffer.CopyCount(visible,args,4);var counts=new GraphicsBuffer.IndirectDrawArgs[1];args.GetData(counts);return counts[0].instanceCount;}
         if(Count()!=2)throw new Exception("Forest GPU culler missed visible roots");
         flags.SetData(new[]{0});if(Count()!=0)throw new Exception("Disabled forest fields draw");flags.SetData(new[]{1});
         compute.SetVector("_Ranges",new Vector4(10,11,100,15));if(Count()!=0)throw new Exception("Near forest rejection failed");
@@ -122,10 +122,10 @@ public sealed partial class LocalTerrainExplorer
             {mask.Add(child);waveExpected.Add((uint)(i*256+child));}
             waveGround[i]=new ForestGroundGrid{C=new Vector4(0,511,511,0),D=Vector4.one,E=ForestMaskVector(mask.A),F=ForestMaskVector(mask.B),G=ForestMaskVector(mask.C),H=ForestMaskVector(mask.D)};
         }
-        roots.SetData(waveRoots);groundGrid.SetData(waveGround);compute.SetInt("_RootCount",waveRoots.Length);compute.SetVector("_Chart",new Vector4(0,0,0,1));
+        roots.SetData(waveRoots);groundGrid.SetData(waveGround);checkRootCount=waveRoots.Length;compute.SetInt("_RootCount",checkRootCount);compute.SetVector("_Chart",new Vector4(0,0,0,1));
         uint waveCount=Count();var waveActual=new uint[waveCount];visible.GetData(waveActual,0,0,(int)waveCount);
-        if(waveCount!=waveExpected.Count||!waveExpected.SetEquals(waveActual))throw new Exception("Divergent full-wave species masks differ from CPU membership");
-        compute.SetInt("_RootCount",2);
+        if(waveCount!=waveExpected.Count||!waveExpected.SetEquals(waveActual))throw new Exception("Divergent full-wave species masks differ from CPU membership: "+waveCount+" vs "+waveExpected.Count);
+        checkRootCount=2;compute.SetInt("_RootCount",checkRootCount);
         data=ordinary;roots.SetData(data);compute.SetVector("_Chart",new Vector4(0,0,0,1));
         groundGrid.SetData(new[]{new ForestGroundGrid{C=new Vector4(0,511,511,0)},new ForestGroundGrid{C=new Vector4(0,511,511,0)}});
         var props=new MaterialPropertyBlock();props.SetBuffer("_Roots",roots);props.SetBuffer("_Ground",groundGrid);props.SetBuffer("_Visible",visible);props.SetBuffer("_Fields",flags);props.SetBuffer("_ForestBirth",birth);props.SetBuffer("_Tiles",hash);props.SetInt("_ForestHashMask",15);props.SetVector("_ForestChart",Vector4.zero);props.SetVector("_ForestRange",new Vector4(0,1,0,0));
