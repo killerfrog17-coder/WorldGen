@@ -301,11 +301,12 @@ public sealed partial class LocalTerrainExplorer : MonoBehaviour
         double replanDistance=TerrainLod.ReplanDistance(HorizontalScale);
         bool movedPlan=double.IsNaN(plannedX)||Math.Abs(motion.X-plannedX)>replanDistance||Math.Abs(motion.Z-plannedZ)>replanDistance||Math.Abs(altitude-plannedAltitude)>Math.Max(150,plannedAltitude*.3);
         // Poll immediately replaces the plan when settings changed or a valid
-        // async result is ready. Do not construct/edge/sort a synchronous plan
-        // that would be discarded again in this same planning pass.
+        // async result is ready. During ordinary movement the current plan and
+        // coarse backdrops stay valid until its worker replacement is ready;
+        // rebuilding a synchronous fallback here caused a hitch every25.6m.
         if(movedPlan&&(mapOpen||detailRevision==TerrainVideoOptions.Revision))
         {
-            if(!mapOpen&&!legacyPlanRefresh&&!double.IsNaN(plannedX)&&CanAdoptTerrainDetailPlan())
+            if(!mapOpen&&!detailBaseline&&!legacyPlanRefresh&&!double.IsNaN(plannedX))
             {plannedX=motion.X;plannedZ=motion.Z;plannedAltitude=altitude;detailDirty=true;PlanBackdrop();}
             else RefreshWanted();
         }
