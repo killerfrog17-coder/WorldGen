@@ -43,13 +43,12 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     if((root.face&32u)!=0)
     {
         Ground ground=_Ground[at];
-        [unroll]for(uint lane=0u;lane<16u;lane++)
+        [loop]for(uint child=0u;child<256u;child++)
         {
-            uint word=lane&3u;float4 mask=lane<4u?ground.e:lane<8u?ground.f:lane<12u?ground.g:ground.h;
+            uint lane=child/64u,word=(child/16u)&3u;
+            float4 mask=lane==0u?ground.e:lane==1u?ground.f:lane==2u?ground.g:ground.h;
             uint allowed=(uint)(word==0u?mask.x:word==1u?mask.y:word==2u?mask.z:mask.w);
-            [loop]while(allowed!=0u)
-            {
-            uint bit=(uint)firstbitlow(allowed),child=lane*16u+bit;allowed&=allowed-1u;
+            if(((allowed>>(child&15u))&1u)==0u)continue;
             uint2 cell=uint2(root.cellX,root.cellY)+uint2(child%16u,child/16u);if(any(cell>=_ForestLatticeCount))continue;
             uint h=Mix(cell.x*73856093u^cell.y*19349663u^(root.face&7u)*83492791u^_ForestSeed);
             float2 jitter=.08+.84*float2((Mix(h^0x68bc21ebu)&0xffffffu),(Mix(h^0x02e5be93u)&0xffffffu))/16777216.;
@@ -57,7 +56,6 @@ void Cull(uint3 tid:SV_DispatchThreadID)
             float probability=lerp(lerp(ground.d.x,ground.d.y,q.x),lerp(ground.d.z,ground.d.w,q.x),q.y);
             if((Mix(h^0x27d4eb2du)&0xffffffu)/16777216.>=probability*_Chart.w)continue;
             _Visible.Append(at*256u+child);
-            }
         }
     }
     else _Visible.Append(at);

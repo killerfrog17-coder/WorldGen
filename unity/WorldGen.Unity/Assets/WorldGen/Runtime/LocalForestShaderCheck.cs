@@ -74,9 +74,9 @@ public sealed partial class LocalTerrainExplorer
         Shader.SetGlobalVector("_AirGeometry",new Vector4(6371000,0,0,0));Shader.SetGlobalFloat("_AirObserverM",0);Shader.SetGlobalFloat("_AirHaze",0);
         var compute=Resources.Load<ComputeShader>("WorldGenForestCull");var material=new Material(Resources.Load<Shader>("WorldGenForest"));LocalTreeTextures.BindViews(material);material.SetColor("_AmbientTint",new Color(.25f,.25f,.25f));material.SetFloat("_FogDistance",10000);
         string supportReport=CheckForestStandSupport();
-        var roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,2,64);var visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,512,4);var args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});
+        var roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,128,64);var visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,32768,4);var args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});
         var flags=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,4);flags.SetData(new[]{1});var hash=new GraphicsBuffer(GraphicsBuffer.Target.Structured,16,16);hash.SetData(new ForestHash[16]);
-        var groundGrid=new GraphicsBuffer(GraphicsBuffer.Target.Structured,2,128);groundGrid.SetData(new[]{new ForestGroundGrid{C=new Vector4(0,511,511,0)},new ForestGroundGrid{C=new Vector4(0,511,511,0)}});
+        var groundGrid=new GraphicsBuffer(GraphicsBuffer.Target.Structured,128,128);groundGrid.SetData(new[]{new ForestGroundGrid{C=new Vector4(0,511,511,0)},new ForestGroundGrid{C=new Vector4(0,511,511,0)}});
         compute.SetBuffer(0,"_Ground",groundGrid);
         var birth=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,4);birth.SetData(new[]{0f});compute.SetBuffer(0,"_ForestBirth",birth);
         var data=new[]{new ForestRoot{Position=new Vector3(-.58f,0,0),Width=.35f,Height=1,Yaw=0,Tint=Vector3.one},new ForestRoot{Position=new Vector3(.58f,0,0),Width=.35f,Height=1,Yaw=.7f,Tint=Vector3.one}};roots.SetData(data);
@@ -112,10 +112,24 @@ public sealed partial class LocalTerrainExplorer
             uint actual=Count();var indices=new uint[actual];if(actual>0)visible.GetData(indices,0,0,(int)actual);
             if(actual!=expected.Count||!expected.SetEquals(indices))throw new Exception("GPU planting differs from interaction cells at density "+density);
         }
+        // Exercise divergent species masks across complete GPU waves. A
+        // single active root cannot expose batch-size or divergent-loop faults.
+        var waveRoots=new ForestRoot[128];var waveGround=new ForestGroundGrid[128];var waveExpected=new System.Collections.Generic.HashSet<uint>();
+        for(int i=0;i<waveRoots.Length;i++)
+        {
+            waveRoots[i]=data[0];var mask=new ForestPlantingMask();
+            for(int child=0;child<256;child++)if(LocalScatter.PlantingUnit((uint)(i*257+child)^0x92a13fu)>.5f)
+            {mask.Add(child);waveExpected.Add((uint)(i*256+child));}
+            waveGround[i]=new ForestGroundGrid{C=new Vector4(0,511,511,0),D=Vector4.one,E=ForestMaskVector(mask.A),F=ForestMaskVector(mask.B),G=ForestMaskVector(mask.C),H=ForestMaskVector(mask.D)};
+        }
+        roots.SetData(waveRoots);groundGrid.SetData(waveGround);compute.SetInt("_RootCount",waveRoots.Length);compute.SetVector("_Chart",new Vector4(0,0,0,1));
+        uint waveCount=Count();var waveActual=new uint[waveCount];visible.GetData(waveActual,0,0,(int)waveCount);
+        if(waveCount!=waveExpected.Count||!waveExpected.SetEquals(waveActual))throw new Exception("Divergent full-wave species masks differ from CPU membership");
+        compute.SetInt("_RootCount",2);
         data=ordinary;roots.SetData(data);compute.SetVector("_Chart",new Vector4(0,0,0,1));
         groundGrid.SetData(new[]{new ForestGroundGrid{C=new Vector4(0,511,511,0)},new ForestGroundGrid{C=new Vector4(0,511,511,0)}});
         var props=new MaterialPropertyBlock();props.SetBuffer("_Roots",roots);props.SetBuffer("_Ground",groundGrid);props.SetBuffer("_Visible",visible);props.SetBuffer("_Fields",flags);props.SetBuffer("_ForestBirth",birth);props.SetBuffer("_Tiles",hash);props.SetInt("_ForestHashMask",15);props.SetVector("_ForestChart",Vector4.zero);props.SetVector("_ForestRange",new Vector4(0,1,0,0));
-        string report="GPU fixed planting indices match CPU at full/quarter/zero density, including 256-bit exclusions\n"+supportReport+"GPU admission/disable/near-range/finer-field ownership pass\n";
+        string report="GPU fixed planting indices match CPU at full/quarter/zero density, including 256-bit exclusions and 128 divergent roots\n"+supportReport+"GPU admission/disable/near-range/finer-field ownership pass\n";
         foreach(int code in new[]{0x02345600,0x12345600})
         {
             var morphology=new TreeMorphology(code);
