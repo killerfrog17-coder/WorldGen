@@ -10,13 +10,13 @@ namespace WorldGen.Presentation
     public static class VegetationBenchmarkSites
     {
         // Offline site selection only. Ordinary gameplay never scans the map.
-        public static VegetationBenchmarkSiteSet Dense(World world,LocalTerrain terrain)
+        public static VegetationBenchmarkSiteSet Dense(World world,LocalTerrain terrain,double minimumCoastDistanceM=0)
         {
             var result=new List<VegetationBenchmarkSite>();double radius=terrain.RadiusM*terrain.HorizontalScale;
             foreach(var biome in new[]{Biome.TropicalRainforest,Biome.TemperateForest,Biome.BorealForest,Biome.Savanna})
             {
                 VegetationBenchmarkSite best=null;double bestScore=0;
-                var candidates=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&terrain.Profile(i).Biome==biome)
+                var candidates=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.CoastDistanceM.Length>i&&world.CoastDistanceM[i]*terrain.HorizontalScale>=minimumCoastDistanceM&&terrain.Profile(i).Biome==biome)
                     .OrderByDescending(i=>biome==Biome.Savanna?terrain.Profile(i).Cover.Stature*(terrain.Profile(i).Cover.Grasses.X+terrain.Profile(i).Cover.Grasses.Y+terrain.Profile(i).Cover.Grasses.Z)*(1-terrain.Profile(i).Forest.Coverage):TreeFlora.CanopyShade(terrain.Profile(i).Forest,world.Surface.Cells[i].Position,world.Recipe.Seed,radius)).Take(48);
                 foreach(int cell in candidates)
                 {

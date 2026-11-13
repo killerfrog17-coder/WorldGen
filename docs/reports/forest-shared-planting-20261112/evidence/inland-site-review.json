@@ -1,0 +1,21 @@
+{
+  "selection": "Existing dense vegetation selector; candidate cells at least 20000 physical metres from the ocean coast.",
+  "site": "dense-tropicalrainforest",
+  "cell": 112031,
+  "position": {
+    "X": 0.970436793,
+    "Y": 0.210326954,
+    "Z": 0.118384983
+  },
+  "actualDisplacementM": 0,
+  "visualReview": "Inspected actual in-game capture: dense inland rainforest, not coastal forest.",
+  "playerSource": "FULL9e0698e0 + ScriptsOnly819a0183",
+  "settings": {
+    "terrainQuality": 4,
+    "vegetationQuality": 2,
+    "viewDistanceM": 6000,
+    "resolution": "1920x1080"
+  },
+  "performance": "NOT ACCEPTED: inland-walking-v1 and v2 were unfocused throughout measurement. v2 foreground sampling confirmed Chrome took focus after activation. Defer further FPS runs while owner uses Chrome.",
+  "limits": "Does not verify distant forest, stationary population, high-speed route coverage or an FPS floor."
+}
