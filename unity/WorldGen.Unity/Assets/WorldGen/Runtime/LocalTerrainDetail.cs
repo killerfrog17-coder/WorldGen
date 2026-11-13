@@ -28,7 +28,11 @@ public sealed partial class LocalTerrainExplorer
     public double StreamingFogDistance=>streamedFog;
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
     bool ImmediateTerrain(TerrainTileKey key)=>detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2);
-    int WorkerLimit=>Math.Max(1,Math.Min(detailOptions.Workers,Math.Max(1,SystemInfo.processorCount-2)));
+    int WorkerLimit=>Math.Max(1,Math.Min(InitialViewReady?detailOptions.Workers:Math.Max(detailOptions.Workers,6),Math.Max(1,SystemInfo.processorCount-2)));
+    // The entry screen is hidden until the complete forest/terrain view is
+    // ready. Do not stretch that work across gameplay-sized frame slices.
+    double StreamingUploadBudgetMs=>InitialViewReady?detailOptions.UploadBudgetMs:12;
+    int StreamingInstallationLimit=>InitialViewReady?detailOptions.Installations:8;
     // Forest requests use the SAME worker permits. Completed forest payloads
     // awaiting their bounded install are no longer consuming a CPU permit
     // (including while the user has disabled their drawing).
@@ -66,15 +70,16 @@ public sealed partial class LocalTerrainExplorer
     void ReserveScatterFrame()
     {
         reserveScatterFrame=false;
+        if(!InitialViewReady)return;
         if(!WorldGenPerformance.SeparateStreamingAndScatter||scatter==null)return;
         double now=Time.realtimeSinceStartupAsDouble;
         bool rebuilding=scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&now-lastBatchTime>1;
         if(rebuilding&&now-lastStreamingOpportunity<.1)reserveScatterFrame=true;
         else lastStreamingOpportunity=now;
     }
-    bool CanInstall=>!reserveScatterFrame&&!GroundPublicationPending&&installationsThisFrame<detailOptions.Installations&&(installationsThisFrame==0||frameUploadMs<detailOptions.UploadBudgetMs);
+    bool CanInstall=>!reserveScatterFrame&&!GroundPublicationPending&&installationsThisFrame<StreamingInstallationLimit&&(installationsThisFrame==0||frameUploadMs<StreamingUploadBudgetMs);
     bool CanRequest=>Time.realtimeSinceStartupAsDouble>=nextRequestAt;
-    public string CheckStreamingState=>"error="+error+"; generation="+generation+"; jobs="+jobs.Count+"; done="+jobs.Count(j=>j.Task.IsCompleted)+"; matched="+jobs.Count(WorkMatchesCurrent)+"; detail="+(detailPlan?.Status.ToString()??"none")+"; installs="+detailOptions.Installations+"; y="+motion.Y+"; "+string.Join(" | ",jobs.Take(3).Select(j=>j.Key.X+","+j.Key.Z+","+j.Key.SizeM+"/"+j.Segments+" gen="+j.Generation+" "+j.Task.Status));
+    public string CheckStreamingState=>"error="+error+"; generation="+generation+"; jobs="+jobs.Count+"; done="+jobs.Count(j=>j.Task.IsCompleted)+"; matched="+jobs.Count(WorkMatchesCurrent)+"; detail="+(detailPlan?.Status.ToString()??"none")+"; installs="+StreamingInstallationLimit+"; y="+motion.Y+"; "+string.Join(" | ",jobs.Take(3).Select(j=>j.Key.X+","+j.Key.Z+","+j.Key.SizeM+"/"+j.Segments+" gen="+j.Generation+" "+j.Task.Status));
     void ResetDetailFrame()
     {
         detailCancellation?.Cancel();detailEstimator=new TerrainDetailEstimator(terrain,frame);

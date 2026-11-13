@@ -43,7 +43,8 @@ public sealed partial class LocalTerrainExplorer
     {
         get{activeForestGroups.Clear();int count=0;foreach(var work in forestJobs)if(!work.Task.IsCompleted&&(work.Group==null||activeForestGroups.Add(work.Group)))count++;return count;}
     }
-    bool CanPrepareForest=>!reserveScatterFrame&&!GroundPublicationPending&&frameUploadMs<detailOptions.UploadBudgetMs;
+    int ForestWorkerLimit=>Math.Min(InitialViewReady?2:Math.Max(2,WorkerLimit-1),WorkerLimit);
+    bool CanPrepareForest=>!reserveScatterFrame&&!GroundPublicationPending&&frameUploadMs<StreamingUploadBudgetMs;
     readonly Dictionary<ForestPageKey,ForestField> forestFields=new Dictionary<ForestPageKey,ForestField>();
     readonly Dictionary<int,ForestBatch> forestBatches=new Dictionary<int,ForestBatch>();
     public long ForestRootUploadBytes {get;private set;}
@@ -320,7 +321,7 @@ public sealed partial class LocalTerrainExplorer
             // Empty pages only certify a tree-free part of the census. They
             // create no tree models, transforms or GPU roots; do not charge
             // an entire object-upload frame for each of thousands of them.
-            if(forestProjection!=null||++preparedPages>=16||metadataOnly&&++emptyInstalls>=8||frameUploadMs>=detailOptions.UploadBudgetMs)break;
+            if(forestProjection!=null||++preparedPages>=16||metadataOnly&&++emptyInstalls>=8||frameUploadMs>=StreamingUploadBudgetMs)break;
         }
         if(forestMaintenanceDirty&&!GroundPublicationPending)
         {
@@ -355,7 +356,7 @@ public sealed partial class LocalTerrainExplorer
     {
         // Near ground retains priority. When forest coverage is the reveal
         // blocker, it also gets a turn before distant terrain fills every lane.
-        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||ActiveForestWorkers>=Math.Min(2,WorkerLimit)||forestJobs.Count>=32||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
+        if(!TerrainVideoOptions.GeneratedTrees||!TerrainVideoOptions.TreeRebuild||!TerrainVideoOptions.TreeImpostors||!TerrainVideoOptions.FarForest||!Ready||forestCull==null||mapOpen||Time.realtimeSinceStartupAsDouble<forestRetryAt||RunningWorkerCount>=WorkerLimit||ActiveForestWorkers>=ForestWorkerLimit||forestJobs.Count>=32||forestRootCount>=LocalScatter.MaximumForestRoots)return false;
         foreach(var required in flightForestPriority)
         {
             if(!terrainForestRequired.Contains(required)||forestFields.ContainsKey(required)||forestJobs.Any(j=>j.Key.Equals(required))||ForestReplacementReady(required))continue;

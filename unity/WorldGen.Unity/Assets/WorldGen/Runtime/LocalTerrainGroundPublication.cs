@@ -99,8 +99,12 @@ public sealed partial class LocalTerrainExplorer
             plan.OriginX!=originX||plan.OriginZ!=originZ)RestartGroundPublication();
         long started=System.Diagnostics.Stopwatch.GetTimestamp();
         long trace=WorldGenPerformance.TraceBegin();
-        bool pending=plan.Work.MoveNext();
-        groundPublicationSlices++;groundPublicationMaxPrepareMs=Math.Max(groundPublicationMaxPrepareMs,(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency);
+        bool pending;
+        do
+        {
+            long sliceStarted=System.Diagnostics.Stopwatch.GetTimestamp();pending=plan.Work.MoveNext();
+            groundPublicationSlices++;groundPublicationMaxPrepareMs=Math.Max(groundPublicationMaxPrepareMs,(System.Diagnostics.Stopwatch.GetTimestamp()-sliceStarted)*1000d/System.Diagnostics.Stopwatch.Frequency);
+        }while(pending&&!InitialViewReady&&frameUploadMs+(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency<StreamingUploadBudgetMs);
         installationsThisFrame++;
         if(pending){frameUploadMs+=(System.Diagnostics.Stopwatch.GetTimestamp()-started)*1000d/System.Diagnostics.Stopwatch.Frequency;WorldGenPerformance.TraceEnd(32,trace);return;}
         long commitStarted=System.Diagnostics.Stopwatch.GetTimestamp();
