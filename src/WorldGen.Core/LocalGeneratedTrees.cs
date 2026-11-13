@@ -12,13 +12,14 @@ namespace WorldGen.Core
         // for every four-metre candidate. Both local and forest-page planting
         // read these same planet-addressed nodes. Exact interactive root water
         // and height come from Geometry; distant candidates do not query them.
-        const int TreeHabitatStep=8,TreeHabitatLimit=8192;
+        const int TreeHabitatStep=8,TreeHabitatLimit=32768;
         sealed class TreeHabitatNodeData
         {
             public LocalTerrainSample Sample;public V Position;
             // One requested regional flora array per node; an ecotone may
             // replace it, but cannot grow an unbounded region/model cache.
             public TreeSpecies[] Species;public double[] Weights;
+            public PlantingBlockData Planting;public bool PlantingReady;public float Probability;
         }
         readonly struct TreeHabitatBlend
         {
@@ -35,6 +36,7 @@ namespace WorldGen.Core
             int count=TreeLatticeCount;
             var point=ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep));
             var node=new TreeHabitatNodeData{Sample=patch.Sample(point),Position=point};
+            node.Probability=PlantingProbability(node.Sample,point);
             lock(treeHabitatGate)
             {
                 if(treeHabitat.TryGetValue(key,out cached))return cached;
@@ -67,34 +69,6 @@ namespace WorldGen.Core
             for(int i=0;i<species.Length;i++)
             {weights[i]=(a[i]*(1-u)+b[i]*u)*(1-v)+(c[i]*(1-u)+d[i]*u)*v;sum+=weights[i];}
             return sum;
-        }
-        LocalTerrainSample TreeHabitatAt(ScatterKey key,V at,LocalTerrain.LocalTerrainPatch patch,out double sx,out double sz,out TreeHabitatBlend blend)
-        {
-            // Jitter belongs to the original candidate RNG; derive the exact
-            // fractional lattice coordinate from that point, never a page LOD.
-            Basis(key.Face,out V normal,out V a,out V b);double dot=V.Dot(at,normal),count=TreeLatticeCount;
-            double gx=(V.Dot(at,a)/dot+1)*.5*count/TreeHabitatStep,gy=(V.Dot(at,b)/dot+1)*.5*count/TreeHabitatStep;
-            int ix=(int)Math.Floor(gx),iy=(int)Math.Floor(gy);double u=gx-ix,v=gy-iy;
-            var aNode=TreeHabitatNode(key.Face,ix,iy,patch);var bNode=TreeHabitatNode(key.Face,ix+1,iy,patch);
-            var cNode=TreeHabitatNode(key.Face,ix,iy+1,patch);var dNode=TreeHabitatNode(key.Face,ix+1,iy+1,patch);
-            blend=new TreeHabitatBlend(aNode,bNode,cNode,dNode,u,v);
-            var aa=aNode.Sample;var ab=bNode.Sample;var ba=cNode.Sample;var bb=dNode.Sample;
-            double side=TreeHabitatStep*TreeLatticeStep;
-            double du=((ab.ElevationM-aa.ElevationM)*(1-v)+(bb.ElevationM-ba.ElevationM)*v)/side;
-            double dv=((ba.ElevationM-aa.ElevationM)*(1-u)+(bb.ElevationM-ab.ElevationM)*u)/side;
-            // Cube-face grid directions are neither unit nor orthogonal away
-            // from a face centre. Convert that derivative into the root's
-            // physical tangent basis instead of inventing a slope at seams.
-            V xu=(a-at*V.Dot(at,a))*dot,yv=(b-at*V.Dot(at,b))*dot;
-            V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
-            double ax=V.Dot(xu,east),az=V.Dot(xu,north),bx=V.Dot(yv,east),bz=V.Dot(yv,north),det=ax*bz-az*bx;
-            sx=(du*bz-dv*az)/det;sz=(dv*ax-du*bx)/det;
-            double coarse=(aa.ElevationM*(1-u)+ab.ElevationM*u)*(1-v)+(ba.ElevationM*(1-u)+bb.ElevationM*u)*v;
-            // Approximate geometry is enough to derive a potential tree. The
-            // same candidate later receives exact visible/interactive grounding;
-            // its identity, species and dimensions never depend on that query.
-            var geometry=v<.5?(u<.5?aa:ab):(u<.5?ba:bb);geometry.ElevationM=coarse;
-            return LocalTerrain.LocalTerrainPatch.BlendEcology(aa,ab,ba,bb,u,v,geometry);
         }
         bool CachedTree(ScatterKey key,int slot,out ScatterInstance tree,out bool known)
         {
@@ -152,81 +126,102 @@ namespace WorldGen.Core
             if(key.Detail||x<0||x>=TreeCandidateSide||y<0||y>=TreeCandidateSide)throw new ArgumentOutOfRangeException();
             bool found=CachedTree(key,y*TreeCandidateSide+x,out tree,out bool known);if(known)return found;
             if(!TryTreeCandidate(key,x,y,patch,out tree))return false;
-            var at=tree.Position;var geometry=patch.Geometry(at);var surface=patch.Ecology(at,geometry);
-            double depth=geometry.Underwater?geometry.WaterSurfaceM-geometry.ElevationM:0;
-            var profile=new ForestCoverProfile{MorphologyCode=tree.Variant};
-            Biome? biome=TreeFlora.TidalCode(tree.Variant)?terrain.Profile(surface.Cell).Biome:null;
-            if(surface.Forest.Coverage<=.001||!TreeFlora.Rooting(profile,geometry.ElevationM,geometry.Underwater,depth,biome)||
-                geometry.Underwater&&TreeFlora.TidalInundation(tree.Variant,tree.HeightM,depth)<=0)
-            {tree=default;return false;}
-            V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
-            double delta=1.5/(terrain.RadiusM*scale);
-            double sx=(patch.Elevation((at+east*delta).Unit)-patch.Elevation((at-east*delta).Unit))/3;
-            double sz=(patch.Elevation((at+north*delta).Unit)-patch.Elevation((at-north*delta).Unit))/3;
-            double up=1/Math.Sqrt(1+sx*sx+sz*sz);
-            if(TreeSlopeRoll(tree.Id)>TreeFlora.SlopeAdmission(up)){tree=default;return false;}
-            tree.GroundM=geometry.ElevationM;tree.Normal=(at-east*sx-north*sz).Unit;return true;
+            // Admission is immutable and shared with the GPU. Interaction
+            // only resolves the exact ground, never rerolls a visible forest.
+            var geometry=patch.Geometry(tree.Position);
+            tree.GroundM=geometry.ElevationM;return true;
         }
         /// <summary>The ONE candidate identity shared by local meshes and all
         /// forest LODs. Only shared habitat nodes sample terrain; there is no
         /// exact root surface query or physical-cache dependency on this path.</summary>
         public bool TryTreeCandidate(ScatterKey key,int x,int y,LocalTerrain.LocalTerrainPatch patch,out ScatterInstance tree)
         {
-                tree=default;if(key.Detail||x<0||x>=TreeCandidateSide||y<0||y>=TreeCandidateSide)throw new ArgumentOutOfRangeException();
-                const int side=TreeCandidateSide;int divisions=Divisions(false);double nominal=2*terrain.RadiusM*scale/divisions;
-                Span<double> weights=stackalloc double[13];int slot=y*side+x;ulong id=key.Id(0,slot);
-                var r=new Rng(seed,"generated-tree-placement-3",unchecked((int)Rng.Mix((uint)id^(uint)(id>>32))));
-                double u=(x+.08+.84*r.Unit())/side,v=(y+.08+.84*r.Unit())/side;V at=Position(key,u,v);
-                // A blended profile cannot exceed the largest supporting source.
-                // Skip vast sparse areas before detailed terrain or species work.
-                double admission=r.Unit();if(patch.MaximumForestCoverage<=0||admission>patch.MaximumForestCoverage)return false;
-                double cu=(key.X+u)*2/divisions-1,cv=(key.Y+v)*2/divisions-1,jacobian=1/Math.Pow(1+cu*cu+cv*cv,1.5);
-                // Cheap upper admission before expensive local surface queries.
-                double densityCap=D.Clamp(nominal*nominal*jacobian/(side*side)*TreeFlora.PlacementPerM2);
-                if(r.Unit()>densityCap)return false;
-                var forest=patch.ForestProfile(at);double potential=forest.Coverage,stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
-                if(admission>potential*stand*TreeFlora.Stocking(forest))return false;
-                var sample=TreeHabitatAt(key,at,patch,out double sx,out double sz,out var habitatBlend);
-                var rootBiome=TreeFlora.TidalCode(sample.Forest.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
-                if(!TreeFlora.Rooting(sample.Forest,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,rootBiome))return false;
-                // The raw forest profile is only an upper admission bound.
-                // Final substrate/wetland exclusions own actual near/far trees.
-                if(sample.Forest.Coverage<forest.Coverage-1e-9)
+            tree=default;if(key.Detail||x<0||x>=TreeCandidateSide||y<0||y>=TreeCandidateSide)throw new ArgumentOutOfRangeException();
+            int gx=key.X*TreeCandidateSide+x,gy=key.Y*TreeCandidateSide+y;
+            int left=gx/ForestPlantingSide*ForestPlantingSide,bottom=gy/ForestPlantingSide*ForestPlantingSide;
+            var block=PlantingBlock(key.Face,left,bottom,patch);if(block==null)return false;
+            int child=(gy-bottom)*ForestPlantingSide+gx-left;if((block.Mask&(1UL<<child))==0)return false;
+            uint h=PlantingHash(key.Face,gx,gy,seed);PlantingOffset(h,out float ox,out float oy);
+            float u=(gx-left+ox)/ForestPlantingSide,v=(gy-bottom+oy)/ForestPlantingSide;
+            float probability=(block.P00+(block.P10-block.P00)*u)*(1-v)+(block.P01+(block.P11-block.P01)*u)*v;
+            if(PlantingUnit(h^0x27d4eb2du)>=probability)return false;
+            PlantingDimensions(h,block.Tree.Variant,out float height,out float width,out float yaw,out float tint);
+            var at=ForestPosition(key.Face,gx+ox,gy+oy);
+            tree=block.Tree;tree.Id=key.Id(0,y*TreeCandidateSide+x);tree.Position=tree.Normal=at;
+            tree.WidthM*=width;tree.HeightM*=height;tree.YawDegrees=yaw*180/Math.PI;tree.Color=new V(tint,tint,tint);return true;
+        }
+        sealed class PlantingBlockData
+        {
+            public ScatterInstance Tree;public float P00,P10,P01,P11;public ulong Mask;
+        }
+        float PlantingProbability(LocalTerrainSample sample,V position)
+        {
+            var p=sample.Forest;var biome=TreeFlora.TidalCode(p.MorphologyCode)?terrain.Profile(sample.Cell).Biome:sample.Biome;
+            if(!TreeFlora.Rooting(p,sample.ElevationM,sample.Underwater,sample.Underwater?sample.WaterSurfaceM-sample.ElevationM:0,biome))return 0;
+            double warm=p.WarmC-(sample.ElevationM-p.ReferenceElevationM)*.006;
+            return(float)D.Clamp(p.Coverage*TreeFlora.Stocking(p)*TreeFlora.Stand(p,position,seed,terrain.RadiusM*scale)*D.Clamp((warm-6)/5));
+        }
+        public static uint PlantingMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
+        public static uint PlantingHash(int face,int x,int y,int worldSeed)=>PlantingMix(unchecked((uint)x*73856093u^(uint)y*19349663u^(uint)face*83492791u^(uint)worldSeed));
+        public static float PlantingUnit(uint x)=>(PlantingMix(x)&0xffffffu)/16777216f;
+        public static void PlantingOffset(uint h,out float x,out float y)
+        {x=.08f+.84f*PlantingUnit(h^0x68bc21ebu);y=.08f+.84f*PlantingUnit(h^0x02e5be93u);}
+        public static void PlantingDimensions(uint h,int variant,out float height,out float width,out float yaw,out float tint)
+        {
+            float cohort=PlantingUnit(h^0x967a889bu),r=PlantingUnit(h^0x368cc8b7u);
+            bool tropical=((variant>>22)&3)==(int)TreeCrownStrategy.TropicalCanopy&&((variant>>28)&7)==(int)TreeGrowthForm.BroadCrown;
+            height=tropical?(cohort<.69f?.10f+.35f*r:cohort>.99f?1.28f+.28f*r:.82f+.25f*r):
+                cohort<.12f?.18f+.16f*r:cohort<.30f?.40f+.25f*r:.72f+.36f*r;
+            width=height*(.88f+.24f*PlantingUnit(h^0x9e3779b9u));yaw=6.28318530718f*PlantingUnit(h^0x85ebca6bu);tint=.93f+.12f*PlantingUnit(h^0xa24baed5u);
+        }
+        PlantingBlockData PlantingBlock(int face,int left,int bottom,LocalTerrain.LocalTerrainPatch patch)
+        {
+            var a=TreeHabitatNode(face,left/TreeHabitatStep,bottom/TreeHabitatStep,patch);
+            lock(a)if(a.PlantingReady)return a.Planting;
+            var b=TreeHabitatNode(face,left/TreeHabitatStep+1,bottom/TreeHabitatStep,patch);
+            var c=TreeHabitatNode(face,left/TreeHabitatStep,bottom/TreeHabitatStep+1,patch);
+            var d=TreeHabitatNode(face,left/TreeHabitatStep+1,bottom/TreeHabitatStep+1,patch);
+            PlantingBlockData block=null;
+            if(Math.Max(Math.Max(a.Probability,b.Probability),Math.Max(c.Probability,d.Probability))>0)
+            {
+                V center=ForestPosition(face,left+ForestPlantingSide*.5,bottom+ForestPlantingSide*.5);
+                var species=terrain.FloraRegion(a.Sample.Cell).Trees;Span<double> weights=stackalloc double[13];
+                var blend=new TreeHabitatBlend(a,b,c,d,.5,.5);double sum=BlendTreeSpeciesWeights(blend,species,weights);
+                if(sum>0)
                 {
-                    forest=sample.Forest;stand=TreeFlora.Stand(forest,at,seed,terrain.RadiusM*scale);
-                    if(admission>forest.Coverage*stand*TreeFlora.Stocking(forest))return false;
+                    double pick=PlantingUnit(PlantingHash(face,left,bottom,seed)^0x41a8c3u)*sum;int chosen=species.Length-1;
+                    for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
+                    var s=species[chosen];var sample=a.Sample;
+                    double elevation=(a.Sample.ElevationM+b.Sample.ElevationM+c.Sample.ElevationM+d.Sample.ElevationM)*.25;
+                    double warm=sample.Forest.WarmC-.006*(elevation-sample.Forest.ReferenceElevationM),growth=D.Clamp((warm-5)/12);growth=growth*growth*(3-2*growth);
+                    growth=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
+                    V n=Normals[face];
+                    double dot=V.Dot(center,n),area=TreeLatticeStep*TreeLatticeStep*dot*dot*dot;
+                    float cap=(float)Math.Min(1,area*TreeFlora.PlacementPerM2);
+                    block=new PlantingBlockData{P00=a.Probability*cap,P10=b.Probability*cap,P01=c.Probability*cap,P11=d.Probability*cap,
+                        Tree=new ScatterInstance{Id=new ScatterKey(face,left/TreeCandidateSide,bottom/TreeCandidateSide).Id(0,(bottom%TreeCandidateSide)*TreeCandidateSide+left%TreeCandidateSide),
+                            Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode,Position=center,Normal=center,GroundM=elevation,HeightM=s.HeightM*growth,WidthM=s.WidthM*growth,Color=new V(1,1,1)}};
+                    bool water=a.Sample.Underwater||b.Sample.Underwater||c.Sample.Underwater||d.Sample.Underwater||
+                        Math.Max(Math.Max(a.Sample.RiverInfluence,b.Sample.RiverInfluence),Math.Max(c.Sample.RiverInfluence,d.Sample.RiverInfluence))>.001;
+                    double step=TreeHabitatStep*TreeLatticeStep;
+                    for(int y=0;y<ForestPlantingSide;y++)for(int x=0;x<ForestPlantingSide;x++)
+                    {
+                        if(left+x>=TreeLatticeCount||bottom+y>=TreeLatticeCount)continue;
+                        uint h=PlantingHash(face,left+x,bottom+y,seed);PlantingOffset(h,out float ox,out float oy);
+                        double u=(x+ox)/ForestPlantingSide,v=(y+oy)/ForestPlantingSide;
+                        double dx=((b.Sample.ElevationM-a.Sample.ElevationM)*(1-v)+(d.Sample.ElevationM-c.Sample.ElevationM)*v)/step;
+                        double dz=((c.Sample.ElevationM-a.Sample.ElevationM)*(1-u)+(d.Sample.ElevationM-b.Sample.ElevationM)*u)/step;
+                        if(PlantingUnit(h^0x9a65c4u)>TreeFlora.SlopeAdmission(1/Math.Sqrt(1+dx*dx+dz*dz)))continue;
+                        if(water)
+                        {
+                            var at=ForestPosition(face,left+x+ox,bottom+y+oy);var g=patch.Geometry(at);
+                            if(!TreeFlora.Rooting(new ForestCoverProfile{MorphologyCode=s.MorphologyCode},g.ElevationM,g.Underwater,g.Underwater?g.WaterSurfaceM-g.ElevationM:0,sample.Biome))continue;
+                        }
+                        block.Mask|=1UL<<(y*ForestPlantingSide+x);
+                    }
                 }
-                var e=world.Ecology;HabitatCell? h=e!=null&&sample.Cell<e.Habitat.Length?e.Habitat[sample.Cell]:null;
-                var species=terrain.FloraRegion(sample.Cell).Trees;double sum=BlendTreeSpeciesWeights(habitatBlend,species,weights);
-                if(sum<.001)return false;
-                double pick=r.Unit()*sum;int chosen=species.Length-1;for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
-                var s=species[chosen];V east=V.Cross(Math.Abs(at.Z)<.99?new V(0,0,1):new V(0,1,0),at).Unit,north=V.Cross(at,east).Unit;
-                // Preserve the candidate draw sequence. Physical/root rendering
-                // uses the same independently addressable slope roll below.
-                r.Unit();
-                double up=1/Math.Sqrt(1+sx*sx+sz*sz);
-                if(TreeSlopeRoll(id)>TreeFlora.SlopeAdmission(up))return false;
-                // Static size cohorts, not simulated ages. Saplings keep their adult lineage.
-                double cohort=r.Unit(),size=cohort<.12?.18+.16*r.Unit():cohort<.30?.40+.25*r.Unit():.72+.36*r.Unit();
-                if(s.Morphology.Strategy==TreeCrownStrategy.TropicalCanopy)
-                    size=cohort<.69?.10+.35*r.Unit():cohort>.99?1.28+.28*r.Unit():.82+.25*r.Unit();
-                // Shade tolerance matters for seedlings, not a ban on adult
-                // pioneer trees remaining in a closed stand. Suppressed young
-                // cohorts stay smaller; openings release the same lineage.
-                if(size<.65)size*=1-.35*TreeFlora.CanopyShade(forest,at,seed,terrain.RadiusM*scale)*(1-s.ShadeTolerance);
-                double localWarm=(h==null?18:h.Value.WarmTenthsC*.1)-.006*(sample.ElevationM-world.ElevationM[sample.Cell]);
-                double growth=D.Clamp((localWarm-5)/12);growth=growth*growth*(3-2*growth);
-                size*=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
-                double height=D.Q(s.HeightM*size,1000);
-                if(sample.Underwater&&s.Morphology.Strategy==TreeCrownStrategy.Mangrove)
-                {
-                    double inundation=TreeFlora.TidalInundation(s.MorphologyCode,height,sample.WaterSurfaceM-sample.ElevationM);
-                    if(inundation<=0||r.Unit()>inundation)return false;
-                }
-                double tint=.93+.12*r.Unit();
-                tree=new ScatterInstance{Id=id,Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode|(int)(r.Unit()*6),Position=at,Normal=(at-east*sx-north*sz).Unit,
-                    GroundM=sample.ElevationM,HeightM=height,WidthM=D.Q(s.WidthM*size*(.88+.24*r.Unit()),1000),
-                    YawDegrees=D.Q(r.Unit()*360,1000),Color=new V(tint,tint,tint)};return true;
+            }
+            lock(a){if(!a.PlantingReady){a.Planting=block;a.PlantingReady=true;}return a.Planting;}
         }
     }
 }

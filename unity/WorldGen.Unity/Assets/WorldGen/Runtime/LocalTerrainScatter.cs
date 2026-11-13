@@ -282,9 +282,9 @@ public sealed partial class LocalTerrainExplorer
     int visibleGroundRevision=-1,visibleGroundCount=-1;
     double VisibleGround(double x,double z,double fallback)
         =>VisibleGround(x,z,fallback,out _);
-    double VisibleGround(double x,double z,double fallback,out int groundLevel)
+    Tile VisibleGroundOwnerCached(double x,double z,out TerrainTileKey key)
     {
-        TerrainTileKey key;Tile tile;
+        Tile tile;
         if(WorldGenPerformance.Original||WorldGenPerformance.ForceFreshVisibleGround)tile=VisibleGroundOwner(x,z,out key);
         else
         {
@@ -304,6 +304,11 @@ public sealed partial class LocalTerrainExplorer
             }
             key=owner.Key;tile=owner.Value;
         }
+        return tile;
+    }
+    double VisibleGround(double x,double z,double fallback,out int groundLevel)
+    {
+        var tile=VisibleGroundOwnerCached(x,z,out var key);
         if(tile==null){groundLevel=17;return fallback;}
         groundLevel=key.Level;double size=key.SizeM;
         if(tile.Contact!=null&&tile.Contact.TryHeight(x-key.X*size,z-key.Z*size,out double drawn))return drawn;

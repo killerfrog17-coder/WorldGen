@@ -16,7 +16,7 @@ public sealed partial class LocalTerrainExplorer
     struct ForestRoot
     {public Vector3 Position;public float Width,Height,Yaw,SlopeX,SlopeZ;public Vector3 Tint;public uint Field;public int CellX,CellY;public uint Face;public float Padding;}
     [StructLayout(LayoutKind.Sequential)]
-    struct ForestGroundGrid {public Vector4 A,B,C;public bool Equals(ForestGroundGrid other)=>A.Equals(other.A)&&B.Equals(other.B)&&C.Equals(other.C);}
+    struct ForestGroundGrid {public Vector4 A,B,C,D,E;public bool Equals(ForestGroundGrid other)=>A.Equals(other.A)&&B.Equals(other.B)&&C.Equals(other.C)&&D.Equals(other.D)&&E.Equals(other.E);}
     [StructLayout(LayoutKind.Sequential)]
     struct ForestHash {public int X,Z,Level,State;}
     sealed class ForestBatch
@@ -63,7 +63,7 @@ public sealed partial class LocalTerrainExplorer
         if(!batch.Dirty||batch.Data.Count==0)return;
         bool marked=false;foreach(bool dirty in batch.DirtyBlocks)if(dirty){marked=true;break;}
         if(forceFull||!WorldGenPerformance.PartialForestUploads||batch.AllDirty||!marked)
-        {batch.Roots.SetData(batch.Data,0,0,batch.Data.Count);if(batch.Model?.TreeCluster==true)batch.Ground.SetData(batch.GroundData,0,0,batch.Data.Count);ForestRootUploadCalls++;ForestRootFullUploads++;ForestRootUploadBytes+=(long)batch.Data.Count*(batch.Model?.TreeCluster==true?112:64);}
+        {batch.Roots.SetData(batch.Data,0,0,batch.Data.Count);if(batch.Model?.TreeCluster==true)batch.Ground.SetData(batch.GroundData,0,0,batch.Data.Count);ForestRootUploadCalls++;ForestRootFullUploads++;ForestRootUploadBytes+=(long)batch.Data.Count*(batch.Model?.TreeCluster==true?144:64);}
         else
         {
             for(int block=0;block<batch.DirtyBlocks.Length;)
@@ -72,7 +72,7 @@ public sealed partial class LocalTerrainExplorer
                 int first=block++;while(block<batch.DirtyBlocks.Length&&batch.DirtyBlocks[block])block++;
                 int start=first*ForestUploadBlock,count=Math.Min(batch.Data.Count,block*ForestUploadBlock)-start;
                 if(count<=0)continue;
-                batch.Roots.SetData(batch.Data,start,start,count);if(batch.Model?.TreeCluster==true)batch.Ground.SetData(batch.GroundData,start,start,count);ForestRootUploadCalls++;ForestRootUploadBytes+=(long)count*(batch.Model?.TreeCluster==true?112:64);
+                batch.Roots.SetData(batch.Data,start,start,count);if(batch.Model?.TreeCluster==true)batch.Ground.SetData(batch.GroundData,start,start,count);ForestRootUploadCalls++;ForestRootUploadBytes+=(long)count*(batch.Model?.TreeCluster==true?144:64);
             }
         }
         Array.Clear(batch.DirtyBlocks,0,batch.DirtyBlocks.Length);batch.Dirty=batch.AllDirty=false;batch.CullValid=false;
@@ -173,7 +173,8 @@ public sealed partial class LocalTerrainExplorer
         foreach(var pair in scatterRevealBounds)
         {
             if(scatterChunks.TryGetValue(pair.Key,out var ready)&&(!ScatterNeedsTrees(pair.Key)||ready.TreesIncluded))continue;
-            if(ForestNeededForReveal&&ForestCoversScatter(pair.Key))continue;
+            // A nearby mesh must be ready at first reveal, not arrive after
+            // billboards have already appeared at the same viewing distance.
             double distance=Math.Max(0,(pair.Value.Center-Position).Length*frame.RadiusM-pair.Value.Radius);
             if(distance<localRange)gap=Math.Min(gap,distance);
         }
@@ -209,7 +210,7 @@ public sealed partial class LocalTerrainExplorer
     // node error justifies aggregation. Do not spend a 1.4km CPU buffer twice.
     double LegacyForestReach=>Math.Min(TerrainVideoOptions.TreeIdentityRange,Math.Max(350,TerrainVideoOptions.TreeFarLod*2.7));
     bool residentForestReady;int residentForestEpoch=-1;double nextResidentForestCheck;V residentForestCheckAt;
-    double ForestHandoffReach=>residentForestReady&&TerrainVideoOptions.EfficientTreeRendering&&!WorldGenPerformance.LegacyTreeResident?
+    double ForestHandoffReach=>TerrainVideoOptions.EfficientTreeRendering&&!WorldGenPerformance.LegacyTreeResident?
         Math.Min(LegacyForestReach,Math.Max(120,TerrainVideoOptions.TreeFarLod*1.8)):LegacyForestReach;
     public bool ForestPending=>forestPlan!=null||forestJobs.Count>0||forestPriority.Any(k=>!forestFields.ContainsKey(k))||forestFields.Values.Any(f=>!f.Ready);
     static uint ForestMix(uint x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
@@ -536,11 +537,10 @@ public sealed partial class LocalTerrainExplorer
     IEnumerator ProjectForestSteps(ForestField field,bool prepareAsynchronously=true)
     {
         field.Projecting=true;field.WasReady=false;field.UnknownGroundRoots=0;
-        bool first=true;var page=field.Source;int added=0;
-        long started=System.Diagnostics.Stopwatch.GetTimestamp();
+        bool first=true;var page=field.Source;int added=0;long started=System.Diagnostics.Stopwatch.GetTimestamp();
         foreach(var source in page.Roots)
         {
-            var tree=source.Tree;bool macro=source.Population==0;int code=LocalTreePrototype.PrototypeCode(tree.Variant);
+            var tree=source.Tree;int code=LocalTreePrototype.PrototypeCode(tree.Variant);
             if(prepareAsynchronously&&!LocalTreePrototype.IsPrepared(code))
             {
                 var preparation=LocalTreePrototype.Prepare(code);
@@ -550,86 +550,28 @@ public sealed partial class LocalTerrainExplorer
                     yield return preparation.Current;started=System.Diagnostics.Stopwatch.GetTimestamp();
                 }
             }
-            var batch=ForestBatchFor(code,macro);
-            if(prepareAsynchronously&&System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007)
-            {if(added>0){forestRootTopologyRevision++;added=0;}yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
-            // Preserve the source forest's expected tree density as pages get
-            // larger. A fixed sixteen crowns per packet made each successive
-            // distance level four times sparser.
-            bool paired=macro&&LocalScatter.ForestCanopyUsesStand(source)&&LocalTreePrototype.Load(code)?.Valid==true;
-            var standBatch=paired?ForestBatchFor(code,true,true):null;
-            if(prepareAsynchronously&&System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007)
-            {if(added>0){forestRootTopologyRevision++;added=0;}yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
-            double dot=Math.Max(.1,V.Dot(tree.Position,frame.Origin)),px=V.Dot(tree.Position,frame.East)*frame.RadiusM/dot,pz=V.Dot(tree.Position,frame.North)*frame.RadiusM/dot;
-            float height=(float)frame.SurfaceY(tree.Position,tree.GroundM);
-            var pigment=TreePigment(tree.Variant);var shared=batch.Pigment;
-            int candidateSide=LocalScatter.TreeCandidateSide,slotId=(int)(tree.Id&65535),cellX=(int)((tree.Id>>40)&0xfffff)*candidateSide+slotId%candidateSide,cellY=(int)((tree.Id>>20)&0xfffff)*candidateSide+slotId/candidateSide;
-            uint identity=(uint)tree.Id^Rng.Mix((uint)(tree.Id>>32));
-            var random=new Rng(unchecked((int)identity),"regional-render-roots-1");
-            int crowns=macro?(paired?LocalScatter.ForestCanopyAnchorCount(source):Math.Max(1,(int)Math.Ceiling(source.CanopyTreeCount))):1;
-            double phaseX=random.Unit(),phaseZ=random.Unit();
-            double packetSide=LocalScatter.ForestPageSide*(double)(1<<page.Key.Level)/8;
-            double packetWidth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellX),packetDepth=Math.Min(packetSide,scatter.TreeLatticeCount-source.CellY);
-            float supportSpan=3;
-            if(paired)
             {
-                double extent=0;
+                // Exactly one fixed planting block, not a statistical grove.
+                var target=ForestBatchFor(code,true,true);
+                double dot=Math.Max(.1,V.Dot(tree.Position,frame.Origin));
+                double x=V.Dot(tree.Position,frame.East)*frame.RadiusM/dot,z=V.Dot(tree.Position,frame.North)*frame.RadiusM/dot,extent=0;
                 for(int j=0;j<2;j++)for(int i=0;i<2;i++)
                 {
-                    double feather=LocalTreePrototype.PacketFeather;
-                    var corner=scatter.ForestPosition(page.Key.Face,
-                        source.CellX+(i*(1+2*feather)-feather)*packetWidth,
-                        source.CellY+(j*(1+2*feather)-feather)*packetDepth);
-                    double cornerDot=Math.Max(.1,V.Dot(corner,frame.Origin));
-                    double cornerX=V.Dot(corner,frame.East)*frame.RadiusM/cornerDot,cornerZ=V.Dot(corner,frame.North)*frame.RadiusM/cornerDot;
-                    extent=Math.Max(extent,Math.Max(Math.Abs(cornerX-px),Math.Abs(cornerZ-pz)));
+                    var corner=scatter.ForestPosition(page.Key.Face,source.CellX+i*LocalScatter.ForestPlantingSide,source.CellY+j*LocalScatter.ForestPlantingSide);
+                    double cd=Math.Max(.1,V.Dot(corner,frame.Origin));
+                    extent=Math.Max(extent,Math.Max(Math.Abs(V.Dot(corner,frame.East)*frame.RadiusM/cd-x),Math.Abs(V.Dot(corner,frame.North)*frame.RadiusM/cd-z)));
                 }
-                supportSpan=(float)Math.Max(4,(extent+tree.WidthM*.5)/.75);
-            }
-            ForestRoot sharedGroundRoot=default;ForestGroundGrid sharedGroundGrid=default;
-            int sharedGroundLevel=17,sharedGroundRevision=-1;
-            for(int crown=0;crown<crowns;crown++)
-            {
-                double x=px,z=pz;float cohort=1;int face=page.Key.Face,gx=paired?source.CellX:cellX,gy=paired?source.CellY:cellY;
-                if(macro&&!paired)
-                {
-                    // A shifted low-discrepancy sequence fills partial packets
-                    // in their actual cube-face footprint. A world-XZ square
-                    // loses packet rotation/shear and leaves false clearings.
-                    var anchor=scatter.ForestPosition(page.Key.Face,
-                        source.CellX+((phaseX+crown*.7548776662466927)%1)*packetWidth,
-                        source.CellY+((phaseZ+crown*.5698402909980532)%1)*packetDepth);
-                    double anchorDot=Math.Max(.1,V.Dot(anchor,frame.Origin));
-                    x=V.Dot(anchor,frame.East)*frame.RadiusM/anchorDot;
-                    z=V.Dot(anchor,frame.North)*frame.RadiusM/anchorDot;
-                    // GPU group children normalize their own size variation;
-                    // the group carries the source packet's physical RMS.
-                    scatter.ForestCoordinates(frame.Position(x,z),out face,out gx,out gy);
-                }
-                uint densityHash=Rng.Mix(identity^unchecked((uint)crown*0x9e3779b9u)^0x9a65c4u)&0xffffffu;
-                var sourceRoot=new ForestRoot{Position=new Vector3((float)x,height-.045f,(float)z),Width=(float)(tree.WidthM*(macro?cohort:source.CrownScale)),Height=(float)tree.HeightM*cohort,Yaw=macro?(float)(random.Unit()*Math.PI*2):(float)(tree.YawDegrees*Math.PI/180),Field=(uint)field.Id|((uint)page.Key.Level<<16),CellX=gx,CellY=gy,Face=(uint)face|(paired?8u:0u)|(TreeFlora.TidalCode(tree.Variant)?16u:0u)|(densityHash<<8),
-                    Tint=new Vector3((float)(tree.Color.X*pigment.X/Math.Max(.01,shared.X)),(float)(tree.Color.Y*pigment.Y/Math.Max(.01,shared.Y)),(float)(tree.Color.Z*pigment.Z/Math.Max(.01,shared.Z))),Padding=macro?2:source.CrownScale>1.001?1:0};
-                var root=sourceRoot;var target=batch;
-                if(paired)
-                {
-                    root.Width*=LocalTreePrototype.StandSpan;root.Padding=supportSpan;target=standBatch;
-                }
-                int groundLevel;ForestGroundGrid grid;
-                if(paired)
-                {
-                    // Packet groups share one support grid. A terrain commit
-                    // between iterator slices invalidates only this local copy.
-                    if(sharedGroundRevision!=residentRevision)
-                    {
-                        ProjectForestRootGround(ref root,out sharedGroundLevel,out sharedGroundGrid);
-                        sharedGroundRoot=root;sharedGroundRevision=residentRevision;
-                    }
-                    root.Position.y=sharedGroundRoot.Position.y;root.SlopeX=sharedGroundRoot.SlopeX;root.SlopeZ=sharedGroundRoot.SlopeZ;
-                    groundLevel=sharedGroundLevel;grid=sharedGroundGrid;
-                }
-                else ProjectForestRootGround(ref root,out groundLevel,out grid);
-                AddForestRoot(field,target,root,groundLevel,grid,ref first);added++;
-                if(added%16==0&&(added>=4096||System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007))
+                var pigment=TreePigment(tree.Variant);var shared=target.Pigment;
+                bool tropical=new TreeMorphology(tree.Variant).Form==TreeGrowthForm.BroadCrown&&new TreeMorphology(tree.Variant).Strategy==TreeCrownStrategy.TropicalCanopy;
+                var root=new ForestRoot{Position=new Vector3((float)x,(float)frame.SurfaceY(tree.Position,tree.GroundM)-.045f,(float)z),
+                    Width=(float)tree.WidthM*LocalTreePrototype.StandSpan,Height=(float)tree.HeightM,
+                    Field=(uint)field.Id,CellX=source.CellX,CellY=source.CellY,Face=(uint)page.Key.Face|8u|32u|(tropical?64u:0u),
+                    Tint=new Vector3((float)(pigment.X/Math.Max(.01,shared.X)),(float)(pigment.Y/Math.Max(.01,shared.Y)),(float)(pigment.Z/Math.Max(.01,shared.Z))),Padding=(float)Math.Max(4,(extent+.1)/.75)};
+                ProjectForestRootGround(ref root,out int level,out var grid);
+                grid.D=new Vector4(source.P00,source.P10,source.P01,source.P11);
+                grid.E=new Vector4(source.AllowedMask&65535,(source.AllowedMask>>16)&65535,(source.AllowedMask>>32)&65535,(source.AllowedMask>>48)&65535);
+                AddForestRoot(field,target,root,level,grid,ref first);added++;
+                if(System.Diagnostics.Stopwatch.GetTimestamp()-started>=System.Diagnostics.Stopwatch.Frequency*.0007)
                 {forestRootTopologyRevision++;added=0;yield return null;started=System.Diagnostics.Stopwatch.GetTimestamp();}
             }
         }
@@ -669,6 +611,7 @@ public sealed partial class LocalTerrainExplorer
                 if(!ChangedGroundAt(root.Position.x,root.Position.z,margin,previousGroundLevel))continue;
                 if(trace!=0)tracedQueries++;
                 var before=root;ProjectForestRootGround(ref root,out int groundLevel,out var grid);SetForestGroundLevel(field,pair.Key,slot,groundLevel);
+                if((root.Face&32u)!=0){grid.D=pair.Key.GroundData[slot].D;grid.E=pair.Key.GroundData[slot].E;}
                 bool gridChanged=pair.Key.Model?.TreeCluster==true&&!pair.Key.GroundData[slot].Equals(grid);
                 if(root.Position.y==before.Position.y&&root.SlopeX==before.SlopeX&&root.SlopeZ==before.SlopeZ&&root.Padding==before.Padding&&!gridChanged)continue;
                 pair.Key.Data[slot]=root;if(pair.Key.Model?.TreeCluster==true)pair.Key.GroundData[slot]=grid;DirtyForestRoot(pair.Key,slot);
@@ -783,7 +726,7 @@ public sealed partial class LocalTerrainExplorer
             if(terrain!=null&&(i!=0||j!=0))
             {
                 if(publication!=null)terrain.PublicationGround(publication,px,pz,centerY,out _,out owner,out ownerKey);
-                else owner=terrain.VisibleGroundOwner(px,pz,out ownerKey);
+                else owner=terrain.VisibleGroundOwnerCached(px,pz,out ownerKey);
             }
             double h=centerY;
             if(TryForestGroundSample(owner,ownerKey,px,pz,out double sampleY,out bool forest))
@@ -846,7 +789,7 @@ public sealed partial class LocalTerrainExplorer
                 // hash. They have no draw records and need no hill queries.
                 if(field.Source.Roots.Length==0){forestFlags[field.Id]=0;continue;}
                 var bounds=field.Bounds;bounds.center-=new Vector3((float)originX,0,(float)originZ);bounds.Expand(12+(bounds.center-eye).magnitude*.04f);
-                int flags=field.Ready&&!TerrainOccluded(bounds,eye)?1:0;
+                int flags=field.RenderReady&&!TerrainOccluded(bounds,eye)?1:0;
                 if(flags!=0&&field.Source.Key.Level==0)
                 {
                     var page=field.Source.Key;int pagesPerChunk=LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide;
@@ -862,7 +805,7 @@ public sealed partial class LocalTerrainExplorer
         float reach=(float)ForestHandoffReach,start=(float)VegetationQuality.ForestStart(reach);var chart=new Vector4((float)originX,0,(float)originZ,TerrainVideoOptions.TreeDensity);var ranges=new Vector4(start,reach,(float)ForestBillboardEnd,forestHashMask);var matrix=view.projectionMatrix*view.worldToCameraMatrix;
         forestCull.SetVectorArray("_Planes",forestPlanes);forestCull.SetVector("_Eye",eye);forestCull.SetVector("_Chart",chart);forestCull.SetVector("_Ranges",ranges);forestCull.SetBuffer(0,"_Fields",forestFlagBuffer);forestCull.SetBuffer(0,"_Tiles",forestHashBuffer);
         forestCull.SetBuffer(0,"_ForestBirth",forestBirthBuffer);forestCull.SetFloat("_ForestClock",Time.realtimeSinceStartup);
-        if(forestGroundDummy==null){forestGroundDummy=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,48);forestGroundDummy.SetData(new[]{default(ForestGroundGrid)});}
+        if(forestGroundDummy==null){forestGroundDummy=new GraphicsBuffer(GraphicsBuffer.Target.Structured,1,80);forestGroundDummy.SetData(new[]{default(ForestGroundGrid)});}
         var planet0=new Vector4((float)frame.Origin.X,(float)frame.Origin.Y,(float)frame.Origin.Z,(float)frame.RadiusM);
         var planet1=new Vector4((float)frame.East.X,(float)frame.East.Y,(float)frame.East.Z,0);
         var planet2=new Vector4((float)frame.North.X,(float)frame.North.Y,(float)frame.North.Z,0);
@@ -875,20 +818,20 @@ public sealed partial class LocalTerrainExplorer
             if(batch.Data.Count==0){batch.CullValid=false;continue;}
             if(batch.Capacity<batch.Data.Count)
             {
-                batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity,4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);
-                if(model.TreeCluster)batch.Ground=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,48);
-                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=model.TreeCluster?216u:6u}});DirtyAllForestRoots(batch);
+                batch.Dispose();batch.Capacity=Mathf.NextPowerOfTwo(Math.Max(64,batch.Data.Count));batch.Roots=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,64);batch.Visible=new GraphicsBuffer(GraphicsBuffer.Target.Append,batch.Capacity*(model.TreeCluster?64:1),4);batch.Args=new GraphicsBuffer(GraphicsBuffer.Target.IndirectArguments,1,GraphicsBuffer.IndirectDrawArgs.size);
+                if(model.TreeCluster)batch.Ground=new GraphicsBuffer(GraphicsBuffer.Target.Structured,batch.Capacity,80);
+                batch.Args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6u}});DirtyAllForestRoots(batch);
             }
             UploadForestRoots(batch);
             if(!batch.CullValid||!batch.CullMatrix.Equals(matrix)||!batch.CullEye.Equals(eye)||!batch.CullChart.Equals(chart)||!batch.CullRange.Equals(ranges)||batch.CullRevision!=forestRevision)
             {
-                batch.Visible.SetCounterValue(0);forestCull.SetInt("_RootCount",batch.Data.Count);forestCull.SetBuffer(0,"_Roots",batch.Roots);forestCull.SetBuffer(0,"_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);forestCull.SetBuffer(0,"_Visible",batch.Visible);forestCull.Dispatch(0,(batch.Data.Count+63)/64,1,1);GraphicsBuffer.CopyCount(batch.Visible,batch.Args,4);
+                batch.Visible.SetCounterValue(0);forestCull.SetInt("_RootCount",batch.Data.Count);forestCull.SetInt("_ForestSeed",terrain.SourceSeed);forestCull.SetInt("_ForestLatticeCount",scatter.TreeLatticeCount);forestCull.SetBuffer(0,"_Roots",batch.Roots);forestCull.SetBuffer(0,"_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);forestCull.SetBuffer(0,"_Visible",batch.Visible);forestCull.Dispatch(0,(batch.Data.Count+63)/64,1,1);GraphicsBuffer.CopyCount(batch.Visible,batch.Args,4);
                 batch.CullValid=true;batch.CullMatrix=matrix;batch.CullEye=eye;batch.CullChart=chart;batch.CullRange=ranges;batch.CullRevision=forestRevision;
             }
-            var props=batch.Properties;props.SetFloat("_ForestMacro",model.TreeCluster?2:batch.Macro?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
+            var props=batch.Properties;props.SetFloat("_ForestMacro",model.TreeCluster?2:batch.Macro?1:0);props.SetFloat("_ForestCanonical",model.TreeCluster?1:0);props.SetBuffer("_Roots",batch.Roots);props.SetBuffer("_Visible",batch.Visible);props.SetVector("_ForestChart",chart);props.SetVector("_ForestRange",new Vector4(start,reach,0,0));
             props.SetBuffer("_ForestBirth",forestBirthBuffer);props.SetBuffer("_Tiles",forestHashBuffer);props.SetFloat("_ForestClock",Time.realtimeSinceStartup);props.SetInt("_ForestHashMask",forestHashMask);
             props.SetBuffer("_Fields",forestFlagBuffer);
-            props.SetBuffer("_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);props.SetVector("_ForestPlanet0",planet0);props.SetVector("_ForestPlanet1",planet1);props.SetVector("_ForestPlanet2",planet2);props.SetInt("_ForestLatticeCount",scatter.TreeLatticeCount);props.SetFloat("_ForestPacketFeather",LocalTreePrototype.PacketFeather);
+            props.SetBuffer("_Ground",model.TreeCluster?batch.Ground:forestGroundDummy);props.SetVector("_ForestPlanet0",planet0);props.SetVector("_ForestPlanet1",planet1);props.SetVector("_ForestPlanet2",planet2);props.SetInt("_ForestLatticeCount",scatter.TreeLatticeCount);props.SetInt("_ForestSeed",terrain.SourceSeed);props.SetFloat("_ForestPacketFeather",LocalTreePrototype.PacketFeather);
             var parameters=new RenderParams(model.Parts[0].Material){camera=view,layer=30,worldBounds=new Bounds(eye,Vector3.one*(float)ForestPlanningRange*2.2f),matProps=props,shadowCastingMode=ShadowCastingMode.Off,receiveShadows=true};
             Graphics.RenderPrimitivesIndirect(in parameters,MeshTopology.Triangles,batch.Args,1);batch.SubmittedFrame=Time.frameCount;ForestDrawCalls++;
         }

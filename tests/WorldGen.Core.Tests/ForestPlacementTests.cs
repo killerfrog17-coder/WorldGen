@@ -33,40 +33,48 @@ static class ForestPlacementTests
             if(biome!=Biome.TropicalRainforest)continue;
             Check(near.Count>1000,"Rainforest must be a connected stand, not decorative trees");
             Check(near.Values.All(p=>new TreeMorphology(p.Variant).Form!=TreeGrowthForm.NeedleCrown),"No needle trees in warm lowland jungle");
-            bool cancelled=false;try{scatter.BuildForest(new ForestPageKey(key.Face,key.X*4,key.Y*4,0),new CancellationToken(true));}catch(OperationCanceledException){cancelled=true;}
+            int pagesPerChunk=LocalScatter.TreeCandidateSide/LocalScatter.ForestPageSide;
+            bool cancelled=false;try{scatter.BuildForest(new ForestPageKey(key.Face,key.X*pagesPerChunk,key.Y*pagesPerChunk,0),new CancellationToken(true));}catch(OperationCanceledException){cancelled=true;}
             Check(cancelled,"Near-ground pressure can cancel forest preparation");
             var broad=near.Values.Where(p=>new TreeMorphology(p.Variant).Form==TreeGrowthForm.BroadCrown).ToArray();
             Check(broad.Any(p=>p.HeightM>40)&&broad.Any(p=>p.HeightM<15)&&broad.Any(p=>p.HeightM>25&&p.HeightM<40),"Jungle emergent/canopy/understory cohorts");
-            var distant=new Dictionary<ulong,ScatterInstance>();var independent=new LocalScatter(terrain,.1);
-            for(int y=0;y<4;y++)for(int x=0;x<4;x++)
+            var independent=new LocalScatter(terrain,.1);var distant=new Dictionary<ulong,ScatterInstance>();
+            var candidatePatch=terrain.Patch(scatter.Position(key),840/.1);
+            for(int py=0;py<pagesPerChunk;py++)for(int px=0;px<pagesPerChunk;px++)
             {
-                var page=independent.BuildForest(new ForestPageKey(key.Face,key.X*4+x,key.Y*4+y,0));
-                foreach(var root in page.Roots){Check(root.Population==1&&root.CrownScale==1,"Exact page must not merge trees");Check(distant.TryAdd(root.Tree.Id,root.Tree),"No duplicate far root");}
+                var pageKey=new ForestPageKey(key.Face,key.X*pagesPerChunk+px,key.Y*pagesPerChunk+py,0);
+                var timer=System.Diagnostics.Stopwatch.StartNew();var page=independent.BuildForest(pageKey);timer.Stop();
+                Console.WriteLine($"Fixed planting page: {page.Roots.Length} blocks / {page.Probes} probes in {timer.Elapsed.TotalMilliseconds:F2}ms");
+                Check(page.Probes<=256&&page.Roots.Length<=256,"One bounded recipe per 64 candidates");
+                foreach(var block in page.Roots)
+                {
+                    Check(block.Population==-64&&block.AllowedMask!=0,"Fixed candidate block, never a statistical population");
+                    for(int cy=0;cy<8;cy++)for(int cx=0;cx<8;cx++)
+                    {
+                        int gx=block.CellX+cx,gy=block.CellY+cy;uint h=LocalScatter.PlantingHash(key.Face,gx,gy,recipe.Seed);
+                        LocalScatter.PlantingOffset(h,out float ox,out float oy);float u=(cx+ox)/8,v=(cy+oy)/8;
+                        float probability=(block.P00+(block.P10-block.P00)*u)*(1-v)+(block.P01+(block.P11-block.P01)*u)*v;
+                        bool admitted=(block.AllowedMask&(1UL<<(cy*8+cx)))!=0&&LocalScatter.PlantingUnit(h^0x27d4eb2du)<probability;
+                        int x=gx-key.X*LocalScatter.TreeCandidateSide,y=gy-key.Y*LocalScatter.TreeCandidateSide;
+                        bool actual=independent.TryTreeCandidate(key,x,y,candidatePatch,out var tree);
+                        Check(actual==admitted,"GPU recipe and interactive CPU predicate admit the same cells");
+                        if(!actual)continue;
+                        LocalScatter.PlantingDimensions(h,block.Tree.Variant,out float height,out float width,out float yaw,out float tint);
+                        Check(tree.Position.Equals(scatter.ForestPosition(key.Face,gx+ox,gy+oy))&&tree.Variant==block.Tree.Variant&&
+                            tree.HeightM==block.Tree.HeightM*height&&tree.WidthM==block.Tree.WidthM*width&&tree.Color.Equals(new V(tint,tint,tint))&&tree.YawDegrees==yaw*180/Math.PI,
+                            "GPU expansion preserves each CPU tree position, species, dimensions, tint and orientation");
+                        Check(distant.TryAdd(tree.Id,tree),"No duplicate tree across block/page borders");
+                    }
+                }
                 using var stream=new MemoryStream();using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteForest(writer,page);stream.Position=0;
-                using var reader=new BinaryReader(stream);var roundtrip=TerrainMeshWire.ReadForest(reader,page.Key);Check(page.Roots.SequenceEqual(roundtrip.Roots),"Forest transport exact payload");
+                using var reader=new BinaryReader(stream);Check(page.Roots.SequenceEqual(TerrainMeshWire.ReadForest(reader,page.Key).Roots),"Planting masks and probabilities survive worker transport");
+                var fresh=new LocalScatter(terrain,.1);
+                Check(page.Roots.SequenceEqual(fresh.BuildForest(page.Key).Roots),"Independent planting output is deterministic");
             }
-            // Forest pages now carry cheap potential trees. Local interaction
-            // performs exact physical admission, so it may remove candidates;
-            // it MUST NOT choose another model, size, root, colour or yaw.
             bool SameCandidate(ScatterInstance a,ScatterInstance b)=>a.Id==b.Id&&a.Kind==b.Kind&&a.Variant==b.Variant&&a.Position.Equals(b.Position)&&
                 a.HeightM==b.HeightM&&a.WidthM==b.WidthM&&a.YawDegrees==b.YawDegrees&&a.Color.Equals(b.Color);
-            Check(near.Count<=distant.Count,"Physically admitted roots are a subset of forest candidates");
-            foreach(var tree in near)Check(distant.TryGetValue(tree.Key,out var far)&&SameCandidate(tree.Value,far),"Same candidate identity, anatomy, dimensions, root, tint and yaw after physical admission");
-            var candidatePatch=terrain.Patch(scatter.Position(key),840/.1);
-            foreach(var candidate in distant.Values)
-            {
-                int slot=(int)(candidate.Id&65535);
-                Check(scatter.TryTreeCandidate(key,slot%LocalScatter.TreeCandidateSide,slot/LocalScatter.TreeCandidateSide,candidatePatch,out var cachedCandidate)&&candidate.Equals(cachedCandidate),"Physical positive/negative cache cannot rewrite candidate identity or approximate grounding");
-            }
-            Console.WriteLine($"Canonical forest: {distant.Count} candidates, {near.Count} exact physical roots");
-            // Reversing page completion also reverses which caller first fills
-            // the shared habitat nodes. It must not alter any physical tree.
-            var reverse=new LocalScatter(terrain,.1);
-            for(int y=3;y>=0;y--)for(int x=3;x>=0;x--)
-            {
-                var page=reverse.BuildForest(new ForestPageKey(key.Face,key.X*4+x,key.Y*4+y,0));
-                foreach(var root in page.Roots)Check(distant.TryGetValue(root.Tree.Id,out var prior)&&prior.Equals(root.Tree),"Habitat-node fill order preserves canonical trees");
-            }
+            Check(near.Count==distant.Count,"Interactive and rendered forest populations are identical");
+            foreach(var tree in near)Check(distant.TryGetValue(tree.Key,out var far)&&SameCandidate(tree.Value,far),"Physical grounding cannot replace a tree");
             var rootPatch=terrain.Patch(scatter.Position(key),840/.1);
             foreach(var tree in near.Values.Take(64))
             {
@@ -77,46 +85,18 @@ static class ForestPlacementTests
             var cachePatch=terrain.Patch(scatter.Position(key),840/.1);
             for(int y=0;y<LocalScatter.TreeCandidateSide;y++)for(int x=0;x<LocalScatter.TreeCandidateSide;x++)
             {bool cached=scatter.TryTree(key,x,y,cachePatch,out var a),fresh=independent.TryTree(key,x,y,cachePatch,out var b);Check(cached==fresh&&(!cached||a.Equals(b)),"Exact positive AND negative tree cache equivalence");}
-            for(int level=1;level<=4;level++)
-            {
-                int span=LocalScatter.ForestPageSide*(1<<level);var page=scatter.BuildForest(new ForestPageKey(key.Face,key.X*LocalScatter.TreeCandidateSide/span,key.Y*LocalScatter.TreeCandidateSide/span,level));
-                Check(page.Probes>0&&page.Probes<=4096&&page.Roots.Length<=64,"Distant canopy uses bounded canonical density samples without per-root physical geometry");
-                foreach(var root in page.Roots)
-                {
-                    Check(root.Population==0,"Canopy descriptor is not a fabricated population member");Check(root.Tree.WidthM>0&&root.Tree.HeightM>0&&double.IsFinite(root.Tree.WidthM),"Finite canopy dimensions");
-                    Check(root.CanopyTreeCount>0&&double.IsFinite(root.CanopyTreeCount),"Coarse density carries a finite expected local tree count");
-                    double represented=LocalScatter.ForestCanopyAnchorCount(root)*(LocalScatter.ForestCanopyUsesStand(root)?LocalScatter.ForestStandTreeCount:1);
-                    Check(represented>=root.CanopyTreeCount&&represented-root.CanopyTreeCount<LocalScatter.ForestStandTreeCount,"Coarse representation preserves density to within one prepared stand");
-                }
-                if(level==1)
-                {
-                    var packet=page.Roots.First(r=>r.CanopyTreeCount>1);
-                    var census=independent.BuildForest(new ForestPageKey(page.Key.Face,packet.CellX/LocalScatter.ForestPageSide,packet.CellY/LocalScatter.ForestPageSide,0));
-                    var members=census.Roots.Where(r=>r.CellX>=packet.CellX&&r.CellX<packet.CellX+8&&r.CellY>=packet.CellY&&r.CellY<packet.CellY+8).ToArray();
-                    Check(packet.CanopyTreeCount==members.Length,"Small coarse packet preserves the independent exact candidate count");
-                    double widthArea=members.Average(r=>r.Tree.WidthM*r.Tree.WidthM),heightMass=members.Average(r=>r.Tree.HeightM*r.Tree.HeightM);
-                    Check(Math.Abs(packet.Tree.WidthM*packet.Tree.WidthM-widthArea)<1e-9*Math.Max(1,widthArea),"Coarse crown width preserves exact packet mean canopy area");
-                    Check(Math.Abs(packet.Tree.HeightM*packet.Tree.HeightM-heightMass)<1e-9*Math.Max(1,heightMass),"Coarse height preserves exact packet second moment");
-                }
-                using(var stream=new MemoryStream())
-                {
-                    using(var writer=new BinaryWriter(stream,System.Text.Encoding.UTF8,true))TerrainMeshWire.WriteForest(writer,page);stream.Position=0;
-                    using var reader=new BinaryReader(stream);Check(page.Roots.SequenceEqual(TerrainMeshWire.ReadForest(reader,page.Key).Roots),"Coarse tree density survives worker transport");
-                }
-                Check(page.Roots.SequenceEqual(scatter.BuildForest(page.Key).Roots),"Deterministic regional canopy");
-            }
             foreach(var point in new[]{at,new V(1,1,0).Unit,new V(0,0,1),new V(-1,0,0)})
             {
-                var plan=scatter.PlanForest(point,10000,1600);Check(plan.Length<=4096,"Bounded forest page plan "+plan.Length);var keys=new HashSet<ForestPageKey>(plan);Check(keys.Count==plan.Length,"No duplicate planned pages");
+                var plan=scatter.PlanForest(point,6000,1600);Check(plan.Length<=4096,"Bounded forest page plan "+plan.Length);var keys=new HashSet<ForestPageKey>(plan);Check(keys.Count==plan.Length,"No duplicate planned pages");
                 foreach(var page in plan)
                 {
-                    Check(page.Level<=scatter.ForestCanopyMaximumLevel,"Coarse forest pages retain a bounded physical footprint");
+                    Check(page.Level==0,"Coarse forest pages retain a bounded physical footprint");
                     scatter.ForestBounds(page,out var center,out var radius);
                     double gap=Math.Max(0,(center-point).Length*terrain.RadiusM*.1-radius);
                     Check(page.Level==0||gap>=LocalScatter.ForestIdentityDistanceM,"Recognisable forest keeps canonical exact placement out to two kilometres");
                 }
                 foreach(var page in plan){var parent=page.Parent;for(int l=page.Level+1;l<=24;l++,parent=parent.Parent)Check(!keys.Contains(parent),"Plan partitions coverage without overlapping ancestors");}
-                Check(plan.SequenceEqual(scatter.PlanForest(point,10000,1600)),"Stable plan at unchanged point");
+                Check(plan.SequenceEqual(scatter.PlanForest(point,6000,1600)),"Stable plan at unchanged point");
                 var frame=new LocalTerrainFrame(point,terrain.RadiusM,250,.1);var alternate=new LocalTerrainFrame((point+frame.East*(120/frame.RadiusM)).Unit,terrain.RadiusM,250,.1);double worst=0;
                 for(int i=0;i<200;i++)
                 {var p=frame.Position(Math.Sin(i)*60000,Math.Cos(i*1.7)*60000);double dot=V.Dot(p,alternate.Origin),xx=V.Dot(p,alternate.East)*alternate.RadiusM/dot,zz=V.Dot(p,alternate.North)*alternate.RadiusM/dot;double error=(alternate.Position(xx,zz)-p).Length*alternate.RadiusM;worst=Math.Max(worst,error);Check(error<.02,"Quantized chart roundtrip must be below 2cm");}

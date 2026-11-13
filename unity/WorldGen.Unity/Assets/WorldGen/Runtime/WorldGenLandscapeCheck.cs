@@ -1006,6 +1006,18 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
+        if(arguments.Contains("--worldgen-forest-overlook-check"))
+        {
+            owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+500;owner.heading=90;owner.pitch=12;
+            owner.landscapeReviewCamera=null;owner.UpdateCamera();owner.RefreshWanted();
+            for(int phase=0;phase<2;phase++)
+            {
+                if(phase==1){double until=Time.realtimeSinceStartupAsDouble+20;while(Time.realtimeSinceStartupAsDouble<until)yield return null;}
+                owner.UpdateCamera();owner.BuildScatterBatches();owner.DrawScatter();owner.DrawGroundCover();owner.view.Render();RenderTexture.active=target;
+                var overview=new Texture2D(1536,864,TextureFormat.RGB24,false);overview.ReadPixels(new Rect(0,0,1536,864),0,0);overview.Apply();
+                File.WriteAllBytes(Path.Combine(output,phase==0?"overlook-first.png":"overlook-after.png"),overview.EncodeToPNG());Destroy(overview);RenderTexture.active=prior;
+            }
+        }
         if(presented&&arguments.Contains("--worldgen-landscape-keep-open"))
         {
             Check(!encounteredError,"Interactive scenic review starts without runtime errors");
