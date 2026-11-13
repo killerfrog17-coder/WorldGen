@@ -243,7 +243,7 @@ public sealed partial class LocalTerrainExplorer
                 {
                     var before=root;double x=root.Position.x,z=root.Position.z,y=PublicationGround(plan,x,z,root.Position.y+.045f,out int level,out Tile owner,out TerrainTileKey ownerKey);
                     level=ApplyForestRootGround(ref root,y,level,owner,ownerKey,out var grid,this,plan);
-                    if((root.Face&32u)!=0){grid.D=pair.Key.GroundData[slot].D;grid.E=pair.Key.GroundData[slot].E;}
+                    if((root.Face&32u)!=0){grid.D=pair.Key.GroundData[slot].D;grid.E=pair.Key.GroundData[slot].E;grid.F=pair.Key.GroundData[slot].F;grid.G=pair.Key.GroundData[slot].G;grid.H=pair.Key.GroundData[slot].H;}
                     bool moved=root.Position.y!=before.Position.y||root.SlopeX!=before.SlopeX||root.SlopeZ!=before.SlopeZ||root.Padding!=before.Padding||pair.Key.Model?.TreeCluster==true&&!pair.Key.GroundData[slot].Equals(grid);
                     plan.Roots.Add(new ForestGroundEdit{Field=field,Batch=pair.Key,Slot=slot,Level=level,Root=root,Grid=grid,Changed=moved});
                     if(moved){bounds.Encapsulate(ForestRootBounds(root));changed=true;}

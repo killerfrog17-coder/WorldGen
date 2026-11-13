@@ -24,7 +24,7 @@ Shader "WorldGen/ForestPackets"
             #include "WorldGenFoliageShadows.hlsl"
             #include "WorldGenTreeViews.hlsl"
             struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
-            struct Ground {float4 a,b,c,d,e;};
+            struct Ground {float4 a,b,c,d,e,f,g,h;};
             StructuredBuffer<Root> _Roots;StructuredBuffer<uint> _Visible;
             StructuredBuffer<Ground> _Ground;
             StructuredBuffer<int4> _Tiles;StructuredBuffer<int> _Fields;StructuredBuffer<float> _ForestBirth;float _ForestClock;uint _ForestHashMask;
@@ -120,16 +120,17 @@ Shader "WorldGen/ForestPackets"
             }
             O vert(uint vertexID:SV_VertexID,uint instanceID:SV_InstanceID)
             {
-                O o=(O)0;uint packed=_Visible[instanceID],index=_ForestCanonical>.5?packed/64u:packed;Root root=_Roots[index];float3 origin=root.position-_ForestChart.xyz;
+                O o=(O)0;uint packed=_Visible[instanceID],index=_ForestCanonical>.5?packed/256u:packed;Root root=_Roots[index];float3 origin=root.position-_ForestChart.xyz;
                 float width=root.width,height=root.height,yaw=root.yaw;o.childFade=1;o.treeTint=1;
                 if(_ForestMacro>1.5&&(root.face&32u)!=0)
                 {
-                    uint child=packed%64u;uint2 cell=uint2(root.cellX,root.cellY)+uint2(child%8u,child/8u);
-                    Ground ground=_Ground[index];uint lane=child/16u;uint allowed=(uint)(lane==0u?ground.e.x:lane==1u?ground.e.y:lane==2u?ground.e.z:ground.e.w);
-                    if(child>=64u||any(cell>=_ForestLatticeCount)||((allowed>>(child&15u))&1u)==0u){o.positionCS=float4(0,0,0,1);return o;}
+                    uint child=packed%256u;uint2 cell=uint2(root.cellX,root.cellY)+uint2(child%16u,child/16u);
+                    Ground ground=_Ground[index];uint lane=child/64u,word=(child/16u)&3u;float4 mask=lane==0u?ground.e:lane==1u?ground.f:lane==2u?ground.g:ground.h;
+                    uint allowed=(uint)(word==0u?mask.x:word==1u?mask.y:word==2u?mask.z:mask.w);
+                    if(child>=256u||any(cell>=_ForestLatticeCount)||((allowed>>(child&15u))&1u)==0u){o.positionCS=float4(0,0,0,1);return o;}
                     uint h=CanopyMix(cell.x*73856093u^cell.y*19349663u^(root.face&7u)*83492791u^_ForestSeed);
                     float2 jitter=.08+.84*float2(ForestUnit(h^0x68bc21ebu),ForestUnit(h^0x02e5be93u));
-                    float2 q=(float2(child%8u,child/8u)+jitter)/8.;
+                    float2 q=(float2(child%16u,child/16u)+jitter)/16.;
                     float probability=lerp(lerp(ground.d.x,ground.d.y,q.x),lerp(ground.d.z,ground.d.w,q.x),q.y);
                     if(ForestUnit(h^0x27d4eb2du)>=probability*_ForestChart.w){o.positionCS=float4(0,0,0,1);return o;}
                     float cohort=ForestUnit(h^0x967a889bu),r=ForestUnit(h^0x368cc8b7u);

@@ -1,6 +1,6 @@
 #pragma kernel Cull
 struct Root {float3 position;float width;float height;float yaw;float slopeX;float slopeZ;float3 tint;uint field;int cellX;int cellY;uint face;float padding;};
-struct Ground {float4 a,b,c,d,e;};
+struct Ground {float4 a,b,c,d,e,f,g,h;};
 StructuredBuffer<Root> _Roots;
 StructuredBuffer<Ground> _Ground;
 StructuredBuffer<int> _Fields;
@@ -43,19 +43,20 @@ void Cull(uint3 tid:SV_DispatchThreadID)
     if((root.face&32u)!=0)
     {
         Ground ground=_Ground[at];
-        [unroll]for(uint lane=0u;lane<4u;lane++)
+        [unroll]for(uint lane=0u;lane<16u;lane++)
         {
-            uint allowed=(uint)(lane==0u?ground.e.x:lane==1u?ground.e.y:lane==2u?ground.e.z:ground.e.w);
+            uint word=lane&3u;float4 mask=lane<4u?ground.e:lane<8u?ground.f:lane<12u?ground.g:ground.h;
+            uint allowed=(uint)(word==0u?mask.x:word==1u?mask.y:word==2u?mask.z:mask.w);
             [loop]while(allowed!=0u)
             {
             uint bit=(uint)firstbitlow(allowed),child=lane*16u+bit;allowed&=allowed-1u;
-            uint2 cell=uint2(root.cellX,root.cellY)+uint2(child%8u,child/8u);if(any(cell>=_ForestLatticeCount))continue;
+            uint2 cell=uint2(root.cellX,root.cellY)+uint2(child%16u,child/16u);if(any(cell>=_ForestLatticeCount))continue;
             uint h=Mix(cell.x*73856093u^cell.y*19349663u^(root.face&7u)*83492791u^_ForestSeed);
             float2 jitter=.08+.84*float2((Mix(h^0x68bc21ebu)&0xffffffu),(Mix(h^0x02e5be93u)&0xffffffu))/16777216.;
-            float2 q=(float2(child%8u,child/8u)+jitter)/8.;
+            float2 q=(float2(child%16u,child/16u)+jitter)/16.;
             float probability=lerp(lerp(ground.d.x,ground.d.y,q.x),lerp(ground.d.z,ground.d.w,q.x),q.y);
             if((Mix(h^0x27d4eb2du)&0xffffffu)/16777216.>=probability*_Chart.w)continue;
-            _Visible.Append(at*64u+child);
+            _Visible.Append(at*256u+child);
             }
         }
     }

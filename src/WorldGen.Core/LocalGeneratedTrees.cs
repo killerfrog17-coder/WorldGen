@@ -12,7 +12,7 @@ namespace WorldGen.Core
         // for every four-metre candidate. Both local and forest-page planting
         // read these same planet-addressed nodes. Exact interactive root water
         // and height come from Geometry; distant candidates do not query them.
-        const int TreeHabitatStep=8,TreeHabitatLimit=32768;
+        const int TreeHabitatStep=16,TreeHabitatLimit=32768;
         sealed class TreeHabitatNodeData
         {
             public LocalTerrainSample Sample;public V Position;
@@ -20,11 +20,6 @@ namespace WorldGen.Core
             // replace it, but cannot grow an unbounded region/model cache.
             public TreeSpecies[] Species;public double[] Weights;
             public PlantingBlockData Planting;public bool PlantingReady;public float Probability;
-        }
-        readonly struct TreeHabitatBlend
-        {
-            public readonly TreeHabitatNodeData A,B,C,D;public readonly double U,V;
-            public TreeHabitatBlend(TreeHabitatNodeData a,TreeHabitatNodeData b,TreeHabitatNodeData c,TreeHabitatNodeData d,double u,double v){A=a;B=b;C=c;D=d;U=u;V=v;}
         }
         readonly object treeHabitatGate=new object();
         readonly Dictionary<(int Face,int X,int Y),TreeHabitatNodeData> treeHabitat=new Dictionary<(int,int,int),TreeHabitatNodeData>();
@@ -36,7 +31,7 @@ namespace WorldGen.Core
             int count=TreeLatticeCount;
             var point=ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep));
             // Habitat inputs have a fixed physical footprint. Do not evaluate
-            // sub-metre terrain detail for a shared ~32m planting-map node.
+            // sub-metre terrain detail for a shared ~64m planting-map node.
             var node=new TreeHabitatNodeData{Sample=patch.SampleMap(point,TreeHabitatStep*TreeLatticeStep),Position=point};
             node.Probability=PlantingProbability(node.Sample,point);
             lock(treeHabitatGate)
@@ -130,7 +125,7 @@ namespace WorldGen.Core
             int gx=key.X*TreeCandidateSide+x,gy=key.Y*TreeCandidateSide+y;
             int left=gx/ForestPlantingSide*ForestPlantingSide,bottom=gy/ForestPlantingSide*ForestPlantingSide;
             var block=PlantingBlock(key.Face,left,bottom,patch);if(block==null)return false;
-            int child=(gy-bottom)*ForestPlantingSide+gx-left;if((block.Mask&(1UL<<child))==0)return false;
+            int child=(gy-bottom)*ForestPlantingSide+gx-left;if(!block.Mask.Contains(child))return false;
             uint h=PlantingHash(key.Face,gx,gy,seed);PlantingOffset(h,out float ox,out float oy);
             float u=(gx-left+ox)/ForestPlantingSide,v=(gy-bottom+oy)/ForestPlantingSide;
             float probability=(block.P00+(block.P10-block.P00)*u)*(1-v)+(block.P01+(block.P11-block.P01)*u)*v;
@@ -143,8 +138,8 @@ namespace WorldGen.Core
         }
         sealed class PlantingBlockData
         {
-            public ScatterInstance[] Trees;public byte[] Species;public ulong[] SpeciesMasks;
-            public float P00,P10,P01,P11;public ulong Mask;
+            public ScatterInstance[] Trees;public byte[] Species;public ForestPlantingMask[] SpeciesMasks;
+            public float P00,P10,P01,P11;public ForestPlantingMask Mask;
         }
         float PlantingProbability(LocalTerrainSample sample,V position)
         {
@@ -191,7 +186,7 @@ namespace WorldGen.Core
                     double dot=V.Dot(center,n),area=TreeLatticeStep*TreeLatticeStep*dot*dot*dot;
                     float cap=(float)Math.Min(1,area*TreeFlora.PlacementPerM2);
                     block=new PlantingBlockData{P00=a.Probability*cap,P10=b.Probability*cap,P01=c.Probability*cap,P11=d.Probability*cap,
-                        Trees=new ScatterInstance[species.Length],Species=new byte[ForestStandTreeCount],SpeciesMasks=new ulong[species.Length]};
+                        Trees=new ScatterInstance[species.Length],Species=new byte[ForestStandTreeCount],SpeciesMasks=new ForestPlantingMask[species.Length]};
                     for(int i=0;i<species.Length;i++)
                     {
                         var s=species[i];
@@ -237,7 +232,7 @@ namespace WorldGen.Core
                             var at=ForestPosition(face,left+x+ox,bottom+y+oy);var g=patch.Geometry(at);
                             if(!TreeFlora.Rooting(new ForestCoverProfile{MorphologyCode=species[chosen].MorphologyCode},g.ElevationM,g.Underwater,g.Underwater?g.WaterSurfaceM-g.ElevationM:0,sample.Biome))continue;
                         }
-                        block.Mask|=1UL<<child;block.SpeciesMasks[chosen]|=1UL<<child;
+                        block.Mask.Add(child);block.SpeciesMasks[chosen].Add(child);
                     }
                 }
             }

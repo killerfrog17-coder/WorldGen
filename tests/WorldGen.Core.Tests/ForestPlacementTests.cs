@@ -45,23 +45,23 @@ static class ForestPlacementTests
                 var pageKey=new ForestPageKey(key.Face,key.X*pagesPerChunk+px,key.Y*pagesPerChunk+py,0);
                 var timer=System.Diagnostics.Stopwatch.StartNew();var page=independent.BuildForest(pageKey);timer.Stop();
                 Console.WriteLine($"Fixed planting page: {page.Roots.Length} blocks / {page.Probes} probes in {timer.Elapsed.TotalMilliseconds:F2}ms");
-                Check(page.Probes<=256&&page.Roots.Length<=256*terrain.FloraRegion(0).Trees.Length,"Bounded species batches per planting block");
+                Check(page.Probes<=64&&page.Roots.Length<=64*terrain.FloraRegion(0).Trees.Length,"Bounded species batches per planting block");
                 var groups=page.Roots.GroupBy(r=>(r.CellX,r.CellY)).ToArray();int mixed=0;
                 foreach(var group in groups)
                 {
-                    ulong mask=0;foreach(var species in group){Check((mask&species.AllowedMask)==0,"Each planting cell belongs to exactly one species batch");mask|=species.AllowedMask;}
+                    ForestPlantingMask mask=default;foreach(var species in group){Check(!mask.Intersects(species.AllowedMask),"Each planting cell belongs to exactly one species batch");mask.Union(species.AllowedMask);}
                     if(group.Select(r=>r.Tree.Variant).Distinct().Count()>1)mixed++;
                 }
                 Check(mixed>groups.Length*.8,"Suitable rainforest species mix within planting blocks rather than rectangular monocultures");
                 foreach(var block in page.Roots)
                 {
-                    Check(block.Population==-64&&block.AllowedMask!=0,"Fixed candidate block, never a statistical population");
-                    for(int cy=0;cy<8;cy++)for(int cx=0;cx<8;cx++)
+                    Check(block.Population==-LocalScatter.ForestStandTreeCount&&!block.AllowedMask.Empty,"Fixed candidate block, never a statistical population");
+                    for(int cy=0;cy<LocalScatter.ForestPlantingSide;cy++)for(int cx=0;cx<LocalScatter.ForestPlantingSide;cx++)
                     {
                         int gx=block.CellX+cx,gy=block.CellY+cy;uint h=LocalScatter.PlantingHash(key.Face,gx,gy,recipe.Seed);
-                        LocalScatter.PlantingOffset(h,out float ox,out float oy);float u=(cx+ox)/8,v=(cy+oy)/8;
+                        LocalScatter.PlantingOffset(h,out float ox,out float oy);float u=(cx+ox)/LocalScatter.ForestPlantingSide,v=(cy+oy)/LocalScatter.ForestPlantingSide;
                         float probability=(block.P00+(block.P10-block.P00)*u)*(1-v)+(block.P01+(block.P11-block.P01)*u)*v;
-                        bool admitted=(block.AllowedMask&(1UL<<(cy*8+cx)))!=0&&LocalScatter.PlantingUnit(h^0x27d4eb2du)<probability;
+                        bool admitted=block.AllowedMask.Contains(cy*LocalScatter.ForestPlantingSide+cx)&&LocalScatter.PlantingUnit(h^0x27d4eb2du)<probability;
                         int x=gx-key.X*LocalScatter.TreeCandidateSide,y=gy-key.Y*LocalScatter.TreeCandidateSide;
                         bool actual=independent.TryTreeCandidate(key,x,y,candidatePatch,out var tree);
                         Check((actual&&tree.Variant==block.Tree.Variant)==admitted,"GPU species masks and interactive CPU predicate select the same trees");

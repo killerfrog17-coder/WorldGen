@@ -8,7 +8,7 @@ namespace WorldGen.Presentation
     /// Core/Presentation assemblies; coverage requests explicitly use their coarse hierarchy.</summary>
     public static class TerrainMeshWire
     {
-        public const int Version=13;
+        public const int Version=14;
         [ThreadStatic] static byte[]? scratch;
         static byte[] Scratch=>scratch??(scratch=new byte[65536]);
         static void ArrayOut(BinaryWriter writer,Array data)
@@ -97,13 +97,13 @@ namespace WorldGen.Presentation
         {
             var trees=new ScatterInstance[page.Roots.Length];for(int i=0;i<trees.Length;i++)trees[i]=page.Roots[i].Tree;
             WriteScatter(w,new ScatterPatch{Instances=trees});w.Write(page.Probes);
-            foreach(var p in page.Roots){w.Write(p.CellX);w.Write(p.CellY);w.Write(p.CrownScale);w.Write(p.CanopyTreeCount);w.Write(p.Population);w.Write(p.P00);w.Write(p.P10);w.Write(p.P01);w.Write(p.P11);w.Write(p.AllowedMask);}w.Flush();
+            foreach(var p in page.Roots){w.Write(p.CellX);w.Write(p.CellY);w.Write(p.CrownScale);w.Write(p.CanopyTreeCount);w.Write(p.Population);w.Write(p.P00);w.Write(p.P10);w.Write(p.P01);w.Write(p.P11);w.Write(p.AllowedMask.A);w.Write(p.AllowedMask.B);w.Write(p.AllowedMask.C);w.Write(p.AllowedMask.D);}w.Flush();
         }
         public static ForestPage ReadForest(BinaryReader r,ForestPageKey key)
         {
             var trees=ReadScatter(r,default).Instances;if(trees.Length>LocalScatter.ForestPageSide*LocalScatter.ForestPageSide)throw new InvalidDataException("Oversized forest page");
             var page=new ForestPage{Key=key,Probes=r.ReadInt32(),Roots=new ForestRepresentative[trees.Length]};
-            for(int i=0;i<trees.Length;i++)page.Roots[i]=new ForestRepresentative{Tree=trees[i],CellX=r.ReadInt32(),CellY=r.ReadInt32(),CrownScale=r.ReadDouble(),CanopyTreeCount=r.ReadDouble(),Population=r.ReadInt32(),P00=r.ReadSingle(),P10=r.ReadSingle(),P01=r.ReadSingle(),P11=r.ReadSingle(),AllowedMask=r.ReadUInt64()};return page;
+            for(int i=0;i<trees.Length;i++)page.Roots[i]=new ForestRepresentative{Tree=trees[i],CellX=r.ReadInt32(),CellY=r.ReadInt32(),CrownScale=r.ReadDouble(),CanopyTreeCount=r.ReadDouble(),Population=r.ReadInt32(),P00=r.ReadSingle(),P10=r.ReadSingle(),P01=r.ReadSingle(),P11=r.ReadSingle(),AllowedMask=new ForestPlantingMask{A=r.ReadUInt64(),B=r.ReadUInt64(),C=r.ReadUInt64(),D=r.ReadUInt64()}};return page;
         }
     }
 }

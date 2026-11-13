@@ -17,6 +17,16 @@ namespace WorldGen.Core
         public ForestPageKey Parent=>new ForestPageKey(Face,X>>1,Y>>1,Level+1);
         public override string ToString()=>$"{Face}/{X}/{Y}/L{Level}";
     }
+    // Compact per-species membership for one 16x16 planting support block.
+    public struct ForestPlantingMask
+    {
+        public ulong A,B,C,D;
+        public bool Empty=>(A|B|C|D)==0;
+        public bool Contains(int child)=>((child<64?A:child<128?B:child<192?C:D)&(1UL<<(child&63)))!=0;
+        public void Add(int child){ulong bit=1UL<<(child&63);if(child<64)A|=bit;else if(child<128)B|=bit;else if(child<192)C|=bit;else D|=bit;}
+        public bool Intersects(ForestPlantingMask b)=>((A&b.A)|(B&b.B)|(C&b.C)|(D&b.D))!=0;
+        public void Union(ForestPlantingMask b){A|=b.A;B|=b.B;C|=b.C;D|=b.D;}
+    }
     public struct ForestRepresentative
     {
         public ScatterInstance Tree;
@@ -25,10 +35,10 @@ namespace WorldGen.Core
         // Expected potential trees in a coarse packet, not a tracked population.
         public double CanopyTreeCount;
         public int Population;
-        // A fixed 8x8 candidate block. Corner probabilities are shared by the
+        // A fixed 16x16 candidate block. Corner probabilities are shared by the
         // CPU interaction predicate and GPU expansion, not estimated trees.
         public float P00,P10,P01,P11;
-        public ulong AllowedMask;
+        public ForestPlantingMask AllowedMask;
     }
     public sealed class ForestPage
     {
@@ -39,14 +49,12 @@ namespace WorldGen.Core
     public sealed partial class LocalScatter
     {
         public const int ForestPageSide=128;
-        public const int ForestPlantingSide=8;
-        public const int ForestStandTreeCount=64;
+        public const int ForestPlantingSide=16;
+        public const int ForestStandTreeCount=256;
         // One coarse anchor expands its prepared tree billboards on the GPU;
         // it does not retain a duplicate hidden fallback record.
         public const int MaximumForestRepresentationsPerAnchor=1;
-        // A physical block now has several disjoint species batches.
-        // Keep the six-kilometre forest complete in species-rich habitats.
-        public const int MaximumForestRoots=4194304;
+        public const int MaximumForestRoots=1048576;
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
@@ -75,7 +83,7 @@ namespace WorldGen.Core
         {
             if(range<0||range>500000||double.IsNaN(range)||maximumPages<16)throw new ArgumentOutOfRangeException();
             // Pages only schedule work. They never select another population or
-            // coarser planting rule. A GPU block represents the same 64 cells
+            // coarser planting rule. A GPU block represents the same 256 cells
             // whether the player is standing in it or flying kilometres away.
             int top=0;while((long)ForestPageSide*(1L<<top)<TreeLatticeCount)top++;
             var result=new List<ForestPageKey>();
@@ -108,10 +116,10 @@ namespace WorldGen.Core
             {
                 token.ThrowIfCancellationRequested();probes++;
                 var block=PlantingBlock(key.Face,x,y,patch);
-                if(block==null||block.Mask==0||Math.Max(Math.Max(block.P00,block.P10),Math.Max(block.P01,block.P11))<=0)continue;
+                if(block==null||block.Mask.Empty||Math.Max(Math.Max(block.P00,block.P10),Math.Max(block.P01,block.P11))<=0)continue;
                 for(int species=0;species<block.Trees.Length;species++)
                 {
-                    if(block.SpeciesMasks[species]==0)continue;
+                    if(block.SpeciesMasks[species].Empty)continue;
                     var tree=block.Trees[species];
                     roots.Add(new ForestRepresentative{Tree=tree,CellX=x,CellY=y,Population=-ForestStandTreeCount,
                     CanopyTreeCount=ForestStandTreeCount,CrownScale=1,P00=block.P00,P10=block.P10,P01=block.P01,P11=block.P11,AllowedMask=block.SpeciesMasks[species]});
