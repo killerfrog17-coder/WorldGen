@@ -22,7 +22,6 @@ public sealed partial class LocalTerrainExplorer
     float originalShadowDistance,publishedShadowDistance,originalShadowBorder,publishedShadowBorder;
     int originalShadowResolution,publishedShadowResolution,originalShadowCascades,publishedShadowCascades;
     Vector3 originalShadowSplits,publishedShadowSplits;int foliageShadowRevision=-1;
-    double nextSolarCasterRefresh;
     readonly Vector3[] shadowFrustumCorners=new Vector3[4];
     Vector3 shadowAxisX,shadowAxisY,shadowAxisZ,shadowReceiverMin,shadowReceiverMax;
     public int TreeShadowObjects {get;private set;}
@@ -67,11 +66,8 @@ public sealed partial class LocalTerrainExplorer
         if(pipeline!=null&&pipeline.shadowDistance!=range)
         {
             pipeline.shadowDistance=range;publishedShadowDistance=range;
-            // Smooth cascade range must not trigger a full vegetation rebuild
-            // every frame while the sun is rising/setting. Moving-camera and
-            // setting changes still refresh immediately through existing paths.
-            if(Time.realtimeSinceStartupAsDouble>=nextSolarCasterRefresh)
-            {scatterDirty=true;nextSolarCasterRefresh=Time.realtimeSinceStartupAsDouble+1;}
+            // Caster selection uses conservative budget buckets in
+            // ScatterShadowStamp; smooth range updates need no timed rebuild.
         }
         if(pipeline!=null)
         {

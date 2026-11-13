@@ -39,7 +39,12 @@ static class SunShadowBudgetTests
         {
             double reach=VegetationShadowBudget.Reach(range,top,sun);
             Check(double.IsFinite(reach)&&reach>=0&&reach<=VegetationShadowBudget.CasterLimit(range),"Grazing/below-horizon light and high hills never admit an unlimited forest");
+            double cached=VegetationShadowBudget.ReachWithSlope(VegetationShadowBudget.CullDistance(range),top,VegetationShadowBudget.CullSlope(sun));
+            Check(cached>=reach-1e-9,"A retained shadow budget cannot discard a caster admitted by current sunlight");
         }
+        foreach(double range in new[]{60d,60.001,61,63.999,64,179.99,180})
+            Check(VegetationShadowBudget.CullDistance(range)>=range&&VegetationShadowBudget.CullDistance(range)-range<4,"Caster range buckets only expand the current required range");
+        Check(VegetationShadowBudget.CullSlope(.8)==VegetationShadowBudget.CullSlope(.79),"Small sunlight changes reuse a valid conservative slope bucket");
         double y=Math.Sin(Math.PI/180),oldRadius=180*Math.Sqrt(1+Math.Pow(Math.Tan(34*Math.PI/180),2)*(1+Math.Pow(16d/9,2)))+8;
         double oldReach=oldRadius+(30+oldRadius)*Math.Sqrt(1-y*y)/y;
         Check(oldReach>19000&&VegetationShadowBudget.Reach(180,30,y)==256,"Reproduce and bound the old one-degree sun caster explosion");

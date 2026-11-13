@@ -159,12 +159,13 @@ public sealed partial class LocalTerrainExplorer
         }
         finally{WorldGenPerformance.TraceEnd(50,trace);}
     }
+    bool ScatterRefreshDue=>scatterDirty||ScatterViewChanged||WorldGenPerformance.Original&&!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1;
     void UpdateScatter()
     {
         if(scatter==null)return;
         TrackScatterTranslation();
         if(TerrainDiagnostics.HoldPlants)
-        {if(scatterDirty||ScatterViewChanged||Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();return;}
+        {if(ScatterRefreshDue)BuildScatterBatches();return;}
         // Ground at every LOD can arrive or change beneath already resident
         // vegetation. Reproject before this frame's draws, without a 250ms lag.
         if(scatterGroundRevision!=projectedGroundRevision)
@@ -209,7 +210,7 @@ public sealed partial class LocalTerrainExplorer
             {if(scatterChunks.TryGetValue(key,out var ready)&&(ready.TreesIncluded||!ScatterNeedsTrees(key))||HasScatterJob(key))continue;RequestScatter(key);break;}
         }
         if(!mapOpen&&!forestFirst){long t=WorldGenPerformance.TraceBegin();UpdateTreeImpostors();WorldGenPerformance.TraceEnd(10,t);t=WorldGenPerformance.TraceBegin();UpdateForestFields();WorldGenPerformance.TraceEnd(12,t);}
-        if(scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&Time.realtimeSinceStartupAsDouble-lastBatchTime>1)BuildScatterBatches();
+        if(ScatterRefreshDue)BuildScatterBatches();
     }
     bool HasScatterJob(ScatterKey key){if(installingScatter!=null&&installingScatterKey.Equals(key))return true;foreach(var job in scatterJobs)if(job.Key.Equals(key))return true;return false;}
     void InvalidateInstallingScatterGround()
@@ -772,7 +773,7 @@ public sealed partial class LocalTerrainExplorer
     }
     readonly HashSet<ulong> scatterNaturalRemovals=new HashSet<ulong>();
     void QueueNaturalScatterRemoval(ulong id)
-    {if(WorldGenPerformance.Original){scatterDirty=true;return;}scatterNaturalRemovals.Add(id);}
+    {scatterDirty=true;if(WorldGenPerformance.Original)return;scatterNaturalRemovals.Add(id);}
     void ApplyNaturalScatterRemovals()
     {
         if(scatterNaturalRemovals.Count==0)return;

@@ -9,6 +9,11 @@ namespace WorldGen.Presentation
         public static double CasterLimit(double receiverDistance)=>Math.Max(0,receiverDistance)+76;
         public static double Slope(double lightUp)
         {double y=Math.Max(.001,Math.Min(1,lightUp));return Math.Sqrt(Math.Max(0,1-y*y))/y;}
+        // Upper bounds remain valid until their bucket changes. Lighting and
+        // rendered shadow distance still follow the actual sun continuously.
+        public static double CullDistance(double receiverDistance)=>Math.Ceiling(Math.Max(0,receiverDistance)/4)*4;
+        public static double CullSlope(double lightUp)
+        {double slope=Slope(lightUp);return slope<=0?0:Math.Pow(2,Math.Ceiling(Math.Log(Math.Max(.125,slope),2)));}
         public static double Reach(double receiverDistance,double topAboveEye,double lightUp)
             =>ReachWithSlope(receiverDistance,topAboveEye,Slope(lightUp));
         public static double ReachWithSlope(double receiverDistance,double topAboveEye,double slope)

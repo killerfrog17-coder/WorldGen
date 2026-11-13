@@ -73,7 +73,7 @@ public sealed partial class LocalTerrainExplorer
         if(!InitialViewReady)return;
         if(!WorldGenPerformance.SeparateStreamingAndScatter||scatter==null)return;
         double now=Time.realtimeSinceStartupAsDouble;
-        bool rebuilding=scatterDirty||ScatterViewChanged||!WorldGenPerformance.SuppressIdleScatter&&now-lastBatchTime>1;
+        bool rebuilding=ScatterRefreshDue;
         if(rebuilding&&now-lastStreamingOpportunity<.1)reserveScatterFrame=true;
         else lastStreamingOpportunity=now;
     }

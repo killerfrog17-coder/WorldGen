@@ -74,9 +74,19 @@ public sealed partial class LocalTerrainExplorer
     public int ScatterTerrainRejected {get;private set;}
     public int ScatterShadowOnly {get;private set;}
     public int GrassPagesOccluded {get;private set;}
+    int ScatterShadowStamp
+    {
+        get
+        {
+            if(!TerrainVideoOptions.VegetationShadows||localSun==null||localSun.intensity<=0||localSun.shadows==LightShadows.None)return 0;
+            double distance=foliageShadowPipeline==null?50:foliageShadowPipeline.shadowDistance;
+            if(distance<=0)return 0;
+            return HashCode.Combine(VegetationShadowBudget.CullDistance(distance),VegetationShadowBudget.CullSlope((-localSun.transform.forward).y));
+        }
+    }
     int ScatterOptionsStamp=>HashCode.Combine(HashCode.Combine(TerrainVideoOptions.SpecialistPlants,TerrainVideoOptions.MidPlants,
         TerrainVideoOptions.GeneratedTrees,TerrainVideoOptions.MidPlantDetail,TerrainVideoOptions.TreeDetail,
-        TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),HashCode.Combine(TerrainVideoOptions.VegetationShadows,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors));
+        TerrainVideoOptions.VegetationRevision,TerrainVideoOptions.ScatterFrustum,TerrainVideoOptions.VegetationOcclusion),HashCode.Combine(TerrainVideoOptions.VegetationShadows,TerrainVideoOptions.TreeRebuild,TerrainVideoOptions.TreeImpostors),ScatterShadowStamp);
     bool ScatterViewChanged=>view!=null&&((view.transform.localPosition-scatterEye).sqrMagnitude>.25f||
         !scatterCachedAllHeadings&&Quaternion.Angle(view.transform.localRotation,scatterRotation)>Mathf.Max(1,scatterCachedGuardDegrees)||scatterCachedAllHeadings!=CurrentScatterAllHeadings||scatterCachedGuardDegrees!=CurrentScatterGuardDegrees||view.projectionMatrix!=scatterProjection||scatterOptions!=ScatterOptionsStamp);
     void PrepareScatterBounds(ScatterChunk chunk,LocalTerrainFrame preparedFrame=null)
@@ -229,9 +239,9 @@ public sealed partial class LocalTerrainExplorer
         // URP fades receiving shadows by radial world distance, not by the
         // diagonal of a far-clip rectangle. Never expand casters without bound
         // as sunlight approaches the horizon.
-        vegetationShadowDistance=distance;vegetationShadowRadius=distance+8;
+        vegetationShadowDistance=(float)VegetationShadowBudget.CullDistance(distance);vegetationShadowRadius=vegetationShadowDistance+8;
         vegetationShadowUp=(-localSun.transform.forward).y;
-        vegetationShadowSlope=VegetationShadowBudget.Slope(vegetationShadowUp);
+        vegetationShadowSlope=VegetationShadowBudget.CullSlope(vegetationShadowUp);
     }
     bool MayCastVisibleShadow(Bounds box,Vector3 eye)
     {
