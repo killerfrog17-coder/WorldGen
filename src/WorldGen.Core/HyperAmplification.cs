@@ -38,7 +38,6 @@ namespace WorldGen.Core
         public readonly FjordCoasts Fjords;
         readonly SmallWaterBodies smallWater,wetlandWater;
         public int CachedSmallWaterCandidates=>smallWater.CachedCandidates+wetlandWater.CachedCandidates;
-        public bool SmallWaterMayIntersect(V center,double radiusM)=>smallWater.MayIntersect(center,radiusM)||wetlandWater.MayIntersect(center,radiusM);
         public SmallLake[] SmallLakesNear(V center,double rangeM)
         {
             var probe=new Patch(this,Array.Empty<int>());var found=new Dictionary<ulong,SmallLake>();

@@ -280,6 +280,7 @@ namespace WorldGen.Core
             public int CandidateCount => sources.Length;
             public double MaximumForestCoverage {get;private set;}
             public LocalHydrology.Piece[] ChannelPieces(double spacingM=16)=>amplified?.RiverscapePieces(Center,HalfExtentM*owner.HorizontalScale)??water?.Pieces()??Array.Empty<LocalHydrology.Piece>();
+            public bool SmallWaterMayIntersect(V center,double radiusM)=>amplified?.SmallWaterMayIntersect(center,radiusM)??false;
             public RiverscapeSpan[] RiverSpans(double minimumWidthM=0)=>amplified?.RiverscapeSpans(Center,HalfExtentM*owner.HorizontalScale,minimumWidthM)??Array.Empty<RiverscapeSpan>();
             public SmallLake LocalLakeAt(ulong identity,V point)=>amplified?.LocalLakeAt(identity,point);
             internal LocalTerrainPatch(LocalTerrain owner, V center, double extent, LocalTerrainProfile[] sources, HeightTriangle[] triangles, int seed,HeightTriangle[] geography,bool dry,HyperAmplification.Patch amplified)

@@ -4,6 +4,8 @@ namespace WorldGen.Core
     {
         internal sealed partial class Patch
         {
+            public bool SmallWaterMayIntersect(V center,double radiusM)
+                =>owner.smallWater.MayIntersect(center,radiusM,smallWaterGround)||owner.wetlandWater.MayIntersect(center,radiusM,smallWaterGround);
             // Resolve only an already encountered local water body. No survey
             // of the surrounding map is needed to render a dry triangle corner
             // against that body's finite, continuous footprint.

@@ -197,16 +197,28 @@ namespace WorldGen.Core
             }
             return neighbours;
         }
-        // Conservative footprint query using the existing descriptor cache;
-        // it never surveys terrain or constructs a lake.
-        public bool MayIntersect(V position,double radiusM)
+        // Resolve a candidate once using the same survey/cache as At. Unknown
+        // descriptors are not water bodies and must not trigger thousands of
+        // unrelated per-tree terrain queries over dry ground.
+        SmallLake Resolve(Candidate candidate,Func<V,SmallWaterGround> ground)
+        {
+            var key=candidate.Key;SmallLake lake;bool found;lock(gate)found=cache.TryGetValue(key,out lake);
+            if(found)return lake;
+            lake=Survey(candidate.Center,candidate.Hash,candidate.Radius,candidate.Complex,ground);
+            lock(gate)
+            {
+                if(cache.TryGetValue(key,out var previous))return previous;
+                if(order.Count>=4096)cache.Remove(order.Dequeue());cache.Add(key,lake);order.Enqueue(key);
+            }
+            return lake;
+        }
+        public bool MayIntersect(V position,double radiusM,Func<V,SmallWaterGround> ground)
         {
             foreach(var candidate in Neighbours(position))
             {
-                lock(gate)if(cache.TryGetValue(candidate.Key,out var known)&&known==null)continue;
                 double limit=Math.Sqrt(candidate.Support2)+radiusM;
                 V delta=(position-candidate.Center)*planetRadius;
-                if(V.Dot(delta,delta)<=limit*limit)return true;
+                if(V.Dot(delta,delta)<=limit*limit&&Resolve(candidate,ground)!=null)return true;
             }
             return false;
         }
@@ -218,16 +230,7 @@ namespace WorldGen.Core
             {
                 double dx=(position.X-candidate.Center.X)*planetRadius,dy=(position.Y-candidate.Center.Y)*planetRadius,dz=(position.Z-candidate.Center.Z)*planetRadius;
                 if(dx*dx+dy*dy+dz*dz>candidate.Support2)continue;
-                var key=candidate.Key;SmallLake lake;bool found;lock(gate)found=cache.TryGetValue(key,out lake);
-                if(!found)
-                {
-                    lake=Survey(candidate.Center,candidate.Hash,candidate.Radius,candidate.Complex,ground);
-                    lock(gate)
-                    {
-                        if(cache.TryGetValue(key,out var previous))lake=previous;
-                        else{if(order.Count>=4096)cache.Remove(order.Dequeue());cache.Add(key,lake);order.Enqueue(key);}
-                    }
-                }
+                var lake=Resolve(candidate,ground);
                 if(lake==null)continue;double r=lake.NormalizedRadius(position,planetRadius);
                 if(r<1.4&&(r<nearest||r==nearest&&lake.Id<best.Id)){best=lake;nearest=r;}
             }

@@ -208,7 +208,7 @@ namespace WorldGen.Core
                         double limit=margin+Math.Max(span.WidthA,span.WidthB)*1.5;
                         V nearest=(delta-along*t)*physical;if(V.Dot(nearest,nearest)<=limit*limit){water=true;break;}
                     }
-                    if(!water&&terrain.Amplification!=null)water=terrain.Amplification.SmallWaterMayIntersect(center,margin);
+                    if(!water&&terrain.Amplification!=null)water=patch.SmallWaterMayIntersect(center,margin);
                     double step=TreeHabitatStep*TreeLatticeStep;
                     for(int y=0;y<ForestPlantingSide;y++)for(int x=0;x<ForestPlantingSide;x++)
                     {

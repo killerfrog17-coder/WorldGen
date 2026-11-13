@@ -103,6 +103,14 @@ static class WetlandComplexTests
         var excluded=new SmallWaterBodies(seed,radius,complexRegion:p=>true);
         var probe=all[0].Center;
         Check(excluded.At(probe,p=>new SmallWaterGround(100,0,LocalWaterKind.None,default))==null,"Dry region cannot acquire a wetland complex");
+        var dryFootprint=new SmallWaterBodies(seed,radius,complexRegion:p=>true);int drySurveys=0;
+        SmallWaterGround DrySurvey(V p){drySurveys++;return new SmallWaterGround(100,0,LocalWaterKind.None,default);}
+        Check(!dryFootprint.MayIntersect(probe,48,DrySurvey)&&drySurveys>0,"Unsurveyed pond candidates resolve to dry ground, not a water footprint");
+        int surveyed=drySurveys;
+        Check(!dryFootprint.MayIntersect(probe,48,DrySurvey)&&drySurveys==surveyed,"Repeated dry footprint queries reuse negative surveys");
+        var wetFootprint=new SmallWaterBodies(seed,radius,complexRegion:p=>true);
+        Check(wetFootprint.MayIntersect(probe,48,Flat),"Actual pond footprint remains discoverable before a point query");
+        Check(wetFootprint.At(probe,Flat)?.Id==all[0].Id,"Footprint visitation cannot change the actual pond identity");
         var slope=new SmallWaterBodies(seed,radius,complexRegion:p=>true);
         Check(slope.At(probe,p=>new SmallWaterGround(100+(p.Y-probe.Y)*radius*.2,0,LocalWaterKind.None,wet))==null,"A steep slope cannot acquire a floating independent wetland plane");
         int shoreWet=0,shoreDry=0;
