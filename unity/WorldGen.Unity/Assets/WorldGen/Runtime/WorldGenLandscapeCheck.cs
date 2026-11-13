@@ -1006,9 +1006,14 @@ public sealed partial class LocalTerrainExplorer
             CoverWeights=Enumerable.Range(0,9).Select(f=>sample.Cover.Weight(f)).ToArray()}));
         // Exercise the real asynchronous command only after all scene evidence
         // is recorded, so its teleport cannot contaminate the reviewed cameras.
+        float ForestOverviewAltitude()
+        {
+            int index=Array.IndexOf(arguments,"--worldgen-forest-overlook-height");
+            return index>=0&&index+1<arguments.Length?Mathf.Clamp(float.Parse(arguments[index+1],System.Globalization.CultureInfo.InvariantCulture),100,3000):500;
+        }
         if(arguments.Contains("--worldgen-forest-overlook-check"))
         {
-            owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+500;owner.heading=90;owner.pitch=12;
+            owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+ForestOverviewAltitude();owner.heading=90;owner.pitch=12;
             owner.landscapeReviewCamera=null;owner.UpdateCamera();owner.RefreshWanted();
             for(int phase=0;phase<2;phase++)
             {
@@ -1028,7 +1033,7 @@ public sealed partial class LocalTerrainExplorer
             owner.landscapeReviewCamera=null;owner.view.targetTexture=null;owner.view.enabled=true;
             Destroy(owner.GetComponent<WorldGenLandscapePresenter>());target.Release();Destroy(target);
             if(arguments.Contains("--worldgen-forest-overlook-check"))
-            {owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+500;owner.heading=90;owner.pitch=12;}
+            {owner.motion.Flying=true;owner.motion.Y=owner.Ground(owner.motion.X,owner.motion.Z)+ForestOverviewAltitude();owner.heading=90;owner.pitch=12;}
             owner.RefreshWanted();owner.UpdateCamera();if(Application.isFocused)owner.CaptureMouse();
             File.WriteAllText(Path.Combine(output,"interactive-ready.txt"),"Actual spectator controls active. No performance measurement. Close this review normally before rebuilding its slot.");
             while(owner!=null)yield return null;

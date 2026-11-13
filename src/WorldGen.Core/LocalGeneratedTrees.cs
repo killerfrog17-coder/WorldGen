@@ -35,7 +35,9 @@ namespace WorldGen.Core
             lock(treeHabitatGate)if(treeHabitat.TryGetValue(key,out cached))return cached;
             int count=TreeLatticeCount;
             var point=ForestPosition(face,Math.Min(count,x*TreeHabitatStep),Math.Min(count,y*TreeHabitatStep));
-            var node=new TreeHabitatNodeData{Sample=patch.Sample(point),Position=point};
+            // Habitat inputs have a fixed physical footprint. Do not evaluate
+            // sub-metre terrain detail for a shared ~32m planting-map node.
+            var node=new TreeHabitatNodeData{Sample=patch.SampleMap(point,TreeHabitatStep*TreeLatticeStep),Position=point};
             node.Probability=PlantingProbability(node.Sample,point);
             lock(treeHabitatGate)
             {

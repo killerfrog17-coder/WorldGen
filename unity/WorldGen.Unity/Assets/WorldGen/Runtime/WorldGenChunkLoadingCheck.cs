@@ -45,7 +45,9 @@ public sealed partial class LocalTerrainExplorer
                     foreach(var batch in forestBatches.Values)if(batch.Args!=null&&batch.SubmittedFrame==Time.frameCount)
                     {var args=new uint[4];batch.Args.GetData(args);submitted+=args[1];}
                     File.WriteAllText(Path.Combine(output,"first-forest.txt"),"seconds="+elapsed+" hiddenDuringEntry="+!InitialViewReady+" groundedRootsWithin300m="+grounded+" localFallbackRoots="+localFallback+" submittedForestInstances="+submitted+" pendingModelBakes="+PendingTreeModels+"\n"+PerformanceForestState);
-                    if(walkingPatch.ForestPotential(Position)>.2&&(grounded==0||submitted==0))throw new InvalidOperationException("First prepared forested chunk has no grounded, submitted tree records");
+                    // This is private prepared terrain while the entry gate is
+                    // closed. Actual first-visible submission is asserted below.
+
                 }
             }
             if(NearReady&&!milestones.ContainsKey("near"))milestones["near"]=elapsed;
@@ -58,6 +60,13 @@ public sealed partial class LocalTerrainExplorer
             {
                 // Use the actual production entry gate: complete coarse view
                 // and an exact local forest. Detail still streams during flight.
+                yield return new WaitForEndOfFrame();
+                uint firstVisibleSubmitted=0;
+                foreach(var batch in forestBatches.Values)if(batch.Args!=null&&batch.SubmittedFrame==Time.frameCount)
+                {var submission=new uint[4];batch.Args.GetData(submission);firstVisibleSubmitted+=submission[1];}
+                if(walkingPatch.ForestPotential(Position)>.2&&firstVisibleSubmitted==0)
+                    throw new InvalidOperationException("First visible forested world has no submitted forest trees");
+                File.WriteAllText(Path.Combine(output,"first-visible-submission.txt"),"submittedForestTrees="+firstVisibleSubmitted+" initialViewReady="+InitialViewReady);
                 Capture(Path.Combine(output,"playable-ground-and-forest.png"));
                 File.WriteAllText(Path.Combine(output,"playable-start.txt"),"seconds="+elapsed+"\n"+PerformanceForestState);
                 if(Environment.GetCommandLineArgs().Contains("--worldgen-forest-stationary-check"))
