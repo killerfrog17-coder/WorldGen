@@ -247,6 +247,40 @@ public sealed partial class LocalTerrainExplorer
             else if(changed==0)throw new Exception("Expanded group/reference has no visible pixels: "+fixture.Name);
         }
         reference.SetActive(false);ground.SetActive(false);Destroy(standImage);Destroy(reference);Destroy(referenceMesh);Destroy(referenceMaterial);Destroy(ground);Destroy(groundMesh);Destroy(groundMaterial);
+        // Compare actual GPU-expanded placement with an ordinary root at the
+        // CPU position. This catches a mismatched packet span, not just hashes.
+        camera.transform.position=new Vector3(10,12,-45);camera.transform.LookAt(new Vector3(-2,3,-2));
+        planes=GeometryUtility.CalculateFrustumPlanes(camera);for(int i=0;i<6;i++)planeVectors[i]=new Vector4(planes[i].normal.x,planes[i].normal.y,planes[i].normal.z,planes[i].distance);
+        compute.SetVectorArray("_Planes",planeVectors);compute.SetVector("_Eye",camera.transform.position);compute.SetVector("_Ranges",new Vector4(0,1,10000,15));compute.SetInt("_ForestSeed",731);
+        props.SetVector("_ForestRange",new Vector4(0,1,0,0));material.DisableKeyword("WORLDGEN_TREE_EFFICIENT");
+        args.SetData(new[]{new GraphicsBuffer.IndirectDrawArgs{vertexCountPerInstance=6}});props.SetVector("_ForestChart",new Vector4(0,0,0,1));props.SetInt("_ForestSeed",731);
+        var canonical=new ForestRoot{Position=new Vector3(-10,-.045f,-10),Width=19.8f,Height=12,Padding=40,Tint=Vector3.one,Face=4u|8u|32u,CellX=32752,CellY=32752};
+        var singleMask=new ForestPlantingMask();singleMask.Add(255);
+        groundGrid.SetData(new[]{new ForestGroundGrid{C=new Vector4(0,511,511,0),D=Vector4.one,E=ForestMaskVector(singleMask.A),F=ForestMaskVector(singleMask.B),G=ForestMaskVector(singleMask.C),H=ForestMaskVector(singleMask.D)}});
+        // The previous fixture texture was destroyed; use this local readback.
+        standImage=new Texture2D(1280,720,TextureFormat.RGB24,false);
+        yield return null;camera.Render();var placementBackground=ReadStandImage();
+        roots.SetData(new[]{canonical});props.SetFloat("_ForestMacro",2);props.SetFloat("_ForestCanonical",1);
+        if(Count()!=1)throw new Exception("Canonical last-cell placement fixture missing");
+        var placementParams=new RenderParams(material){camera=camera,layer=30,worldBounds=new Bounds(Vector3.zero,Vector3.one*200),matProps=props,shadowCastingMode=ShadowCastingMode.Off};
+        Graphics.RenderPrimitivesIndirect(in placementParams,MeshTopology.Triangles,args,1);camera.Render();var gpuPlacement=ReadStandImage();
+        File.WriteAllBytes(Path.Combine(output,"canonical-last-cell-gpu.png"),standImage.EncodeToPNG());
+        uint placementHash=LocalScatter.PlantingHash(4,32767,32767,731);LocalScatter.PlantingOffset(placementHash,out float jx,out float jz);
+        LocalScatter.PlantingDimensions(placementHash,prototype.Code,out float hs,out float ws,out float rotation,out float tint);
+        var exact=new ForestRoot{Position=new Vector3(((32767+jx)*2/65536-1)*40960,-.045f,((32767+jz)*2/65536-1)*40960),Width=3*ws,Height=12*hs,Yaw=rotation,Tint=Vector3.one*tint};
+        yield return null;roots.SetData(new[]{exact});props.SetFloat("_ForestMacro",0);props.SetFloat("_ForestCanonical",0);
+        if(Count()!=1)throw new Exception("Exact CPU-position fixture missing");
+        Graphics.RenderPrimitivesIndirect(in placementParams,MeshTopology.Triangles,args,1);camera.Render();var cpuPlacement=ReadStandImage();
+        File.WriteAllBytes(Path.Combine(output,"canonical-last-cell-cpu-reference.png"),standImage.EncodeToPNG());
+        Vector2 PlacementCenter(Color32[] pixels)
+        {
+            double xsum=0,ysum=0;int found=0;
+            for(int y=0;y<720;y++)for(int x=0;x<1280;x++){int i=y*1280+x;var a=pixels[i];var b=placementBackground[i];if(Math.Abs(a.r-b.r)+Math.Abs(a.g-b.g)+Math.Abs(a.b-b.b)>30){xsum+=x;ysum+=y;found++;}}
+            if(found<10)throw new Exception("Placement reference has no visible tree");return new Vector2((float)(xsum/found),(float)(ysum/found));
+        }
+        float placementError=Vector2.Distance(PlacementCenter(gpuPlacement),PlacementCenter(cpuPlacement));
+        if(placementError>2)throw new Exception("Rendered GPU tree differs from CPU position by "+placementError+"px");
+        report+="Canonical 16x16 last-cell GPU/CPU rendered centroid difference "+placementError+"px\n";Destroy(standImage);
         roots.Dispose();groundGrid.Dispose();visible.Dispose();args.Dispose();flags.Dispose();hash.Dispose();birth.Dispose();File.WriteAllText(Path.Combine(output,"PASS.txt"),SystemInfo.graphicsDeviceName+"\n"+report);Debug.Log("PACKAGED FOREST SHADER PASS "+report);Application.Quit(0);
     }
 }

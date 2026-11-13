@@ -92,7 +92,7 @@ Shader "WorldGen/ForestPackets"
             }
             float2 ForestPacketPosition(Root root,float2 q)
             {
-                uint side=(root.face&32u)!=0?8u:min(4u<<(root.field>>16),_ForestLatticeCount);
+                uint side=(root.face&32u)!=0?16u:min(4u<<(root.field>>16),_ForestLatticeCount);
                 float2 left=float2(root.cellX,root.cellY),span=min((float)side,(float)_ForestLatticeCount-left);
                 float2 cube=(left+q*span)*(2./_ForestLatticeCount)-1;
                 float3 normal,east,north;ForestFaceBasis(root.face&7u,normal,east,north);

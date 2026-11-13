@@ -197,8 +197,10 @@ namespace WorldGen.Core
                     // not a water footprint and must not trigger 64 full terrain
                     // queries for every dry block. Existing finite river spans
                     // and pond descriptors conservatively select actual banks.
-                    double margin=TreeLatticeStep*ForestPlantingSide*1.5,physical=terrain.RadiusM*scale;
-                    bool NearLevel(LocalTerrainSample v)=>v.Underwater||v.WaterKind!=LocalWaterKind.None&&!double.IsNaN(v.WaterSurfaceM)&&Math.Abs(v.ElevationM-v.WaterSurfaceM)<margin*2;
+                    double margin=TreeLatticeStep*ForestPlantingSide*.75,physical=terrain.RadiusM*scale;
+                    // Map-level river surfaces can follow whole catchments. Only
+                    // finite river spans below identify the actual channel.
+                    bool NearLevel(LocalTerrainSample v)=>v.WaterKind!=LocalWaterKind.River&&(v.Underwater||v.WaterKind!=LocalWaterKind.None&&!double.IsNaN(v.WaterSurfaceM)&&Math.Abs(v.ElevationM-v.WaterSurfaceM)<margin*2);
                     bool water=NearLevel(a.Sample)||NearLevel(b.Sample)||NearLevel(c.Sample)||NearLevel(d.Sample);
                     if(!water)foreach(var span in patch.RiverSpans())
                     {
