@@ -45,7 +45,14 @@ static class ForestPlacementTests
                 var pageKey=new ForestPageKey(key.Face,key.X*pagesPerChunk+px,key.Y*pagesPerChunk+py,0);
                 var timer=System.Diagnostics.Stopwatch.StartNew();var page=independent.BuildForest(pageKey);timer.Stop();
                 Console.WriteLine($"Fixed planting page: {page.Roots.Length} blocks / {page.Probes} probes in {timer.Elapsed.TotalMilliseconds:F2}ms");
-                Check(page.Probes<=256&&page.Roots.Length<=256,"One bounded recipe per 64 candidates");
+                Check(page.Probes<=256&&page.Roots.Length<=256*terrain.FloraRegion(0).Trees.Length,"Bounded species batches per planting block");
+                var groups=page.Roots.GroupBy(r=>(r.CellX,r.CellY)).ToArray();int mixed=0;
+                foreach(var group in groups)
+                {
+                    ulong mask=0;foreach(var species in group){Check((mask&species.AllowedMask)==0,"Each planting cell belongs to exactly one species batch");mask|=species.AllowedMask;}
+                    if(group.Select(r=>r.Tree.Variant).Distinct().Count()>1)mixed++;
+                }
+                Check(mixed>groups.Length*.8,"Suitable rainforest species mix within planting blocks rather than rectangular monocultures");
                 foreach(var block in page.Roots)
                 {
                     Check(block.Population==-64&&block.AllowedMask!=0,"Fixed candidate block, never a statistical population");
@@ -57,8 +64,8 @@ static class ForestPlacementTests
                         bool admitted=(block.AllowedMask&(1UL<<(cy*8+cx)))!=0&&LocalScatter.PlantingUnit(h^0x27d4eb2du)<probability;
                         int x=gx-key.X*LocalScatter.TreeCandidateSide,y=gy-key.Y*LocalScatter.TreeCandidateSide;
                         bool actual=independent.TryTreeCandidate(key,x,y,candidatePatch,out var tree);
-                        Check(actual==admitted,"GPU recipe and interactive CPU predicate admit the same cells");
-                        if(!actual)continue;
+                        Check((actual&&tree.Variant==block.Tree.Variant)==admitted,"GPU species masks and interactive CPU predicate select the same trees");
+                        if(!admitted)continue;
                         LocalScatter.PlantingDimensions(h,block.Tree.Variant,out float height,out float width,out float yaw,out float tint);
                         Check(tree.Position.Equals(scatter.ForestPosition(key.Face,gx+ox,gy+oy))&&tree.Variant==block.Tree.Variant&&
                             tree.HeightM==block.Tree.HeightM*height&&tree.WidthM==block.Tree.WidthM*width&&tree.Color.Equals(new V(tint,tint,tint))&&tree.YawDegrees==yaw*180/Math.PI,

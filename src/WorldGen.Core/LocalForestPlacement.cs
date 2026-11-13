@@ -44,7 +44,9 @@ namespace WorldGen.Core
         // One coarse anchor expands its prepared tree billboards on the GPU;
         // it does not retain a duplicate hidden fallback record.
         public const int MaximumForestRepresentationsPerAnchor=1;
-        public const int MaximumForestRoots=1048576;
+        // A physical block now has several disjoint species batches.
+        // Keep the six-kilometre forest complete in species-rich habitats.
+        public const int MaximumForestRoots=4194304;
         public const double ForestIdentityDistanceM=2000;
         public int TreeLatticeCount=>checked(Divisions(false)*TreeCandidateSide);
         public double TreeLatticeStep=>2*terrain.RadiusM*scale/TreeLatticeCount;
@@ -107,9 +109,13 @@ namespace WorldGen.Core
                 token.ThrowIfCancellationRequested();probes++;
                 var block=PlantingBlock(key.Face,x,y,patch);
                 if(block==null||block.Mask==0||Math.Max(Math.Max(block.P00,block.P10),Math.Max(block.P01,block.P11))<=0)continue;
-                var tree=block.Tree;
-                roots.Add(new ForestRepresentative{Tree=tree,CellX=x,CellY=y,Population=-ForestStandTreeCount,
-                    CanopyTreeCount=ForestStandTreeCount,CrownScale=1,P00=block.P00,P10=block.P10,P01=block.P01,P11=block.P11,AllowedMask=block.Mask});
+                for(int species=0;species<block.Trees.Length;species++)
+                {
+                    if(block.SpeciesMasks[species]==0)continue;
+                    var tree=block.Trees[species];
+                    roots.Add(new ForestRepresentative{Tree=tree,CellX=x,CellY=y,Population=-ForestStandTreeCount,
+                    CanopyTreeCount=ForestStandTreeCount,CrownScale=1,P00=block.P00,P10=block.P10,P01=block.P01,P11=block.P11,AllowedMask=block.SpeciesMasks[species]});
+                }
             }
             return new ForestPage{Key=key,Roots=roots.ToArray(),Probes=probes};
         }

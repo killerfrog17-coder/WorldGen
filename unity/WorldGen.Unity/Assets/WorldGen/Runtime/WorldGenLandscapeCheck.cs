@@ -99,6 +99,14 @@ public sealed partial class LocalTerrainExplorer
         File.WriteAllText(Path.Combine(output,"worker-ready.txt"),worker.Diagnostics);
         var choose=Task.Run(()=>
         {
+            int siteFile=Array.IndexOf(arguments,"--worldgen-landscape-sites-file");
+            if(siteFile>=0)
+            {
+                var sites=WorldJson.Read<VegetationBenchmarkSiteSet>(File.ReadAllText(arguments[siteFile+1]));
+                if(sites.HistoryHash!=history)throw new InvalidOperationException("Landscape sites belong to another world history");
+                var selected=sites.Sites.First(s=>s.Biome==kind);
+                return new LandscapeReviewSite{Position=selected.Position,Sample=model.Patch(selected.Position,3000).Sample(selected.Position),Landform=kind};
+            }
             var cells=Enumerable.Range(0,world.Surface.Cells.Length).Where(i=>!world.Hydrology.OceanConnected[i]&&world.ElevationM[i]>5);
             if(arguments.Contains("--worldgen-bark-review"))cells=cells.Where(i=>model.Profile(i).CoarseReliefM<180);
             if(duneReview)

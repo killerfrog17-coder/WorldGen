@@ -60,18 +60,6 @@ namespace WorldGen.Core
                 node.Species=species;node.Weights=weights;return weights;
             }
         }
-        double BlendTreeSpeciesWeights(in TreeHabitatBlend blend,TreeSpecies[] species,Span<double> weights)
-        {
-            // Species colony wavelengths are hundreds of metres. Evaluate
-            // those noise fields at the existing habitat nodes, then reuse
-            // their regional weights for neighbouring individual candidates.
-            var a=TreeSpeciesWeights(blend.A,species);var b=TreeSpeciesWeights(blend.B,species);
-            var c=TreeSpeciesWeights(blend.C,species);var d=TreeSpeciesWeights(blend.D,species);
-            double u=blend.U,v=blend.V,sum=0;
-            for(int i=0;i<species.Length;i++)
-            {weights[i]=(a[i]*(1-u)+b[i]*u)*(1-v)+(c[i]*(1-u)+d[i]*u)*v;sum+=weights[i];}
-            return sum;
-        }
         bool CachedTree(ScatterKey key,int slot,out ScatterInstance tree,out bool known)
         {
             CachedTrees cached;lock(treeCacheGate){known=treeCache.TryGetValue(key,out cached);if(known)cached.Used=++treeCacheClock;}
@@ -147,14 +135,16 @@ namespace WorldGen.Core
             float u=(gx-left+ox)/ForestPlantingSide,v=(gy-bottom+oy)/ForestPlantingSide;
             float probability=(block.P00+(block.P10-block.P00)*u)*(1-v)+(block.P01+(block.P11-block.P01)*u)*v;
             if(PlantingUnit(h^0x27d4eb2du)>=probability)return false;
-            PlantingDimensions(h,block.Tree.Variant,out float height,out float width,out float yaw,out float tint);
+            var prototype=block.Trees[block.Species[child]];
+            PlantingDimensions(h,prototype.Variant,out float height,out float width,out float yaw,out float tint);
             var at=ForestPosition(key.Face,gx+ox,gy+oy);
-            tree=block.Tree;tree.Id=key.Id(0,y*TreeCandidateSide+x);tree.Position=tree.Normal=at;
+            tree=prototype;tree.Id=key.Id(0,y*TreeCandidateSide+x);tree.Position=tree.Normal=at;
             tree.WidthM*=width;tree.HeightM*=height;tree.YawDegrees=yaw*180/Math.PI;tree.Color=new V(tint,tint,tint);return true;
         }
         sealed class PlantingBlockData
         {
-            public ScatterInstance Tree;public float P00,P10,P01,P11;public ulong Mask;
+            public ScatterInstance[] Trees;public byte[] Species;public ulong[] SpeciesMasks;
+            public float P00,P10,P01,P11;public ulong Mask;
         }
         float PlantingProbability(LocalTerrainSample sample,V position)
         {
@@ -188,12 +178,12 @@ namespace WorldGen.Core
             {
                 V center=ForestPosition(face,left+ForestPlantingSide*.5,bottom+ForestPlantingSide*.5);
                 var species=terrain.FloraRegion(a.Sample.Cell).Trees;Span<double> weights=stackalloc double[13];
-                var blend=new TreeHabitatBlend(a,b,c,d,.5,.5);double sum=BlendTreeSpeciesWeights(blend,species,weights);
+                var wa=TreeSpeciesWeights(a,species);var wb=TreeSpeciesWeights(b,species);
+                var wc=TreeSpeciesWeights(c,species);var wd=TreeSpeciesWeights(d,species);
+                double sum=0;for(int i=0;i<species.Length;i++)sum+=wa[i]+wb[i]+wc[i]+wd[i];
                 if(sum>0)
                 {
-                    double pick=PlantingUnit(PlantingHash(face,left,bottom,seed)^0x41a8c3u)*sum;int chosen=species.Length-1;
-                    for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
-                    var s=species[chosen];var sample=a.Sample;
+                    var sample=a.Sample;
                     double elevation=(a.Sample.ElevationM+b.Sample.ElevationM+c.Sample.ElevationM+d.Sample.ElevationM)*.25;
                     double warm=sample.Forest.WarmC-.006*(elevation-sample.Forest.ReferenceElevationM),growth=D.Clamp((warm-5)/12);growth=growth*growth*(3-2*growth);
                     growth=(.28+.72*growth)*(.65+.35*D.Clamp(sample.Ground.DepthM/.6));
@@ -201,8 +191,13 @@ namespace WorldGen.Core
                     double dot=V.Dot(center,n),area=TreeLatticeStep*TreeLatticeStep*dot*dot*dot;
                     float cap=(float)Math.Min(1,area*TreeFlora.PlacementPerM2);
                     block=new PlantingBlockData{P00=a.Probability*cap,P10=b.Probability*cap,P01=c.Probability*cap,P11=d.Probability*cap,
-                        Tree=new ScatterInstance{Id=new ScatterKey(face,left/TreeCandidateSide,bottom/TreeCandidateSide).Id(0,(bottom%TreeCandidateSide)*TreeCandidateSide+left%TreeCandidateSide),
-                            Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode,Position=center,Normal=center,GroundM=elevation,HeightM=s.HeightM*growth,WidthM=s.WidthM*growth,Color=new V(1,1,1)}};
+                        Trees=new ScatterInstance[species.Length],Species=new byte[ForestStandTreeCount],SpeciesMasks=new ulong[species.Length]};
+                    for(int i=0;i<species.Length;i++)
+                    {
+                        var s=species[i];
+                        block.Trees[i]=new ScatterInstance{Id=new ScatterKey(face,left/TreeCandidateSide,bottom/TreeCandidateSide).Id(0,(bottom%TreeCandidateSide)*TreeCandidateSide+left%TreeCandidateSide),
+                            Kind=ScatterKind.GeneratedTree,Variant=s.MorphologyCode,Position=center,Normal=center,GroundM=elevation,HeightM=s.HeightM*growth,WidthM=s.WidthM*growth,Color=new V(1,1,1)};
+                    }
                     // Catchment flow is nonzero across whole uplands. It is
                     // not a water footprint and must not trigger 64 full terrain
                     // queries for every dry block. Existing finite river spans
@@ -223,15 +218,26 @@ namespace WorldGen.Core
                         if(left+x>=TreeLatticeCount||bottom+y>=TreeLatticeCount)continue;
                         uint h=PlantingHash(face,left+x,bottom+y,seed);PlantingOffset(h,out float ox,out float oy);
                         double u=(x+ox)/ForestPlantingSide,v=(y+oy)/ForestPlantingSide;
+                        // Species are selected at each stable world-space tree, not
+                        // once for the square scheduling block. Nearby habitat
+                        // weights vary continuously; the hash only selects among
+                        // species that actually suit that local environment.
+                        double total=0;
+                        for(int i=0;i<species.Length;i++)
+                        {weights[i]=(wa[i]*(1-u)+wb[i]*u)*(1-v)+(wc[i]*(1-u)+wd[i]*u)*v;total+=weights[i];}
+                        if(total<=0)continue;
+                        double pick=PlantingUnit(h^0x41a8c3u)*total;int chosen=species.Length-1;
+                        for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
+                        int child=y*ForestPlantingSide+x;block.Species[child]=(byte)chosen;
                         double dx=((b.Sample.ElevationM-a.Sample.ElevationM)*(1-v)+(d.Sample.ElevationM-c.Sample.ElevationM)*v)/step;
                         double dz=((c.Sample.ElevationM-a.Sample.ElevationM)*(1-u)+(d.Sample.ElevationM-b.Sample.ElevationM)*u)/step;
                         if(PlantingUnit(h^0x9a65c4u)>TreeFlora.SlopeAdmission(1/Math.Sqrt(1+dx*dx+dz*dz)))continue;
                         if(water)
                         {
                             var at=ForestPosition(face,left+x+ox,bottom+y+oy);var g=patch.Geometry(at);
-                            if(!TreeFlora.Rooting(new ForestCoverProfile{MorphologyCode=s.MorphologyCode},g.ElevationM,g.Underwater,g.Underwater?g.WaterSurfaceM-g.ElevationM:0,sample.Biome))continue;
+                            if(!TreeFlora.Rooting(new ForestCoverProfile{MorphologyCode=species[chosen].MorphologyCode},g.ElevationM,g.Underwater,g.Underwater?g.WaterSurfaceM-g.ElevationM:0,sample.Biome))continue;
                         }
-                        block.Mask|=1UL<<(y*ForestPlantingSide+x);
+                        block.Mask|=1UL<<child;block.SpeciesMasks[chosen]|=1UL<<child;
                     }
                 }
             }
