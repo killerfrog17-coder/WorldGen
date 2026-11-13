@@ -222,7 +222,7 @@ namespace WorldGen.Core
                         {weights[i]=(wa[i]*(1-u)+wb[i]*u)*(1-v)+(wc[i]*(1-u)+wd[i]*u)*v;total+=weights[i];}
                         if(total<=0)continue;
                         double pick=PlantingUnit(h^0x41a8c3u)*total;int chosen=species.Length-1;
-                        for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<=0){chosen=i;break;}}
+                        for(int i=0;i<species.Length;i++){pick-=weights[i];if(pick<0){chosen=i;break;}}
                         int child=y*ForestPlantingSide+x;block.Species[child]=(byte)chosen;
                         double dx=((b.Sample.ElevationM-a.Sample.ElevationM)*(1-v)+(d.Sample.ElevationM-c.Sample.ElevationM)*v)/step;
                         double dz=((c.Sample.ElevationM-a.Sample.ElevationM)*(1-u)+(d.Sample.ElevationM-b.Sample.ElevationM)*u)/step;
