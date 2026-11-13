@@ -77,8 +77,9 @@ public sealed partial class LocalTerrainExplorer
                     Capture(Path.Combine(output,"stationary-after.png"));
                     File.WriteAllText(Path.Combine(output,"stationary-after.txt"),PerformanceForestState);
                 }
-                yield return CheckChunkFastFlight(output);
-                File.WriteAllText(Path.Combine(output,"complete.txt"),"PASS first-ground forest submission and cold fast flight\n");
+                bool flight=Environment.GetCommandLineArgs().Contains("--worldgen-chunk-fast-flight");
+                if(flight)yield return CheckChunkFastFlight(output);
+                File.WriteAllText(Path.Combine(output,"complete.txt"),flight?"PASS first-ground forest submission and cold fast flight\n":"PASS first-ground forest submission and stationary entry\n");
                 Close();Application.Quit(0);yield break;
             }
             if(now>=next)

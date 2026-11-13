@@ -28,7 +28,7 @@ public sealed partial class LocalTerrainExplorer
     public double StreamingFogDistance=>streamedFog;
     public bool DetailPlanning=>detailPlan!=null||detailDirty;
     bool ImmediateTerrain(TerrainTileKey key)=>detailBaseline?TerrainLod.Immediate(key,motion.X,motion.Z):TerrainLod.DistanceSquared(key,motion.X,motion.Z)<=Math.Pow(detailOptions.FullRadius(HorizontalScale),2);
-    int WorkerLimit=>Math.Max(1,Math.Min(detailOptions.Workers,Math.Max(1,SystemInfo.processorCount-2)));
+    int WorkerLimit=>Math.Max(1,Math.Min(InitialViewReady?detailOptions.Workers:Math.Max(detailOptions.Workers,4),Math.Max(1,SystemInfo.processorCount-2)));
     // The entry screen is hidden until the complete forest/terrain view is
     // ready. Do not stretch that work across gameplay-sized frame slices.
     double StreamingUploadBudgetMs=>InitialViewReady?detailOptions.UploadBudgetMs:12;
